@@ -35,7 +35,8 @@ ch_multiqc_custom_config = params.multiqc_config ? Channel.fromPath(params.multi
 //
 // SUBWORKFLOW: Consisting of a mix of local and nf-core/modules
 //
-include { INPUT_CHECK } from '../subworkflows/local/input_check'
+// include { INPUT_CHECK } from '../subworkflows/local/input_check'
+include { PREPARE_INPUT } from '../subworkflows/local/prepare_input'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -46,8 +47,8 @@ include { INPUT_CHECK } from '../subworkflows/local/input_check'
 //
 // MODULE: Installed directly from nf-core/modules
 //
-include { FASTQC                      } from '../modules/nf-core/modules/fastqc/main'
-include { MULTIQC                     } from '../modules/nf-core/modules/multiqc/main'
+// include { FASTQC                      } from '../modules/nf-core/modules/fastqc/main'
+// include { MULTIQC                     } from '../modules/nf-core/modules/multiqc/main'
 include { CUSTOM_DUMPSOFTWAREVERSIONS } from '../modules/nf-core/modules/custom/dumpsoftwareversions/main'
 
 /*
@@ -66,18 +67,21 @@ workflow GENOMEASSEMBLER {
     //
     // SUBWORKFLOW: Read in samplesheet, validate and stage input files
     //
-    INPUT_CHECK (
+    // INPUT_CHECK (
+    //     ch_input
+    // )
+    PREPARE_INPUT (
         ch_input
     )
-    ch_versions = ch_versions.mix(INPUT_CHECK.out.versions)
+    // ch_versions = ch_versions.mix(PREPARE_INPUT.out.versions)
 
     //
     // MODULE: Run FastQC
     //
-    FASTQC (
-        INPUT_CHECK.out.reads
-    )
-    ch_versions = ch_versions.mix(FASTQC.out.versions.first())
+    // FASTQC (
+    //     INPUT_CHECK.out.reads
+    // )
+    // ch_versions = ch_versions.mix(FASTQC.out.versions.first())
 
     CUSTOM_DUMPSOFTWAREVERSIONS (
         ch_versions.unique().collectFile(name: 'collated_versions.yml')
