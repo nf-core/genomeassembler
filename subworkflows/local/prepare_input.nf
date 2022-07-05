@@ -57,7 +57,7 @@ workflow PREPARE_INPUT {
         }.set { input }
 
     // Process TSV files
-    input.tsv_ch.splitCsv()
+    input.tsv_ch.splitCsv( header: ['sample_id', 'datatype', 'sequences'], skip: 1 )
 
     // Process YAML files
     input.yml_ch
@@ -94,6 +94,7 @@ workflow PREPARE_INPUT {
                     alt_asm: ( assembly.alt_asm ? file( assembly.alt_asm, checkIfExists: true ) : null )
                 ]
             ]
+        }
         .set { assembly_ch }
 
     // Convert HiFi BAMS to FastQ
