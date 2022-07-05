@@ -107,7 +107,7 @@ workflow PREPARE_INPUT {
             fastx_ch: true // assume everything else is fastx
         }.set { hifi }
     SAMTOOLS_FASTQ ( hifi.bam_ch )  // TODO: Swap to fasta to save space?
-    hifi.fastx_ch.mix( SAMTOOLS_FASTQ.out.fasta )
+    hifi.fastx_ch.mix( SAMTOOLS_FASTQ.out.fastq )
         .map { meta, filename -> [ [ id: meta.id ], filename ] } // Remove single_end flag
         .groupTuple()
         .set { hifi_fastx_ch }
