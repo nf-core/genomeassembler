@@ -7,15 +7,16 @@ include { SAMTOOLS_FASTQ } from "../../modules/nf-core/modules/samtools/fastq/ma
 /*
     Input format descriptions
 
-    Simple: CSV
+    Simple: TSV ( splitCsv cannot handle embedded commas )
     Flexible: YAML
     ( See Notes: at bottom for implementation details )
 
     Simple Format:
 
-    ```csv
-    sample_id,data_type,paths
-    sample_A,HiFi,/path/to/hifi
+    ```tsv
+    sample_id   data_type   sequences
+    sample_A    HiFi   /path/to/hifi/reads.bam
+    sample_A    Illumina    /path/to/illumina/reads{1,2}.fastq.gz
     ```
 
     Flexible Format:
@@ -52,12 +53,31 @@ workflow PREPARE_INPUT {
     // Read in sample files
     Channel.fromPath( infile, checkIfExists: true )
         .branch { file ->
-            tsv_ch: file.toString().endsWith(".csv")
+            tsv_ch: file.toString().endsWith(".tsv")
             yml_ch: file.toString().endsWith(".yml") || file.toString().endsWith(".yaml")
         }.set { input }
 
     // Process TSV files
-    input.tsv_ch.splitCsv( header: ['sample_id', 'datatype', 'sequences'], skip: 1 )
+    input.tsv_ch.splitCsv( header: ['sample_id', 'datatype', 'sequences'], skip: 1, sep: '\t' )
+        .branch { record -> def seqs = file( record.sequences, checkIfExists: true)
+            // If seqs is not a list, it is the absolute path to a file.
+            // If seqs is a List, they do not preserve glob order and are relative paths.
+            if ( seqs instanceof List ) {
+                seqs = seqs.sort() { it.toString() }
+            }
+            hic_ch      : record.datatype == 'hic'
+                return [ [ id: record.sample_id ], seqs ]
+            hifi_ch     : record.datatype == 'hifi'
+                return [ [ id: record.sample_id ], seqs ]
+            ont_ch      : record.datatype == 'ont'
+                return [ [ id: record.sample_id ], seqs ]
+            illumina_ch : record.datatype == 'illumina'
+                return [ [ id: record.sample_id ], seqs ]
+            rnaseq_ch   : record.datatype == 'rnaseq'
+                return [ [ id: record.sample_id ], seqs ]
+            isoseq_ch   : record.datatype == 'isoseq'
+                return [ [ id: record.sample_id ], seqs ]
+        }.set { tsv_input }
 
     // Process YAML files
     input.yml_ch
@@ -100,6 +120,7 @@ workflow PREPARE_INPUT {
     // Convert HiFi BAMS to FastQ
     yml_input.hifi_ch
         .filter { !it.isEmpty() }
+        .mix( tsv_input.hifi_ch )
         .transpose()   // Transform to [ [ id: 'sample_name'], file('/path/to/read')  ]
         .map { meta, filename -> [ [ id: meta.id, single_end: true ], filename ] } // Necessary for correct nf-core samtools/fastq use
         .branch { meta, filename ->
@@ -114,12 +135,12 @@ workflow PREPARE_INPUT {
 
     emit:
     assemblies = assembly_ch
-    hic        = yml_input.hic_ch.filter { !it.isEmpty() }.groupTuple()
+    hic        = yml_input.hic_ch.filter { !it.isEmpty() }.mix( tsv_input.hic_ch ).groupTuple()
     hifi       = hifi_fastx_ch
-    ont        = yml_input.ont_ch.filter { !it.isEmpty() }.groupTuple()
-    illumina   = yml_input.illumina_ch.filter { !it.isEmpty() }.groupTuple()
-    rnaseq     = yml_input.rnaseq_ch.filter { !it.isEmpty() }.groupTuple()
-    isoseq     = yml_input.isoseq_ch.filter { !it.isEmpty() }.groupTuple()
+    ont        = yml_input.ont_ch.filter { !it.isEmpty() }.mix( tsv_input.ont_ch ).groupTuple()
+    illumina   = yml_input.illumina_ch.filter { !it.isEmpty() }.mix( tsv_input.illumina_ch ).groupTuple()
+    rnaseq     = yml_input.rnaseq_ch.filter { !it.isEmpty() }.mix( tsv_input.rnaseq_ch ).groupTuple()
+    isoseq     = yml_input.isoseq_ch.filter { !it.isEmpty() }.mix( tsv_input.isoseq_ch ).groupTuple()
 }
 
 def readYAML( yamlfile ) {
