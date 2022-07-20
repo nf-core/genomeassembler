@@ -151,17 +151,16 @@ workflow PREPARE_INPUT {
     SAMTOOLS_FASTQ ( hifi.bam_ch )  // TODO: Swap to fasta to save space?
     hifi.fastx_ch.mix( SAMTOOLS_FASTQ.out.fastq )
         .map { meta, filename -> [ [ id: meta.id ], filename ] } // Remove single_end flag
-        .groupTuple()
         .set { hifi_fastx_ch }
 
     emit:
     assemblies = assembly_ch.dump( tag: 'Input: Assemblies' )
-    hic        = yml_input.hic_ch.filter { !it.isEmpty() }.mix( tsv_input.hic_ch ).groupTuple().dump( tag: 'Input: Hi-C' )
+    hic        = yml_input.hic_ch.filter { !it.isEmpty() }.mix( tsv_input.hic_ch ).transpose().dump( tag: 'Input: Hi-C' )
     hifi       = hifi_fastx_ch.dump( tag: 'Input: PacBio HiFi' )
-    ont        = yml_input.ont_ch.filter { !it.isEmpty() }.mix( tsv_input.ont_ch ).groupTuple().dump( tag: 'Input: ONT' )
-    illumina   = yml_input.illumina_ch.filter { !it.isEmpty() }.mix( tsv_input.illumina_ch ).groupTuple().dump( tag: 'Input: Illumina' )
-    rnaseq     = yml_input.rnaseq_ch.filter { !it.isEmpty() }.mix( tsv_input.rnaseq_ch ).groupTuple().dump( tag: 'Input: Illumina RnaSeq' )
-    isoseq     = yml_input.isoseq_ch.filter { !it.isEmpty() }.mix( tsv_input.isoseq_ch ).groupTuple().dump( tag: 'Input: PacBio IsoSeq' )
+    ont        = yml_input.ont_ch.filter { !it.isEmpty() }.mix( tsv_input.ont_ch ).transpose().dump( tag: 'Input: ONT' )
+    illumina   = yml_input.illumina_ch.filter { !it.isEmpty() }.mix( tsv_input.illumina_ch ).transpose().dump( tag: 'Input: Illumina' )
+    rnaseq     = yml_input.rnaseq_ch.filter { !it.isEmpty() }.mix( tsv_input.rnaseq_ch ).transpose().dump( tag: 'Input: Illumina RnaSeq' )
+    isoseq     = yml_input.isoseq_ch.filter { !it.isEmpty() }.mix( tsv_input.isoseq_ch ).transpose().dump( tag: 'Input: PacBio IsoSeq' )
 }
 
 def readYAML( yamlfile ) {
@@ -172,38 +171,16 @@ def readYAML( yamlfile ) {
 /*
 Notes:
 
-YAML file structured as above results in the following nested structure.
+Use
+```
+nextflow run main.nf -profile test_input_yml,docker -resume -dump-channels 'YAML Samples' -ansi-log false
+```
+To see the YAML structure.
 
+
+Use
 ```
-[
-    samples:[
-        [
-            id:Sample_A,
-            assembly:[
-                [
-                    id:Sample_A_HiFi_haps,
-                    pri_asm:/path/to/primary/assembly,
-                    alt_asm:/path/to/alternate/assembly
-                ],
-                [
-                    id:Sample_A_IPA_primary,
-                    pri_asm:/path/to/primary/assembly
-                ]
-            ],
-            hi-c:[
-                /path/to/reads,
-                /path/to/reads
-            ],
-            hifi:[
-                /path/to/reads,
-                /path/to/reads
-            ]
-        ],
-        [
-            id:Sample_B
-        ]
-    ],
-    tools: ''
-]
+nextflow run main.nf -profile test_input_yml,docker -resume -dump-channels 'Input: *' -ansi-log false
 ```
+to see the different channel outputs
 */
