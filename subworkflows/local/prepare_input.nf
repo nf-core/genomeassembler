@@ -155,12 +155,12 @@ workflow PREPARE_INPUT {
 
     emit:
     assemblies = assembly_ch.dump( tag: 'Input: Assemblies' )
-    hic        = yml_input.hic_ch.filter { !it.isEmpty() }.mix( tsv_input.hic_ch ).transpose().dump( tag: 'Input: Hi-C' )
+    hic        = yml_input.hic_ch.filter { !it.isEmpty() }.transpose().mix( tsv_input.hic_ch ).dump( tag: 'Input: Hi-C' )
     hifi       = hifi_fastx_ch.dump( tag: 'Input: PacBio HiFi' )
-    ont        = yml_input.ont_ch.filter { !it.isEmpty() }.mix( tsv_input.ont_ch ).transpose().dump( tag: 'Input: ONT' )
-    illumina   = yml_input.illumina_ch.filter { !it.isEmpty() }.mix( tsv_input.illumina_ch ).transpose().dump( tag: 'Input: Illumina' )
-    rnaseq     = yml_input.rnaseq_ch.filter { !it.isEmpty() }.mix( tsv_input.rnaseq_ch ).transpose().dump( tag: 'Input: Illumina RnaSeq' )
-    isoseq     = yml_input.isoseq_ch.filter { !it.isEmpty() }.mix( tsv_input.isoseq_ch ).transpose().dump( tag: 'Input: PacBio IsoSeq' )
+    ont        = yml_input.ont_ch.filter { !it.isEmpty() }.transpose().mix( tsv_input.ont_ch ).dump( tag: 'Input: ONT' )
+    illumina   = yml_input.illumina_ch.filter { !it.isEmpty() }.transpose().mix( tsv_input.illumina_ch ).dump( tag: 'Input: Illumina' )
+    rnaseq     = yml_input.rnaseq_ch.filter { !it.isEmpty() }.transpose().mix( tsv_input.rnaseq_ch ).dump( tag: 'Input: Illumina RnaSeq' )
+    isoseq     = yml_input.isoseq_ch.filter { !it.isEmpty() }.transpose().mix( tsv_input.isoseq_ch ).dump( tag: 'Input: PacBio IsoSeq' )
 }
 
 def readYAML( yamlfile ) {
