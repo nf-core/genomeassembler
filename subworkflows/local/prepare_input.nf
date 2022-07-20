@@ -83,17 +83,17 @@ workflow PREPARE_INPUT {
         .mix( csv_records )
         .branch { record -> def seqs = record.read2 ? [ file( record.read1, checkIfExists: true ), file( record.read2, checkIfExists: true ) ] : file( record.read1, checkIfExists: true )
             hic_ch      : record.datatype.toLowerCase() == 'hic'
-                return [ [ id: record.sample_id ], seqs ]
+                return [ [ id: record.sample_id, single_end: false ], seqs ]
             hifi_ch     : record.datatype.toLowerCase() == 'hifi'
-                return [ [ id: record.sample_id ], seqs ]
+                return [ [ id: record.sample_id, single_end: true ], seqs ]
             ont_ch      : record.datatype.toLowerCase() == 'ont'
-                return [ [ id: record.sample_id ], seqs ]
+                return [ [ id: record.sample_id, single_end: true ], seqs ]
             illumina_ch : record.datatype.toLowerCase() == 'illumina'
-                return [ [ id: record.sample_id ], seqs ]
+                return [ [ id: record.sample_id, single_end: record.read2 == null ], seqs ]
             rnaseq_ch   : record.datatype.toLowerCase() == 'rnaseq'
-                return [ [ id: record.sample_id ], seqs ]
+                return [ [ id: record.sample_id, single_end: record.read2 == null ], seqs ]
             isoseq_ch   : record.datatype.toLowerCase() == 'isoseq'
-                return [ [ id: record.sample_id ], seqs ]
+                return [ [ id: record.sample_id, single_end: true ], seqs ]
         }.set { tsv_input }
 
     // Process YAML files
@@ -110,12 +110,12 @@ workflow PREPARE_INPUT {
         .dump( tag: 'YAML Samples' )
         .multiMap { data ->
             assembly_ch : ( data.assembly ? [ [ id: data.id ], data.assembly ] : [] )
-            hic_ch      : ( data.hic      ? [ [ id: data.id ], data.hic.collect { [ file( it.read1, checkIfExists: true ), file( it.read2, checkIfExists: true ) ] } ] : [] )
-            hifi_ch     : ( data.hifi     ? [ [ id: data.id ], data.hifi.collect { file( it.reads, checkIfExists: true ) } ] : [] )
-            ont_ch      : ( data.ont      ? [ [ id: data.id ], data.ont.collect { file( it.reads, checkIfExists: true ) } ] : [] )
+            hic_ch      : ( data.hic      ? [ [ id: data.id, single_end: false ], data.hic.collect { [ file( it.read1, checkIfExists: true ), file( it.read2, checkIfExists: true ) ] } ] : [] )
+            hifi_ch     : ( data.hifi     ? [ [ id: data.id, single_end: true ], data.hifi.collect { file( it.reads, checkIfExists: true ) } ] : [] )
+            ont_ch      : ( data.ont      ? [ [ id: data.id, single_end: true ], data.ont.collect { file( it.reads, checkIfExists: true ) } ] : [] )
             illumina_ch : ( data.illumina ? [ [ id: data.id ], data.illumina.collect{ it.reads ? file( it.reads, checkIfExists: true ) : [ file( it.read1, checkIfExists: true ), file( it.read2, checkIfExists: true ) ] } ] : [] )
             rnaseq_ch   : ( data.rnaseq   ? [ [ id: data.id ], data.rnaseq.collect { it.reads ? file( it.reads, checkIfExists: true ) : [ file( it.read1, checkIfExists: true ), file( it.read2, checkIfExists: true ) ] } ] : [] )
-            isoseq_ch   : ( data.isoseq   ? [ [ id: data.id ], data.isoseq.collect { file( it.reads, checkIfExists: true ) } ] : [] )
+            isoseq_ch   : ( data.isoseq   ? [ [ id: data.id, single_end: true ], data.isoseq.collect { file( it.reads, checkIfExists: true ) } ] : [] )
         }
         .set{ yml_input }
 
@@ -141,25 +141,55 @@ workflow PREPARE_INPUT {
     yml_input.hifi_ch
         .filter { !it.isEmpty() }
         .mix( tsv_input.hifi_ch )
-        .transpose()   // Transform to [ [ id: 'sample_name'], file('/path/to/read')  ]
-        .map { meta, filename -> [ [ id: meta.id, single_end: true ], filename ] } // Necessary for correct nf-core samtools/fastq use
+        .transpose()   // Transform to [ [ id: 'sample_name', single_end: true ], file('/path/to/read')  ]
         .branch { meta, filename ->
             bam_ch: filename.toString().endsWith(".bam")
             fastx_ch: true // assume everything else is fastx
         }.set { hifi }
     SAMTOOLS_FASTQ ( hifi.bam_ch )  // TODO: Swap to fasta to save space?
     hifi.fastx_ch.mix( SAMTOOLS_FASTQ.out.fastq )
-        .map { meta, filename -> [ [ id: meta.id ], filename ] } // Remove single_end flag
         .set { hifi_fastx_ch }
+
+    // Combine Hi-C channels
+    yml_input.hic_ch.filter { !it.isEmpty() }
+        .transpose()
+        .mix( tsv_input.hic_ch )
+        .set { hic_fastx_ch }
+
+    // Combine ONT channels
+    yml_input.ont_ch.filter { !it.isEmpty() }
+        .transpose()
+        .mix( tsv_input.ont_ch )
+        .set { ont_fastx_ch }
+
+    // Combine Illumina channels
+    yml_input.illumina_ch.filter { !it.isEmpty() }
+        .transpose()
+        .map { meta, reads -> [ [id: meta.id, single_end: reads instanceof Path ], reads ] }
+        .mix( tsv_input.illumina_ch )
+        .set { illumina_fastx_ch }
+
+    // Combine Rnaseq channels
+    yml_input.rnaseq_ch.filter { !it.isEmpty() }
+        .transpose()
+        .map { meta, reads -> [ [id: meta.id, single_end: reads instanceof Path ], reads ] }
+        .mix( tsv_input.rnaseq_ch )
+        .set { rnaseq_fastx_ch }
+
+    // Combine Isoseq channels
+    yml_input.isoseq_ch.filter { !it.isEmpty() }
+        .transpose()
+        .mix( tsv_input.isoseq_ch )
+        .set { isoseq_fastx_ch }
 
     emit:
     assemblies = assembly_ch.dump( tag: 'Input: Assemblies' )
-    hic        = yml_input.hic_ch.filter { !it.isEmpty() }.transpose().mix( tsv_input.hic_ch ).dump( tag: 'Input: Hi-C' )
+    hic        = hic_fastx_ch.dump( tag: 'Input: Hi-C' )
     hifi       = hifi_fastx_ch.dump( tag: 'Input: PacBio HiFi' )
-    ont        = yml_input.ont_ch.filter { !it.isEmpty() }.transpose().mix( tsv_input.ont_ch ).dump( tag: 'Input: ONT' )
-    illumina   = yml_input.illumina_ch.filter { !it.isEmpty() }.transpose().mix( tsv_input.illumina_ch ).dump( tag: 'Input: Illumina' )
-    rnaseq     = yml_input.rnaseq_ch.filter { !it.isEmpty() }.transpose().mix( tsv_input.rnaseq_ch ).dump( tag: 'Input: Illumina RnaSeq' )
-    isoseq     = yml_input.isoseq_ch.filter { !it.isEmpty() }.transpose().mix( tsv_input.isoseq_ch ).dump( tag: 'Input: PacBio IsoSeq' )
+    ont        = ont_fastx_ch.dump( tag: 'Input: ONT' )
+    illumina   = illumina_fastx_ch.dump( tag: 'Input: Illumina' )
+    rnaseq     = rnaseq_fastx_ch.dump( tag: 'Input: Illumina RnaSeq' )
+    isoseq     = isoseq_fastx_ch.dump( tag: 'Input: PacBio IsoSeq' )
 }
 
 def readYAML( yamlfile ) {
