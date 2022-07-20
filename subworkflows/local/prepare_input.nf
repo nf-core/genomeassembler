@@ -15,15 +15,15 @@ include { SAMTOOLS_FASTQ } from "../../modules/nf-core/modules/samtools/fastq/ma
 
     Simple Format:
 
-    ```tsv
-    sample_id   data_type   read1   read2
-    sample_A    HiFi   /path/to/hifi/reads.bam
-    sample_A    Illumina    /path/to/illumina/read1.fastq.gz    /path/to/illumina/read1.fastq.gz
+    ```csv
+    sample_id,data_type,read1,read2
+    sample_A,HiFi,/path/to/hifi/reads.bam,
+    sample_A,Illumina,/path/to/illumina/read1.fastq.gz,/path/to/illumina/read1.fastq.gz
     ```
 
     Flexible Format:
     - Mandatory fields [ 'sample' ]
-    - Optional fields [ 'assembly', 'hic', 'hifi', 'rnaseq', 'isoseq' ]
+    - Optional fields [ 'assembly', 'hic', 'hifi', 'ont', 'illumina', 'rnaseq', 'isoseq' ]
 
     ```yaml
     samples:
@@ -46,8 +46,7 @@ include { SAMTOOLS_FASTQ } from "../../modules/nf-core/modules/samtools/fastq/ma
           - reads: '/path/to/reads.bam'
       - id: Sample_B
         ont:
-          - chemistry: 'R10.4'
-            reads: '/path/to/reads.fastq.gz'
+          - reads: '/path/to/reads.fastq.gz'
         illumina:
           - read1: '/path/to/read1.fastq.gz'
             read2: '/path/to/read2.fastq.gz'
