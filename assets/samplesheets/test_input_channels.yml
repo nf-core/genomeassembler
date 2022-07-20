@@ -8,7 +8,7 @@ samples:
         alt_gfa: 'https://raw.githubusercontent.com/nf-core/test-datasets/modules/data/genomics/sarscov2/illumina/gfa/assembly.gfa'
       - id: Sample_A_consensus_haploid
         pri_asm: 'https://raw.githubusercontent.com/nf-core/test-datasets/modules/data/genomics/sarscov2/illumina/fasta/scaffolds.fasta'
-    hi-c:
+    hic:
       - read1: 'https://raw.githubusercontent.com/nf-core/test-datasets/modules/data/genomics/sarscov2/illumina/fastq/test_1.fastq.gz'
         read2: 'https://raw.githubusercontent.com/nf-core/test-datasets/modules/data/genomics/sarscov2/illumina/fastq/test_2.fastq.gz'
     hifi:
