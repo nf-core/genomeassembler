@@ -1,3 +1,4 @@
+email_template.html
 .nextflow*
 work/
 data/
@@ -6,5 +7,3 @@ results/
 testing/
 testing*
 *.pyc
-lint_log.txt
-lint_results.md
