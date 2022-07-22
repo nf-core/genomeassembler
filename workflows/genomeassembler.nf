@@ -40,8 +40,25 @@ ch_multiqc_custom_methods_description = params.multiqc_methods_description ? fil
 // SUBWORKFLOW: Consisting of a mix of local and nf-core/modules
 //
 // include { INPUT_CHECK } from '../subworkflows/local/input_check'
-include { PREPARE_INPUT } from '../subworkflows/local/prepare_input'
+include { PREPARE_INPUT } from "$projectDir/subworkflows/local/prepare_input"
 
+include { BUILD_KMER_DATABASES as BUILD_HIFI_KMER_DATABASE     } from "$projectDir/subworkflows/local/build_kmer_databases"
+include { BUILD_KMER_DATABASES as BUILD_HIC_KMER_DATABASE      } from "$projectDir/subworkflows/local/build_kmer_databases"
+include { BUILD_KMER_DATABASES as BUILD_ONT_KMER_DATABASE      } from "$projectDir/subworkflows/local/build_kmer_databases"
+include { BUILD_KMER_DATABASES as BUILD_ILLUMINA_KMER_DATABASE } from "$projectDir/subworkflows/local/build_kmer_databases"
+
+include { GENOME_PROPERTIES as HIFI_GENOME_PROPERTIES     } from "$projectDir/subworkflows/local/genome_properties"
+include { GENOME_PROPERTIES as HIC_GENOME_PROPERTIES      } from "$projectDir/subworkflows/local/genome_properties"
+include { GENOME_PROPERTIES as ONT_GENOME_PROPERTIES      } from "$projectDir/subworkflows/local/genome_properties"
+include { GENOME_PROPERTIES as ILLUMINA_GENOME_PROPERTIES } from "$projectDir/subworkflows/local/genome_properties"
+
+include { CONTAMINATION_SCREEN as HIFI_CONTAMINATION_SCREEN     } from "$projectDir/subworkflows/local/contamination_screen"
+include { CONTAMINATION_SCREEN as HIC_CONTAMINATION_SCREEN      } from "$projectDir/subworkflows/local/contamination_screen"
+include { CONTAMINATION_SCREEN as ONT_CONTAMINATION_SCREEN      } from "$projectDir/subworkflows/local/contamination_screen"
+include { CONTAMINATION_SCREEN as ILLUMINA_CONTAMINATION_SCREEN } from "$projectDir/subworkflows/local/contamination_screen"
+
+include { ASSEMBLY_EVALUATION } from "$projectDir/subworkflows/local/assembly_evaluation"
+include { ASSEMBLY_COMPARISON } from "$projectDir/subworkflows/local/assembly_comparison"
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     IMPORT NF-CORE MODULES/SUBWORKFLOWS
@@ -78,6 +95,97 @@ workflow GENOMEASSEMBLER {
         ch_input
     )
     // ch_versions = ch_versions.mix(PREPARE_INPUT.out.versions)
+
+    // BUILD KMER DATABASES
+    BUILD_HIFI_KMER_DATABASE( PREPARE_INPUT.out.hifi )
+    BUILD_HIC_KMER_DATABASE( PREPARE_INPUT.out.hic)
+    BUILD_ONT_KMER_DATABASE( PREPARE_INPUT.out.ont )
+    BUILD_ILLUMINA_KMER_DATABASE( PREPARE_INPUT.out.illumina )
+
+    // DATA QUALITY CHECKS:
+    // - Check genome properties
+    HIFI_GENOME_PROPERTIES(
+        BUILD_HIFI_KMER_DATABASE.out.fastk_histogram.join( BUILD_HIFI_KMER_DATABASE.out.fastk_ktab ),
+        BUILD_HIFI_KMER_DATABASE.out.meryl_histogram )
+    HIC_GENOME_PROPERTIES(
+        BUILD_HIC_KMER_DATABASE.out.fastk_histogram.join( BUILD_HIC_KMER_DATABASE.out.fastk_ktab ),
+        BUILD_HIC_KMER_DATABASE.out.meryl_histogram )
+    )
+    ONT_GENOME_PROPERTIES(
+        BUILD_ONT_KMER_DATABASE.out.fastk_histogram.join( BUILD_ONT_KMER_DATABASE.out.fastk_ktab ),
+        BUILD_ONT_KMER_DATABASE.out.meryl_histogram )
+    )
+    ILLUMINA_GENOME_PROPERTIES(
+        BUILD_ILLUMINA_KMER_DATABASE.out.fastk_histogram.join( BUILD_ILLUMINA_KMER_DATABASE.out.fastk_ktab ),
+        BUILD_ILLUMINA_KMER_DATABASE.out.meryl_histogram )
+    )
+    // - Screen for contaminants
+    mash_db_ch = Channel.fromPath( params.mash_screen_db, checkIfExists: true ).collect()
+    HIFI_CONTAMINATION_SCREEN(
+        PREPARE_INPUT.out.hifi,
+        mash_db_ch
+    )
+    HIC_CONTAMINATION_SCREEN(
+        PREPARE_INPUT.out.hic,
+        mash_db_ch
+    )
+    ONT_CONTAMINATION_SCREEN(
+        PREPARE_INPUT.out.ont,
+        mash_db_ch
+    )
+    ILLUMINA_CONTAMINATION_SCREEN(
+        PREPARE_INPUT.out.illumina,
+        mash_db_ch
+    )
+    // - Compare library content
+
+
+    // PREPROCESSING:
+    // - adapter trimming
+    // - contaminant filtering
+    // - downsampling
+    // - normalisation
+
+    // ASSEMBLY:
+    // - assemble
+    // - scaffold
+    // - polish
+
+    // ASSEMBLY EVALUATION:
+    // - Compare assemblies
+    reference_ch = Channel.fromPath( params.reference, checkIfExists: true ).collect()
+    ASSEMBLY_COMPARISON(
+        PREPARE_INPUT.out.assemblies.mix(
+            Channel.empty() // Replace with workflow assembled genomes
+        ),
+        reference_ch
+    )
+    // - Check K-mer completeness
+    // - Check gene space
+    // - Check contamination
+    // - Visualize assembly graph
+    // - Generate annotation tracks
+    ASSEMBLY_EVALUATION( // TODO: Separate this
+        PREPARE_INPUT.out.assemblies,
+        PREPARE_INPUT.out.hifi,
+        PREPARE_INPUT.out.hic,
+        PREPARE_INPUT.out.ont,
+        PREPARE_INPUT.out.illumina,
+        BUILD_HIFI_KMER_DATABASE.out.fastk_histogram.join( BUILD_HIFI_KMER_DATABASE.out.fastk_ktab ),
+        BUILD_HIC_KMER_DATABASE.out.fastk_histogram.join( BUILD_HIC_KMER_DATABASE.out.fastk_ktab ),
+        BUILD_ONT_KMER_DATABASE.out.fastk_histogram.join( BUILD_ONT_KMER_DATABASE.out.fastk_ktab ),
+        BUILD_ILLUMINA_KMER_DATABASE.out.fastk_histogram.join( BUILD_ILLUMINA_KMER_DATABASE.out.fastk_ktab ),
+        reference_ch,
+        params.busco_lineages instanceof List ? params.busco_lineages : params.busco_lineages.tokenize(','),
+        params.busco_lineage_path ? file( params.busco_lineage_path, checkIfExists: true ) : []
+    )
+
+    // ASSEMBLY CURATION:
+    // - Purge duplications
+    // - Fix misassemblies
+    // - Separate organelles, plasmids, etc
+    // - recircularize circular genomes
+    // - evaluate assemblies
 
     CUSTOM_DUMPSOFTWAREVERSIONS (
         ch_versions.unique().collectFile(name: 'collated_versions.yml')

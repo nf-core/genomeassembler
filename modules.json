@@ -2,26 +2,63 @@
     "name": "nf-core/genomeassembler",
     "homePage": "https://github.com/nf-core/genomeassembler",
     "repos": {
-        "https://github.com/nf-core/modules.git": {
-            "modules": {
-                "nf-core": {
-                    "custom/dumpsoftwareversions": {
-                        "branch": "master",
-                        "git_sha": "5e34754d42cd2d5d248ca8673c0a53cdf5624905"
-                    },
-                    "fastqc": {
-                        "branch": "master",
-                        "git_sha": "5e34754d42cd2d5d248ca8673c0a53cdf5624905"
-                    },
-                    "multiqc": {
-                        "branch": "master",
-                        "git_sha": "5e34754d42cd2d5d248ca8673c0a53cdf5624905"
-                    },
-                    "samtools/fastq": {
-                        "branch": "master",
-                        "git_sha": "cf5b9c30a2adacc581793afb79fae5f5b50bed01"
-                    }
-                }
+        "nf-core/modules": {
+            "busco": {
+                "git_sha": "9fa6b6c1fc930830c1d819a9273b4ec12ffacb0a"
+            },
+            "custom/dumpsoftwareversions": {
+                "git_sha": "e5b44499efcf6f7fb24874886bac60591c5d94dd"
+            },
+            "fastk/fastk": {
+                "git_sha": "b67556e29f1f155550ce9ae9c967cbb559f6f9f1"
+            },
+            "fastk/histex": {
+                "git_sha": "233fa70811a03a4cecb2ece483b5c8396e2cee1d"
+            },
+            "fastk/merge": {
+                "git_sha": "b67556e29f1f155550ce9ae9c967cbb559f6f9f1"
+            },
+            "fastqc": {
+                "git_sha": "49b18b1639f4f7104187058866a8fab33332bdfe"
+            },
+            "genescopefk": {
+                "git_sha": "233fa70811a03a4cecb2ece483b5c8396e2cee1d"
+            },
+            "genomescope2": {
+                "git_sha": "d54cf467f47461e8304e6fc4a4a1192869bfd792"
+            },
+            "mash/screen": {
+                "git_sha": "c452f562890534ca3d0a331de7c35b744037fdae"
+            },
+            "merquryfk/katcomp": {
+                "git_sha": "233fa70811a03a4cecb2ece483b5c8396e2cee1d"
+            },
+            "merquryfk/katgc": {
+                "git_sha": "233fa70811a03a4cecb2ece483b5c8396e2cee1d"
+            },
+            "merquryfk/merquryfk": {
+                "git_sha": "233fa70811a03a4cecb2ece483b5c8396e2cee1d"
+            },
+            "merquryfk/ploidyplot": {
+                "git_sha": "233fa70811a03a4cecb2ece483b5c8396e2cee1d"
+            },
+            "meryl/count": {
+                "git_sha": "a43bc940d6aaeaa755b34484cffeb5b41bce92eb"
+            },
+            "meryl/histogram": {
+                "git_sha": "129f57ccd9adc9016aaa3f2e2e6ab556ba8de7b6"
+            },
+            "meryl/unionsum": {
+                "git_sha": "57fee2b3d6759c36f2a3e9181ab5f309cf62b6f1"
+            },
+            "multiqc": {
+                "git_sha": "5138acca0985ca01c38a1c4fba917d83772b1106"
+            },
+            "quast": {
+                "git_sha": "682f789f93070bd047868300dd018faf3d434e7c"
+            },
+            "samtools/fastq": {
+                "git_sha": "897c33d5da084b61109500ee44c01da2d3e4e773"
             }
         }
     }
