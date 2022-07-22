@@ -16,7 +16,7 @@ workflow BUILD_KMER_DATABASES {
     }.set { kmer_counter }
 
     // FastK K-mer counter
-    FASTK_FASTK( fastx_data )
+    FASTK_FASTK( kmer_counter.fastk_ch )
     fkdb_ch = FASTK_FASTK.out.hist.groupTuple()
         .join( FASTK_FASTK.out.ktab.groupTuple(), remainder: true )
         .join( FASTK_FASTK.out.prof.groupTuple(), remainder: true )
@@ -34,7 +34,7 @@ workflow BUILD_KMER_DATABASES {
     versions_ch = FASTK_FASTK.out.versions.first().mix( FASTK_MERGE.out.versions.first() )
 
     // Meryl K-mer counter
-    MERYL_COUNT ( fastx_data )
+    MERYL_COUNT ( kmer_counter.meryl_ch )
     MERYL_UNIONSUM ( MERYL_COUNT.out.meryl_db )
     MERYL_HISTOGRAM ( MERYL_UNIONSUM.out.meryl_db )
     versions_ch = versions_ch.mix(
