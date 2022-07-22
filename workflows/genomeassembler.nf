@@ -106,18 +106,19 @@ workflow GENOMEASSEMBLER {
     // - Check genome properties
     HIFI_GENOME_PROPERTIES(
         BUILD_HIFI_KMER_DATABASE.out.fastk_histogram.join( BUILD_HIFI_KMER_DATABASE.out.fastk_ktab ),
-        BUILD_HIFI_KMER_DATABASE.out.meryl_histogram )
+        BUILD_HIFI_KMER_DATABASE.out.meryl_histogram
+    )
     HIC_GENOME_PROPERTIES(
         BUILD_HIC_KMER_DATABASE.out.fastk_histogram.join( BUILD_HIC_KMER_DATABASE.out.fastk_ktab ),
-        BUILD_HIC_KMER_DATABASE.out.meryl_histogram )
+        BUILD_HIC_KMER_DATABASE.out.meryl_histogram
     )
     ONT_GENOME_PROPERTIES(
         BUILD_ONT_KMER_DATABASE.out.fastk_histogram.join( BUILD_ONT_KMER_DATABASE.out.fastk_ktab ),
-        BUILD_ONT_KMER_DATABASE.out.meryl_histogram )
+        BUILD_ONT_KMER_DATABASE.out.meryl_histogram
     )
     ILLUMINA_GENOME_PROPERTIES(
         BUILD_ILLUMINA_KMER_DATABASE.out.fastk_histogram.join( BUILD_ILLUMINA_KMER_DATABASE.out.fastk_ktab ),
-        BUILD_ILLUMINA_KMER_DATABASE.out.meryl_histogram )
+        BUILD_ILLUMINA_KMER_DATABASE.out.meryl_histogram
     )
     // - Screen for contaminants
     mash_db_ch = Channel.fromPath( params.mash_screen_db, checkIfExists: true ).collect()
