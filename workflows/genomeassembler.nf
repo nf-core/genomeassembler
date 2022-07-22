@@ -47,6 +47,11 @@ include { BUILD_KMER_DATABASES as BUILD_HIC_KMER_DATABASE      } from "$projectD
 include { BUILD_KMER_DATABASES as BUILD_ONT_KMER_DATABASE      } from "$projectDir/subworkflows/local/build_kmer_databases"
 include { BUILD_KMER_DATABASES as BUILD_ILLUMINA_KMER_DATABASE } from "$projectDir/subworkflows/local/build_kmer_databases"
 
+include { DATA_PROPERTIES as HIFI_DATA_PROPERTIES     } from "$projectDir/subworkflows/local/data_properties" addParams( skip_fastqc: true )
+include { DATA_PROPERTIES as HIC_DATA_PROPERTIES      } from "$projectDir/subworkflows/local/data_properties" addParams( skip_nanoplot: true )
+include { DATA_PROPERTIES as ONT_DATA_PROPERTIES      } from "$projectDir/subworkflows/local/data_properties" addParams( skip_fastqc: true )
+include { DATA_PROPERTIES as ILLUMINA_DATA_PROPERTIES } from "$projectDir/subworkflows/local/data_properties" addParams( skip_nanoplot: true )
+
 include { GENOME_PROPERTIES as HIFI_GENOME_PROPERTIES     } from "$projectDir/subworkflows/local/genome_properties"
 include { GENOME_PROPERTIES as HIC_GENOME_PROPERTIES      } from "$projectDir/subworkflows/local/genome_properties"
 include { GENOME_PROPERTIES as ONT_GENOME_PROPERTIES      } from "$projectDir/subworkflows/local/genome_properties"
@@ -103,6 +108,11 @@ workflow GENOMEASSEMBLER {
     BUILD_ILLUMINA_KMER_DATABASE( PREPARE_INPUT.out.illumina )
 
     // DATA QUALITY CHECKS:
+    // - Check data properties
+    HIFI_DATA_PROPERTIES( PREPARE_INPUT.out.hifi )
+    HIC_DATA_PROPERTIES( PREPARE_INPUT.out.hic )
+    ONT_DATA_PROPERTIES( PREPARE_INPUT.out.ont )
+    ILLUMINA_DATA_PROPERTIES( PREPARE_INPUT.out.illumina )
     // - Check genome properties
     HIFI_GENOME_PROPERTIES(
         BUILD_HIFI_KMER_DATABASE.out.fastk_histogram.join( BUILD_HIFI_KMER_DATABASE.out.fastk_ktab ),
