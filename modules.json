@@ -16,6 +16,10 @@
                 "multiqc": {
                     "git_sha": "e745e167c1020928ef20ea1397b6b4d230681b4d",
                     "branch": "master"
+                },
+                "samtools/fastq": {
+                    "git_sha": "897c33d5da084b61109500ee44c01da2d3e4e773"
+                    "branch": "master"
                 }
             }
         }
