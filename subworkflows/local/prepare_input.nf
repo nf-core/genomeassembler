@@ -27,7 +27,10 @@ include { SAMTOOLS_FASTQ } from "$projectDir/modules/nf-core/samtools/fastq/main
 
     ```yaml
     samples:
-      - id: Sample_A
+      - metadata:
+          id: Sample_A
+          kmer_size: 31
+          ploidy: 2
         assembly:
           - id: Sample_A_phased_diploid
             pri_asm: '/path/to/assembly/hap1.fasta'
@@ -44,7 +47,10 @@ include { SAMTOOLS_FASTQ } from "$projectDir/modules/nf-core/samtools/fastq/main
           - reads: '/path/to/reads.fastq.gz'
         isoseq:
           - reads: '/path/to/reads.bam'
-      - id: Sample_B
+      - metadata:
+          id: Sample_B
+          kmer_size: 31
+          ploidy: 1
         ont:
           - reads: '/path/to/reads.fastq.gz'
         illumina:
@@ -67,7 +73,6 @@ workflow PREPARE_INPUT {
 
     main:
     // Read in sample files
-    //Channel.fromPath( infile, checkIfExists: true )
     ch_input.branch { file ->
             csv_ch: file.name.endsWith(".csv")
             tsv_ch: file.name.endsWith(".tsv")
@@ -109,13 +114,13 @@ workflow PREPARE_INPUT {
         .flatten()
         .dump( tag: 'YAML Samples' )
         .multiMap { data ->
-            assembly_ch : ( data.assembly ? [ [ id: data.id ], data.assembly ] : [] )
-            hic_ch      : ( data.hic      ? [ [ id: data.id, single_end: false ], data.hic.collect { [ file( it.read1, checkIfExists: true ), file( it.read2, checkIfExists: true ) ] } ] : [] )
-            hifi_ch     : ( data.hifi     ? [ [ id: data.id, single_end: true ], data.hifi.collect { file( it.reads, checkIfExists: true ) } ] : [] )
-            ont_ch      : ( data.ont      ? [ [ id: data.id, single_end: true ], data.ont.collect { file( it.reads, checkIfExists: true ) } ] : [] )
-            illumina_ch : ( data.illumina ? [ [ id: data.id ], data.illumina.collect{ it.reads ? file( it.reads, checkIfExists: true ) : [ file( it.read1, checkIfExists: true ), file( it.read2, checkIfExists: true ) ] } ] : [] )
-            rnaseq_ch   : ( data.rnaseq   ? [ [ id: data.id ], data.rnaseq.collect { it.reads ? file( it.reads, checkIfExists: true ) : [ file( it.read1, checkIfExists: true ), file( it.read2, checkIfExists: true ) ] } ] : [] )
-            isoseq_ch   : ( data.isoseq   ? [ [ id: data.id, single_end: true ], data.isoseq.collect { file( it.reads, checkIfExists: true ) } ] : [] )
+            assembly_ch : ( data.assembly ? [ data.metadata, data.assembly ] : [] )
+            hic_ch      : ( data.hic      ? [ data.metadata + [ single_end: false ], data.hic.collect { [ file( it.read1, checkIfExists: true ), file( it.read2, checkIfExists: true ) ] } ] : [] )
+            hifi_ch     : ( data.hifi     ? [ data.metadata + [ single_end: true ], data.hifi.collect { file( it.reads, checkIfExists: true ) } ] : [] )
+            ont_ch      : ( data.ont      ? [ data.metadata + [ single_end: true ], data.ont.collect { file( it.reads, checkIfExists: true ) } ] : [] )
+            illumina_ch : ( data.illumina ? [ data.metadata, data.illumina.collect { it.reads ? file( it.reads, checkIfExists: true ) : [ file( it.read1, checkIfExists: true ), file( it.read2, checkIfExists: true ) ] } ] : [] )
+            rnaseq_ch   : ( data.rnaseq   ? [ data.metadata, data.rnaseq.collect { it.reads ? file( it.reads, checkIfExists: true ) : [ file( it.read1, checkIfExists: true ), file( it.read2, checkIfExists: true ) ] } ] : [] )
+            isoseq_ch   : ( data.isoseq   ? [ data.metadata + [ single_end: true ], data.isoseq.collect { file( it.reads, checkIfExists: true ) } ] : [] )
         }
         .set{ yml_input }
 
@@ -165,14 +170,14 @@ workflow PREPARE_INPUT {
     // Combine Illumina channels
     yml_input.illumina_ch.filter { !it.isEmpty() }
         .transpose()
-        .map { meta, reads -> [ [id: meta.id, single_end: reads instanceof Path ], reads ] }
+        .map { meta, reads -> [ meta + [ single_end: reads instanceof Path ], reads ] }
         .mix( tsv_input.illumina_ch )
         .set { illumina_fastx_ch }
 
     // Combine Rnaseq channels
     yml_input.rnaseq_ch.filter { !it.isEmpty() }
         .transpose()
-        .map { meta, reads -> [ [id: meta.id, single_end: reads instanceof Path ], reads ] }
+        .map { meta, reads -> [ meta + [ single_end: reads instanceof Path ], reads ] }
         .mix( tsv_input.rnaseq_ch )
         .set { rnaseq_fastx_ch }
 
