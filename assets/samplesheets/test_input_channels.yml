@@ -1,5 +1,8 @@
 samples:
-  - id: Sample_A
+  - metadata:
+      id: Sample_A
+      kmer_size: 31
+      ploidy: 2
     assembly:
       - id: Sample_A_phased_diploid
         pri_asm: "https://raw.githubusercontent.com/nf-core/test-datasets/modules/data/genomics/sarscov2/illumina/fasta/scaffolds.fasta"
@@ -16,7 +19,10 @@ samples:
       - reads: "https://raw.githubusercontent.com/nf-core/test-datasets/modules/data/genomics/sarscov2/illumina/fastq/test_1.fastq.gz"
     isoseq:
       - reads: "https://raw.githubusercontent.com/nf-core/test-datasets/modules/data/genomics/sarscov2/illumina/bam/test.single_end.bam"
-  - id: Sample_B
+  - metadata:
+      id: Sample_B
+      kmer_size: 31
+      ploidy: 1
     ont:
       - reads: "https://raw.githubusercontent.com/nf-core/test-datasets/modules/data/genomics/sarscov2/nanopore/fastq/test.fastq.gz"
     illumina:
