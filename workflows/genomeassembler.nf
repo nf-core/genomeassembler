@@ -47,10 +47,10 @@ include { BUILD_KMER_DATABASES as BUILD_HIC_KMER_DATABASE      } from "$projectD
 include { BUILD_KMER_DATABASES as BUILD_ONT_KMER_DATABASE      } from "$projectDir/subworkflows/local/build_kmer_databases"
 include { BUILD_KMER_DATABASES as BUILD_ILLUMINA_KMER_DATABASE } from "$projectDir/subworkflows/local/build_kmer_databases"
 
-include { DATA_PROPERTIES as HIFI_DATA_PROPERTIES     } from "$projectDir/subworkflows/local/data_properties" addParams( skip_fastqc: true )
-include { DATA_PROPERTIES as HIC_DATA_PROPERTIES      } from "$projectDir/subworkflows/local/data_properties" addParams( skip_nanoplot: true )
-include { DATA_PROPERTIES as ONT_DATA_PROPERTIES      } from "$projectDir/subworkflows/local/data_properties" addParams( skip_fastqc: true )
-include { DATA_PROPERTIES as ILLUMINA_DATA_PROPERTIES } from "$projectDir/subworkflows/local/data_properties" addParams( skip_nanoplot: true )
+include { DATA_PROPERTIES as HIFI_DATA_PROPERTIES     } from "$projectDir/subworkflows/local/data_properties"
+include { DATA_PROPERTIES as HIC_DATA_PROPERTIES      } from "$projectDir/subworkflows/local/data_properties"
+include { DATA_PROPERTIES as ONT_DATA_PROPERTIES      } from "$projectDir/subworkflows/local/data_properties"
+include { DATA_PROPERTIES as ILLUMINA_DATA_PROPERTIES } from "$projectDir/subworkflows/local/data_properties"
 
 include { GENOME_PROPERTIES as HIFI_GENOME_PROPERTIES     } from "$projectDir/subworkflows/local/genome_properties"
 include { GENOME_PROPERTIES as HIC_GENOME_PROPERTIES      } from "$projectDir/subworkflows/local/genome_properties"
@@ -62,8 +62,15 @@ include { CONTAMINATION_SCREEN as HIC_CONTAMINATION_SCREEN      } from "$project
 include { CONTAMINATION_SCREEN as ONT_CONTAMINATION_SCREEN      } from "$projectDir/subworkflows/local/contamination_screen"
 include { CONTAMINATION_SCREEN as ILLUMINA_CONTAMINATION_SCREEN } from "$projectDir/subworkflows/local/contamination_screen"
 
-include { ASSEMBLY_EVALUATION } from "$projectDir/subworkflows/local/assembly_evaluation"
+// include { ASSEMBLY_EVALUATION } from "$projectDir/subworkflows/local/assembly_evaluation"
 include { ASSEMBLY_COMPARISON } from "$projectDir/subworkflows/local/assembly_comparison"
+
+include { EVALUATE_KMER_COMPLETENESS as EVALUATE_HIFI_KMER_COMPLETENESS     } from "$projectDir/subworkflows/local/evaluate_kmer_completeness"
+include { EVALUATE_KMER_COMPLETENESS as EVALUATE_HIC_KMER_COMPLETENESS      } from "$projectDir/subworkflows/local/evaluate_kmer_completeness"
+include { EVALUATE_KMER_COMPLETENESS as EVALUATE_ONT_KMER_COMPLETENESS      } from "$projectDir/subworkflows/local/evaluate_kmer_completeness"
+include { EVALUATE_KMER_COMPLETENESS as EVALUATE_ILLUMINA_KMER_COMPLETENESS } from "$projectDir/subworkflows/local/evaluate_kmer_completeness"
+
+include { EVALUATE_GENE_SPACE } from "$projectDir/subworkflows/local/evaluate_gene_space"
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     IMPORT NF-CORE MODULES/SUBWORKFLOWS
@@ -109,10 +116,22 @@ workflow GENOMEASSEMBLER {
 
     // DATA QUALITY CHECKS:
     // - Check data properties
-    HIFI_DATA_PROPERTIES( PREPARE_INPUT.out.hifi )
-    HIC_DATA_PROPERTIES( PREPARE_INPUT.out.hic )
-    ONT_DATA_PROPERTIES( PREPARE_INPUT.out.ont )
-    ILLUMINA_DATA_PROPERTIES( PREPARE_INPUT.out.illumina )
+    HIFI_DATA_PROPERTIES(
+        PREPARE_INPUT.out.hifi,
+        false // short read data
+    )
+    HIC_DATA_PROPERTIES(
+        PREPARE_INPUT.out.hic,
+        true // short read data
+    )
+    ONT_DATA_PROPERTIES(
+        PREPARE_INPUT.out.ont,
+        false // short read data
+    )
+    ILLUMINA_DATA_PROPERTIES(
+        PREPARE_INPUT.out.illumina,
+        true // short read data
+    )
     // - Check genome properties
     HIFI_GENOME_PROPERTIES(
         BUILD_HIFI_KMER_DATABASE.out.fastk_histogram.join( BUILD_HIFI_KMER_DATABASE.out.fastk_ktab ),
@@ -164,7 +183,7 @@ workflow GENOMEASSEMBLER {
 
     // ASSEMBLY EVALUATION:
     // - Compare assemblies
-    reference_ch = Channel.fromPath( params.reference, checkIfExists: true ).collect()
+    reference_ch = params.reference ? Channel.fromPath( params.reference, checkIfExists: true ).collect() : Channel.value([])
     ASSEMBLY_COMPARISON(
         PREPARE_INPUT.out.assemblies.mix(
             Channel.empty() // Replace with workflow assembled genomes
@@ -172,24 +191,45 @@ workflow GENOMEASSEMBLER {
         reference_ch
     )
     // - Check K-mer completeness
-    // - Check gene space
-    // - Check contamination
-    // - Visualize assembly graph
-    // - Generate annotation tracks
-    ASSEMBLY_EVALUATION( // TODO: Separate this
+    EVALUATE_HIFI_KMER_COMPLETENESS(
         PREPARE_INPUT.out.assemblies,
-        PREPARE_INPUT.out.hifi,
-        PREPARE_INPUT.out.hic,
-        PREPARE_INPUT.out.ont,
-        PREPARE_INPUT.out.illumina,
-        BUILD_HIFI_KMER_DATABASE.out.fastk_histogram.join( BUILD_HIFI_KMER_DATABASE.out.fastk_ktab ),
-        BUILD_HIC_KMER_DATABASE.out.fastk_histogram.join( BUILD_HIC_KMER_DATABASE.out.fastk_ktab ),
-        BUILD_ONT_KMER_DATABASE.out.fastk_histogram.join( BUILD_ONT_KMER_DATABASE.out.fastk_ktab ),
-        BUILD_ILLUMINA_KMER_DATABASE.out.fastk_histogram.join( BUILD_ILLUMINA_KMER_DATABASE.out.fastk_ktab ),
-        reference_ch,
+        BUILD_HIFI_KMER_DATABASE.out.fastk_histogram.join( BUILD_HIFI_KMER_DATABASE.out.fastk_ktab )
+    )
+    EVALUATE_HIC_KMER_COMPLETENESS(
+        PREPARE_INPUT.out.assemblies,
+        BUILD_HIC_KMER_DATABASE.out.fastk_histogram.join( BUILD_HIC_KMER_DATABASE.out.fastk_ktab )
+    )
+    EVALUATE_ONT_KMER_COMPLETENESS(
+        PREPARE_INPUT.out.assemblies,
+        BUILD_ONT_KMER_DATABASE.out.fastk_histogram.join( BUILD_ONT_KMER_DATABASE.out.fastk_ktab )
+    )
+    EVALUATE_ILLUMINA_KMER_COMPLETENESS(
+        PREPARE_INPUT.out.assemblies,
+        BUILD_ILLUMINA_KMER_DATABASE.out.fastk_histogram.join( BUILD_ILLUMINA_KMER_DATABASE.out.fastk_ktab )
+    )
+    // - Check gene space
+    EVALUATE_GENE_SPACE(
+        PREPARE_INPUT.out.assemblies,
         params.busco_lineages instanceof List ? params.busco_lineages : params.busco_lineages.tokenize(','),
         params.busco_lineage_path ? file( params.busco_lineage_path, checkIfExists: true ) : []
     )
+    // - Check contamination
+    // - Visualize assembly graph
+    // - Generate annotation tracks
+    // ASSEMBLY_EVALUATION( // TODO: Separate this
+    //     PREPARE_INPUT.out.assemblies,
+    //     PREPARE_INPUT.out.hifi,
+    //     PREPARE_INPUT.out.hic,
+    //     PREPARE_INPUT.out.ont,
+    //     PREPARE_INPUT.out.illumina,
+    //     BUILD_HIFI_KMER_DATABASE.out.fastk_histogram.join( BUILD_HIFI_KMER_DATABASE.out.fastk_ktab ),
+    //     BUILD_HIC_KMER_DATABASE.out.fastk_histogram.join( BUILD_HIC_KMER_DATABASE.out.fastk_ktab ),
+    //     BUILD_ONT_KMER_DATABASE.out.fastk_histogram.join( BUILD_ONT_KMER_DATABASE.out.fastk_ktab ),
+    //     BUILD_ILLUMINA_KMER_DATABASE.out.fastk_histogram.join( BUILD_ILLUMINA_KMER_DATABASE.out.fastk_ktab ),
+    //     reference_ch,
+    //     params.busco_lineages instanceof List ? params.busco_lineages : params.busco_lineages.tokenize(','),
+    //     params.busco_lineage_path ? file( params.busco_lineage_path, checkIfExists: true ) : []
+    // )
 
     // ASSEMBLY CURATION:
     // - Purge duplications
