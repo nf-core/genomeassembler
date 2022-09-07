@@ -1,6 +1,3 @@
-params.skip_fastqc   = false
-params.skip_nanoplot = false
-
 include { FASTQC   } from "$projectDir/modules/nf-core/modules/fastqc/main"
 include { NANOPLOT } from "$projectDir/modules/nf-core/modules/nanoplot/main"
 
@@ -8,24 +5,26 @@ workflow DATA_PROPERTIES {
 
     take:
     fastx_ch
+    is_short_reads   // Boolean
 
     main:
     logs_ch     = Channel.empty()
     versions_ch = Channel.empty()
 
-    if( params.skip_fastqc ){
-        FASTQC( fastx_ch )
-        logs_ch = logs_ch.mix( FASTQC.out.zips.map{ meta, zips -> zips } )
-        versions_ch = versions_ch.mix( FASTQC.out.versions.first() )
-    }
+    fastx_ch.branch {
+        short_reads: is_short_reads
+        long_reads: !is_short_reads
+    }.set { sequence_ch }
+
+    FASTQC( sequence_ch.short_reads )
+    logs_ch = logs_ch.mix( FASTQC.out.zip.map{ meta, zip -> zip } )
+    versions_ch = versions_ch.mix( FASTQC.out.versions.first() )
 
     // MinionQC
 
-    if( params.skip_nanoplot ){
-        NANOPLOT( fastx_ch )
-        logs_ch = logs_ch.mix( NANOPLOT.out.log.map{ meta, log -> log } )
-        versions_ch = versions_ch.mix( FASTQC.out.versions.first() )
-    }
+    NANOPLOT( sequence_ch.long_reads )
+    logs_ch = logs_ch.mix( NANOPLOT.out.log.map{ meta, log -> log } )
+    versions_ch = versions_ch.mix( FASTQC.out.versions.first() )
 
     emit:
     logs     = logs_ch
