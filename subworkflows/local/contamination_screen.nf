@@ -1,5 +1,5 @@
-include { MASH_SCREEN } from "$projectDir/modules/nf-core/modules/mash/screen/main"
-include { MASH_FILTER } from "$projectDir/modules/local/mash/filter"
+include { MASH_SCREEN } from "$moduleDir/modules/nf-core/mash/screen/main"
+include { MASH_FILTER } from "$moduleDir/modules/local/mash/filter"
 
 workflow CONTAMINATION_SCREEN {
 

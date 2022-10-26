@@ -1,4 +1,4 @@
-include { MERQURYFK_MERQURYFK } from "$projectDir/modules/nf-core/modules/merquryfk/merquryfk/main"
+include { MERQURYFK_MERQURYFK } from "$moduleDir/modules/nf-core/merquryfk/merquryfk/main"
 
 workflow ASSEMBLY_EVALUATION {
 

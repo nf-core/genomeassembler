@@ -1,5 +1,5 @@
-include { FASTQC   } from "$projectDir/modules/nf-core/modules/fastqc/main"
-include { NANOPLOT } from "$projectDir/modules/nf-core/modules/nanoplot/main"
+include { FASTQC   } from "$moduleDir/modules/nf-core/fastqc/main"
+include { NANOPLOT } from "$moduleDir/modules/nf-core/nanoplot/main"
 
 workflow DATA_PROPERTIES {
 

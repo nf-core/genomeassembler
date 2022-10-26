@@ -1,9 +1,9 @@
-include { FASTK_HISTEX } from "$projectDir/modules/nf-core/modules/fastk/histex/main"
-include { GENESCOPEFK  } from "$projectDir/modules/nf-core/modules/genescopefk/main"
-include { GENOMESCOPE2 } from "$projectDir/modules/nf-core/modules/genomescope2/main"
+include { FASTK_HISTEX } from "$moduleDir/modules/nf-corefastk/histex/main"
+include { GENESCOPEFK  } from "$moduleDir/modules/nf-core/genescopefk/main"
+include { GENOMESCOPE2 } from "$moduleDir/modules/nf-core/genomescope2/main"
 
-include { MERQURYFK_PLOIDYPLOT } from "$projectDir/modules/nf-core/modules/merquryfk/ploidyplot/main"
-include { MERQURYFK_KATGC      } from "$projectDir/modules/nf-core/modules/merquryfk/katgc/main"
+include { MERQURYFK_PLOIDYPLOT } from "$moduleDir/modules/nf-core/merquryfk/ploidyplot/main"
+include { MERQURYFK_KATGC      } from "$moduleDir/modules/nf-core/merquryfk/katgc/main"
 
 workflow GENOME_PROPERTIES {
 

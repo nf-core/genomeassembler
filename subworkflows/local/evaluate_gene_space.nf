@@ -1,4 +1,4 @@
-include { BUSCO } from "$projectDir/modules/nf-core/modules/busco/main"
+include { BUSCO } from "$moduleDir/modules/nf-core/busco/main"
 
 workflow EVALUATE_GENE_SPACE {
 

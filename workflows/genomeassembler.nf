@@ -40,37 +40,37 @@ ch_multiqc_custom_methods_description = params.multiqc_methods_description ? fil
 // SUBWORKFLOW: Consisting of a mix of local and nf-core/modules
 //
 // include { INPUT_CHECK } from '../subworkflows/local/input_check'
-include { PREPARE_INPUT } from "$projectDir/subworkflows/local/prepare_input"
+include { PREPARE_INPUT } from "$moduleDir/subworkflows/local/prepare_input"
 
-include { BUILD_KMER_DATABASES as BUILD_HIFI_KMER_DATABASE     } from "$projectDir/subworkflows/local/build_kmer_databases"
-include { BUILD_KMER_DATABASES as BUILD_HIC_KMER_DATABASE      } from "$projectDir/subworkflows/local/build_kmer_databases"
-include { BUILD_KMER_DATABASES as BUILD_ONT_KMER_DATABASE      } from "$projectDir/subworkflows/local/build_kmer_databases"
-include { BUILD_KMER_DATABASES as BUILD_ILLUMINA_KMER_DATABASE } from "$projectDir/subworkflows/local/build_kmer_databases"
+include { BUILD_KMER_DATABASES as BUILD_HIFI_KMER_DATABASE     } from "$moduleDir/subworkflows/local/build_kmer_databases"
+include { BUILD_KMER_DATABASES as BUILD_HIC_KMER_DATABASE      } from "$moduleDir/subworkflows/local/build_kmer_databases"
+include { BUILD_KMER_DATABASES as BUILD_ONT_KMER_DATABASE      } from "$moduleDir/subworkflows/local/build_kmer_databases"
+include { BUILD_KMER_DATABASES as BUILD_ILLUMINA_KMER_DATABASE } from "$moduleDir/subworkflows/local/build_kmer_databases"
 
-include { DATA_PROPERTIES as HIFI_DATA_PROPERTIES     } from "$projectDir/subworkflows/local/data_properties"
-include { DATA_PROPERTIES as HIC_DATA_PROPERTIES      } from "$projectDir/subworkflows/local/data_properties"
-include { DATA_PROPERTIES as ONT_DATA_PROPERTIES      } from "$projectDir/subworkflows/local/data_properties"
-include { DATA_PROPERTIES as ILLUMINA_DATA_PROPERTIES } from "$projectDir/subworkflows/local/data_properties"
+include { DATA_PROPERTIES as HIFI_DATA_PROPERTIES     } from "$moduleDir/subworkflows/local/data_properties"
+include { DATA_PROPERTIES as HIC_DATA_PROPERTIES      } from "$moduleDir/subworkflows/local/data_properties"
+include { DATA_PROPERTIES as ONT_DATA_PROPERTIES      } from "$moduleDir/subworkflows/local/data_properties"
+include { DATA_PROPERTIES as ILLUMINA_DATA_PROPERTIES } from "$moduleDir/subworkflows/local/data_properties"
 
-include { GENOME_PROPERTIES as HIFI_GENOME_PROPERTIES     } from "$projectDir/subworkflows/local/genome_properties"
-include { GENOME_PROPERTIES as HIC_GENOME_PROPERTIES      } from "$projectDir/subworkflows/local/genome_properties"
-include { GENOME_PROPERTIES as ONT_GENOME_PROPERTIES      } from "$projectDir/subworkflows/local/genome_properties"
-include { GENOME_PROPERTIES as ILLUMINA_GENOME_PROPERTIES } from "$projectDir/subworkflows/local/genome_properties"
+include { GENOME_PROPERTIES as HIFI_GENOME_PROPERTIES     } from "$moduleDir/subworkflows/local/genome_properties"
+include { GENOME_PROPERTIES as HIC_GENOME_PROPERTIES      } from "$moduleDir/subworkflows/local/genome_properties"
+include { GENOME_PROPERTIES as ONT_GENOME_PROPERTIES      } from "$moduleDir/subworkflows/local/genome_properties"
+include { GENOME_PROPERTIES as ILLUMINA_GENOME_PROPERTIES } from "$moduleDir/subworkflows/local/genome_properties"
 
-include { CONTAMINATION_SCREEN as HIFI_CONTAMINATION_SCREEN     } from "$projectDir/subworkflows/local/contamination_screen"
-include { CONTAMINATION_SCREEN as HIC_CONTAMINATION_SCREEN      } from "$projectDir/subworkflows/local/contamination_screen"
-include { CONTAMINATION_SCREEN as ONT_CONTAMINATION_SCREEN      } from "$projectDir/subworkflows/local/contamination_screen"
-include { CONTAMINATION_SCREEN as ILLUMINA_CONTAMINATION_SCREEN } from "$projectDir/subworkflows/local/contamination_screen"
+include { CONTAMINATION_SCREEN as HIFI_CONTAMINATION_SCREEN     } from "$moduleDir/subworkflows/local/contamination_screen"
+include { CONTAMINATION_SCREEN as HIC_CONTAMINATION_SCREEN      } from "$moduleDir/subworkflows/local/contamination_screen"
+include { CONTAMINATION_SCREEN as ONT_CONTAMINATION_SCREEN      } from "$moduleDir/subworkflows/local/contamination_screen"
+include { CONTAMINATION_SCREEN as ILLUMINA_CONTAMINATION_SCREEN } from "$moduleDir/subworkflows/local/contamination_screen"
 
-// include { ASSEMBLY_EVALUATION } from "$projectDir/subworkflows/local/assembly_evaluation"
-include { ASSEMBLY_COMPARISON } from "$projectDir/subworkflows/local/assembly_comparison"
+// include { ASSEMBLY_EVALUATION } from "$moduleDir/subworkflows/local/assembly_evaluation"
+include { ASSEMBLY_COMPARISON } from "$moduleDir/subworkflows/local/assembly_comparison"
 
-include { EVALUATE_KMER_COMPLETENESS as EVALUATE_HIFI_KMER_COMPLETENESS     } from "$projectDir/subworkflows/local/evaluate_kmer_completeness"
-include { EVALUATE_KMER_COMPLETENESS as EVALUATE_HIC_KMER_COMPLETENESS      } from "$projectDir/subworkflows/local/evaluate_kmer_completeness"
-include { EVALUATE_KMER_COMPLETENESS as EVALUATE_ONT_KMER_COMPLETENESS      } from "$projectDir/subworkflows/local/evaluate_kmer_completeness"
-include { EVALUATE_KMER_COMPLETENESS as EVALUATE_ILLUMINA_KMER_COMPLETENESS } from "$projectDir/subworkflows/local/evaluate_kmer_completeness"
+include { EVALUATE_KMER_COMPLETENESS as EVALUATE_HIFI_KMER_COMPLETENESS     } from "$moduleDir/subworkflows/local/evaluate_kmer_completeness"
+include { EVALUATE_KMER_COMPLETENESS as EVALUATE_HIC_KMER_COMPLETENESS      } from "$moduleDir/subworkflows/local/evaluate_kmer_completeness"
+include { EVALUATE_KMER_COMPLETENESS as EVALUATE_ONT_KMER_COMPLETENESS      } from "$moduleDir/subworkflows/local/evaluate_kmer_completeness"
+include { EVALUATE_KMER_COMPLETENESS as EVALUATE_ILLUMINA_KMER_COMPLETENESS } from "$moduleDir/subworkflows/local/evaluate_kmer_completeness"
 
-include { EVALUATE_GENE_SPACE } from "$projectDir/subworkflows/local/evaluate_gene_space"
+include { EVALUATE_GENE_SPACE } from "$moduleDir/subworkflows/local/evaluate_gene_space"
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     IMPORT NF-CORE MODULES/SUBWORKFLOWS
@@ -80,9 +80,9 @@ include { EVALUATE_GENE_SPACE } from "$projectDir/subworkflows/local/evaluate_ge
 //
 // MODULE: Installed directly from nf-core/modules
 //
-// include { FASTQC                      } from '../modules/nf-core/fastqc/main'
-// include { MULTIQC                     } from '../modules/nf-core/multiqc/main'
-include { CUSTOM_DUMPSOFTWAREVERSIONS } from '../modules/nf-core/custom/dumpsoftwareversions/main'
+// include { FASTQC                      } from '../modules/nf-core/modules/fastqc/main'
+// include { MULTIQC                     } from '../modules/nf-core/modules/multiqc/main'
+include { CUSTOM_DUMPSOFTWAREVERSIONS } from "$moduleDir/nf-core/custom/dumpsoftwareversions/main"
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
