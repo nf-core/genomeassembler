@@ -1,8 +1,8 @@
-include { FASTK_FASTK     } from "$moduleDir/modules/nf-core/fastk/fastk/main"
-include { FASTK_MERGE     } from "$moduleDir/modules/nf-core/fastk/merge/main"
-include { MERYL_COUNT     } from "$moduleDir/modules/nf-core/meryl/count/main"
-include { MERYL_UNIONSUM  } from "$moduleDir/modules/nf-core/meryl/unionsum/main"
-include { MERYL_HISTOGRAM } from "$moduleDir/modules/nf-core/meryl/histogram/main"
+include { FASTK_FASTK     } from "$projectDir/modules/nf-core/fastk/fastk/main"
+include { FASTK_MERGE     } from "$projectDir/modules/nf-core/fastk/merge/main"
+include { MERYL_COUNT     } from "$projectDir/modules/nf-core/meryl/count/main"
+include { MERYL_UNIONSUM  } from "$projectDir/modules/nf-core/meryl/unionsum/main"
+include { MERYL_HISTOGRAM } from "$projectDir/modules/nf-core/meryl/histogram/main"
 
 workflow BUILD_KMER_DATABASES {
 

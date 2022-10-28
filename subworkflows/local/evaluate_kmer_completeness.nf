@@ -1,4 +1,4 @@
-include { MERQURYFK_MERQURYFK } from "$moduleDir/modules/nf-core/merquryfk/merquryfk/main"
+include { MERQURYFK_MERQURYFK } from "$projectDir/modules/nf-core/merquryfk/merquryfk/main"
 
 workflow EVALUATE_KMER_COMPLETENESS {
 

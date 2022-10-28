@@ -1,4 +1,4 @@
-include { QUAST } from "$moduleDir/modules/nf-core/quast/main"
+include { QUAST } from "$projectDir/modules/nf-core/quast/main"
 
 workflow ASSEMBLY_COMPARISON {
 
