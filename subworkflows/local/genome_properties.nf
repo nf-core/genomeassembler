@@ -1,4 +1,4 @@
-include { FASTK_HISTEX } from "$projectDir/modules/nf-corefastk/histex/main"
+include { FASTK_HISTEX } from "$projectDir/modules/nf-core/fastk/histex/main"
 include { GENESCOPEFK  } from "$projectDir/modules/nf-core/genescopefk/main"
 include { GENOMESCOPE2 } from "$projectDir/modules/nf-core/genomescope2/main"
 
