@@ -82,7 +82,7 @@ include { EVALUATE_GENE_SPACE } from "$projectDir/subworkflows/local/evaluate_ge
 //
 // include { FASTQC                      } from '../modules/nf-core/modules/fastqc/main'
 // include { MULTIQC                     } from '../modules/nf-core/modules/multiqc/main'
-include { CUSTOM_DUMPSOFTWAREVERSIONS } from "$projectDir/nf-core/custom/dumpsoftwareversions/main"
+include { CUSTOM_DUMPSOFTWAREVERSIONS } from "$projectDir/modules/nf-core/custom/dumpsoftwareversions/main"
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
