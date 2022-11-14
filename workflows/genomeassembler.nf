@@ -42,10 +42,15 @@ ch_multiqc_custom_methods_description = params.multiqc_methods_description ? fil
 // include { INPUT_CHECK } from '../subworkflows/local/input_check'
 include { PREPARE_INPUT } from "$projectDir/subworkflows/local/prepare_input"
 
-include { BUILD_KMER_DATABASES as BUILD_HIFI_KMER_DATABASE     } from "$projectDir/subworkflows/local/build_kmer_databases"
-include { BUILD_KMER_DATABASES as BUILD_HIC_KMER_DATABASE      } from "$projectDir/subworkflows/local/build_kmer_databases"
-include { BUILD_KMER_DATABASES as BUILD_ONT_KMER_DATABASE      } from "$projectDir/subworkflows/local/build_kmer_databases"
-include { BUILD_KMER_DATABASES as BUILD_ILLUMINA_KMER_DATABASE } from "$projectDir/subworkflows/local/build_kmer_databases"
+include { BUILD_FASTK_DATABASES as BUILD_HIFI_FASTK_DATABASE     } from "$projectDir/subworkflows/local/build_fastk_databases"
+include { BUILD_FASTK_DATABASES as BUILD_HIC_FASTK_DATABASE      } from "$projectDir/subworkflows/local/build_fastk_databases"
+include { BUILD_FASTK_DATABASES as BUILD_ONT_FASTK_DATABASE      } from "$projectDir/subworkflows/local/build_fastk_databases"
+include { BUILD_FASTK_DATABASES as BUILD_ILLUMINA_FASTK_DATABASE } from "$projectDir/subworkflows/local/build_fastk_databases"
+
+include { BUILD_MERYL_DATABASES as BUILD_HIFI_MERYL_DATABASE     } from "$projectDir/subworkflows/local/build_meryl_databases"
+include { BUILD_MERYL_DATABASES as BUILD_HIC_MERYL_DATABASE      } from "$projectDir/subworkflows/local/build_meryl_databases"
+include { BUILD_MERYL_DATABASES as BUILD_ONT_MERYL_DATABASE      } from "$projectDir/subworkflows/local/build_meryl_databases"
+include { BUILD_MERYL_DATABASES as BUILD_ILLUMINA_MERYL_DATABASE } from "$projectDir/subworkflows/local/build_meryl_databases"
 
 include { DATA_PROPERTIES as HIFI_DATA_PROPERTIES     } from "$projectDir/subworkflows/local/data_properties"
 include { DATA_PROPERTIES as HIC_DATA_PROPERTIES      } from "$projectDir/subworkflows/local/data_properties"
@@ -97,22 +102,34 @@ workflow GENOMEASSEMBLER {
 
     ch_versions = Channel.empty()
 
+    // Define constants - TODO: Move to JSON validation
+    def workflow_permitted_stages = ['data_qc','preprocess','assemble','validate','curate']
+    // Check stage
+    def workflow_steps = params.step.tokenize(",")
+    if ( ! workflow_steps.every { it in workflow_permitted_stages } ) {
+        error "Unrecognised workflow step in $params.step ( $workflow_permitted_stages )"
+    }
+
     //
     // SUBWORKFLOW: Read in samplesheet, validate and stage input files
-    //
-    // INPUT_CHECK (
-    //     ch_input
-    // )
     PREPARE_INPUT (
         ch_input
     )
-    // ch_versions = ch_versions.mix(PREPARE_INPUT.out.versions)
+    ch_versions = ch_versions.mix(PREPARE_INPUT.out.versions)
 
     // BUILD KMER DATABASES
-    BUILD_HIFI_KMER_DATABASE( PREPARE_INPUT.out.hifi )
-    BUILD_HIC_KMER_DATABASE( PREPARE_INPUT.out.hic)
-    BUILD_ONT_KMER_DATABASE( PREPARE_INPUT.out.ont )
-    BUILD_ILLUMINA_KMER_DATABASE( PREPARE_INPUT.out.illumina )
+    // builds k-mer databases as a separate step to allow reuse with resume
+    if ( params.kmer_counter = 'meryl' && ['data_qc','validate'].any { it in workflow_steps } ) {
+        BUILD_HIFI_MERYL_DATABASE( PREPARE_INPUT.out.hifi )
+        BUILD_HIC_MERYL_DATABASE( PREPARE_INPUT.out.hic)
+        BUILD_ONT_MERYL_DATABASE( PREPARE_INPUT.out.ont )
+        BUILD_ILLUMINA_MERYL_DATABASE( PREPARE_INPUT.out.illumina )
+    } else if ( params.kmer_counter = 'fastk' && ['data_qc','validate'].any { it in workflow_steps } ) {
+        BUILD_HIFI_FASTK_DATABASE( PREPARE_INPUT.out.hifi )
+        BUILD_HIC_FASTK_DATABASE( PREPARE_INPUT.out.hic)
+        BUILD_ONT_FASTK_DATABASE( PREPARE_INPUT.out.ont )
+        BUILD_ILLUMINA_FASTK_DATABASE( PREPARE_INPUT.out.illumina )
+    }
 
     // DATA QUALITY CHECKS:
     // - Check data properties
