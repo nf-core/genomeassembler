@@ -57,10 +57,15 @@ include { HIC_DATA_PROPERTIES      } from "$projectDir/subworkflows/local/hic_da
 include { ONT_DATA_PROPERTIES      } from "$projectDir/subworkflows/local/ont_data_properties"
 include { ILLUMINA_DATA_PROPERTIES } from "$projectDir/subworkflows/local/illumina_data_properties"
 
-include { GENOME_PROPERTIES as HIFI_GENOME_PROPERTIES     } from "$projectDir/subworkflows/local/genome_properties"
-include { GENOME_PROPERTIES as HIC_GENOME_PROPERTIES      } from "$projectDir/subworkflows/local/genome_properties"
-include { GENOME_PROPERTIES as ONT_GENOME_PROPERTIES      } from "$projectDir/subworkflows/local/genome_properties"
-include { GENOME_PROPERTIES as ILLUMINA_GENOME_PROPERTIES } from "$projectDir/subworkflows/local/genome_properties"
+include { MERYL_GENOME_PROPERTIES as HIFI_MERYL_GENOME_PROPERTIES     } from "$projectDir/subworkflows/local/meryl_genome_properties"
+include { MERYL_GENOME_PROPERTIES as HIC_MERYL_GENOME_PROPERTIES      } from "$projectDir/subworkflows/local/meryl_genome_properties"
+include { MERYL_GENOME_PROPERTIES as ONT_MERYL_GENOME_PROPERTIES      } from "$projectDir/subworkflows/local/meryl_genome_properties"
+include { MERYL_GENOME_PROPERTIES as ILLUMINA_MERYL_GENOME_PROPERTIES } from "$projectDir/subworkflows/local/meryl_genome_properties"
+
+include { FASTK_GENOME_PROPERTIES as HIFI_FASTK_GENOME_PROPERTIES     } from "$projectDir/subworkflows/local/fastk_genome_properties"
+include { FASTK_GENOME_PROPERTIES as HIC_FASTK_GENOME_PROPERTIES      } from "$projectDir/subworkflows/local/fastk_genome_properties"
+include { FASTK_GENOME_PROPERTIES as ONT_FASTK_GENOME_PROPERTIES      } from "$projectDir/subworkflows/local/fastk_genome_properties"
+include { FASTK_GENOME_PROPERTIES as ILLUMINA_FASTK_GENOME_PROPERTIES } from "$projectDir/subworkflows/local/fastk_genome_properties"
 
 include { CONTAMINATION_SCREEN as HIFI_CONTAMINATION_SCREEN     } from "$projectDir/subworkflows/local/contamination_screen"
 include { CONTAMINATION_SCREEN as HIC_CONTAMINATION_SCREEN      } from "$projectDir/subworkflows/local/contamination_screen"
@@ -138,24 +143,20 @@ workflow GENOMEASSEMBLER {
         HIC_DATA_PROPERTIES( PREPARE_INPUT.out.hic )
         ONT_DATA_PROPERTIES( PREPARE_INPUT.out.ont )
         ILLUMINA_DATA_PROPERTIES( PREPARE_INPUT.out.illumina )
-        
+
         // - Check genome properties
-        HIFI_GENOME_PROPERTIES(
-            BUILD_HIFI_KMER_DATABASE.out.fastk_histogram.join( BUILD_HIFI_KMER_DATABASE.out.fastk_ktab ),
-            BUILD_HIFI_KMER_DATABASE.out.meryl_histogram
-        )
-        HIC_GENOME_PROPERTIES(
-            BUILD_HIC_KMER_DATABASE.out.fastk_histogram.join( BUILD_HIC_KMER_DATABASE.out.fastk_ktab ),
-            BUILD_HIC_KMER_DATABASE.out.meryl_histogram
-        )
-        ONT_GENOME_PROPERTIES(
-            BUILD_ONT_KMER_DATABASE.out.fastk_histogram.join( BUILD_ONT_KMER_DATABASE.out.fastk_ktab ),
-            BUILD_ONT_KMER_DATABASE.out.meryl_histogram
-        )
-        ILLUMINA_GENOME_PROPERTIES(
-            BUILD_ILLUMINA_KMER_DATABASE.out.fastk_histogram.join( BUILD_ILLUMINA_KMER_DATABASE.out.fastk_ktab ),
-            BUILD_ILLUMINA_KMER_DATABASE.out.meryl_histogram
-        )
+        if ( params.kmer_counter = 'meryl' ) {
+            HIFI_MERYL_GENOME_PROPERTIES ( BUILD_HIFI_KMER_DATABASE.out.meryl_histogram )
+            HIC_MERYL_GENOME_PROPERTIES ( BUILD_HIC_KMER_DATABASE.out.meryl_histogram )
+            ONT_MERYL_GENOME_PROPERTIES ( BUILD_ONT_KMER_DATABASE.out.meryl_histogram )
+            ILLUMINA_MERYL_GENOME_PROPERTIES ( BUILD_ILLUMINA_KMER_DATABASE.out.meryl_histogram )
+        } else if ( params.kmer_counter = 'fastk' ) {
+            HIFI_FASTK_GENOME_PROPERTIES ( BUILD_HIFI_KMER_DATABASE.out.fastk_histogram.join( BUILD_HIFI_KMER_DATABASE.out.fastk_ktab ) )
+            HIC_FASTK_GENOME_PROPERTIES ( BUILD_HIC_KMER_DATABASE.out.fastk_histogram.join( BUILD_HIC_KMER_DATABASE.out.fastk_ktab ) )
+            ONT_FASTK_GENOME_PROPERTIES ( BUILD_ONT_KMER_DATABASE.out.fastk_histogram.join( BUILD_ONT_KMER_DATABASE.out.fastk_ktab ) )
+            ILLUMINA_FASTK_GENOME_PROPERTIES ( BUILD_ILLUMINA_KMER_DATABASE.out.fastk_histogram.join( BUILD_ILLUMINA_KMER_DATABASE.out.fastk_ktab ) )
+        }
+        
         // - Screen for contaminants
         mash_db_ch = Channel.fromPath( params.mash_screen_db, checkIfExists: true ).collect()
         HIFI_CONTAMINATION_SCREEN(
