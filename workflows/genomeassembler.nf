@@ -52,10 +52,10 @@ include { BUILD_MERYL_DATABASES as BUILD_HIC_MERYL_DATABASE      } from "$projec
 include { BUILD_MERYL_DATABASES as BUILD_ONT_MERYL_DATABASE      } from "$projectDir/subworkflows/local/build_meryl_databases"
 include { BUILD_MERYL_DATABASES as BUILD_ILLUMINA_MERYL_DATABASE } from "$projectDir/subworkflows/local/build_meryl_databases"
 
-include { DATA_PROPERTIES as HIFI_DATA_PROPERTIES     } from "$projectDir/subworkflows/local/data_properties"
-include { DATA_PROPERTIES as HIC_DATA_PROPERTIES      } from "$projectDir/subworkflows/local/data_properties"
-include { DATA_PROPERTIES as ONT_DATA_PROPERTIES      } from "$projectDir/subworkflows/local/data_properties"
-include { DATA_PROPERTIES as ILLUMINA_DATA_PROPERTIES } from "$projectDir/subworkflows/local/data_properties"
+include { HIFI_DATA_PROPERTIES                            } from "$projectDir/subworkflows/local/hifi_data_properties"
+include { ILLUMINA_DATA_PROPERTIES as HIC_DATA_PROPERTIES } from "$projectDir/subworkflows/local/illumina_data_properties"
+include { ONT_DATA_PROPERTIES                             } from "$projectDir/subworkflows/local/ont_data_properties"
+include { ILLUMINA_DATA_PROPERTIES                        } from "$projectDir/subworkflows/local/illumina_data_properties"
 
 include { GENOME_PROPERTIES as HIFI_GENOME_PROPERTIES     } from "$projectDir/subworkflows/local/genome_properties"
 include { GENOME_PROPERTIES as HIC_GENOME_PROPERTIES      } from "$projectDir/subworkflows/local/genome_properties"
