@@ -52,10 +52,10 @@ include { BUILD_MERYL_DATABASES as BUILD_HIC_MERYL_DATABASE      } from "$projec
 include { BUILD_MERYL_DATABASES as BUILD_ONT_MERYL_DATABASE      } from "$projectDir/subworkflows/local/build_meryl_databases"
 include { BUILD_MERYL_DATABASES as BUILD_ILLUMINA_MERYL_DATABASE } from "$projectDir/subworkflows/local/build_meryl_databases"
 
-include { HIFI_DATA_PROPERTIES                            } from "$projectDir/subworkflows/local/hifi_data_properties"
-include { ILLUMINA_DATA_PROPERTIES as HIC_DATA_PROPERTIES } from "$projectDir/subworkflows/local/illumina_data_properties"
-include { ONT_DATA_PROPERTIES                             } from "$projectDir/subworkflows/local/ont_data_properties"
-include { ILLUMINA_DATA_PROPERTIES                        } from "$projectDir/subworkflows/local/illumina_data_properties"
+include { HIFI_DATA_PROPERTIES     } from "$projectDir/subworkflows/local/hifi_data_properties"
+include { HIC_DATA_PROPERTIES      } from "$projectDir/subworkflows/local/hic_data_properties"
+include { ONT_DATA_PROPERTIES      } from "$projectDir/subworkflows/local/ont_data_properties"
+include { ILLUMINA_DATA_PROPERTIES } from "$projectDir/subworkflows/local/illumina_data_properties"
 
 include { GENOME_PROPERTIES as HIFI_GENOME_PROPERTIES     } from "$projectDir/subworkflows/local/genome_properties"
 include { GENOME_PROPERTIES as HIC_GENOME_PROPERTIES      } from "$projectDir/subworkflows/local/genome_properties"
@@ -134,14 +134,8 @@ workflow GENOMEASSEMBLER {
     if( 'data_qc' in workflow_steps ) {
         // DATA QUALITY CHECKS:
         // - Check data properties
-        HIFI_DATA_PROPERTIES(
-            PREPARE_INPUT.out.hifi,
-            false // short read data
-        )
-        HIC_DATA_PROPERTIES(
-            PREPARE_INPUT.out.hic,
-            true // short read data
-        )
+        HIFI_DATA_PROPERTIES( PREPARE_INPUT.out.hifi )
+        HIC_DATA_PROPERTIES( PREPARE_INPUT.out.hic )
         ONT_DATA_PROPERTIES(
             PREPARE_INPUT.out.ont,
             false // short read data
