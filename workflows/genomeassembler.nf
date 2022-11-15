@@ -229,6 +229,7 @@ workflow GENOMEASSEMBLER {
             PREPARE_INPUT.out.assemblies,
             BUILD_ILLUMINA_KMER_DATABASE.out.fastk_histogram.join ( BUILD_ILLUMINA_KMER_DATABASE.out.fastk_ktab )
         )
+        // - Check read alignment
         // - Check gene space
         EVALUATE_GENE_SPACE (
             PREPARE_INPUT.out.assemblies,
