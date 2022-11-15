@@ -120,29 +120,29 @@ workflow GENOMEASSEMBLER {
     PREPARE_INPUT (
         ch_input
     )
-    ch_versions = ch_versions.mix(PREPARE_INPUT.out.versions)
+    ch_versions = ch_versions.mix ( PREPARE_INPUT.out.versions )
 
     // BUILD KMER DATABASES
     // builds k-mer databases as a separate step to allow reuse with resume
     if ( params.kmer_counter = 'meryl' && ['data_qc','validate'].any { it in workflow_steps } ) {
-        BUILD_HIFI_MERYL_DATABASE( PREPARE_INPUT.out.hifi )
-        BUILD_HIC_MERYL_DATABASE( PREPARE_INPUT.out.hic)
-        BUILD_ONT_MERYL_DATABASE( PREPARE_INPUT.out.ont )
-        BUILD_ILLUMINA_MERYL_DATABASE( PREPARE_INPUT.out.illumina )
+        BUILD_HIFI_MERYL_DATABASE ( PREPARE_INPUT.out.hifi )
+        BUILD_HIC_MERYL_DATABASE ( PREPARE_INPUT.out.hic)
+        BUILD_ONT_MERYL_DATABASE ( PREPARE_INPUT.out.ont )
+        BUILD_ILLUMINA_MERYL_DATABASE ( PREPARE_INPUT.out.illumina )
     } else if ( params.kmer_counter = 'fastk' && ['data_qc','validate'].any { it in workflow_steps } ) {
-        BUILD_HIFI_FASTK_DATABASE( PREPARE_INPUT.out.hifi )
-        BUILD_HIC_FASTK_DATABASE( PREPARE_INPUT.out.hic)
-        BUILD_ONT_FASTK_DATABASE( PREPARE_INPUT.out.ont )
-        BUILD_ILLUMINA_FASTK_DATABASE( PREPARE_INPUT.out.illumina )
+        BUILD_HIFI_FASTK_DATABASE ( PREPARE_INPUT.out.hifi )
+        BUILD_HIC_FASTK_DATABASE ( PREPARE_INPUT.out.hic)
+        BUILD_ONT_FASTK_DATABASE ( PREPARE_INPUT.out.ont )
+        BUILD_ILLUMINA_FASTK_DATABASE ( PREPARE_INPUT.out.illumina )
     }
 
     if( 'data_qc' in workflow_steps ) {
         // DATA QUALITY CHECKS:
         // - Check data properties
-        HIFI_DATA_PROPERTIES( PREPARE_INPUT.out.hifi )
-        HIC_DATA_PROPERTIES( PREPARE_INPUT.out.hic )
-        ONT_DATA_PROPERTIES( PREPARE_INPUT.out.ont )
-        ILLUMINA_DATA_PROPERTIES( PREPARE_INPUT.out.illumina )
+        HIFI_DATA_PROPERTIES ( PREPARE_INPUT.out.hifi )
+        HIC_DATA_PROPERTIES ( PREPARE_INPUT.out.hic )
+        ONT_DATA_PROPERTIES ( PREPARE_INPUT.out.ont )
+        ILLUMINA_DATA_PROPERTIES ( PREPARE_INPUT.out.illumina )
 
         // - Check genome properties
         if ( params.kmer_counter = 'meryl' ) {
@@ -156,22 +156,22 @@ workflow GENOMEASSEMBLER {
             ONT_FASTK_GENOME_PROPERTIES ( BUILD_ONT_KMER_DATABASE.out.fastk_histogram.join( BUILD_ONT_KMER_DATABASE.out.fastk_ktab ) )
             ILLUMINA_FASTK_GENOME_PROPERTIES ( BUILD_ILLUMINA_KMER_DATABASE.out.fastk_histogram.join( BUILD_ILLUMINA_KMER_DATABASE.out.fastk_ktab ) )
         }
-        
+
         // - Screen for contaminants
-        mash_db_ch = Channel.fromPath( params.mash_screen_db, checkIfExists: true ).collect()
-        HIFI_CONTAMINATION_SCREEN(
+        mash_db_ch = Channel.fromPath ( params.mash_screen_db, checkIfExists: true ).collect()
+        HIFI_CONTAMINATION_SCREEN (
             PREPARE_INPUT.out.hifi,
             mash_db_ch
         )
-        HIC_CONTAMINATION_SCREEN(
+        HIC_CONTAMINATION_SCREEN (
             PREPARE_INPUT.out.hic,
             mash_db_ch
         )
-        ONT_CONTAMINATION_SCREEN(
+        ONT_CONTAMINATION_SCREEN (
             PREPARE_INPUT.out.ont,
             mash_db_ch
         )
-        ILLUMINA_CONTAMINATION_SCREEN(
+        ILLUMINA_CONTAMINATION_SCREEN (
             PREPARE_INPUT.out.illumina,
             mash_db_ch
         )
@@ -205,32 +205,32 @@ workflow GENOMEASSEMBLER {
     if ( 'validate' in workflow_steps ) {
         // ASSEMBLY EVALUATION:
         // - Compare assemblies
-        reference_ch = params.reference ? Channel.fromPath( params.reference, checkIfExists: true ).collect() : Channel.value([])
-        ASSEMBLY_COMPARISON(
-            PREPARE_INPUT.out.assemblies.mix(
+        reference_ch = params.reference ? Channel.fromPath( params.reference, checkIfExists: true ).collect() : Channel.value( [] )
+        ASSEMBLY_COMPARISON (
+            PREPARE_INPUT.out.assemblies.mix (
                 Channel.empty() // Replace with workflow assembled genomes
             ),
             reference_ch
         )
         // - Check K-mer completeness
-        EVALUATE_HIFI_KMER_COMPLETENESS(
+        EVALUATE_HIFI_KMER_COMPLETENESS (
             PREPARE_INPUT.out.assemblies,
-            BUILD_HIFI_KMER_DATABASE.out.fastk_histogram.join( BUILD_HIFI_KMER_DATABASE.out.fastk_ktab )
+            BUILD_HIFI_KMER_DATABASE.out.fastk_histogram.join ( BUILD_HIFI_KMER_DATABASE.out.fastk_ktab )
         )
-        EVALUATE_HIC_KMER_COMPLETENESS(
+        EVALUATE_HIC_KMER_COMPLETENESS (
             PREPARE_INPUT.out.assemblies,
-            BUILD_HIC_KMER_DATABASE.out.fastk_histogram.join( BUILD_HIC_KMER_DATABASE.out.fastk_ktab )
+            BUILD_HIC_KMER_DATABASE.out.fastk_histogram.join ( BUILD_HIC_KMER_DATABASE.out.fastk_ktab )
         )
-        EVALUATE_ONT_KMER_COMPLETENESS(
+        EVALUATE_ONT_KMER_COMPLETENESS (
             PREPARE_INPUT.out.assemblies,
-            BUILD_ONT_KMER_DATABASE.out.fastk_histogram.join( BUILD_ONT_KMER_DATABASE.out.fastk_ktab )
+            BUILD_ONT_KMER_DATABASE.out.fastk_histogram.join ( BUILD_ONT_KMER_DATABASE.out.fastk_ktab )
         )
-        EVALUATE_ILLUMINA_KMER_COMPLETENESS(
+        EVALUATE_ILLUMINA_KMER_COMPLETENESS (
             PREPARE_INPUT.out.assemblies,
-            BUILD_ILLUMINA_KMER_DATABASE.out.fastk_histogram.join( BUILD_ILLUMINA_KMER_DATABASE.out.fastk_ktab )
+            BUILD_ILLUMINA_KMER_DATABASE.out.fastk_histogram.join ( BUILD_ILLUMINA_KMER_DATABASE.out.fastk_ktab )
         )
         // - Check gene space
-        EVALUATE_GENE_SPACE(
+        EVALUATE_GENE_SPACE (
             PREPARE_INPUT.out.assemblies,
             params.busco_lineages instanceof List ? params.busco_lineages : params.busco_lineages.tokenize(','),
             params.busco_lineage_path ? file( params.busco_lineage_path, checkIfExists: true ) : []
