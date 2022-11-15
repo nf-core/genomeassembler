@@ -136,14 +136,9 @@ workflow GENOMEASSEMBLER {
         // - Check data properties
         HIFI_DATA_PROPERTIES( PREPARE_INPUT.out.hifi )
         HIC_DATA_PROPERTIES( PREPARE_INPUT.out.hic )
-        ONT_DATA_PROPERTIES(
-            PREPARE_INPUT.out.ont,
-            false // short read data
-        )
-        ILLUMINA_DATA_PROPERTIES(
-            PREPARE_INPUT.out.illumina,
-            true // short read data
-        )
+        ONT_DATA_PROPERTIES( PREPARE_INPUT.out.ont )
+        ILLUMINA_DATA_PROPERTIES( PREPARE_INPUT.out.illumina )
+        
         // - Check genome properties
         HIFI_GENOME_PROPERTIES(
             BUILD_HIFI_KMER_DATABASE.out.fastk_histogram.join( BUILD_HIFI_KMER_DATABASE.out.fastk_ktab ),
