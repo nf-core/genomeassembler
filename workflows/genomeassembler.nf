@@ -175,12 +175,16 @@ workflow GENOMEASSEMBLER {
             PREPARE_INPUT.out.illumina,
             mash_db_ch
         )
-        // - Compare library content
+
+        // - Compare library content ( between files within platform, between platforms )
+        //   - Mash
+        //   - KAT_COMP ( optional )
     }
 
     if ( 'preprocess' in workflow_steps ) {
         // PREPROCESSING:
         // - adapter trimming
+        // - read correction
         // - contaminant filtering
         // - downsampling
         // - normalisation
@@ -199,6 +203,7 @@ workflow GENOMEASSEMBLER {
         // - Fix misassemblies
         // - Separate organelles, plasmids, etc
         // - recircularize circular genomes
+        // - contamination removal
         // - reevaluate assemblies after
     }
 
