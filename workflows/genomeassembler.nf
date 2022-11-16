@@ -225,43 +225,43 @@ workflow GENOMEASSEMBLER {
         // - Check K-mer completeness
         if ( params.kmer_counter = 'meryl' ) {
             HIFI_MERYL_KMER_COMPLETENESS (
-                PREPARE_INPUT.out.assemblies,
+                PREPARE_INPUT.out.assemblies,            // TODO: Mix assemblies from assemble and curate steps
                 BUILD_HIFI_MERYL_DATABASE.out.uniondb
             )
             HIC_MERYL_KMER_COMPLETENESS (
-                PREPARE_INPUT.out.assemblies,
+                PREPARE_INPUT.out.assemblies,            // TODO: Mix assemblies from assemble and curate steps
                 BUILD_HIC_MERYL_DATABASE.out.uniondb
             )
             ONT_MERYL_KMER_COMPLETENESS (
-                PREPARE_INPUT.out.assemblies,
+                PREPARE_INPUT.out.assemblies,            // TODO: Mix assemblies from assemble and curate steps
                 BUILD_ONT_MERYL_DATABASE.out.uniondb
             )
             ILLUMINA_MERYL_KMER_COMPLETENESS (
-                PREPARE_INPUT.out.assemblies,
+                PREPARE_INPUT.out.assemblies,            // TODO: Mix assemblies from assemble and curate steps
                 BUILD_ILLUMINA_MERYL_DATABASE.out.uniondb
             )
         } else if ( params.kmer_counter = 'fastk' ) {
             HIFI_FASTK_KMER_COMPLETENESS (
-                PREPARE_INPUT.out.assemblies,
+                PREPARE_INPUT.out.assemblies,            // TODO: Mix assemblies from assemble and curate steps
                 BUILD_HIFI_FASTK_DATABASE.out.histogram.join ( BUILD_HIFI_FASTK_DATABASE.out.ktab )
             )
             HIC_FASTK_KMER_COMPLETENESS (
-                PREPARE_INPUT.out.assemblies,
+                PREPARE_INPUT.out.assemblies,            // TODO: Mix assemblies from assemble and curate steps
                 BUILD_HIC_FASTK_DATABASE.out.histogram.join ( BUILD_HIC_FASTK_DATABASE.out.ktab )
             )
             ONT_FASTK_KMER_COMPLETENESS (
-                PREPARE_INPUT.out.assemblies,
+                PREPARE_INPUT.out.assemblies,            // TODO: Mix assemblies from assemble and curate steps
                 BUILD_ONT_FASTK_DATABASE.out.histogram.join ( BUILD_ONT_FASTK_DATABASE.out.ktab )
             )
             ILLUMINA_FASTK_KMER_COMPLETENESS (
-                PREPARE_INPUT.out.assemblies,
+                PREPARE_INPUT.out.assemblies,            // TODO: Mix assemblies from assemble and curate steps
                 BUILD_ILLUMINA_FASTK_DATABASE.out.histogram.join ( BUILD_ILLUMINA_FASTK_DATABASE.out.ktab )
             )
         }
         // - Check read alignment
         // - Check gene space
         EVALUATE_GENE_SPACE (
-            PREPARE_INPUT.out.assemblies,
+            PREPARE_INPUT.out.assemblies,                // TODO: Mix assemblies from assemble and curate steps
             params.busco_lineages instanceof List ? params.busco_lineages : params.busco_lineages.tokenize(','),
             params.busco_lineage_path ? file( params.busco_lineage_path, checkIfExists: true ) : []
         )
