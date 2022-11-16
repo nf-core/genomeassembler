@@ -131,9 +131,8 @@ workflow PREPARE_INPUT {
         .transpose()     // Data is [ sample, [ id:'assemblerX_build1', pri_asm: '/path/to/primary_asm', alt_asm: '/path/to/alternate_asm' ]]
         .map { sample, assembly ->
             [
-                sample,
+                sample + [ build: assembly.id ],
                 [
-                    id: assembly.id,
                     pri_asm: file( assembly.pri_asm, checkIfExists: true ),
                     alt_asm: ( assembly.alt_asm ? file( assembly.alt_asm, checkIfExists: true ) : null ),
                     pri_gfa: ( assembly.pri_gfa ? file( assembly.pri_gfa, checkIfExists: true ) : null ),
