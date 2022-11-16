@@ -261,7 +261,6 @@ workflow GENOMEASSEMBLER {
         // - Check gene space
         EVALUATE_GENE_SPACE (
             PREPARE_INPUT.out.assemblies,                // TODO: Mix assemblies from assemble and curate steps
-            params.busco_lineages instanceof List ? params.busco_lineages : params.busco_lineages.tokenize(','),
             params.busco_lineage_path ? file( params.busco_lineage_path, checkIfExists: true ) : []
         )
         // - Check contamination

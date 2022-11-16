@@ -3,14 +3,21 @@ include { BUSCO } from "$projectDir/modules/nf-core/busco/main"
 workflow EVALUATE_GENE_SPACE {
 
     take:
-    assembly_ch        // input type: [ meta w. build id , [ pri_asm: '/path/to/primary_asm', alt_asm: '/path/to/alternate_asm' ] ]
-    busco_lineages     // Busco lineages to check against
+    assembly_ch        // input type: [ meta w. build id and busco lineages, [ pri_asm: '/path/to/primary_asm', alt_asm: '/path/to/alternate_asm' ] ]
     busco_lineage_path // Path to Busco lineage files
 
     main:
     BUSCO (
-        assembly_ch.map { meta, assembly -> [ meta, assembly.pri_asm ] },  // Evalute gene space of primary assembly
-        busco_lineages,
+        assembly_ch.map { meta, assembly -> meta.busco_lineages ? [ meta, assembly ] : [ meta + [ busco_lineages: params.busco_lineages ] ] }
+            .flatMap { meta, assembly ->
+                meta.busco_lineages instanceof of List ?
+                    meta.busco_lineages.collect { [ meta, it, assembly.pri_asm ] } :
+                    [ [ meta, meta.busco_lineages, assembly.pri_asm ] ]
+            }  // Evalute gene space of primary assembly only
+            .multiMap { meta, busco_lineage, assembly ->
+                fasta_ch: [ meta, assembly ]
+                lineage_ch: busco_lineage
+            },
         busco_lineage_path,
         []
     )

@@ -31,6 +31,7 @@ include { SAMTOOLS_FASTQ } from "$projectDir/modules/nf-core/samtools/fastq/main
           id: Sample_A
           kmer_size: 31
           ploidy: 2
+          busco_lineages: eukaryota_odb10
         assembly:
           - id: Sample_A_phased_diploid
             pri_asm: '/path/to/assembly/hap1.fasta'
