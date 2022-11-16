@@ -42,15 +42,15 @@ ch_multiqc_custom_methods_description = params.multiqc_methods_description ? fil
 // include { INPUT_CHECK } from '../subworkflows/local/input_check'
 include { PREPARE_INPUT } from "$projectDir/subworkflows/local/prepare_input"
 
-include { BUILD_FASTK_DATABASES as BUILD_HIFI_FASTK_DATABASE     } from "$projectDir/subworkflows/local/build_fastk_databases"
-include { BUILD_FASTK_DATABASES as BUILD_HIC_FASTK_DATABASE      } from "$projectDir/subworkflows/local/build_fastk_databases"
-include { BUILD_FASTK_DATABASES as BUILD_ONT_FASTK_DATABASE      } from "$projectDir/subworkflows/local/build_fastk_databases"
-include { BUILD_FASTK_DATABASES as BUILD_ILLUMINA_FASTK_DATABASE } from "$projectDir/subworkflows/local/build_fastk_databases"
+include { BUILD_FASTK_DATABASES as BUILD_HIFI_FASTK_DATABASE     } from "$projectDir/subworkflows/local/build_fastk_database"
+include { BUILD_FASTK_DATABASES as BUILD_HIC_FASTK_DATABASE      } from "$projectDir/subworkflows/local/build_fastk_database"
+include { BUILD_FASTK_DATABASES as BUILD_ONT_FASTK_DATABASE      } from "$projectDir/subworkflows/local/build_fastk_database"
+include { BUILD_FASTK_DATABASES as BUILD_ILLUMINA_FASTK_DATABASE } from "$projectDir/subworkflows/local/build_fastk_database"
 
-include { BUILD_MERYL_DATABASES as BUILD_HIFI_MERYL_DATABASE     } from "$projectDir/subworkflows/local/build_meryl_databases"
-include { BUILD_MERYL_DATABASES as BUILD_HIC_MERYL_DATABASE      } from "$projectDir/subworkflows/local/build_meryl_databases"
-include { BUILD_MERYL_DATABASES as BUILD_ONT_MERYL_DATABASE      } from "$projectDir/subworkflows/local/build_meryl_databases"
-include { BUILD_MERYL_DATABASES as BUILD_ILLUMINA_MERYL_DATABASE } from "$projectDir/subworkflows/local/build_meryl_databases"
+include { BUILD_MERYL_DATABASES as BUILD_HIFI_MERYL_DATABASE     } from "$projectDir/subworkflows/local/build_meryl_database"
+include { BUILD_MERYL_DATABASES as BUILD_HIC_MERYL_DATABASE      } from "$projectDir/subworkflows/local/build_meryl_database"
+include { BUILD_MERYL_DATABASES as BUILD_ONT_MERYL_DATABASE      } from "$projectDir/subworkflows/local/build_meryl_database"
+include { BUILD_MERYL_DATABASES as BUILD_ILLUMINA_MERYL_DATABASE } from "$projectDir/subworkflows/local/build_meryl_database"
 
 include { HIFI_DATA_PROPERTIES     } from "$projectDir/subworkflows/local/hifi_data_properties"
 include { HIC_DATA_PROPERTIES      } from "$projectDir/subworkflows/local/hic_data_properties"
@@ -75,10 +75,15 @@ include { CONTAMINATION_SCREEN as ILLUMINA_CONTAMINATION_SCREEN } from "$project
 // include { ASSEMBLY_EVALUATION } from "$projectDir/subworkflows/local/assembly_evaluation"
 include { ASSEMBLY_COMPARISON } from "$projectDir/subworkflows/local/assembly_comparison"
 
-include { EVALUATE_KMER_COMPLETENESS as EVALUATE_HIFI_KMER_COMPLETENESS     } from "$projectDir/subworkflows/local/evaluate_kmer_completeness"
-include { EVALUATE_KMER_COMPLETENESS as EVALUATE_HIC_KMER_COMPLETENESS      } from "$projectDir/subworkflows/local/evaluate_kmer_completeness"
-include { EVALUATE_KMER_COMPLETENESS as EVALUATE_ONT_KMER_COMPLETENESS      } from "$projectDir/subworkflows/local/evaluate_kmer_completeness"
-include { EVALUATE_KMER_COMPLETENESS as EVALUATE_ILLUMINA_KMER_COMPLETENESS } from "$projectDir/subworkflows/local/evaluate_kmer_completeness"
+include { MERYL_KMER_COMPLETENESS as HIFI_MERYL_KMER_COMPLETENESS     } from "$projectDir/subworkflows/local/meryl_kmer_completeness"
+include { MERYL_KMER_COMPLETENESS as HIC_MERYL_KMER_COMPLETENESS      } from "$projectDir/subworkflows/local/meryl_kmer_completeness"
+include { MERYL_KMER_COMPLETENESS as ONT_MERYL_KMER_COMPLETENESS      } from "$projectDir/subworkflows/local/meryl_kmer_completeness"
+include { MERYL_KMER_COMPLETENESS as ILLUMINA_MERYL_KMER_COMPLETENESS } from "$projectDir/subworkflows/local/meryl_kmer_completeness"
+
+include { FASTK_KMER_COMPLETENESS as HIFI_FASTK_KMER_COMPLETENESS     } from "$projectDir/subworkflows/local/fastk_kmer_completeness"
+include { FASTK_KMER_COMPLETENESS as HIC_FASTK_KMER_COMPLETENESS      } from "$projectDir/subworkflows/local/fastk_kmer_completeness"
+include { FASTK_KMER_COMPLETENESS as ONT_FASTK_KMER_COMPLETENESS      } from "$projectDir/subworkflows/local/fastk_kmer_completeness"
+include { FASTK_KMER_COMPLETENESS as ILLUMINA_FASTK_KMER_COMPLETENESS } from "$projectDir/subworkflows/local/fastk_kmer_completeness"
 
 include { EVALUATE_GENE_SPACE } from "$projectDir/subworkflows/local/evaluate_gene_space"
 /*
@@ -146,15 +151,15 @@ workflow GENOMEASSEMBLER {
 
         // - Check genome properties
         if ( params.kmer_counter = 'meryl' ) {
-            HIFI_MERYL_GENOME_PROPERTIES ( BUILD_HIFI_KMER_DATABASE.out.meryl_histogram )
-            HIC_MERYL_GENOME_PROPERTIES ( BUILD_HIC_KMER_DATABASE.out.meryl_histogram )
-            ONT_MERYL_GENOME_PROPERTIES ( BUILD_ONT_KMER_DATABASE.out.meryl_histogram )
-            ILLUMINA_MERYL_GENOME_PROPERTIES ( BUILD_ILLUMINA_KMER_DATABASE.out.meryl_histogram )
+            HIFI_MERYL_GENOME_PROPERTIES ( BUILD_HIFI_MERYL_DATABASE.out.histogram )
+            HIC_MERYL_GENOME_PROPERTIES ( BUILD_HIC_MERYL_DATABASE.out.histogram )
+            ONT_MERYL_GENOME_PROPERTIES ( BUILD_ONT_MERYL_DATABASE.out.histogram )
+            ILLUMINA_MERYL_GENOME_PROPERTIES ( BUILD_ILLUMINA_MERYL_DATABASE.out.histogram )
         } else if ( params.kmer_counter = 'fastk' ) {
-            HIFI_FASTK_GENOME_PROPERTIES ( BUILD_HIFI_KMER_DATABASE.out.fastk_histogram.join( BUILD_HIFI_KMER_DATABASE.out.fastk_ktab ) )
-            HIC_FASTK_GENOME_PROPERTIES ( BUILD_HIC_KMER_DATABASE.out.fastk_histogram.join( BUILD_HIC_KMER_DATABASE.out.fastk_ktab ) )
-            ONT_FASTK_GENOME_PROPERTIES ( BUILD_ONT_KMER_DATABASE.out.fastk_histogram.join( BUILD_ONT_KMER_DATABASE.out.fastk_ktab ) )
-            ILLUMINA_FASTK_GENOME_PROPERTIES ( BUILD_ILLUMINA_KMER_DATABASE.out.fastk_histogram.join( BUILD_ILLUMINA_KMER_DATABASE.out.fastk_ktab ) )
+            HIFI_FASTK_GENOME_PROPERTIES ( BUILD_HIFI_FASTK_DATABASE.out.histogram.join( BUILD_HIFI_FASTK_DATABASE.out.ktab ) )
+            HIC_FASTK_GENOME_PROPERTIES ( BUILD_HIC_FASTK_DATABASE.out.histogram.join( BUILD_HIC_FASTK_DATABASE.out.ktab ) )
+            ONT_FASTK_GENOME_PROPERTIES ( BUILD_ONT_FASTK_DATABASE.out.histogram.join( BUILD_ONT_FASTK_DATABASE.out.ktab ) )
+            ILLUMINA_FASTK_GENOME_PROPERTIES ( BUILD_ILLUMINA_FASTK_DATABASE.out.histogram.join( BUILD_ILLUMINA_FASTK_DATABASE.out.ktab ) )
         }
 
         // - Screen for contaminants
@@ -218,22 +223,41 @@ workflow GENOMEASSEMBLER {
             reference_ch
         )
         // - Check K-mer completeness
-        EVALUATE_HIFI_KMER_COMPLETENESS (
-            PREPARE_INPUT.out.assemblies,
-            BUILD_HIFI_KMER_DATABASE.out.fastk_histogram.join ( BUILD_HIFI_KMER_DATABASE.out.fastk_ktab )
-        )
-        EVALUATE_HIC_KMER_COMPLETENESS (
-            PREPARE_INPUT.out.assemblies,
-            BUILD_HIC_KMER_DATABASE.out.fastk_histogram.join ( BUILD_HIC_KMER_DATABASE.out.fastk_ktab )
-        )
-        EVALUATE_ONT_KMER_COMPLETENESS (
-            PREPARE_INPUT.out.assemblies,
-            BUILD_ONT_KMER_DATABASE.out.fastk_histogram.join ( BUILD_ONT_KMER_DATABASE.out.fastk_ktab )
-        )
-        EVALUATE_ILLUMINA_KMER_COMPLETENESS (
-            PREPARE_INPUT.out.assemblies,
-            BUILD_ILLUMINA_KMER_DATABASE.out.fastk_histogram.join ( BUILD_ILLUMINA_KMER_DATABASE.out.fastk_ktab )
-        )
+        if ( params.kmer_counter = 'meryl' ) {
+            HIFI_MERYL_KMER_COMPLETENESS (
+                PREPARE_INPUT.out.assemblies,
+                BUILD_HIFI_MERYL_DATABASE.out.uniondb
+            )
+            HIC_MERYL_KMER_COMPLETENESS (
+                PREPARE_INPUT.out.assemblies,
+                BUILD_HIC_MERYL_DATABASE.out.uniondb
+            )
+            ONT_MERYL_KMER_COMPLETENESS (
+                PREPARE_INPUT.out.assemblies,
+                BUILD_ONT_MERYL_DATABASE.out.uniondb
+            )
+            ILLUMINA_MERYL_KMER_COMPLETENESS (
+                PREPARE_INPUT.out.assemblies,
+                BUILD_ILLUMINA_MERYL_DATABASE.out.uniondb
+            )
+        } else if ( params.kmer_counter = 'fastk' ) {
+            HIFI_FASTK_KMER_COMPLETENESS (
+                PREPARE_INPUT.out.assemblies,
+                BUILD_HIFI_FASTK_DATABASE.out.histogram.join ( BUILD_HIFI_FASTK_DATABASE.out.ktab )
+            )
+            HIC_FASTK_KMER_COMPLETENESS (
+                PREPARE_INPUT.out.assemblies,
+                BUILD_HIC_FASTK_DATABASE.out.histogram.join ( BUILD_HIC_FASTK_DATABASE.out.ktab )
+            )
+            ONT_FASTK_KMER_COMPLETENESS (
+                PREPARE_INPUT.out.assemblies,
+                BUILD_ONT_FASTK_DATABASE.out.histogram.join ( BUILD_ONT_FASTK_DATABASE.out.ktab )
+            )
+            ILLUMINA_FASTK_KMER_COMPLETENESS (
+                PREPARE_INPUT.out.assemblies,
+                BUILD_ILLUMINA_FASTK_DATABASE.out.histogram.join ( BUILD_ILLUMINA_FASTK_DATABASE.out.ktab )
+            )
+        }
         // - Check read alignment
         // - Check gene space
         EVALUATE_GENE_SPACE (

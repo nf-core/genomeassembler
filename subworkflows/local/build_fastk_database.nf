@@ -25,8 +25,8 @@ workflow BUILD_FASTK_DATABASES {
     versions_ch = FASTK_FASTK.out.versions.first().mix( FASTK_MERGE.out.versions.first() )
 
     emit:
-    fastk_histogram = fk_single.hist.mix( FASTK_MERGE.out.hist )
-    fastk_ktab      = fk_single.ktab.mix( FASTK_MERGE.out.ktab )
-    fastk_prof      = fk_single.prof.mix( FASTK_MERGE.out.prof )
-    versions        = versions_ch
+    histogram = fk_single.hist.mix( FASTK_MERGE.out.hist )
+    ktab      = fk_single.ktab.mix( FASTK_MERGE.out.ktab )
+    prof      = fk_single.prof.mix( FASTK_MERGE.out.prof )
+    versions  = versions_ch
 }

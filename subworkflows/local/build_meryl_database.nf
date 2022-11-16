@@ -18,7 +18,7 @@ workflow BUILD_MERYL_DATABASES {
     )
 
     emit:
-    meryl_histogram = MERYL_HISTOGRAM.out.hist
-    meryl_uniondb   = MERYL_UNIONSUM.out.meryl_db
-    versions        = versions_ch
+    histogram = MERYL_HISTOGRAM.out.hist
+    uniondb   = MERYL_UNIONSUM.out.meryl_db
+    versions  = versions_ch
 }
