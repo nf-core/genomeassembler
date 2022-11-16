@@ -72,7 +72,6 @@ include { CONTAMINATION_SCREEN as HIC_CONTAMINATION_SCREEN      } from "$project
 include { CONTAMINATION_SCREEN as ONT_CONTAMINATION_SCREEN      } from "$projectDir/subworkflows/local/contamination_screen"
 include { CONTAMINATION_SCREEN as ILLUMINA_CONTAMINATION_SCREEN } from "$projectDir/subworkflows/local/contamination_screen"
 
-// include { ASSEMBLY_EVALUATION } from "$projectDir/subworkflows/local/assembly_evaluation"
 include { ASSEMBLY_COMPARISON } from "$projectDir/subworkflows/local/assembly_comparison"
 
 include { MERYL_KMER_COMPLETENESS as HIFI_MERYL_KMER_COMPLETENESS     } from "$projectDir/subworkflows/local/meryl_kmer_completeness"
