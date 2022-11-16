@@ -1,6 +1,6 @@
 include { MERQURYFK_MERQURYFK } from "$projectDir/modules/nf-core/merquryfk/merquryfk/main"
 
-workflow EVALUATE_KMER_COMPLETENESS {
+workflow FASTK_KMER_COMPLETENESS {
 
     take:
     assembly_ch        // input type: [ [ id: 'sample_name', build: 'assemblerX_build1' ], [ pri_asm: '/path/to/primary_asm', alt_asm: '/path/to/alternate_asm' ] ]
