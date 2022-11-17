@@ -128,12 +128,12 @@ workflow GENOMEASSEMBLER {
 
     // BUILD KMER DATABASES
     // builds k-mer databases as a separate step to allow reuse with resume
-    if ( params.kmer_counter = 'meryl' && ['data_qc','validate'].any { it in workflow_steps } ) {
+    if ( params.kmer_counter == 'meryl' && ['data_qc','validate'].any { it in workflow_steps } ) {
         BUILD_HIFI_MERYL_DATABASE ( PREPARE_INPUT.out.hifi )
         BUILD_HIC_MERYL_DATABASE ( PREPARE_INPUT.out.hic)
         BUILD_ONT_MERYL_DATABASE ( PREPARE_INPUT.out.ont )
         BUILD_ILLUMINA_MERYL_DATABASE ( PREPARE_INPUT.out.illumina )
-    } else if ( params.kmer_counter = 'fastk' && ['data_qc','validate'].any { it in workflow_steps } ) {
+    } else if ( params.kmer_counter == 'fastk' && ['data_qc','validate'].any { it in workflow_steps } ) {
         BUILD_HIFI_FASTK_DATABASE ( PREPARE_INPUT.out.hifi )
         BUILD_HIC_FASTK_DATABASE ( PREPARE_INPUT.out.hic)
         BUILD_ONT_FASTK_DATABASE ( PREPARE_INPUT.out.ont )
@@ -149,12 +149,12 @@ workflow GENOMEASSEMBLER {
         ILLUMINA_DATA_PROPERTIES ( PREPARE_INPUT.out.illumina )
 
         // - Check genome properties
-        if ( params.kmer_counter = 'meryl' ) {
+        if ( params.kmer_counter == 'meryl' ) {
             HIFI_MERYL_GENOME_PROPERTIES ( BUILD_HIFI_MERYL_DATABASE.out.histogram )
             HIC_MERYL_GENOME_PROPERTIES ( BUILD_HIC_MERYL_DATABASE.out.histogram )
             ONT_MERYL_GENOME_PROPERTIES ( BUILD_ONT_MERYL_DATABASE.out.histogram )
             ILLUMINA_MERYL_GENOME_PROPERTIES ( BUILD_ILLUMINA_MERYL_DATABASE.out.histogram )
-        } else if ( params.kmer_counter = 'fastk' ) {
+        } else if ( params.kmer_counter == 'fastk' ) {
             HIFI_FASTK_GENOME_PROPERTIES ( BUILD_HIFI_FASTK_DATABASE.out.histogram.join( BUILD_HIFI_FASTK_DATABASE.out.ktab ) )
             HIC_FASTK_GENOME_PROPERTIES ( BUILD_HIC_FASTK_DATABASE.out.histogram.join( BUILD_HIC_FASTK_DATABASE.out.ktab ) )
             ONT_FASTK_GENOME_PROPERTIES ( BUILD_ONT_FASTK_DATABASE.out.histogram.join( BUILD_ONT_FASTK_DATABASE.out.ktab ) )
@@ -222,7 +222,7 @@ workflow GENOMEASSEMBLER {
             reference_ch
         )
         // - Check K-mer completeness
-        if ( params.kmer_counter = 'meryl' ) {
+        if ( params.kmer_counter == 'meryl' ) {
             HIFI_MERYL_KMER_COMPLETENESS (
                 PREPARE_INPUT.out.assemblies,            // TODO: Mix assemblies from assemble and curate steps
                 BUILD_HIFI_MERYL_DATABASE.out.uniondb
@@ -239,7 +239,7 @@ workflow GENOMEASSEMBLER {
                 PREPARE_INPUT.out.assemblies,            // TODO: Mix assemblies from assemble and curate steps
                 BUILD_ILLUMINA_MERYL_DATABASE.out.uniondb
             )
-        } else if ( params.kmer_counter = 'fastk' ) {
+        } else if ( params.kmer_counter == 'fastk' ) {
             HIFI_FASTK_KMER_COMPLETENESS (
                 PREPARE_INPUT.out.assemblies,            // TODO: Mix assemblies from assemble and curate steps
                 BUILD_HIFI_FASTK_DATABASE.out.histogram.join ( BUILD_HIFI_FASTK_DATABASE.out.ktab )

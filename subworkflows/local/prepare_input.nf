@@ -73,7 +73,7 @@ workflow PREPARE_INPUT {
     ch_input
 
     main:
-    versions_ch = Channel.empty()
+    ch_versions = Channel.empty()
     // Read in sample files
     ch_input.branch { file ->
             csv_ch: file.name.endsWith(".csv")
@@ -155,7 +155,7 @@ workflow PREPARE_INPUT {
     SAMTOOLS_FASTQ ( hifi.bam_ch )  // TODO: Swap to fasta to save space?
     hifi.fastx_ch.mix( SAMTOOLS_FASTQ.out.fastq )
         .set { hifi_fastx_ch }
-    versions_ch = versions_ch.mix(SAMTOOLS_FASTQ.out.versions.first())
+    ch_versions = ch_versions.mix(SAMTOOLS_FASTQ.out.versions.first())
 
     // Combine Hi-C channels
     yml_input.hic_ch.filter { !it.isEmpty() }
@@ -197,7 +197,7 @@ workflow PREPARE_INPUT {
     illumina   = illumina_fastx_ch.dump( tag: 'Input: Illumina' )
     rnaseq     = rnaseq_fastx_ch.dump( tag: 'Input: Illumina RnaSeq' )
     isoseq     = isoseq_fastx_ch.dump( tag: 'Input: PacBio IsoSeq' )
-    versions   = versions_ch
+    versions   = ch_versions
 }
 
 def readYAML( yamlfile ) {

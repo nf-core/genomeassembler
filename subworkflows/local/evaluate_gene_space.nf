@@ -10,7 +10,7 @@ workflow EVALUATE_GENE_SPACE {
     BUSCO (
         assembly_ch.map { meta, assembly -> meta.busco_lineages ? [ meta, assembly ] : [ meta + [ busco_lineages: params.busco_lineages ], assembly ] }
             .flatMap { meta, assembly ->
-                meta.busco_lineages instanceof of List ?
+                meta.busco_lineages instanceof List ?
                     meta.busco_lineages.collect { [ meta, it, assembly.pri_asm ] } :
                     [ [ meta, meta.busco_lineages, assembly.pri_asm ] ]
             }  // Evalute gene space of primary assembly only

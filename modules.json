@@ -87,7 +87,8 @@
                     },
                     "samtools/fastq": {
                         "branch": "master",
-                        "git_sha": "cf5b9c30a2adacc581793afb79fae5f5b50bed01"
+                        "git_sha": "cf5b9c30a2adacc581793afb79fae5f5b50bed01",
+                        "patch": "modules/nf-core/samtools/fastq/samtools-fastq.diff"
                     }
                 }
             }

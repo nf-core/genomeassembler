@@ -9,10 +9,11 @@ workflow BUILD_MERYL_DATABASES {
 
     main:
     MERYL_COUNT ( fastx_data )
-    MERYL_UNIONSUM ( MERYL_COUNT.out.meryl_db.groupTuple() )
+    MERYL_UNIONSUM ( MERYL_COUNT.out.meryl_db.groupTuple()
+        .map { meta, meryldbs -> [ meta, meryldbs.flatten() ] } // Meryl count can process pairs of files so need to flatten
+    )
     MERYL_HISTOGRAM ( MERYL_UNIONSUM.out.meryl_db )
-    versions_ch = versions_ch.mix(
-        MERYL_COUNT.out.versions.first(),
+    versions_ch = MERYL_COUNT.out.versions.first().mix(
         MERYL_UNIONSUM.out.versions.first(),
         MERYL_HISTOGRAM.out.versions.first()
     )

@@ -11,7 +11,7 @@ workflow HIFI_DATA_PROPERTIES {
 
     NANOPLOT( fastx_ch )
     logs_ch = logs_ch.mix( NANOPLOT.out.log.map{ meta, log -> log } )
-    versions_ch = versions_ch.mix( FASTQC.out.versions.first() )
+    versions_ch = versions_ch.mix( NANOPLOT.out.versions.first() )
 
     emit:
     logs     = logs_ch
