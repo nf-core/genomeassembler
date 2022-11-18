@@ -131,13 +131,17 @@ workflow GENOMEASSEMBLER {
     if ( params.kmer_counter == 'meryl' && ['data_qc','validate'].any { it in workflow_steps } ) {
         BUILD_HIFI_MERYL_DATABASE ( PREPARE_INPUT.out.hifi )
         BUILD_HIC_MERYL_DATABASE ( PREPARE_INPUT.out.hic)
-        BUILD_ONT_MERYL_DATABASE ( PREPARE_INPUT.out.ont )
         BUILD_ILLUMINA_MERYL_DATABASE ( PREPARE_INPUT.out.illumina )
+        if( params.enable_ont_kmer_analyses ) {
+            BUILD_ONT_MERYL_DATABASE ( PREPARE_INPUT.out.ont )
+        }
     } else if ( params.kmer_counter == 'fastk' && ['data_qc','validate'].any { it in workflow_steps } ) {
         BUILD_HIFI_FASTK_DATABASE ( PREPARE_INPUT.out.hifi )
         BUILD_HIC_FASTK_DATABASE ( PREPARE_INPUT.out.hic)
-        BUILD_ONT_FASTK_DATABASE ( PREPARE_INPUT.out.ont )
         BUILD_ILLUMINA_FASTK_DATABASE ( PREPARE_INPUT.out.illumina )
+        if ( params.enable_ont_kmer_analyses ) {
+            BUILD_ONT_FASTK_DATABASE ( PREPARE_INPUT.out.ont )
+        }
     }
 
     if( 'data_qc' in workflow_steps ) {
@@ -152,13 +156,17 @@ workflow GENOMEASSEMBLER {
         if ( params.kmer_counter == 'meryl' ) {
             HIFI_MERYL_GENOME_PROPERTIES ( BUILD_HIFI_MERYL_DATABASE.out.histogram )
             HIC_MERYL_GENOME_PROPERTIES ( BUILD_HIC_MERYL_DATABASE.out.histogram )
-            ONT_MERYL_GENOME_PROPERTIES ( BUILD_ONT_MERYL_DATABASE.out.histogram )
             ILLUMINA_MERYL_GENOME_PROPERTIES ( BUILD_ILLUMINA_MERYL_DATABASE.out.histogram )
+            if ( params.enable_ont_kmer_analyses ){
+                ONT_MERYL_GENOME_PROPERTIES ( BUILD_ONT_MERYL_DATABASE.out.histogram )
+            }
         } else if ( params.kmer_counter == 'fastk' ) {
             HIFI_FASTK_GENOME_PROPERTIES ( BUILD_HIFI_FASTK_DATABASE.out.histogram.join( BUILD_HIFI_FASTK_DATABASE.out.ktab ) )
             HIC_FASTK_GENOME_PROPERTIES ( BUILD_HIC_FASTK_DATABASE.out.histogram.join( BUILD_HIC_FASTK_DATABASE.out.ktab ) )
-            ONT_FASTK_GENOME_PROPERTIES ( BUILD_ONT_FASTK_DATABASE.out.histogram.join( BUILD_ONT_FASTK_DATABASE.out.ktab ) )
             ILLUMINA_FASTK_GENOME_PROPERTIES ( BUILD_ILLUMINA_FASTK_DATABASE.out.histogram.join( BUILD_ILLUMINA_FASTK_DATABASE.out.ktab ) )
+            if ( params.enable_ont_kmer_analyses ){
+                ONT_FASTK_GENOME_PROPERTIES ( BUILD_ONT_FASTK_DATABASE.out.histogram.join( BUILD_ONT_FASTK_DATABASE.out.ktab ) )
+            }
         }
 
         // - Screen for contaminants
@@ -231,14 +239,16 @@ workflow GENOMEASSEMBLER {
                 PREPARE_INPUT.out.assemblies,            // TODO: Mix assemblies from assemble and curate steps
                 BUILD_HIC_MERYL_DATABASE.out.uniondb
             )
-            ONT_MERYL_KMER_COMPLETENESS (
-                PREPARE_INPUT.out.assemblies,            // TODO: Mix assemblies from assemble and curate steps
-                BUILD_ONT_MERYL_DATABASE.out.uniondb
-            )
             ILLUMINA_MERYL_KMER_COMPLETENESS (
                 PREPARE_INPUT.out.assemblies,            // TODO: Mix assemblies from assemble and curate steps
                 BUILD_ILLUMINA_MERYL_DATABASE.out.uniondb
             )
+            if ( params.enable_ont_kmer_analyses ){
+                ONT_MERYL_KMER_COMPLETENESS (
+                    PREPARE_INPUT.out.assemblies,            // TODO: Mix assemblies from assemble and curate steps
+                    BUILD_ONT_MERYL_DATABASE.out.uniondb
+                )
+            }
         } else if ( params.kmer_counter == 'fastk' ) {
             HIFI_FASTK_KMER_COMPLETENESS (
                 PREPARE_INPUT.out.assemblies,            // TODO: Mix assemblies from assemble and curate steps
@@ -248,14 +258,16 @@ workflow GENOMEASSEMBLER {
                 PREPARE_INPUT.out.assemblies,            // TODO: Mix assemblies from assemble and curate steps
                 BUILD_HIC_FASTK_DATABASE.out.histogram.join ( BUILD_HIC_FASTK_DATABASE.out.ktab )
             )
-            ONT_FASTK_KMER_COMPLETENESS (
-                PREPARE_INPUT.out.assemblies,            // TODO: Mix assemblies from assemble and curate steps
-                BUILD_ONT_FASTK_DATABASE.out.histogram.join ( BUILD_ONT_FASTK_DATABASE.out.ktab )
-            )
             ILLUMINA_FASTK_KMER_COMPLETENESS (
                 PREPARE_INPUT.out.assemblies,            // TODO: Mix assemblies from assemble and curate steps
                 BUILD_ILLUMINA_FASTK_DATABASE.out.histogram.join ( BUILD_ILLUMINA_FASTK_DATABASE.out.ktab )
             )
+            if ( params.enable_ont_kmer_analyses ) {
+                ONT_FASTK_KMER_COMPLETENESS (
+                    PREPARE_INPUT.out.assemblies,            // TODO: Mix assemblies from assemble and curate steps
+                    BUILD_ONT_FASTK_DATABASE.out.histogram.join ( BUILD_ONT_FASTK_DATABASE.out.ktab )
+                )
+            }
         }
         // - Check read alignment
         // - Check gene space
