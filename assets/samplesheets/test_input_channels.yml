@@ -1,18 +1,18 @@
 samples:
   - metadata:
-      id: HSapiens
+      id: HSapiensA
       kmer_size: 21
       ploidy: 2
       busco_lineages:
         - "eukaryota_odb10"
         - "mammalia_odb10"
     assembly:
-      - id: HSapiens_diploid
+      - id: HSapiensA_diploid
         pri_asm: "https://raw.githubusercontent.com/nf-core/test-datasets/modules/data/genomics/homo_sapiens/genome/genome.fasta"
         # pri_gfa: "https://raw.githubusercontent.com/nf-core/test-datasets/modules/data/genomics/sarscov2/illumina/gfa/assembly.gfa"
         alt_asm: "https://raw.githubusercontent.com/nf-core/test-datasets/modules/data/genomics/homo_sapiens/genome/genome2.fasta"
         # alt_gfa: "https://raw.githubusercontent.com/nf-core/test-datasets/modules/data/genomics/sarscov2/illumina/gfa/assembly.gfa"
-      - id: HSapiens_consensus
+      - id: HSapiensA_consensus
         pri_asm: "https://raw.githubusercontent.com/nf-core/test-datasets/modules/data/genomics/homo_sapiens/genome/genome2.fasta"
     hic:
       - read1: "https://raw.githubusercontent.com/nf-core/test-datasets/modules/data/genomics/homo_sapiens/illumina/fastq/test_1.fastq.gz"
@@ -25,17 +25,17 @@ samples:
     isoseq:
       - reads: "https://raw.githubusercontent.com/nf-core/test-datasets/modules/data/genomics/homo_sapiens/illumina/bam/test.paired_end.sorted.bam"
   - metadata:
-      id: SarsCov2
-      kmer_size: 31
-      ploidy: 1
-    ont:
-      - reads: "https://raw.githubusercontent.com/nf-core/test-datasets/modules/data/genomics/sarscov2/nanopore/fastq/test.fastq.gz"
+      id: HSapiensB
+      kmer_size: 21
+      ploidy: 2
+    # ont:
+    #   - reads: "https://raw.githubusercontent.com/nf-core/test-datasets/modules/data/genomics/sarscov2/nanopore/fastq/test.fastq.gz"
     illumina:
-      - read1: "https://raw.githubusercontent.com/nf-core/test-datasets/modules/data/genomics/sarscov2/illumina/fastq/test_1.fastq.gz"
-        read2: "https://raw.githubusercontent.com/nf-core/test-datasets/modules/data/genomics/sarscov2/illumina/fastq/test_2.fastq.gz"
-      - reads: "https://raw.githubusercontent.com/nf-core/test-datasets/modules/data/genomics/sarscov2/illumina/fastq/test_1.fastq.gz"
+      - read1: "https://raw.githubusercontent.com/nf-core/test-datasets/modules/data/genomics/homo_sapiens/illumina/fastq/test_1.fastq.gz"
+        read2: "https://raw.githubusercontent.com/nf-core/test-datasets/modules/data/genomics/homo_sapiens/illumina/fastq/test_2.fastq.gz"
+      - reads: "https://raw.githubusercontent.com/nf-core/test-datasets/modules/data/genomics/homo_sapiens/illumina/fastq/test_1.fastq.gz"
     rnaseq:
-      - read1: "https://raw.githubusercontent.com/nf-core/test-datasets/modules/data/genomics/sarscov2/illumina/fastq/test_1.fastq.gz"
-        read2: "https://raw.githubusercontent.com/nf-core/test-datasets/modules/data/genomics/sarscov2/illumina/fastq/test_2.fastq.gz"
+      - read1: "https://raw.githubusercontent.com/nf-core/test-datasets/modules/data/genomics/homo_sapiens/illumina/fastq/test_1.fastq.gz"
+        read2: "https://raw.githubusercontent.com/nf-core/test-datasets/modules/data/genomics/homo_sapiens/illumina/fastq/test_2.fastq.gz"
 tools:
   # Something here
