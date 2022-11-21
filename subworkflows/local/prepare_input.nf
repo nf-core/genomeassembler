@@ -2,7 +2,7 @@ nextflow.enable.dsl = 2
 
 import org.yaml.snakeyaml.Yaml
 
-include { SAMTOOLS_FASTQ } from "../../modules/nf-core/modules/samtools/fastq/main"
+include { SAMTOOLS_FASTQ } from "$projectDir/modules/nf-core/samtools/fastq/main"
 
 /*
     Input format descriptions
