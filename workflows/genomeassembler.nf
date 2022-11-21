@@ -7,15 +7,17 @@
 def summary_params = NfcoreSchema.paramsSummaryMap(workflow, params)
 
 // Validate input parameters
-WorkflowGenomeassembler.initialise(params, log)
+// WorkflowGenomeassembler.initialise(params, log)
 
 // TODO nf-core: Add all file path parameters for the pipeline to the list below
 // Check input path parameters to see if they exist
-def checkPathParamList = [ params.input, params.multiqc_config, params.fasta ]
+def checkPathParamList = [ params.input, params.multiqc_config ]
 for (param in checkPathParamList) { if (param) { file(param, checkIfExists: true) } }
 
 // Check mandatory parameters
-if (params.input) { ch_input = file(params.input) } else { exit 1, 'Input samplesheet not specified!' }
+ch_input = Channel.fromPath( params.input, checkIfExists: true )
+    .ifEmpty { exit 1, 'Error: Input samplesheet not specified!' }
+// if (params.input) { ch_input = file(params.input) } else { exit 1, 'Input samplesheet not specified!' }
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -37,7 +39,8 @@ ch_multiqc_custom_methods_description = params.multiqc_methods_description ? fil
 //
 // SUBWORKFLOW: Consisting of a mix of local and nf-core/modules
 //
-include { INPUT_CHECK } from '../subworkflows/local/input_check'
+// include { INPUT_CHECK } from '../subworkflows/local/input_check'
+include { PREPARE_INPUT } from '../subworkflows/local/prepare_input'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -68,18 +71,13 @@ workflow GENOMEASSEMBLER {
     //
     // SUBWORKFLOW: Read in samplesheet, validate and stage input files
     //
-    INPUT_CHECK (
+    // INPUT_CHECK (
+    //     ch_input
+    // )
+    PREPARE_INPUT (
         ch_input
     )
-    ch_versions = ch_versions.mix(INPUT_CHECK.out.versions)
-
-    //
-    // MODULE: Run FastQC
-    //
-    FASTQC (
-        INPUT_CHECK.out.reads
-    )
-    ch_versions = ch_versions.mix(FASTQC.out.versions.first())
+    // ch_versions = ch_versions.mix(PREPARE_INPUT.out.versions)
 
     CUSTOM_DUMPSOFTWAREVERSIONS (
         ch_versions.unique().collectFile(name: 'collated_versions.yml')
@@ -88,8 +86,8 @@ workflow GENOMEASSEMBLER {
     //
     // MODULE: MultiQC
     //
-    workflow_summary    = WorkflowGenomeassembler.paramsSummaryMultiqc(workflow, summary_params)
-    ch_workflow_summary = Channel.value(workflow_summary)
+    // workflow_summary    = WorkflowGenomeassembler.paramsSummaryMultiqc(workflow, summary_params)
+    // ch_workflow_summary = Channel.value(workflow_summary)
 
     methods_description    = WorkflowGenomeassembler.methodsDescriptionText(workflow, ch_multiqc_custom_methods_description)
     ch_methods_description = Channel.value(methods_description)
