@@ -33,32 +33,39 @@
                 },
                 "step": {
                     "type": "string",
-                    "default": "data_qc,preprocess,assemble,validate,curate"
+                    "default": "data_qc,preprocess,assemble,validate,curate",
+                    "description": "The stage of genome assembly to run"
                 },
                 "kmer_size": {
                     "type": "integer",
-                    "default": 31
+                    "default": 31,
+                    "description": "The k-mer size to use in k-mer analyses when not supplied in yaml metadata"
                 },
                 "ploidy": {
                     "type": "integer",
-                    "default": 2
+                    "default": 2,
+                    "description": "The estimated ploidy to use when not supplied in yaml metadata"
                 },
                 "busco_lineages": {
                     "type": "string",
-                    "default": "auto"
+                    "default": "auto",
+                    "description": "The busco lineages to examine, when not supplied in the yaml metadata"
                 },
                 "busco_lineage_path": {
                     "type": "string",
-                    "format": "directory-path"
+                    "format": "directory-path",
+                    "description": "The local path to the downloaded busco lineages"
                 },
                 "reference": {
                     "type": "string",
-                    "format": "file-path"
+                    "format": "file-path",
+                    "description": "An optional reference genome for comparison to"
                 },
                 "mash_screen_db": {
                     "type": "string",
                     "default": "https://gembox.cbcb.umd.edu/mash/refseq.genomes%2Bplasmid.k21s1000.msh",
-                    "format": "file-path"
+                    "format": "file-path",
+                    "description": "A mash screen database to search for contamination"
                 },
                 "kmer_counter": {
                     "type": "string",
@@ -66,10 +73,12 @@
                     "enum": [
                         "meryl",
                         "fastk"
-                    ]
+                    ],
+                    "description": "The default k-mer counter to use for k-mer analyses"
                 },
                 "enable_ont_kmer_analyses": {
-                    "type": "boolean"
+                    "type": "boolean",
+                    "description": "Flag to enable k-mer analyses on ONT data"
                 },
                 "email": {
                     "type": "string",
