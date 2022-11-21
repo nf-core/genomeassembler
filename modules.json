@@ -15,15 +15,15 @@
                     },
                     "fastk/fastk": {
                         "branch": "master",
-                        "git_sha": "5e34754d42cd2d5d248ca8673c0a53cdf5624905"
+                        "git_sha": "95b2623acd674b8ee72ecb65f79231331338562a"
                     },
                     "fastk/histex": {
                         "branch": "master",
-                        "git_sha": "5e34754d42cd2d5d248ca8673c0a53cdf5624905"
+                        "git_sha": "95b2623acd674b8ee72ecb65f79231331338562a"
                     },
                     "fastk/merge": {
                         "branch": "master",
-                        "git_sha": "5e34754d42cd2d5d248ca8673c0a53cdf5624905"
+                        "git_sha": "95b2623acd674b8ee72ecb65f79231331338562a"
                     },
                     "fastqc": {
                         "branch": "master",
@@ -31,7 +31,7 @@
                     },
                     "genescopefk": {
                         "branch": "master",
-                        "git_sha": "5e34754d42cd2d5d248ca8673c0a53cdf5624905"
+                        "git_sha": "95b2623acd674b8ee72ecb65f79231331338562a"
                     },
                     "genomescope2": {
                         "branch": "master",
@@ -47,11 +47,11 @@
                     },
                     "merquryfk/katcomp": {
                         "branch": "master",
-                        "git_sha": "5e34754d42cd2d5d248ca8673c0a53cdf5624905"
+                        "git_sha": "95b2623acd674b8ee72ecb65f79231331338562a"
                     },
                     "merquryfk/katgc": {
                         "branch": "master",
-                        "git_sha": "5e34754d42cd2d5d248ca8673c0a53cdf5624905"
+                        "git_sha": "95b2623acd674b8ee72ecb65f79231331338562a"
                     },
                     "merquryfk/merquryfk": {
                         "branch": "master",
@@ -59,7 +59,7 @@
                     },
                     "merquryfk/ploidyplot": {
                         "branch": "master",
-                        "git_sha": "5e34754d42cd2d5d248ca8673c0a53cdf5624905"
+                        "git_sha": "95b2623acd674b8ee72ecb65f79231331338562a"
                     },
                     "meryl/count": {
                         "branch": "master",
