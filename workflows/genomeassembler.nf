@@ -128,6 +128,8 @@ workflow GENOMEASSEMBLER {
     )
     ch_versions = ch_versions.mix ( PREPARE_INPUT.out.versions )
 
+    // - TODO: Fetch Genome properties from GOAT
+
     // BUILD KMER DATABASES
     // builds k-mer databases as a separate step to allow reuse with resume
     if ( params.kmer_counter == 'meryl' && ['data_qc','validate'].any { it in workflow_steps } ) {
@@ -282,6 +284,7 @@ workflow GENOMEASSEMBLER {
             }
         }
         // - Check read alignment
+            // - HiLine for HiC QC - https://github.com/wtsi-hpag/HiLine
         // - Check gene space
         EVALUATE_GENE_SPACE (
             PREPARE_INPUT.out.assemblies,                // TODO: Mix assemblies from assemble and curate steps
