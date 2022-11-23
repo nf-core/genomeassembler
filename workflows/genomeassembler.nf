@@ -170,7 +170,7 @@ workflow GENOMEASSEMBLER {
         }
 
         // - Screen for contaminants
-        mash_db_ch = Channel.fromPath ( params.mash_screen_db, checkIfExists: true ).collect()
+        mash_db_ch = Channel.fromPath ( params.mash_screen_db, checkIfExists: true )
         HIFI_CONTAMINATION_SCREEN (
             PREPARE_INPUT.out.hifi,
             mash_db_ch
