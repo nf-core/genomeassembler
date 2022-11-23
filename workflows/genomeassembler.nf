@@ -67,6 +67,8 @@ include { FASTK_GENOME_PROPERTIES as HIC_FASTK_GENOME_PROPERTIES      } from "$p
 include { FASTK_GENOME_PROPERTIES as ONT_FASTK_GENOME_PROPERTIES      } from "$projectDir/subworkflows/local/fastk_genome_properties"
 include { FASTK_GENOME_PROPERTIES as ILLUMINA_FASTK_GENOME_PROPERTIES } from "$projectDir/subworkflows/local/fastk_genome_properties"
 
+include { MASH_SKETCH } from "$projectDir/modules/nf-core/mash/sketch/main"
+
 include { CONTAMINATION_SCREEN as HIFI_CONTAMINATION_SCREEN     } from "$projectDir/subworkflows/local/contamination_screen"
 include { CONTAMINATION_SCREEN as HIC_CONTAMINATION_SCREEN      } from "$projectDir/subworkflows/local/contamination_screen"
 include { CONTAMINATION_SCREEN as ONT_CONTAMINATION_SCREEN      } from "$projectDir/subworkflows/local/contamination_screen"
@@ -170,22 +172,32 @@ workflow GENOMEASSEMBLER {
         }
 
         // - Screen for contaminants
-        mash_db_ch = Channel.fromPath ( params.mash_screen_db, checkIfExists: true )
+        Channel.fromPath ( params.mash_screen_db, checkIfExists: true )
+            .branch {
+                sketch: it.name.endsWith('.msh')
+                fasta : it.name.endsWith('.fasta')
+                    return [ [ id: it.baseName ], it ] // Reformat for MASH_SKETCH
+            }.set { ch_mash_screen }
+        MASH_SKETCH ( ch_mash_screen.fasta )
+        ch_mash_db = ch_mash_screen.sketch
+            .mix( MASH_SKETCH.out.mash
+                .map { meta, sketch -> sketch }
+            ).collect()
         HIFI_CONTAMINATION_SCREEN (
             PREPARE_INPUT.out.hifi,
-            mash_db_ch
+            ch_mash_db
         )
         HIC_CONTAMINATION_SCREEN (
             PREPARE_INPUT.out.hic,
-            mash_db_ch
+            ch_mash_db
         )
         ONT_CONTAMINATION_SCREEN (
             PREPARE_INPUT.out.ont,
-            mash_db_ch
+            ch_mash_db
         )
         ILLUMINA_CONTAMINATION_SCREEN (
             PREPARE_INPUT.out.illumina,
-            mash_db_ch
+            ch_mash_db
         )
 
         // - Compare library content ( between files within platform, between platforms )
