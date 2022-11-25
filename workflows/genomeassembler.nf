@@ -239,10 +239,10 @@ workflow GENOMEASSEMBLER {
             Channel.empty() // TODO: Replace with workflow assembled and curated genomes
         )
         // - Compare assemblies
-        reference_ch = params.reference ? Channel.fromPath( params.reference, checkIfExists: true ).collect() : Channel.value( [] )
+        ch_reference = params.reference ? Channel.fromPath( params.reference, checkIfExists: true ).collect() : Channel.value( [] )
         ASSEMBLY_COMPARISON (
             ch_assemblies_for_evaluation,
-            reference_ch
+            ch_reference
         )
         // - Check K-mer completeness
         if ( params.kmer_counter == 'meryl' ) {
