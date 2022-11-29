@@ -5,7 +5,7 @@ samples:
       ploidy: 2
       busco_lineages:
         - "eukaryota_odb10"
-        - "mammalia_odb10"
+        - "bacteria_odb10"
     assembly:
       - id: HSapiensA_diploid
         pri_asm: "https://raw.githubusercontent.com/nf-core/test-datasets/modules/data/genomics/homo_sapiens/genome/genome.fasta"
