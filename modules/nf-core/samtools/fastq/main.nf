@@ -20,7 +20,8 @@ process SAMTOOLS_FASTQ {
     script:
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
-    def endedness = meta.single_end ? "-0 ${prefix}.fastq.gz" : "-1 ${prefix}_1.fastq.gz -2 ${prefix}_2.fastq.gz"
+    // Change -0 to -o since test data doesn't work otherwise. May need further patching.
+    def endedness = meta.single_end ? "-o ${prefix}.fastq.gz" : "-1 ${prefix}_1.fastq.gz -2 ${prefix}_2.fastq.gz"
     """
     samtools \\
         fastq \\

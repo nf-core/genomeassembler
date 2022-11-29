@@ -27,7 +27,11 @@ include { SAMTOOLS_FASTQ } from "$projectDir/modules/nf-core/samtools/fastq/main
 
     ```yaml
     samples:
-      - id: Sample_A
+      - metadata:
+          id: Sample_A
+          kmer_size: 31
+          ploidy: 2
+          busco_lineages: eukaryota_odb10
         assembly:
           - id: Sample_A_phased_diploid
             pri_asm: '/path/to/assembly/hap1.fasta'
@@ -44,7 +48,10 @@ include { SAMTOOLS_FASTQ } from "$projectDir/modules/nf-core/samtools/fastq/main
           - reads: '/path/to/reads.fastq.gz'
         isoseq:
           - reads: '/path/to/reads.bam'
-      - id: Sample_B
+      - metadata:
+          id: Sample_B
+          kmer_size: 31
+          ploidy: 1
         ont:
           - reads: '/path/to/reads.fastq.gz'
         illumina:
@@ -66,8 +73,8 @@ workflow PREPARE_INPUT {
     ch_input
 
     main:
+    ch_versions = Channel.empty()
     // Read in sample files
-    //Channel.fromPath( infile, checkIfExists: true )
     ch_input.branch { file ->
             csv_ch: file.name.endsWith(".csv")
             tsv_ch: file.name.endsWith(".tsv")
@@ -109,13 +116,13 @@ workflow PREPARE_INPUT {
         .flatten()
         .dump( tag: 'YAML Samples' )
         .multiMap { data ->
-            assembly_ch : ( data.assembly ? [ [ id: data.id ], data.assembly ] : [] )
-            hic_ch      : ( data.hic      ? [ [ id: data.id, single_end: false ], data.hic.collect { [ file( it.read1, checkIfExists: true ), file( it.read2, checkIfExists: true ) ] } ] : [] )
-            hifi_ch     : ( data.hifi     ? [ [ id: data.id, single_end: true ], data.hifi.collect { file( it.reads, checkIfExists: true ) } ] : [] )
-            ont_ch      : ( data.ont      ? [ [ id: data.id, single_end: true ], data.ont.collect { file( it.reads, checkIfExists: true ) } ] : [] )
-            illumina_ch : ( data.illumina ? [ [ id: data.id ], data.illumina.collect{ it.reads ? file( it.reads, checkIfExists: true ) : [ file( it.read1, checkIfExists: true ), file( it.read2, checkIfExists: true ) ] } ] : [] )
-            rnaseq_ch   : ( data.rnaseq   ? [ [ id: data.id ], data.rnaseq.collect { it.reads ? file( it.reads, checkIfExists: true ) : [ file( it.read1, checkIfExists: true ), file( it.read2, checkIfExists: true ) ] } ] : [] )
-            isoseq_ch   : ( data.isoseq   ? [ [ id: data.id, single_end: true ], data.isoseq.collect { file( it.reads, checkIfExists: true ) } ] : [] )
+            assembly_ch : ( data.assembly ? [ data.metadata, data.assembly ] : [] )
+            hic_ch      : ( data.hic      ? [ data.metadata + [ single_end: false ], data.hic.collect { [ file( it.read1, checkIfExists: true ), file( it.read2, checkIfExists: true ) ] } ] : [] )
+            hifi_ch     : ( data.hifi     ? [ data.metadata + [ single_end: true ], data.hifi.collect { file( it.reads, checkIfExists: true ) } ] : [] )
+            ont_ch      : ( data.ont      ? [ data.metadata + [ single_end: true ], data.ont.collect { file( it.reads, checkIfExists: true ) } ] : [] )
+            illumina_ch : ( data.illumina ? [ data.metadata, data.illumina.collect { it.reads ? file( it.reads, checkIfExists: true ) : [ file( it.read1, checkIfExists: true ), file( it.read2, checkIfExists: true ) ] } ] : [] )
+            rnaseq_ch   : ( data.rnaseq   ? [ data.metadata, data.rnaseq.collect { it.reads ? file( it.reads, checkIfExists: true ) : [ file( it.read1, checkIfExists: true ), file( it.read2, checkIfExists: true ) ] } ] : [] )
+            isoseq_ch   : ( data.isoseq   ? [ data.metadata + [ single_end: true ], data.isoseq.collect { file( it.reads, checkIfExists: true ) } ] : [] )
         }
         .set{ yml_input }
 
@@ -125,9 +132,8 @@ workflow PREPARE_INPUT {
         .transpose()     // Data is [ sample, [ id:'assemblerX_build1', pri_asm: '/path/to/primary_asm', alt_asm: '/path/to/alternate_asm' ]]
         .map { sample, assembly ->
             [
-                sample,
+                sample + [ build: assembly.id ],
                 [
-                    id: assembly.id,
                     pri_asm: file( assembly.pri_asm, checkIfExists: true ),
                     alt_asm: ( assembly.alt_asm ? file( assembly.alt_asm, checkIfExists: true ) : null ),
                     pri_gfa: ( assembly.pri_gfa ? file( assembly.pri_gfa, checkIfExists: true ) : null ),
@@ -149,6 +155,7 @@ workflow PREPARE_INPUT {
     SAMTOOLS_FASTQ ( hifi.bam_ch )  // TODO: Swap to fasta to save space?
     hifi.fastx_ch.mix( SAMTOOLS_FASTQ.out.fastq )
         .set { hifi_fastx_ch }
+    ch_versions = ch_versions.mix(SAMTOOLS_FASTQ.out.versions.first())
 
     // Combine Hi-C channels
     yml_input.hic_ch.filter { !it.isEmpty() }
@@ -165,14 +172,14 @@ workflow PREPARE_INPUT {
     // Combine Illumina channels
     yml_input.illumina_ch.filter { !it.isEmpty() }
         .transpose()
-        .map { meta, reads -> [ [id: meta.id, single_end: reads instanceof Path ], reads ] }
+        .map { meta, reads -> [ meta + [ single_end: reads instanceof Path ], reads ] }
         .mix( tsv_input.illumina_ch )
         .set { illumina_fastx_ch }
 
     // Combine Rnaseq channels
     yml_input.rnaseq_ch.filter { !it.isEmpty() }
         .transpose()
-        .map { meta, reads -> [ [id: meta.id, single_end: reads instanceof Path ], reads ] }
+        .map { meta, reads -> [ meta + [ single_end: reads instanceof Path ], reads ] }
         .mix( tsv_input.rnaseq_ch )
         .set { rnaseq_fastx_ch }
 
@@ -190,6 +197,7 @@ workflow PREPARE_INPUT {
     illumina   = illumina_fastx_ch.dump( tag: 'Input: Illumina' )
     rnaseq     = rnaseq_fastx_ch.dump( tag: 'Input: Illumina RnaSeq' )
     isoseq     = isoseq_fastx_ch.dump( tag: 'Input: PacBio IsoSeq' )
+    versions   = ch_versions
 }
 
 def readYAML( yamlfile ) {
