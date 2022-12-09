@@ -5,20 +5,159 @@
         "https://github.com/nf-core/modules.git": {
             "modules": {
                 "nf-core": {
-                    "custom/dumpsoftwareversions": {
+                    "busco": {
                         "branch": "master",
                         "git_sha": "5e34754d42cd2d5d248ca8673c0a53cdf5624905",
-                        "installed_by": ["modules"]
+                        "installed_by": [
+                            "modules"
+                        ]
+                    },
+                    "custom/dumpsoftwareversions": {
+                        "branch": "master",
+                        "git_sha": "8022c68e7403eecbd8ba9c49496f69f8c49d50f0",
+                        "installed_by": [
+                            "modules"
+                        ]
+                    },
+                    "fastk/fastk": {
+                        "branch": "master",
+                        "git_sha": "95b2623acd674b8ee72ecb65f79231331338562a",
+                        "installed_by": [
+                            "modules"
+                        ]
+                    },
+                    "fastk/histex": {
+                        "branch": "master",
+                        "git_sha": "95b2623acd674b8ee72ecb65f79231331338562a",
+                        "installed_by": [
+                            "modules"
+                        ]
+                    },
+                    "fastk/merge": {
+                        "branch": "master",
+                        "git_sha": "95b2623acd674b8ee72ecb65f79231331338562a",
+                        "installed_by": [
+                            "modules"
+                        ]
                     },
                     "fastqc": {
                         "branch": "master",
+                        "git_sha": "810e8f2603ec38401d49a4aaed06f6d058745552",
+                        "installed_by": [
+                            "modules"
+                        ]
+                    },
+                    "genescopefk": {
+                        "branch": "master",
+                        "git_sha": "95b2623acd674b8ee72ecb65f79231331338562a",
+                        "installed_by": [
+                            "modules"
+                        ]
+                    },
+                    "genomescope2": {
+                        "branch": "master",
                         "git_sha": "5e34754d42cd2d5d248ca8673c0a53cdf5624905",
-                        "installed_by": ["modules"]
+                        "installed_by": [
+                            "modules"
+                        ]
+                    },
+                    "mash/screen": {
+                        "branch": "master",
+                        "git_sha": "5e34754d42cd2d5d248ca8673c0a53cdf5624905",
+                        "installed_by": [
+                            "modules"
+                        ]
+                    },
+                    "mash/sketch": {
+                        "branch": "master",
+                        "git_sha": "5e34754d42cd2d5d248ca8673c0a53cdf5624905",
+                        "installed_by": [
+                            "modules"
+                        ]
+                    },
+                    "merqury": {
+                        "branch": "master",
+                        "git_sha": "5e34754d42cd2d5d248ca8673c0a53cdf5624905",
+                        "installed_by": [
+                            "modules"
+                        ]
+                    },
+                    "merquryfk/katcomp": {
+                        "branch": "master",
+                        "git_sha": "95b2623acd674b8ee72ecb65f79231331338562a",
+                        "installed_by": [
+                            "modules"
+                        ]
+                    },
+                    "merquryfk/katgc": {
+                        "branch": "master",
+                        "git_sha": "95b2623acd674b8ee72ecb65f79231331338562a",
+                        "installed_by": [
+                            "modules"
+                        ]
+                    },
+                    "merquryfk/merquryfk": {
+                        "branch": "master",
+                        "git_sha": "5e34754d42cd2d5d248ca8673c0a53cdf5624905",
+                        "installed_by": [
+                            "modules"
+                        ]
+                    },
+                    "merquryfk/ploidyplot": {
+                        "branch": "master",
+                        "git_sha": "95b2623acd674b8ee72ecb65f79231331338562a",
+                        "installed_by": [
+                            "modules"
+                        ]
+                    },
+                    "meryl/count": {
+                        "branch": "master",
+                        "git_sha": "5e34754d42cd2d5d248ca8673c0a53cdf5624905",
+                        "installed_by": [
+                            "modules"
+                        ]
+                    },
+                    "meryl/histogram": {
+                        "branch": "master",
+                        "git_sha": "5e34754d42cd2d5d248ca8673c0a53cdf5624905",
+                        "installed_by": [
+                            "modules"
+                        ]
+                    },
+                    "meryl/unionsum": {
+                        "branch": "master",
+                        "git_sha": "5e34754d42cd2d5d248ca8673c0a53cdf5624905",
+                        "installed_by": [
+                            "modules"
+                        ]
                     },
                     "multiqc": {
                         "branch": "master",
                         "git_sha": "5e34754d42cd2d5d248ca8673c0a53cdf5624905",
-                        "installed_by": ["modules"]
+                        "installed_by": [
+                            "modules"
+                        ]
+                    },
+                    "nanoplot": {
+                        "branch": "master",
+                        "git_sha": "00646879a0d08b2fdad809be29c4848de9886e75",
+                        "installed_by": [
+                            "modules"
+                        ]
+                    },
+                    "quast": {
+                        "branch": "master",
+                        "git_sha": "5e34754d42cd2d5d248ca8673c0a53cdf5624905",
+                        "installed_by": [
+                            "modules"
+                        ]
+                    },
+                    "samtools/fastq": {
+                        "branch": "master",
+                        "git_sha": "cf5b9c30a2adacc581793afb79fae5f5b50bed01",
+                        "installed_by": [
+                            "modules"
+                        ]
                     }
                 }
             }
