@@ -114,8 +114,7 @@
                     "samtools/fastq": {
                         "branch": "master",
                         "git_sha": "f7552d46aad5411343134cac5e4bfe1a66cb3872",
-                        "installed_by": ["modules"],
-                        "patch": "modules/nf-core/samtools/fastq/samtools-fastq.diff"
+                        "installed_by": ["modules"]
                     }
                 }
             }
