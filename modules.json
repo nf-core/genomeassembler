@@ -12,108 +12,108 @@
                     },
                     "custom/dumpsoftwareversions": {
                         "branch": "master",
-                        "git_sha": "8022c68e7403eecbd8ba9c49496f69f8c49d50f0",
+                        "git_sha": "c8e35eb2055c099720a75538d1b8adb3fb5a464c",
                         "installed_by": ["modules"]
                     },
                     "fastk/fastk": {
                         "branch": "master",
-                        "git_sha": "95b2623acd674b8ee72ecb65f79231331338562a",
+                        "git_sha": "c62b41a07a00fee11ec73e2a0d4a1aec771a742b",
                         "installed_by": ["modules"]
                     },
                     "fastk/histex": {
                         "branch": "master",
-                        "git_sha": "95b2623acd674b8ee72ecb65f79231331338562a",
+                        "git_sha": "c62b41a07a00fee11ec73e2a0d4a1aec771a742b",
                         "installed_by": ["modules"]
                     },
                     "fastk/merge": {
                         "branch": "master",
-                        "git_sha": "95b2623acd674b8ee72ecb65f79231331338562a",
+                        "git_sha": "c62b41a07a00fee11ec73e2a0d4a1aec771a742b",
                         "installed_by": ["modules"]
                     },
                     "fastqc": {
                         "branch": "master",
-                        "git_sha": "810e8f2603ec38401d49a4aaed06f6d058745552",
+                        "git_sha": "c8e35eb2055c099720a75538d1b8adb3fb5a464c",
                         "installed_by": ["modules"]
                     },
                     "genescopefk": {
                         "branch": "master",
-                        "git_sha": "95b2623acd674b8ee72ecb65f79231331338562a",
+                        "git_sha": "c62b41a07a00fee11ec73e2a0d4a1aec771a742b",
                         "installed_by": ["modules"]
                     },
                     "genomescope2": {
                         "branch": "master",
-                        "git_sha": "5e34754d42cd2d5d248ca8673c0a53cdf5624905",
+                        "git_sha": "c8e35eb2055c099720a75538d1b8adb3fb5a464c",
                         "installed_by": ["modules"]
                     },
                     "mash/screen": {
                         "branch": "master",
-                        "git_sha": "5e34754d42cd2d5d248ca8673c0a53cdf5624905",
+                        "git_sha": "c8e35eb2055c099720a75538d1b8adb3fb5a464c",
                         "installed_by": ["modules"]
                     },
                     "mash/sketch": {
                         "branch": "master",
-                        "git_sha": "5e34754d42cd2d5d248ca8673c0a53cdf5624905",
+                        "git_sha": "c8e35eb2055c099720a75538d1b8adb3fb5a464c",
                         "installed_by": ["modules"]
                     },
                     "merqury": {
                         "branch": "master",
-                        "git_sha": "5e34754d42cd2d5d248ca8673c0a53cdf5624905",
+                        "git_sha": "c8e35eb2055c099720a75538d1b8adb3fb5a464c",
                         "installed_by": ["modules"]
                     },
                     "merquryfk/katcomp": {
                         "branch": "master",
-                        "git_sha": "95b2623acd674b8ee72ecb65f79231331338562a",
+                        "git_sha": "c62b41a07a00fee11ec73e2a0d4a1aec771a742b",
                         "installed_by": ["modules"]
                     },
                     "merquryfk/katgc": {
                         "branch": "master",
-                        "git_sha": "95b2623acd674b8ee72ecb65f79231331338562a",
+                        "git_sha": "c62b41a07a00fee11ec73e2a0d4a1aec771a742b",
                         "installed_by": ["modules"]
                     },
                     "merquryfk/merquryfk": {
                         "branch": "master",
-                        "git_sha": "5e34754d42cd2d5d248ca8673c0a53cdf5624905",
+                        "git_sha": "7f59e5730106cb4c246e2122f0fd1ccc637fa4ce",
                         "installed_by": ["modules"],
                         "patch": "modules/nf-core/merquryfk/merquryfk/merquryfk-merquryfk.diff"
                     },
                     "merquryfk/ploidyplot": {
                         "branch": "master",
-                        "git_sha": "95b2623acd674b8ee72ecb65f79231331338562a",
+                        "git_sha": "c62b41a07a00fee11ec73e2a0d4a1aec771a742b",
                         "installed_by": ["modules"]
                     },
                     "meryl/count": {
                         "branch": "master",
-                        "git_sha": "5e34754d42cd2d5d248ca8673c0a53cdf5624905",
+                        "git_sha": "c8e35eb2055c099720a75538d1b8adb3fb5a464c",
                         "installed_by": ["modules"]
                     },
                     "meryl/histogram": {
                         "branch": "master",
-                        "git_sha": "5e34754d42cd2d5d248ca8673c0a53cdf5624905",
+                        "git_sha": "c8e35eb2055c099720a75538d1b8adb3fb5a464c",
                         "installed_by": ["modules"]
                     },
                     "meryl/unionsum": {
                         "branch": "master",
-                        "git_sha": "5e34754d42cd2d5d248ca8673c0a53cdf5624905",
+                        "git_sha": "c8e35eb2055c099720a75538d1b8adb3fb5a464c",
                         "installed_by": ["modules"]
                     },
                     "multiqc": {
                         "branch": "master",
-                        "git_sha": "c8e35eb2055c099720a75538d1b8adb3fb5a464c",
+                        "git_sha": "ee80d14721e76e2e079103b8dcd5d57129e584ba",
                         "installed_by": ["modules"]
                     },
                     "nanoplot": {
                         "branch": "master",
-                        "git_sha": "00646879a0d08b2fdad809be29c4848de9886e75",
+                        "git_sha": "3822e04e49b6d89b7092feb3480d744cb5d9986b",
                         "installed_by": ["modules"]
                     },
                     "quast": {
                         "branch": "master",
-                        "git_sha": "5e34754d42cd2d5d248ca8673c0a53cdf5624905",
+                        "git_sha": "c8e35eb2055c099720a75538d1b8adb3fb5a464c",
                         "installed_by": ["modules"]
                     },
                     "samtools/fastq": {
                         "branch": "master",
-                        "git_sha": "cf5b9c30a2adacc581793afb79fae5f5b50bed01",
+                        "git_sha": "f7552d46aad5411343134cac5e4bfe1a66cb3872",
                         "installed_by": ["modules"],
                         "patch": "modules/nf-core/samtools/fastq/samtools-fastq.diff"
                     }
