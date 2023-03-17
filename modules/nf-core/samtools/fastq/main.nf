@@ -24,8 +24,9 @@ process SAMTOOLS_FASTQ {
     script:
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
+    // Change -1 to -o and remove -s since test data doesn't work otherwise. May need further patching.
     def output = ( interleave && ! meta.single_end ) ? "> ${prefix}_interleaved.fastq.gz" :
-        meta.single_end ? "-1 ${prefix}_1.fastq.gz -s ${prefix}_singleton.fastq.gz" :
+        meta.single_end ? "-o ${prefix}_1.fastq.gz" :
         "-1 ${prefix}_1.fastq.gz -2 ${prefix}_2.fastq.gz -s ${prefix}_singleton.fastq.gz"
     """
     samtools \\
