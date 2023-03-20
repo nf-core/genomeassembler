@@ -16,7 +16,7 @@ workflow FASTK_KMER_COMPLETENESS {
                     meta.build
                 ]
             }, by: 0 )
-            .map { meta, hist, ktab, assembly, buildid -> [ meta + [ build: buildid ], hist, ktab, assembly ] }
+            .map { meta, hist, ktab, assembly, buildid -> [ meta + [ build: buildid ], hist, ktab, assembly, [] ] }
     )
     versions_ch = MERQURYFK_MERQURYFK.out.versions.first()
 

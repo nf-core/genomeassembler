@@ -152,7 +152,7 @@ workflow PREPARE_INPUT {
             bam_ch: filename.toString().endsWith(".bam")
             fastx_ch: true // assume everything else is fastx
         }.set { hifi }
-    SAMTOOLS_FASTQ ( hifi.bam_ch )  // TODO: Swap to fasta to save space?
+    SAMTOOLS_FASTQ ( hifi.bam_ch, false )  // TODO: Swap to fasta to save space?
     hifi.fastx_ch.mix( SAMTOOLS_FASTQ.out.fastq )
         .set { hifi_fastx_ch }
     ch_versions = ch_versions.mix(SAMTOOLS_FASTQ.out.versions.first())
