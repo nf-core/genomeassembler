@@ -5,9 +5,29 @@
         "https://github.com/nf-core/modules.git": {
             "modules": {
                 "nf-core": {
+                    "busco": {
+                        "branch": "master",
+                        "git_sha": "c8e35eb2055c099720a75538d1b8adb3fb5a464c",
+                        "installed_by": ["modules"]
+                    },
                     "custom/dumpsoftwareversions": {
                         "branch": "master",
                         "git_sha": "76cc4938c1f6ea5c7d83fed1eeffc146787f9543",
+                        "installed_by": ["modules"]
+                    },
+                    "fastk/fastk": {
+                        "branch": "master",
+                        "git_sha": "c62b41a07a00fee11ec73e2a0d4a1aec771a742b",
+                        "installed_by": ["modules"]
+                    },
+                    "fastk/histex": {
+                        "branch": "master",
+                        "git_sha": "c62b41a07a00fee11ec73e2a0d4a1aec771a742b",
+                        "installed_by": ["modules"]
+                    },
+                    "fastk/merge": {
+                        "branch": "master",
+                        "git_sha": "c62b41a07a00fee11ec73e2a0d4a1aec771a742b",
                         "installed_by": ["modules"]
                     },
                     "fastqc": {
@@ -15,10 +35,87 @@
                         "git_sha": "c8e35eb2055c099720a75538d1b8adb3fb5a464c",
                         "installed_by": ["modules"]
                     },
-                    "multiqc": {
+                    "genescopefk": {
+                        "branch": "master",
+                        "git_sha": "c62b41a07a00fee11ec73e2a0d4a1aec771a742b",
+                        "installed_by": ["modules"]
+                    },
+                    "genomescope2": {
                         "branch": "master",
                         "git_sha": "f2d63bd5b68925f98f572eed70993d205cc694b7",
                         "installed_by": ["modules"]
+                    },
+                    "mash/screen": {
+                        "branch": "master",
+                        "git_sha": "c8e35eb2055c099720a75538d1b8adb3fb5a464c",
+                        "installed_by": ["modules"]
+                    },
+                    "mash/sketch": {
+                        "branch": "master",
+                        "git_sha": "c8e35eb2055c099720a75538d1b8adb3fb5a464c",
+                        "installed_by": ["modules"]
+                    },
+                    "merqury": {
+                        "branch": "master",
+                        "git_sha": "c8e35eb2055c099720a75538d1b8adb3fb5a464c",
+                        "installed_by": ["modules"]
+                    },
+                    "merquryfk/katcomp": {
+                        "branch": "master",
+                        "git_sha": "c62b41a07a00fee11ec73e2a0d4a1aec771a742b",
+                        "installed_by": ["modules"]
+                    },
+                    "merquryfk/katgc": {
+                        "branch": "master",
+                        "git_sha": "c62b41a07a00fee11ec73e2a0d4a1aec771a742b",
+                        "installed_by": ["modules"]
+                    },
+                    "merquryfk/merquryfk": {
+                        "branch": "master",
+                        "git_sha": "7f59e5730106cb4c246e2122f0fd1ccc637fa4ce",
+                        "installed_by": ["modules"],
+                        "patch": "modules/nf-core/merquryfk/merquryfk/merquryfk-merquryfk.diff"
+                    },
+                    "merquryfk/ploidyplot": {
+                        "branch": "master",
+                        "git_sha": "c62b41a07a00fee11ec73e2a0d4a1aec771a742b",
+                        "installed_by": ["modules"]
+                    },
+                    "meryl/count": {
+                        "branch": "master",
+                        "git_sha": "c8e35eb2055c099720a75538d1b8adb3fb5a464c",
+                        "installed_by": ["modules"]
+                    },
+                    "meryl/histogram": {
+                        "branch": "master",
+                        "git_sha": "c8e35eb2055c099720a75538d1b8adb3fb5a464c",
+                        "installed_by": ["modules"]
+                    },
+                    "meryl/unionsum": {
+                        "branch": "master",
+                        "git_sha": "c8e35eb2055c099720a75538d1b8adb3fb5a464c",
+                        "installed_by": ["modules"]
+                    },
+                    "multiqc": {
+                        "branch": "master",
+                        "git_sha": "ee80d14721e76e2e079103b8dcd5d57129e584ba",
+                        "installed_by": ["modules"]
+                    },
+                    "nanoplot": {
+                        "branch": "master",
+                        "git_sha": "3822e04e49b6d89b7092feb3480d744cb5d9986b",
+                        "installed_by": ["modules"]
+                    },
+                    "quast": {
+                        "branch": "master",
+                        "git_sha": "c8e35eb2055c099720a75538d1b8adb3fb5a464c",
+                        "installed_by": ["modules"]
+                    },
+                    "samtools/fastq": {
+                        "branch": "master",
+                        "git_sha": "f7552d46aad5411343134cac5e4bfe1a66cb3872",
+                        "installed_by": ["modules"],
+                        "patch": "modules/nf-core/samtools/fastq/samtools-fastq.diff"
                     }
                 }
             }
