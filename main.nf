@@ -4,7 +4,6 @@
     nf-core/genomeassembler
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     Github : https://github.com/nf-core/genomeassembler
-
     Website: https://nf-co.re/genomeassembler
     Slack  : https://nfcore.slack.com/channels/genomeassembler
 ----------------------------------------------------------------------------------------
