@@ -1,2 +1,16 @@
+bump_version: null
+lint: null
+nf_core_version: 3.0.0
+org_path: null
 repository_type: pipeline
-nf_core_version: "2.14.1"
+template:
+  author: "@mahesh-panchal;@d4straub"
+  description: Genome assembly and annotation pipeline for prokaryotes and eukaryotes
+  force: false
+  is_nfcore: true
+  name: genomeassembler
+  org: nf-core
+  outdir: .
+  skip_features: null
+  version: 1.0dev
+update: null
