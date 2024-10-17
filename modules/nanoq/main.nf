@@ -1,17 +1,12 @@
-include { initOptions; saveFiles; getSoftwareName } from './functions'
-
-params.options = [:]
-options        = initOptions(params.options)
-
 process NANOQ {
     tag "$meta"
     label 'process_low'
-    publishDir "${params.out}",
-        mode: params.publish_dir_mode,
-        saveAs: { filename -> saveFiles(filename:filename,
-                                        options:params.options, 
-                                        publish_dir:"${task.process}".replace(':','/').toLowerCase(), 
-                                        publish_id:meta) }
+    publishDir(
+      path: { "${params.out}/${task.process}".replace(':','/').toLowerCase() }, 
+      mode: 'copy',
+      overwrite: true,
+      saveAs: { fn -> fn.substring(fn.lastIndexOf('/')+1) }
+    ) 
     input:
         tuple val(meta), path(reads)
 
@@ -23,6 +18,6 @@ process NANOQ {
     script:
         """
         nanoq -i ${reads} -j -r ${meta}_report.json -s -H -vvv > ${meta}_stats.json
-        median=\$(cat ${meta}_report.json | grep -o '"median_length":[0-9]*' | grep -o [0-9]*)
+        median=\$(cat ${meta}_report.json | grep -o '"median_length":[0-9]*' | grep -o '[0-9]*')
         """
 }

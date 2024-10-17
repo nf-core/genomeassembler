@@ -1,20 +1,14 @@
-include { initOptions; saveFiles; getSoftwareName } from './functions'
-
-params.options = [:]
-options        = initOptions(params.options)
-
 process LINKS {
   tag "$meta"
   label 'process_high'
   
-  container "quay.io/biocontainers/links:2.0.1--h9f5acd7_3"
 
-  publishDir "${params.out}",
-      mode: params.publish_dir_mode,
-      saveAs: { filename -> saveFiles(filename:filename,
-                                      options:params.options, 
-                                      publish_dir:"${task.process}".replace(':','/').toLowerCase(), 
-                                      publish_id:meta) }
+  publishDir(
+    path: { "${params.out}/${task.process}".replace(':','/').toLowerCase() }, 
+    mode: 'copy',
+    overwrite: true,
+    saveAs: { fn -> fn.substring(fn.lastIndexOf('/')+1) }
+  ) 
   input:
       tuple val(meta), path(assembly), path(reads)
 

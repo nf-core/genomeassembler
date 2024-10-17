@@ -1,23 +1,14 @@
-include { initOptions; saveFiles; getSoftwareName } from './functions'
-
-params.options = [:]
-options        = initOptions(params.options)
-
 process RAGTAG_SCAFFOLD {
   tag "$meta"
   label 'process_high'
-  
   conda "bioconda::ragtag=2.1.0"
-  container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-          'https://depot.galaxyproject.org/singularity/ragtag:2.1.0--pyhb7b1952_0' :
-          'quay.io/biocontainers/ragtag:2.1.0--pyhb7b1952_0' }"
-
-  publishDir "${params.out}",
-      mode: params.publish_dir_mode,
-      saveAs: { filename -> saveFiles(filename:filename,
-                                      options:params.options, 
-                                      publish_dir:"${task.process}".replace(':','/').toLowerCase(), 
-                                      publish_id:meta) }
+  publishDir(
+    path: { "${params.out}/${task.process}".replace(':','/').toLowerCase() }, 
+    mode: 'copy',
+    overwrite: true,
+    saveAs: { fn -> fn.substring(fn.lastIndexOf('/')+1) }
+  ) 
+  
   input:
       tuple val(meta), path(assembly), path(reference)
   
