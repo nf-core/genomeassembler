@@ -1,7 +1,10 @@
 process RAGTAG_SCAFFOLD {
-  tag "$meta"
+  tag "$meta.id"
   label 'process_high'
   conda "bioconda::ragtag=2.1.0"
+  container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
+        'https://depot.galaxyproject.org/singularity/ragtag:2.1.0--pyhb7b1952_0':
+        'biocontainers/ragtag:2.1.0--pyhb7b1952_0' }"
   publishDir(
     path: { "${params.out}/${task.process}".replace(':','/').toLowerCase() }, 
     mode: 'copy',
@@ -18,10 +21,16 @@ process RAGTAG_SCAFFOLD {
       tuple val(meta), path("${assembly}_ragtag_${reference}/*.stats"), emit: corrected_stats
   
   script:
-      def prefix = task.ext.prefix ?: "${meta}"
+      def prefix = task.ext.prefix ?: "${meta.id}"
   """
-  zcat ${assembly} > ${meta}.fa
-  ragtag.py scaffold ${reference} ${meta}.fa \\
+  if [[ ${assembly} == *.gz ]]
+    then 
+      zcat ${assembly} > ${prefix}.fa
+    else
+      mv ${assembly} ${prefix}.fa
+  fi
+  
+  ragtag.py scaffold ${reference} ${prefix}.fa \\
     -o "${assembly}_ragtag_${reference}" \\
     -t $task.cpus \\
     -f 5000 \\
