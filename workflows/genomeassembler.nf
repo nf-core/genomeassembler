@@ -10,23 +10,23 @@ include { paramsSummaryMultiqc   } from '../subworkflows/nf-core/utils_nfcore_pi
 include { softwareVersionsToYAML } from '../subworkflows/nf-core/utils_nfcore_pipeline'
 include { methodsDescriptionText } from '../subworkflows/local/utils_nfcore_genomeassembler_pipeline'
 // Read preparation
-include { PREPARE_ONT            } from '../subworkflows/prepare_ont/main'
-include { PREPARE_HIFI           } from '../subworkflows/prepare_hifi/main'
-include { PREPARE_SHORTREADS     } from '../subworkflows/prepare_shortreads/main'
+include { PREPARE_ONT            } from '../subworkflows/local/prepare_ont/main'
+include { PREPARE_HIFI           } from '../subworkflows/local/prepare_hifi/main'
+include { PREPARE_SHORTREADS     } from '../subworkflows/local/prepare_shortreads/main'
 
 // Read checks
-include { ONT                    } from '../subworkflows/ont/main'
-include { HIFI                   } from '../subworkflows/hifi/main'
+include { ONT                    } from '../subworkflows/local/ont/main'
+include { HIFI                   } from '../subworkflows/local/hifi/main'
 
 // Assembly 
-include { ASSEMBLE               } from '../subworkflows/assemble/main'
+include { ASSEMBLE               } from '../subworkflows/local/assemble/main'
 
 // Polishing
-include { POLISH                 } from '../subworkflows/polishing/main'
+include { POLISH                 } from '../subworkflows/local/polishing/main'
 
 
 // Scaffolding
-include { SCAFFOLD } from '../subworkflows/scaffolding/main'
+include { SCAFFOLD               } from '../subworkflows/local/scaffolding/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
