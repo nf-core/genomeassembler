@@ -1,4 +1,4 @@
-include { PORECHOP } from '../../../modules/porechop/main'
+include { PORECHOP } from '../../../../modules/nf-core/porechop/main'
 
 workflow CHOP {
   take: in_reads
