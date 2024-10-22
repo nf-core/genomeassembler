@@ -6,5 +6,4 @@ results/
 testing/
 testing*
 *.pyc
-lint_log.txt
-lint_results.md
+null/
