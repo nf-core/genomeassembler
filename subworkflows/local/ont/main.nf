@@ -1,8 +1,8 @@
 include { PREPARE_ONT } from '../prepare_ont/main'
-include { JELLYFISH }   from '../jellyfish/jellyfish'
-include { KMER_LONGREADS as KMER_ONT } from '../../../modules/yak/main'
-include { KMER_HISTOGRAM  } from '../../../modules/yak/main'
-include { READ_QV } from '../modules/yak/main'
+include { JELLYFISH }   from '../jellyfish/main'
+include { KMER_LONGREADS as KMER_ONT } from '../../../modules/local/yak/main'
+include { KMER_HISTOGRAM  } from '../../../modules/local/yak/main'
+include { READ_QV } from '../../../modules/local/yak/main'
 
 
 workflow ONT {

@@ -1,4 +1,4 @@
-include { NANOQ } from '../../../modules/nanoq/main'
+include { NANOQ } from '../../../../modules/local/nanoq/main'
 
 workflow RUN_NANOQ {
   take: in_reads

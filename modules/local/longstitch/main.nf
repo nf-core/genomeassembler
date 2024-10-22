@@ -1,12 +1,10 @@
 process LONGSTITCH {
   tag "$meta"
   label 'process_high'
-  publishDir(
-    path: { "${params.out}/${task.process}".replace(':','/').toLowerCase() }, 
-    mode: 'copy',
-    overwrite: true,
-    saveAs: { fn -> fn.substring(fn.lastIndexOf('/')+1) }
-  )  
+  conda "${moduleDir}/environment.yml"
+  container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
+        'https://depot.galaxyproject.org/singularity/longstitch:1.0.5--hdfd78af_0':
+        'biocontainers/longstitch:1.0.5--hdfd78af_0' }"
   input:
       tuple val(meta), path(assembly), path(reads)
 

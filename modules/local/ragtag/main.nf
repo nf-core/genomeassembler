@@ -1,7 +1,7 @@
 process RAGTAG_SCAFFOLD {
   tag "$meta.id"
   label 'process_high'
-  conda "bioconda::ragtag=2.1.0"
+  conda "${moduleDir}/environment.yml"
   container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://depot.galaxyproject.org/singularity/ragtag:2.1.0--pyhb7b1952_0':
         'biocontainers/ragtag:2.1.0--pyhb7b1952_0' }"

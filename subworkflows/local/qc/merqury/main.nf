@@ -1,4 +1,4 @@
-include { MERQURY } from '../../../modules/merqury/main'
+include { MERQURY_MERQURY as MERQURY } from '../../../../modules/nf-core/merqury/merqury/main'
 
 workflow MERQURY_QC {
     take:

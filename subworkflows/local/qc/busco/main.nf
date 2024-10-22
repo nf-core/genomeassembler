@@ -1,4 +1,4 @@
-include { BUSCO } from '../../../modules/busco/main'
+include { BUSCO } from '../../../../modules/local/busco/main'
 
 workflow RUN_BUSCO {
   take: 

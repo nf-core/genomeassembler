@@ -1,8 +1,8 @@
-include { COUNT } from '../../modules/jellyfish/main'
-include { DUMP } from '../../modules/jellyfish/main'
-include { HISTO } from '../../modules/jellyfish/main'
-include { STATS } from '../../modules/jellyfish/main'
-include { GENOMESCOPE } from '../../modules/genomescope/main'
+include { COUNT } from '../../../modules/local/jellyfish/main'
+include { DUMP } from '../../../modules/local/jellyfish/main'
+include { HISTO } from '../../../modules/local/jellyfish/main'
+include { STATS } from '../../../modules/local/jellyfish/main'
+include { GENOMESCOPE } from '../../../modules/local/genomescope/main'
 
 workflow JELLYFISH {
   take:

@@ -1,10 +1,10 @@
 include { PREPARE_HIFI } from '../prepare_hifi/main'
-include { KMER_LONGREADS as KMER_HIFI } from '../../../modules/yak/main'
-include { KMER_HISTOGRAM  } from '../../../modules/yak/main'
-include { READ_QV } from '../../../modules/yak/main'
+include { KMER_LONGREADS as KMER_HIFI } from '../../../modules/local/yak/main'
+include { KMER_HISTOGRAM  } from '../../../modules/local/yak/main'
+include { READ_QV } from '../../../modules/local/yak/main'
 
 workflow HIFI {
-    takes: inputs
+    take: inputs
 
     main: 
         PREPARE_HIFI(inputs)

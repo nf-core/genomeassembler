@@ -1,5 +1,5 @@
-include { LIMA } from '../../modules/lima/main'
-include { SAMTOOLS_FASTQ as TO_FASTQ } from '../../modules/samtools/fastq/main'
+include { LIMA } from '../../../modules/nf-core/lima/main'
+include { SAMTOOLS_FASTQ as TO_FASTQ } from '../../../modules/nf-core/samtools/fastq/main'
 
 workflow PREPARE_HIFI {
   take: inputs

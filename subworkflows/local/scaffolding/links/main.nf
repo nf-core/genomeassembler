@@ -1,4 +1,4 @@
-include { LINKS } from '../../../modules/local/links/main'
+include { LINKS } from '../../../../modules/local/links/main'
 include { MAP_TO_ASSEMBLY } from '../../mapping/map_to_assembly/main'
 include { RUN_QUAST } from '../../qc/quast/main'
 include { RUN_BUSCO } from '../../qc/busco/main'

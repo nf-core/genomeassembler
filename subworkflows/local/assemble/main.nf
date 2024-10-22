@@ -1,5 +1,5 @@
-include { FLYE } from '../../../modules/nf-core/flye/main'    
-include { HIFIASM; HIFIASM_UL } from '../../../modules/hifiasm/main'
+include { FLYE } from '../../../modules/local/flye/main'    
+include { HIFIASM; HIFIASM_UL } from '../../../modules/local/hifiasm/main'
 include { MAP_TO_ASSEMBLY } from '../mapping/map_to_assembly/main'
 include { MAP_TO_REF } from '../mapping/map_to_ref/main'
 include { RUN_QUAST } from '../qc/quast/main'

@@ -1,4 +1,3 @@
-
 include { CHOP } from './chop/main'
 include { COLLECT } from './collect/main'
 include { RUN_NANOQ } from './run_nanoq/main'

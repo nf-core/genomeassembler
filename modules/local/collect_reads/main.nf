@@ -8,8 +8,10 @@ process COLLECT_READS {
       overwrite: true,
       saveAs: { fn -> fn.substring(fn.lastIndexOf('/')+1) }
     ) 
-    conda "conda-forge::python=3.8.3"
-  
+    conda "conda-forge::python=3.11"
+    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
+        'https://depot.galaxyproject.org/singularity/python:3.11':
+        'biocontainers/python:3.11' }"
   input:
     tuple val(meta), path(read_directory)
   

@@ -1,4 +1,4 @@
-include { MEDAKA } from '../../../../modules/local/medaka/main'
+include { MEDAKA } from '../../../../../modules/local/medaka/main'
 
 workflow RUN_MEDAKA {
   take:

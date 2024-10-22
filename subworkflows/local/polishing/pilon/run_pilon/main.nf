@@ -1,4 +1,4 @@
-include { PILON } from '../../../../modules/local/pilon/main'
+include { PILON } from '../../../../../modules/local/pilon/main'
 workflow RUN_PILON {
     take:
       assembly_in
