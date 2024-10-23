@@ -60,7 +60,7 @@ workflow GENOMEASSEMBLER {
     Channel.empty().set { genome_size }
     Channel.empty().set { ch_versions }
     Channel.empty().set { ch_multiqc_files }
-    ch_input.view()
+
     /*
     =============
     Prepare reads

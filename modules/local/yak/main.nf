@@ -4,12 +4,6 @@ process KMER_ASSEMBLY {
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://depot.galaxyproject.org/singularity/yak:0.1--he4a0461_4':
         'biocontainers/yak:0.1--he4a0461_4' }"
-    publishDir(
-      path: { "${params.out}/yak".replace(':','/').toLowerCase() }, 
-      mode: 'copy',
-      overwrite: true,
-      saveAs: { fn -> fn.substring(fn.lastIndexOf('/')+1) }
-    ) 
 
     input:
     tuple val(meta), path(assembly)
@@ -32,12 +26,6 @@ process KMER_LONGREADS {
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://depot.galaxyproject.org/singularity/yak:0.1--he4a0461_4':
         'biocontainers/yak:0.1--he4a0461_4' }"
-    publishDir(
-      path: { "${params.out}/yak".replace(':','/').toLowerCase() }, 
-      mode: 'copy',
-      overwrite: true,
-      saveAs: { fn -> fn.substring(fn.lastIndexOf('/')+1) }
-    ) 
 
     input:
     tuple val(meta), path(reads)
@@ -60,12 +48,6 @@ process KMER_SHORTREADS {
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://depot.galaxyproject.org/singularity/yak:0.1--he4a0461_4':
         'biocontainers/yak:0.1--he4a0461_4' }"
-    publishDir(
-      path: { "${params.out}/yak".replace(':','/').toLowerCase() }, 
-      mode: 'copy',
-      overwrite: true,
-      saveAs: { fn -> fn.substring(fn.lastIndexOf('/')+1) }
-    ) 
 
     input:
     tuple val(meta), val(paired), path(reads)
@@ -90,12 +72,6 @@ process READ_QV {
         'https://depot.galaxyproject.org/singularity/yak:0.1--he4a0461_4':
         'biocontainers/yak:0.1--he4a0461_4' }"
     tag "$meta.id"
-    publishDir(
-      path: { "${params.out}/yak".replace(':','/').toLowerCase() }, 
-      mode: 'copy',
-      overwrite: true,
-      saveAs: { fn -> fn.substring(fn.lastIndexOf('/')+1) }
-    ) 
 
     input:
       tuple val(meta), path(longread_yak), path(shortread_yak)
@@ -119,12 +95,6 @@ process ASSEMBLY_KQV {
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://depot.galaxyproject.org/singularity/yak:0.1--he4a0461_4':
         'biocontainers/yak:0.1--he4a0461_4' }"
-    publishDir(
-      path: { "${params.out}/yak".replace(':','/').toLowerCase() }, 
-      mode: 'copy',
-      overwrite: true,
-      saveAs: { fn -> fn.substring(fn.lastIndexOf('/')+1) }
-    ) 
 
     input:
     tuple val(meta), path(assembly_yak), path(shortread_yak)
@@ -149,12 +119,6 @@ process KMER_HISTOGRAM {
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://depot.galaxyproject.org/singularity/yak:0.1--he4a0461_4':
         'biocontainers/yak:0.1--he4a0461_4' }"
-    publishDir(
-      path: { "${params.out}/yak".replace(':','/').toLowerCase() }, 
-      mode: 'copy',
-      overwrite: true,
-      saveAs: { fn -> fn.substring(fn.lastIndexOf('/')+1) }
-    ) 
 
     input:
     tuple val(meta), path(yakfile)

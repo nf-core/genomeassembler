@@ -16,35 +16,30 @@
             "ontreads": {
                 "type": "string",
                 "format": "file-path",
-                "exists": true,
                 "pattern": "^\\S+\\.f(ast)?q\\.gz$",
                 "errorMessage": "ONT reads must be provided, cannot contain spaces and must have extension '.fq.gz' or '.fastq.gz'"
             },
             "hifireads": {
                 "type": "string",
                 "format": "file-path",
-                "exists": true,
                 "pattern": "^\\S+\\.f(ast)?q\\.gz$",
                 "errorMessage": "HiFi reads must be provided, cannot contain spaces and must have extension '.fq.gz' or '.fastq.gz'"
             },
             "ref_fasta": {
                 "type": "string",
                 "format": "file-path",
-                "exists": true,
                 "pattern": "^\\S+\\.f(ast)?a",
                 "errorMessage": "Reference fasta cannot contain spaces and must have extension '.fa' or '.fasta'"
             },
             "ref_gff": {
                 "type": "string",
                 "format": "file-path",
-                "exists": true,
                 "pattern": "^\\S+\\.gff(3)",
                 "errorMessage": "Reference gff cannot contain spaces and must have extension '.gff' or '.gff3'"
             },
             "shortread_F": {
                 "type": "string",
                 "format": "file-path",
-                "exists": true,
                 "pattern": "^\\S+\\.f(ast)?q\\.gz$",
                 "errorMessage": "shortread_F cannot contain spaces and must have extension '.fq.gz' or '.fastq.gz'"
             },

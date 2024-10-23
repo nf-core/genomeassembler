@@ -14,12 +14,14 @@ workflow ONT {
     genome_size = Channel.empty()
 
     PREPARE_ONT(input_channel)
-    JELLYFISH(PREPARE_ONT.out.trimmed, PREPARE_ONT.out.med_len)
-    if(params.genome_size == null) {
-        JELLYFISH
-            .out
-            .hap_len
-            .set { genome_size }
+    if(params.jellyfish) {
+        JELLYFISH(PREPARE_ONT.out.trimmed, PREPARE_ONT.out.med_len)
+        if(params.genome_size == null) {
+            JELLYFISH
+                .out
+                .hap_len
+                .set { genome_size }
+        }
     }
     PREPARE_ONT
         .out

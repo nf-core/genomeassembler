@@ -8,13 +8,15 @@ workflow YAK_QC {
     kmer_shortreads
 
   main:
-    KMER_ASSEMBLY(assembly)
-    KMER_ASSEMBLY_HIST(KMER_ASSEMBLY.out)
-    if(params.short_reads) {
-      KMER_ASSEMBLY
-        .out
-        .join(kmer_shortreads)
-        .set{ yak_qv_in }
-      KMER_ASSEMBLY_QV(yak_qv_in)
+    if(params.yak) {
+      KMER_ASSEMBLY(assembly)
+      KMER_ASSEMBLY_HIST(KMER_ASSEMBLY.out)
+      if(params.short_reads) {
+          KMER_ASSEMBLY
+              .out
+              .join(kmer_shortreads)
+              .set{ yak_qv_in }
+          KMER_ASSEMBLY_QV(yak_qv_in)
+      }
     }
  }

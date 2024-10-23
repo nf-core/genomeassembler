@@ -27,7 +27,7 @@ workflow ASSEMBLE {
 
     if (params.use_ref) {
       ch_input
-        .map { row -> [row.sample, row.ref_fasta] }
+        .map { row -> [row.meta, row.ref_fasta] }
         .set { ch_refs }
     }
 
@@ -35,7 +35,7 @@ workflow ASSEMBLE {
       // Sample sheet layout when skipping assembly
       // sample,ontreads,assembly,ref_fasta,ref_gff
       ch_input
-        .map { row -> [row.sample, row.assembly] }
+        .map { row -> [row.meta, row.assembly] }
         .set { ch_assembly }
     } 
     if(!params.skip_assembly ) {
@@ -44,26 +44,18 @@ workflow ASSEMBLE {
       if(params.assembler == "flye") {
         if(params.hifi) {
           if(!hifi_only) error 'Cannot combine hifi and ont reads with flye'
-          if(params.genome_size == null) {
-            hifi_reads
-              .map { it -> [it[0], it[1], null] }
+          ont_reads
+              .map { it -> [it[0], it[1], params.genome_size]}
               .set { flye_inputs }
-          } 
-          if(!params.genome_size == null) {
-             ont_reads
-              .combine(params.genome_size)
-              .set { flye_inputs }
-          }
-         }
+        }
         if(params.ont) {
-          if(params.genome_size == null) {
+          if(params.genome_size == null && params.jellyfish) {
             ont_reads
               .join(genomescope_out)
               .set { flye_inputs }
-          } 
-          if(!params.genome_size == null) {
+          } else {
              ont_reads
-              .combine(params.genome_size)
+              .map { it -> [it[0], it[1], params.genome_size]}
               .set { flye_inputs }
           }
         }
@@ -137,15 +129,15 @@ workflow ASSEMBLE {
       // Sample sheet layout when skipping assembly and mapping
       // sample,ontreads,assembly,ref_fasta,ref_gff,assembly_bam,assembly_bai,ref_bam
       ch_input
-        .map { row -> [row.sample, row.ref_bam] }
+        .map { row -> [row.meta, row.ref_bam] }
         .set { ch_ref_bam }
 
       ch_input
-        .map { row -> [row.sample, row.assembly_bam] }
+        .map { row -> [row.meta, row.assembly_bam] }
         .set { ch_assembly_bam }
 
       ch_input
-        .map { row -> [row.sample, row.assembly_bam, row.assembly_bai] }
+        .map { row -> [row.meta, row.assembly_bam, row.assembly_bai] }
         .set { ch_assembly_bam_bai } 
 
     } else {
@@ -200,7 +192,6 @@ workflow ASSEMBLE {
     QC on initial assembly
     */
     RUN_BUSCO(ch_assembly)
-
     
     YAK_QC(ch_assembly, yak_kmers)
 

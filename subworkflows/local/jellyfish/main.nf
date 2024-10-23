@@ -10,7 +10,6 @@ workflow JELLYFISH {
     nanoq_out
   
   main: 
-    samples.view()
     COUNT(samples)
     COUNT
       .out
