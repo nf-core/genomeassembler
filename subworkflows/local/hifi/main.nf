@@ -7,16 +7,19 @@ workflow HIFI {
     take: inputs
 
     main: 
+        Channel.empty().set { hifi_kmers }
         PREPARE_HIFI(inputs)
         PREPARE_HIFI
             .out
             .set { hifi_reads }
-        KMER_HIFI(hifi_reads)
-        KMER_HIFI
-            .out
-            .set { hifi_kmers }
-        KMER_HISTOGRAM(hifi_kmers)
-        if(params.short_reads) READ_QV(hifi_kmers.join(yak_kmers))
+        if(params.yak) {
+            KMER_HIFI(hifi_reads)
+            KMER_HIFI
+                .out
+                .set { hifi_kmers }
+            KMER_HISTOGRAM(hifi_kmers)
+            if(params.short_reads) READ_QV(hifi_kmers.join(yak_kmers))
+        }
     
     emit:
         hifi_reads

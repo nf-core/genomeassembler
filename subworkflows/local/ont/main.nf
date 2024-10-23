@@ -11,9 +11,15 @@ workflow ONT {
         yak_kmers
 
     main:
-    genome_size = Channel.empty()
+    Channel.empty().set { genome_size }
+    Channel.empty().set { ont_kmers }
 
     PREPARE_ONT(input_channel)
+    PREPARE_ONT
+        .out
+        .trimmed
+        .set { ont_reads }
+
     if(params.jellyfish) {
         JELLYFISH(PREPARE_ONT.out.trimmed, PREPARE_ONT.out.med_len)
         if(params.genome_size == null) {
@@ -23,16 +29,15 @@ workflow ONT {
                 .set { genome_size }
         }
     }
-    PREPARE_ONT
-        .out
-        .trimmed
-        .set { ont_reads }
-    KMER_ONT(ont_reads)
-    KMER_ONT
-        .out
-        .set { ont_kmers }
-    KMER_HISTOGRAM(ont_kmers)
-    if(params.short_reads) READ_QV(ont_kmers.join(yak_kmers))
+
+    if(params.yak) {
+        KMER_ONT(ont_reads)
+        KMER_ONT
+            .out
+            .set { ont_kmers }
+        KMER_HISTOGRAM(ont_kmers)
+        if(params.short_reads) READ_QV(ont_kmers.join(yak_kmers))
+    }
     
     emit:
      genome_size

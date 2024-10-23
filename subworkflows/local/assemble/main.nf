@@ -93,17 +93,15 @@ workflow ASSEMBLE {
         HIFIASM(hifiasm_inputs, params.hifiasm_args)
 
         // Run flye
-        if(!params.genome_size == null) {
-          ont_reads
-            .combine(params.genome_size)
-            .set { flye_inputs }
+        if(params.genome_size == null && params.jellyfish) {
+            ont_reads
+                .join(genomescope_out)
+                .set { flye_inputs }
+        } else {
+             ont_reads
+                .map { it -> [it[0], it[1], params.genome_size]}
+                .set { flye_inputs }
         }
-        if(params.genome_size == null) {
-          ont_reads
-            .join(genomescope_out)
-            .set { flye_inputs }
-        } 
-
         FLYE(flye_inputs, params.flye_mode)
 
         FLYE

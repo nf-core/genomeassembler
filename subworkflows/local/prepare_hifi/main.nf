@@ -6,7 +6,7 @@ workflow PREPARE_HIFI {
 
   main:
     inputs
-      .map { it -> [it.sample, it.hifireads] }
+      .map { it -> [it.meta, it.hifireads] }
       .set { hifireads }
     if(params.lima) {
       if(is.null(params.pacbio_primers)) error 'Trimming with lima requires a file containing primers (--pacbio_primers)'
