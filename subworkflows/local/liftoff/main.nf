@@ -9,7 +9,8 @@ workflow RUN_LIFTOFF {
     assembly
       .join(
         inputs
-        .map { row -> [row.sample, row.ref_fasta, row.ref_gff] } )
+          .map { row -> [row.meta, row.ref_fasta, row.ref_gff] } 
+        )
       .set { liftoff_in }
 
     LIFTOFF(liftoff_in)

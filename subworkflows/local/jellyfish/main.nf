@@ -23,24 +23,26 @@ workflow JELLYFISH {
 
     if(!params.read_length == null) {
       HISTO
-      .out
-      .map { it -> [it[0], it[1], params.kmer_length, params.read_length] }
-      .set { genomescope_in }
+        .out
+        .map { it -> [it[0], it[1], params.kmer_length, params.read_length] }
+        .set { genomescope_in }
     } 
 
     if(params.read_length == null) {
       HISTO
-      .out
-      .map { it -> [it[0], it[1], params.kmer_length] }
-      .join( nanoq_out )
-      .set { genomescope_in }
+        .out
+        .map { it -> [it[0], it[1], params.kmer_length] }
+        .join( nanoq_out )
+        .set { genomescope_in }
     }
 
     GENOMESCOPE(genomescope_in)
 
     STATS(kmers)
 
-    GENOMESCOPE.out.estimated_hap_len
+    GENOMESCOPE
+      .out
+      .estimated_hap_len
       .set{ hap_len }    
       
   emit:

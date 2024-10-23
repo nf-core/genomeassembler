@@ -5,12 +5,6 @@ process RAGTAG_SCAFFOLD {
   container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://depot.galaxyproject.org/singularity/ragtag:2.1.0--pyhb7b1952_0':
         'biocontainers/ragtag:2.1.0--pyhb7b1952_0' }"
-  publishDir(
-    path: { "${params.out}/${task.process}".replace(':','/').toLowerCase() }, 
-    mode: 'copy',
-    overwrite: true,
-    saveAs: { fn -> fn.substring(fn.lastIndexOf('/')+1) }
-  ) 
   
   input:
       tuple val(meta), path(assembly), path(reference)
