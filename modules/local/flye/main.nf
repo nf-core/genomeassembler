@@ -9,7 +9,7 @@ process FLYE {
 
     input:
     tuple val(meta), path(reads), val(genome_size)
-    val mode
+    val (mode)
 
     output:
     tuple val(meta), path("*.fasta.gz"), emit: fasta
@@ -25,7 +25,7 @@ process FLYE {
 
     script:
     def args = task.ext.args ?: ''
-    def prefix = task.ext.prefix ?: "${meta}"
+    def prefix = task.ext.prefix ?: "${meta.id}"
     def valid_mode = ["--pacbio-raw", "--pacbio-corr", "--pacbio-hifi", "--nano-raw", "--nano-corr", "--nano-hq"]
     if ( !valid_mode.contains(mode) )  { error "Unrecognised mode to run Flye. Options: ${valid_mode.join(', ')}" }
     def flye_args = params.flye_args
@@ -54,7 +54,7 @@ process FLYE {
     """
 
     stub:
-    def prefix = task.ext.prefix ?: "${meta}"
+    def prefix = task.ext.prefix ?: "${meta.id}"
     """
     echo stub > assembly.fasta | gzip -c assembly.fasta > ${prefix}.assembly.fasta.gz
     echo stub > assembly_graph.gfa | gzip -c assembly_graph.gfa > ${prefix}.assembly_graph.gfa.gz

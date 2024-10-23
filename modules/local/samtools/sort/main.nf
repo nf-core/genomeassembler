@@ -20,7 +20,7 @@ process SAMTOOLS_SORT {
     tuple val(meta), path("*.bam"), emit: bam
 
     script:
-    def prefix   = options.suffix ? "${meta}${options.suffix}" : "${meta}"
+    def prefix   = options.suffix ? "${meta.id}${options.suffix}" : "${meta.id}"
     """
     samtools sort $options.args -@ $task.cpus -o ${prefix}.bam -T $prefix $bam
     """

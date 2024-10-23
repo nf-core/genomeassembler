@@ -1,16 +1,11 @@
 process GENOMESCOPE {
-    tag "$meta"
+    tag "$meta.id"
     label 'process_medium'
     conda "${moduleDir}/environment.yml"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://depot.galaxyproject.org/singularity/r-base:4.4.1':
         'biocontainers/r-base:4.4.1' }"
-    publishDir(
-      path: { "${params.out}/${task.process}".replace(':','/').toLowerCase() }, 
-      mode: 'copy',
-      overwrite: true,
-      saveAs: { fn -> fn.substring(fn.lastIndexOf('/')+1) }
-    ) 
+
     input:
         tuple val(meta), path(histo), val(kmer_length), val(read_length)
 
@@ -21,12 +16,13 @@ process GENOMESCOPE {
         tuple val(meta), env(est_hap_len), emit: estimated_hap_len
 
     script:
+    def prefix = task.ext.prefix ?: "${meta.id}"
         """
         genomescope.R $histo $kmer_length $read_length genomescope
-        mv genomescope/summary.txt ${meta}_genomescope.txt
-        mv genomescope/plot.log.png ${meta}_plot.log.png
-        mv genomescope/plot.png ${meta}_plot.png
-        est_hap_len=\$(cat ${meta}_genomescope.txt \\
+        mv genomescope/summary.txt ${prefix}_genomescope.txt
+        mv genomescope/plot.log.png ${prefix}_plot.log.png
+        mv genomescope/plot.png ${prefix}_plot.png
+        est_hap_len=\$(cat ${prefix}_genomescope.txt \\
             | grep 'Haploid Length' \\
             | sed 's@ bp@@g' \\
             | sed 's@,@@g' \\

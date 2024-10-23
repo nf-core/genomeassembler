@@ -6,8 +6,8 @@ include { KMER_HISTOGRAM } from '../../../modules/local/yak/main'
 def create_shortread_channel(LinkedHashMap row) {
     // create meta map
     def meta = [:]
-    meta.id       = row.sample
-    meta.paired   = row.paired.toBoolean()
+    meta.id       = row.meta.id
+    meta.paired   = row.meta.paired.toBoolean()
 
     // add path(s) of the fastq file(s) to the meta map
     def shortreads = []

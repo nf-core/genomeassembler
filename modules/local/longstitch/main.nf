@@ -1,5 +1,5 @@
 process LONGSTITCH {
-  tag "$meta"
+  tag "$meta.id"
   label 'process_high'
   conda "${moduleDir}/environment.yml"
   container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
@@ -13,7 +13,7 @@ process LONGSTITCH {
       tuple val(meta), path("${meta}.tigmint-ntLink.longstitch-scaffolds.fa"), emit: ntlLinks_scaffolds
   
   script:
-      def prefix = task.ext.prefix ?: "${meta}"
+      def prefix = task.ext.prefix ?: "${meta.id}"
   """
   if [[ ${assembly} == *.gz ]]; then
     zcat ${assembly} | fold -w 120 > assembly.fasta

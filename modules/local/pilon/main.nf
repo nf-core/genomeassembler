@@ -1,16 +1,11 @@
 process PILON {
-    tag "$meta"
+    tag "$meta.id"
     label 'process_medium'
-    conda "bioconda::pilon=1.24"
+    conda "${moduleDir}/environment.yml"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://depot.galaxyproject.org/singularity/pilon:1.24--hdfd78af_0':
         'biocontainers/pilon:1.24--hdfd78af_0' }"
-    publishDir(
-      path: { "${params.out}/${task.process}".replace(':','/').toLowerCase() }, 
-      mode: 'copy',
-      overwrite: true,
-      saveAs: { fn -> fn.substring(fn.lastIndexOf('/')+1) }
-    ) 
+
 
     input:
     tuple val(meta), path(fasta), path(bam), path(bai)
@@ -29,13 +24,13 @@ process PILON {
 
     script:
     def args = task.ext.args ?: ''
-    def prefix = task.ext.prefix ?: "${meta}"
+    def prefix = task.ext.prefix ?: "${meta.id}"
     def valid_mode = ["frags", "jumps", "unpaired", "bam"]
     if ( !valid_mode.contains(pilon_mode) )  { error "Unrecognised mode to run Pilon. Options: ${valid_mode.join(', ')}" }
     """
     pilon \\
         --genome $fasta \\
-        --output ${meta}_pilon \\
+        --output ${prefix}_pilon \\
         --threads $task.cpus \\
         $args \\
         --$pilon_mode $bam \\

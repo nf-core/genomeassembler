@@ -18,7 +18,9 @@ process SAMTOOLS_FASTQ {
     tuple val(meta), path("*.fq.gz"), emit: fasta
 
     script:
+    def prefix = task.ext.prefix ?: "${meta.id}"
+
     """
-    samtools fastq $bam | gzip | ${meta}.fq.gz
+    samtools fastq $bam | gzip | ${prefix}.fq.gz
     """
 }

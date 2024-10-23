@@ -6,18 +6,18 @@ workflow COLLECT {
   main:
   
     ch_input
-      .map { row -> [row.sample, row.ontreads] }
-      .set { in_reads }
+      .map { row -> [row.meta, row.ontreads] }
+      .set { reads }
 
     if(params.collect) {
-      COLLECT_READS(in_reads)
+      COLLECT_READS(reads)
 
       COLLECT_READS
         .out
         .combined_reads
-        .set { in_reads }
+        .set { reads }
     }
 
   emit:
-    in_reads
+    reads
  }

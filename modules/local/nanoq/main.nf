@@ -6,12 +6,7 @@ process NANOQ {
     container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://depot.galaxyproject.org/singularity/nanoq:0.10.0--h031d066_2' :
         'biocontainers/nanoq:0.10.0--h031d066_2'}"
-    publishDir(
-      path: { "${params.out}/${task.process}".replace(':','/').toLowerCase() }, 
-      mode: 'copy',
-      overwrite: true,
-      saveAs: { fn -> fn.substring(fn.lastIndexOf('/')+1) }
-    ) 
+
     input:
         tuple val(meta), path(reads)
 
@@ -21,8 +16,9 @@ process NANOQ {
         tuple val(meta), env(median), emit: median_length
 
     script:
+        def prefix = task.ext.prefix ?: "${meta.id}"
         """
-        nanoq -i ${reads} -j -r ${meta.id}_report.json -s -H -vvv > ${meta.id}_stats.json
-        median=\$(cat ${meta.id}_report.json | grep -o '"median_length":[0-9]*' | grep -o '[0-9]*')
+        nanoq -i ${reads} -j -r ${prefix}_report.json -s -H -vvv > ${prefix}_stats.json
+        median=\$(cat ${prefix}_report.json | grep -o '"median_length":[0-9]*' | grep -o '[0-9]*')
         """
 }

@@ -23,14 +23,14 @@ process QUAST {
 
     script:
     def args = task.ext.args   ?: ''
-    prefix   = task.ext.prefix ?: 'quast'
+    def prefix = task.ext.prefix ?: "${meta.id}"
     def features  = use_gff ? "--features $gff" : ''
     def reference = use_fasta ? "-r $fasta" : ''
     def reference_bam = params.use_ref ? "--ref-bam ${ref_bam}" : ''
 
     """
     quast.py \\
-        --output-dir ${meta.id} \\
+        --output-dir ${prefix} \\
         $reference \\
         $features \\
         --threads $task.cpus \\
@@ -42,7 +42,7 @@ process QUAST {
         --large \\
         ${args}
 
-    ln -s ${meta.id}/report.tsv
+    ln -s ${prefix}/report.tsv
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

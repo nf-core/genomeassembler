@@ -36,13 +36,14 @@ include { SCAFFOLD               } from '../subworkflows/local/scaffolding/main'
 
 workflow GENOMEASSEMBLER {
 
-
+    take:
+        ch_input
+        ch_refs
     /*
     Define channels
     */
+    main:
 
-    Channel.empty().set { ch_input }
-    Channel.empty().set { ch_refs }
     Channel.empty().set { ch_ref_bam }
     Channel.empty().set { ch_assembly }
     Channel.empty().set { ch_assembly_bam }
@@ -59,23 +60,7 @@ workflow GENOMEASSEMBLER {
     Channel.empty().set { genome_size }
     Channel.empty().set { ch_versions }
     Channel.empty().set { ch_multiqc_files }
-    /*
-    Check samplesheet
-    */
-
-    if(params.samplesheet) {
-        Channel.fromPath(params.samplesheet) 
-            .splitCsv(header:true) 
-            .set { ch_input }
-        if(params.use_ref) {
-            ch_input
-                .map { row -> [row.sample, row.ref_fasta] }
-                .set { ch_refs }
-      }
-    } else {
-        exit 1, 'Input samplesheet not specified!'
-    }
-
+    ch_input.view()
     /*
     =============
     Prepare reads
@@ -168,11 +153,13 @@ workflow GENOMEASSEMBLER {
     //
     // MODULE: Run FastQC
     //
+    /*
     FASTQC (
-        params.samplesheet
+        params.input
     )
-    ch_multiqc_files = ch_multiqc_files.mix(FASTQC.out.zip.collect{it[1]})
-    ch_versions = ch_versions.mix(FASTQC.out.versions.first())
+    */
+    //ch_multiqc_files = ch_multiqc_files.mix(FASTQC.out.zip.collect{it[1]})
+    //ch_versions = ch_versions.mix(FASTQC.out.versions.first())
 
     //
     // Collate and save software versions
@@ -189,6 +176,7 @@ workflow GENOMEASSEMBLER {
     //
     // MODULE: MultiQC
     //
+    /*
     ch_multiqc_config        = Channel.fromPath(
         "$projectDir/assets/multiqc_config.yml", checkIfExists: true)
     ch_multiqc_custom_config = params.multiqc_config ?
@@ -225,8 +213,11 @@ workflow GENOMEASSEMBLER {
         [],
         []
     )
-
-    emit:multiqc_report = MULTIQC.out.report.toList() // channel: /path/to/multiqc_report.html
+    multiqc_report = MULTIQC.out.report.toList() // channel: /path/to/multiqc_report.html
+    */
+    Channel.empty().set { multiqc_report }
+    emit:
+    multiqc_report 
     versions       = ch_versions                 // channel: [ path(versions.yml) ]
 
 }

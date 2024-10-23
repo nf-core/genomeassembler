@@ -20,6 +20,7 @@ process SAMTOOLS_FLAGSTAT {
     tuple val(meta), path("*.flagstat"), emit: flagstat
 
     script:
+    def prefix = task.ext.prefix ?: "${meta.id}"
 
     """
     samtools flagstat $bam > ${bam}.flagstat

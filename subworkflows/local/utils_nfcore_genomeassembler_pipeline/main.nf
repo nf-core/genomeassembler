@@ -66,34 +66,26 @@ workflow PIPELINE_INITIALISATION {
     //
     // Custom validation for pipeline parameters
     //
-    validateInputParameters()
+    //validateInputParameters()
 
     //
     // Create channel from input file provided through params.input
     //
 
-    Channel
-        .fromList(samplesheetToList(params.input, "${projectDir}/assets/schema_input.json"))
-        .map {
-            meta, fastq_1, fastq_2 ->
-                if (!fastq_2) {
-                    return [ meta.id, meta + [ single_end:true ], [ fastq_1 ] ]
-                } else {
-                    return [ meta.id, meta + [ single_end:false ], [ fastq_1, fastq_2 ] ]
-                }
-        }
-        .groupTuple()
-        .map { samplesheet ->
-            validateInputSamplesheet(samplesheet)
-        }
-        .map {
-            meta, fastqs ->
-                return [ meta, fastqs.flatten() ]
-        }
-        .set { ch_samplesheet }
+    Channel.empty().set{ ch_refs }
+    Channel.fromPath(params.input) 
+           .splitCsv(header:true) 
+           .map { it -> [meta: [id: it.sample], ontreads: it.ontreads, hifireads: it.hifireads, ref_fasta: it.ref_fasta, ref_gff: it.ref_gff, shortread_F: it.shortread_F, shortread_R: it.shortread_R, paired: it.paired ]}
+           .set { ch_samplesheet }
+    if(params.use_ref) {
+      ch_samplesheet
+        .map { it -> [it.meta, it.ref_fasta] }
+        .set { ch_refs }
+    }
 
     emit:
     samplesheet = ch_samplesheet
+    refs        = ch_refs
     versions    = ch_versions
 }
 

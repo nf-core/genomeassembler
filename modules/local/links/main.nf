@@ -1,5 +1,5 @@
 process LINKS {
-  tag "$meta"
+  tag "$meta.id"
   label 'process_high'
   
   conda "${moduleDir}/environment.yml"
@@ -16,10 +16,10 @@ process LINKS {
       tuple val(meta), path("*.log"), emit: log
   
   script:
-      def prefix = task.ext.prefix ?: "${meta}"
+      def prefix = task.ext.prefix ?: "${meta.id}"
   """
   echo "${reads}" > readfile.fof
-  LINKS -f ${assembly} -s readfile.fof -j 3 -b ${meta}_links -t 40,200 -d 500,2000,5000
-  sed -i 's/\\(scaffold[0-9]*\\).*/\\1/' ${meta}_links.scaffolds.fa
+  LINKS -f ${assembly} -s readfile.fof -j 3 -b ${prefix}_links -t 40,200 -d 500,2000,5000
+  sed -i 's/\\(scaffold[0-9]*\\).*/\\1/' ${prefix}_links.scaffolds.fa
   """
 }

@@ -4,12 +4,7 @@ process COUNT {
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://depot.galaxyproject.org/singularity/mer-jellyfish:2.3.1--h4ac6f70_0' :
         'biocontainers/kmer-jellyfish:2.3.1--h4ac6f70_0' }"
-    publishDir(
-      path: { "${params.out}/${task.process}".replace(':','/').toLowerCase() }, 
-      mode: 'copy',
-      overwrite: true,
-      saveAs: { fn -> fn.substring(fn.lastIndexOf('/')+1) }
-    ) 
+
     input:
         tuple val(meta), path(fasta)
 
@@ -17,6 +12,7 @@ process COUNT {
         tuple val(meta), path("*.jf"), emit: kmers
 
     script:
+    def prefix = task.ext.prefix ?: "${meta.id}"
         """
         if [[ ${fasta} == *.gz ]]; then
             zcat ${fasta} > ${fasta.baseName}.fasta
@@ -33,7 +29,7 @@ process COUNT {
          -C \\
          -t $task.cpus ${fasta.baseName}.fasta 
          
-        mv mer_counts.jf ${meta.id}_mer_counts.jf
+        mv mer_counts.jf ${prefix}_mer_counts.jf
         """
 }
 
@@ -43,12 +39,7 @@ process HISTO {
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://depot.galaxyproject.org/singularity/mer-jellyfish:2.3.1--h4ac6f70_0' :
         'biocontainers/kmer-jellyfish:2.3.1--h4ac6f70_0' }"
-    publishDir(
-      path: { "${params.out}/${task.process}".replace(':','/').toLowerCase() }, 
-      mode: 'copy',
-      overwrite: true,
-      saveAs: { fn -> fn.substring(fn.lastIndexOf('/')+1) }
-    ) 
+
     input:
         tuple val(meta), path(kmers)
 
@@ -56,8 +47,9 @@ process HISTO {
         tuple val(meta), path("*.tsv"), emit: histo
 
     script:
+    def prefix = task.ext.prefix ?: "${meta.id}"
         """
-        jellyfish histo $kmers > ${meta.id}_hist.tsv         
+        jellyfish histo $kmers > ${prefix}_hist.tsv         
         """
 }
 
@@ -80,8 +72,9 @@ process STATS {
         tuple val(meta), path("*.txt"), emit: stats
 
     script:
+    def prefix = task.ext.prefix ?: "${meta.id}"
         """
-        jellyfish stats $kmers > ${meta.id}_stats.txt       
+        jellyfish stats $kmers > ${prefix}_stats.txt       
         """
 }
 
@@ -104,7 +97,8 @@ process DUMP {
         tuple val(meta), path("*.fa"), emit: dumped_kmers
 
     script:
+    def prefix = task.ext.prefix ?: "${meta.id}"
         """
-        jellyfish dump $kmers > ${meta.id}_kmers.fa  
+        jellyfish dump $kmers > ${prefix}_kmers.fa  
         """
 }

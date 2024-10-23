@@ -10,12 +10,16 @@ workflow PREPARE_ONT {
 
     CHOP(COLLECT.out)
 
-    trimmed = CHOP.out
+    CHOP
+      .out
+      .set { trimmed }
 
     RUN_NANOQ(trimmed)
 
-    med_len = RUN_NANOQ.out.median_length
-
+    RUN_NANOQ
+      .out
+      .median_length
+      .set { med_len }
   emit:
       trimmed
       med_len

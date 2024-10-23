@@ -1,13 +1,7 @@
 process COLLECT_READS {
-    tag "$meta"
+    tag "$meta.id"
     label 'process_low'
 
-    publishDir(
-      path: { "${params.out}/${task.process}".replace(':','/').toLowerCase() }, 
-      mode: 'copy',
-      overwrite: true,
-      saveAs: { fn -> fn.substring(fn.lastIndexOf('/')+1) }
-    ) 
     conda "conda-forge::python=3.11"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://depot.galaxyproject.org/singularity/python:3.11':
@@ -19,7 +13,7 @@ process COLLECT_READS {
     tuple val(meta), path("*.fastq"), emit: combined_reads
   
   script:
-    def prefix = task.ext.prefix ?: "${meta}"
+    def prefix = task.ext.prefix ?: "${meta.id}"
       
   """
   gunzip -c ${read_directory}/*.gz > ${prefix}_all_reads.fastq

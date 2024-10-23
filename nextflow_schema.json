@@ -246,6 +246,18 @@
         }
     ],
     "properties": {
+        "ont": {
+            "type": "boolean",
+            "description": "ONT reads available?"
+        },
+        "hifi": {
+            "type": "boolean",
+            "description": "HiFi reads available?"
+        },
+        "short_reads": {
+            "type": "boolean",
+            "description": "Short reads available?"
+        },
         "collect": {
             "type": "boolean",
             "description": "collect ONT reads into a single file"
@@ -254,13 +266,32 @@
             "type": "boolean",
             "description": "run porechop on ONT reads"
         },
+        "lima": {
+            "type": "boolean",
+            "description": "run lima on HiFi reads?"
+        },
+        "pacbio_primers": {
+            "type": "string",
+            "description": "file containing pacbio primers for trimming with lima",
+            "default": "\"\""
+        },
+        "trim_short_reads": {
+            "type": "boolean",
+            "description": "trim short reads with trimgalore",
+            "default": true
+        },
+        "assembler": {
+            "type": "string",
+            "description": "Assembler to use. Valid choices are: `'hifiasm'`, `'flye'`, or `'flye_on_hifiasm'`. `flye_on_hifiasm` will scaffold flye assembly (ont) on hifiasm (hifi) assembly using ragtag",
+            "default": "\"flye\""
+        },
         "kmer_length": {
             "type": "integer",
             "description": "kmer length to be used for jellyfish",
             "default": 21
         },
         "read_length": {
-            "type": "integer",
+            "type": "string",
             "description": "read length for genomescope (ONT only)"
         },
         "dump": {
@@ -276,85 +307,91 @@
             "type": "boolean",
             "description": "use reference genome"
         },
-        "skip_assembly": {
+        "genome_size": {
             "type": "string",
+            "description": "expected genome size"
+        },
+        "flye_mode": {
+            "type": "string",
+            "description": "flye mode",
+            "default": "\"--nano-hq\""
+        },
+        "flye_args": {
+            "type": "string",
+            "description": "additional args for flye",
+            "default": "''"
+        },
+        "qc_reads": {
+            "type": "string",
+            "description": "Long reads that should be used for QC when both ONT and HiFi reads are provided. Options are `'ONT'` or `'HIFI'`",
+            "default": "'ONT'"
+        },
+        "hifiasm_ont": {
+            "type": "boolean",
+            "description": "Use hifi and ONT reads with `hifiasm --ul`"
+        },
+        "hifiasm_args": {
+            "type": "string",
+            "description": "Extra arguments passed to `hifiasm`",
+            "default": "''"
+        },
+        "polish_pilon": {
+            "type": "boolean",
+            "description": "Polish assembly with pilon?"
+        },
+        "polish_medaka": {
+            "type": "boolean",
+            "description": "Polish assembly with medaka (ONT only)"
+        },
+        "medaka_model": {
+            "type": "string",
+            "description": "model to use with medaka",
+            "default": "'r1041_e82_400bps_hac@v4.2.0:consesus'"
+        },
+        "scaffold_ragtag": {
+            "type": "boolean",
+            "description": "Scaffold with ragtag (requires reference)?"
+        },
+        "scaffold_links": {
+            "type": "boolean",
+            "description": "Scaffolding with links?"
+        },
+        "scaffold_longstitch": {
+            "type": "boolean",
+            "description": "Scaffold with longstitch?"
+        },
+        "lift_annotations": {
+            "type": "boolean",
+            "description": "Lift-over annotations (requires reference)?"
+        },
+        "busco": {
+            "type": "boolean",
+            "description": "Run BUSCO?",
+            "default": true
+        },
+        "busoc_db": {
+            "type": "string",
+            "description": "Path to busco db",
+            "default": "''"
+        },
+        "busco_lineage": {
+            "type": "string",
+            "description": "Busco lineage to use",
+            "default": "'brassicales_odb10'"
+        },
+        "quast": {
+            "type": "boolean",
+            "description": "Run quast",
+            "default": true
+        },
+        "skip_assembly": {
+            "type": "boolean",
             "description": "skip assembly steps",
             "help_text": "Skip assembly and perform only qc."
         },
-        "genome_size": {
-            "type": "string"
-        },
-        "flye_mode": {
-            "type": "string"
-        },
-        "flye_args": {
-            "type": "string"
-        },
-        "hifi": {
-            "type": "string"
-        },
-        "ont": {
-            "type": "string"
-        },
-        "short_reads": {
-            "type": "string"
-        },
-        "trim_short_reads": {
-            "type": "string"
-        },
-        "lima": {
-            "type": "string"
-        },
-        "pacbio_primers": {
-            "type": "string"
-        },
-        "assembler": {
-            "type": "string"
-        },
-        "qc_reads": {
-            "type": "string"
-        },
-        "hifiasm_ont": {
-            "type": "string"
-        },
-        "hifiasm_args": {
-            "type": "string"
-        },
-        "polish_pilon": {
-            "type": "string"
-        },
-        "polish_medaka": {
-            "type": "string"
-        },
-        "medaka_model": {
-            "type": "string"
-        },
         "skip_alignments": {
-            "type": "string"
-        },
-        "scaffold_ragtag": {
-            "type": "string"
-        },
-        "scaffold_links": {
-            "type": "string"
-        },
-        "scaffold_longstitch": {
-            "type": "string"
-        },
-        "lift_annotations": {
-            "type": "string"
-        },
-        "busco": {
-            "type": "string"
-        },
-        "busoc_db": {
-            "type": "string"
-        },
-        "busco_lineage": {
-            "type": "string"
-        },
-        "quast": {
-            "type": "string"
+            "type": "boolean",
+            "description": "skip alignments during qc"
         }
     }
 }

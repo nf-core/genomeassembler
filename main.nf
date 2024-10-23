@@ -15,7 +15,7 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-include { GENOMEASSEMBLER  } from './workflows/genomeassembler'
+include { GENOMEASSEMBLER         } from './workflows/genomeassembler'
 include { PIPELINE_INITIALISATION } from './subworkflows/local/utils_nfcore_genomeassembler_pipeline'
 include { PIPELINE_COMPLETION     } from './subworkflows/local/utils_nfcore_genomeassembler_pipeline'
 include { getGenomeAttribute      } from './subworkflows/local/utils_nfcore_genomeassembler_pipeline'
@@ -30,7 +30,7 @@ Parameter setup
 */
 nextflow.enable.dsl = 2 
 params.publish_dir_mode = 'copy'
-params.input = false
+params.input = ''
 params.collect = false
 params.porechop = false
 //Jellyfish params
@@ -85,7 +85,8 @@ params.fasta = getGenomeAttribute('fasta')
 workflow NFCORE_GENOMEASSEMBLER {
 
     take:
-    samplesheet // channel: samplesheet read in from --input
+        samplesheet // channel: samplesheet read in from --input
+        refs
 
     main:
 
@@ -93,7 +94,8 @@ workflow NFCORE_GENOMEASSEMBLER {
     // WORKFLOW: Run pipeline
     //
     GENOMEASSEMBLER (
-        samplesheet
+        samplesheet,
+        refs
     )
     emit:
     multiqc_report = GENOMEASSEMBLER.out.multiqc_report // channel: /path/to/multiqc_report.html
@@ -123,7 +125,7 @@ workflow {
     // WORKFLOW: Run main workflow
     //
     NFCORE_GENOMEASSEMBLER (
-        PIPELINE_INITIALISATION.out.samplesheet
+        PIPELINE_INITIALISATION.out.samplesheet, PIPELINE_INITIALISATION.out.refs
     )
     //
     // SUBWORKFLOW: Run completion tasks

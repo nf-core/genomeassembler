@@ -5,12 +5,6 @@ process HIFIASM {
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://depot.galaxyproject.org/singularity/hifiasm:0.19.9--h43eeafb_0' :
         'biocontainers/hifiasm:0.19.9--h43eeafb_0' }"
-    publishDir(
-      path: { "${params.out}/${task.process}".replace(':','/').toLowerCase() }, 
-      mode: 'copy',
-      overwrite: true,
-      saveAs: { fn -> fn.substring(fn.lastIndexOf('/')+1) }
-    ) 
 
     input:
     tuple val(meta), path(reads)
@@ -28,16 +22,17 @@ process HIFIASM {
 
     script:
     def args = hifi_args ?: ''
+    def prefix = task.ext.prefix ?: "${meta.id}"
     """
     hifiasm \\
         $args \\
         -l0 \\
-        -o ${meta.id}.asm \\
+        -o ${prefix}.asm \\
         -t $task.cpus \\
         $reads \\
-        2> >( tee ${meta}.stderr.log >&2  )
+        2> >( tee ${prefix}.stderr.log >&2  )
     
-    awk '/^S/{print ">"\$2;print \$3}' ${meta.id}.asm.bp.p_ctg.gfa | gzip > ${meta.id}.asm.bp.p_ctg.fa.gz
+    awk '/^S/{print ">"\$2;print \$3}' ${prefix}.asm.bp.p_ctg.gfa | gzip > ${prefix}.asm.bp.p_ctg.fa.gz
     """
     }
 
@@ -68,16 +63,17 @@ process HIFIASM_UL {
 
     script:
     def args = hifi_args ?: ''
+    def prefix = task.ext.prefix ?: "${meta.id}"
     """
     hifiasm \\
         $args \\
         -l0 \\
-        -o ${meta.id}.asm \\
+        -o ${prefix}.asm \\
         -t $task.cpus \\
         --ul ${ont_reads} \\
         $hifi_reads \\
         2> >( tee ${meta.id}.stderr.log >&2  )
     
-    awk '/^S/{print ">"\$2;print \$3}' ${meta.id}.asm.bp.p_ctg.gfa | gzip > ${meta.id}.asm.bp.p_ctg.fa.gz
+    awk '/^S/{print ">"\$2;print \$3}' ${prefix}.asm.bp.p_ctg.gfa | gzip > ${prefix}.asm.bp.p_ctg.fa.gz
     """
     }
