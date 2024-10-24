@@ -7,7 +7,7 @@ def create_shortread_channel(LinkedHashMap row) {
     // create meta map
     def meta = [:]
     meta.id       = row.meta.id
-    meta.paired   = row.meta.paired.toBoolean()
+    meta.paired   = row.paired.toBoolean()
 
     // add path(s) of the fastq file(s) to the meta map
     def shortreads = []
@@ -44,6 +44,7 @@ workflow PREPARE_SHORTREADS {
     MERYL_COUNT(shortreads.map { it -> [it[0], it[2]] }, params.meryl_k)
     MERYL_COUNT
       .out
+      .meryl_db
       .set { meryl_kmers }
     KMER_SHORTREADS(shortreads)
     KMER_SHORTREADS
