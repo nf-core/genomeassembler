@@ -50,7 +50,7 @@ process KMER_SHORTREADS {
         'biocontainers/yak:0.1--he4a0461_4' }"
 
     input:
-    tuple val(meta), val(paired), path(reads)
+    tuple val(meta), path(reads)
 
     output:
     tuple val(meta), path("*.yak")       , emit: read_hashes
@@ -59,8 +59,8 @@ process KMER_SHORTREADS {
     task.ext.when == null || task.ext.when
 
     script:
-    input_reads = paired ? "<(zcat ${reads}) <(zcat ${reads})" : "${fastq}"
-    def prefix = ${meta.id}
+    def input_reads = meta.paired ? "<(zcat ${reads}) <(zcat ${reads})" : "${reads}"
+    def prefix = meta.id
     """
     yak count -b37 -t$task.cpus -o ${prefix}_shortreads.yak $input_reads
     """

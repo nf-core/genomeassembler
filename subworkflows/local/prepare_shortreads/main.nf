@@ -41,7 +41,7 @@ workflow PREPARE_SHORTREADS {
         .set { shortreads }
       
     }
-    MERYL_COUNT(shortreads.map { it -> [it[0], it[2]] }, params.meryl_k)
+    MERYL_COUNT(shortreads.map { it -> [it[0], it[1]] }, params.meryl_k)
     MERYL_COUNT
       .out
       .meryl_db
