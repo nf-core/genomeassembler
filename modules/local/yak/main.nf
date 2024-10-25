@@ -9,14 +9,17 @@ process KMER_ASSEMBLY {
     tuple val(meta), path(assembly)
 
     output:
-    tuple val(meta), path("${assembly}.yak")       , emit: assembly_hashes
+    tuple val(meta), path("*.yak")       , emit: assembly_hashes
 
     when:
     task.ext.when == null || task.ext.when
 
     script:
+    def subworkflow = "${task.process}".replace(':','/').split("/")[-3].toLowerCase() // this gets the current subworkflow
+    def args = task.ext.args   ?: ''
+    def prefix = task.ext.prefix ?: "${meta.id}_${subworkflow}"
     """
-    yak count -K1.5g -t$task.cpus -o ${assembly}.yak ${assembly}
+    yak count -K1.5g -t$task.cpus -o ${prefix}.yak ${assembly}
     """
 }
 
@@ -60,7 +63,7 @@ process KMER_SHORTREADS {
 
     script:
     def input_reads = meta.paired ? "<(zcat ${reads}) <(zcat ${reads})" : "${reads}"
-    def prefix = meta.id
+    def prefix = "${meta.id}"
     """
     yak count -b37 -t$task.cpus -o ${prefix}_shortreads.yak $input_reads
     """
@@ -83,7 +86,7 @@ process READ_QV {
     task.ext.when == null || task.ext.when
 
     script:
-    def prefix = ${meta.id}
+    def prefix = "${meta.id}"
     """
     name=(basename $longread_yak yak)
     yak inspect $longread_yak $shortread_yak > ${prefix}.\$name.longread_shortread.kqv.txt
@@ -106,7 +109,9 @@ process ASSEMBLY_KQV {
     task.ext.when == null || task.ext.when
 
     script:
-    def prefix = ${meta.id}
+    def subworkflow = "${task.process}".replace(':','/').split("/")[-3].toLowerCase() // this gets the current subworkflow
+    def args = task.ext.args   ?: ''
+    def prefix = task.ext.prefix ?: "${meta.id}_${subworkflow}"
 
     """
     yak inspect $shortread_yak $assembly_yak > ${prefix}.assembly_shortread.kqv.txt
@@ -130,7 +135,11 @@ process KMER_HISTOGRAM {
     task.ext.when == null || task.ext.when
 
     script:
+    def subworkflow = "${task.process}".replace(':','/').split("/")[-3].toLowerCase() // this gets the current subworkflow
+        if(subworkflow == "genomeassembler") subworkflow = "shortreads"
+    def args = task.ext.args   ?: ''
+    def prefix = task.ext.prefix ?: "${meta.id}_${subworkflow}"
     """
-    yak inspect $yakfile > ${yakfile}.hist
+    yak inspect $yakfile > ${prefix}.hist
     """
 }

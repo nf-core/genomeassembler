@@ -7,13 +7,6 @@ process MEDAKA {
         'https://depot.galaxyproject.org/singularity/medaka:1.4.4--py38h130def0_0' :
         'biocontainers/medaka:1.4.4--py38h130def0_0' }"
         
-    publishDir(
-      path: { "${params.out}/${task.process}".replace(':','/').toLowerCase() }, 
-      mode: 'copy',
-      overwrite: true,
-      saveAs: { fn -> fn.substring(fn.lastIndexOf('/')+1) }
-    ) 
-
     input:
     tuple val(meta), path(reads), path(assembly)
     val(model)
@@ -28,6 +21,7 @@ process MEDAKA {
     script:
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
+    def medakamodel = model == '' ? model : "--model ${model}" 
     def NEW_ASSEMBLY = assembly.baseName
     """
     gunzip $assembly
@@ -36,7 +30,7 @@ process MEDAKA {
         $args \\
         -i $reads \\
         -d $NEW_ASSEMBLY \\
-        -m $model\\
+        $medakamodel\\
         -o ./
 
     mv consensus.fasta ${prefix}_medaka.fa

@@ -1,11 +1,11 @@
 process BUSCO {
-    tag "$meta"
+    tag "$meta.id"
     label 'process_medium'
 
     conda "${moduleDir}/environment.yml"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://depot.galaxyproject.org/singularity/busco:5.8.0--pyhdfd78af_0' :
-         'biocontainers/busco:5.8.0--pyhdfd78af_0'}"
+        'biocontainers/busco:5.8.0--pyhdfd78af_0'}"
     
     publishDir(
       path: { "${params.out}/${task.process}".replace(':','/').toLowerCase() }, 
@@ -32,7 +32,8 @@ process BUSCO {
 
     script:
     def args = task.ext.args ?: ''
-    def prefix = task.ext.prefix ?: "${meta.id}-${lineage}"
+    def subworkflow = "${task.process}".replace(':','/').split("/")[-3].toLowerCase() // this gets the current subworkflow
+    def prefix = task.ext.prefix ?: "${meta.id}-${subworkflow}-${lineage}"
     //def busco_config = config_file ? "--config $config_file" : ''
     def busco_lineage = lineage.equals('auto') ? '--auto-lineage' : "--lineage_dataset ${lineage}"
     def busco_lineage_dir = busco_lineages_path ? "--offline --download_path ${busco_lineages_path}" : ''
@@ -81,7 +82,8 @@ process BUSCO {
 
     # Move files to avoid staging/publishing issues
     cp ${prefix}-busco/batch_summary.txt ${prefix}--busco.batch_summary.txt
-    cp ${prefix}-busco/*/short_summary.*.{json,txt} . || echo "Short summaries were not available: No genes were found."
+    cp ${prefix}-busco/*/short_summary.*.txt short_summary.${prefix}.txt || echo "Short summaries were not available: No genes were found."
+    cp ${prefix}-busco/*/short_summary.*.json short_summary.${prefix}.json || echo "Short summaries were not available: No genes were found."
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

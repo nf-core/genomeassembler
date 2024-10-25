@@ -12,9 +12,12 @@ workflow RUN_QUAST {
      * This makes use of the input channel to obtain the reference and reference annotations
      * See quast module for details
      */
+    Channel.empty().set { quast_results } 
+    Channel.empty().set { quast_tsv }
+     
     if(params.quast) {
       inputs
-        .map { row -> [row.sample, row.ref_fasta, row.ref_gff] }
+        .map { row -> [row.meta, row.ref_fasta, row.ref_gff] }
         .set { inputs_references }
 
       assembly
@@ -26,5 +29,16 @@ workflow RUN_QUAST {
        * Run QUAST
        */
       QUAST(quast_in, use_gff = params.use_ref, use_fasta = false)
+      QUAST
+        .out
+        .results
+        .set { quast_results }
+      QUAST
+        .out
+        .tsv
+        .set { quast_tsv }
     }
+  emit:
+    quast_results
+    quast_tsv
 }

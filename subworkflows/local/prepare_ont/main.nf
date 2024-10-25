@@ -20,7 +20,20 @@ workflow PREPARE_ONT {
       .out
       .median_length
       .set { med_len }
+
+    RUN_NANOQ
+      .out
+      .report
+      .set { nanoq_report }
+
+    RUN_NANOQ
+      .out
+      .stats
+      .set { nanoq_stats }
+
   emit:
       trimmed
       med_len
+      nanoq_report
+      nanoq_stats
 }

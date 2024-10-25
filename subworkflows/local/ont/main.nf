@@ -15,10 +15,22 @@ workflow ONT {
     Channel.empty().set { ont_kmers }
 
     PREPARE_ONT(input_channel)
+
     PREPARE_ONT
         .out
         .trimmed
         .set { ont_reads }
+
+    PREPARE_ONT
+        .out
+        .nanoq_report
+        .set { nanoq_report }
+
+    PREPARE_ONT
+        .out
+        .nanoq_stats
+        .set { nanoq_stats }
+    
 
     if(params.jellyfish) {
         JELLYFISH(PREPARE_ONT.out.trimmed, PREPARE_ONT.out.med_len)
@@ -43,4 +55,6 @@ workflow ONT {
      genome_size
      ont_reads
      ont_kmers
+     nanoq_report
+     nanoq_stats
 }
