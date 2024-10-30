@@ -2,7 +2,6 @@ include { RAGTAG_SCAFFOLD } from '../../../../modules/local/ragtag/main'
 include { MAP_TO_ASSEMBLY } from '../../mapping/map_to_assembly/main'
 include { RUN_QUAST } from '../../qc/quast/main'
 include { RUN_BUSCO } from '../../qc/busco/main'
-include { YAK_QC } from '../../qc/yak/main'
 include { RUN_LIFTOFF } from '../../liftoff/main'
 include { MERQURY_QC } from '../../qc/merqury/main'
 
@@ -39,8 +38,6 @@ workflow RUN_RAGTAG {
     RUN_QUAST(ragtag_scaffold_fasta, inputs, ch_aln_to_ref, MAP_TO_ASSEMBLY.out.aln_to_assembly_bam)
 
     RUN_BUSCO(ragtag_scaffold_fasta)
-
-    YAK_QC(ragtag_scaffold_fasta, yak_kmers)
 
     if(params.short_reads) MERQURY_QC(ragtag_scaffold_fasta, meryl_kmers)
 

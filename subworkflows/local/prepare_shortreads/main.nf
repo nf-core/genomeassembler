@@ -48,11 +48,6 @@ workflow PREPARE_SHORTREADS {
       .out
       .meryl_db
       .set { meryl_kmers }
-    YAK_KMER_SHORTREADS(shortreads)
-    YAK_KMER_SHORTREADS
-      .out
-      .set { yak_kmers }
-    YAK_KMER_HISTOGRAM(yak_kmers)
 
   emit:
     shortreads
