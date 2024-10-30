@@ -7,18 +7,10 @@ process BUSCO {
         'https://depot.galaxyproject.org/singularity/busco:5.8.0--pyhdfd78af_0' :
         'biocontainers/busco:5.8.0--pyhdfd78af_0'}"
     
-    publishDir(
-      path: { "${params.out}/${task.process}".replace(':','/').toLowerCase() }, 
-      mode: 'copy',
-      overwrite: true,
-      saveAs: { fn -> fn.substring(fn.lastIndexOf('/')+1) }
-    ) 
-
     input:
     tuple val(meta), path('tmp_input/*')
     val lineage                           // Required:    lineage to check against, "auto" enables --auto-lineage instead
     path busco_lineages_path              // Recommended: path to busco lineages - downloads if not set
-    //path config_file                    // Optional:    busco configuration file
 
     output:
     tuple val(meta), path("*-busco.batch_summary.txt"), emit: batch_summary

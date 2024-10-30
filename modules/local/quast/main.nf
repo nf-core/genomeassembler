@@ -13,7 +13,7 @@ process QUAST {
     val use_gff
 
     output:
-    path "${meta.id}"   , emit: results
+    path "${meta.id}_*"   , emit: results
     path "*report.tsv"  , emit: tsv
     path "versions.yml" , emit: versions
     
@@ -37,13 +37,12 @@ process QUAST {
         --threads $task.cpus \\
         ${consensus.join(' ')} \\
         --glimmer \\
-        --conserved-genes-finding \\
         $reference_bam \\
         --bam ${bam} \\
         --large \\
         ${args}
 
-    ln -s ${prefix}/${prefix}_report.tsv
+    ln -s ${prefix}/report.tsv ${prefix}_report.tsv
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

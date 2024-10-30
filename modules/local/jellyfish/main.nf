@@ -59,12 +59,6 @@ process STATS {
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://depot.galaxyproject.org/singularity/mer-jellyfish:2.3.1--h4ac6f70_0' :
         'biocontainers/kmer-jellyfish:2.3.1--h4ac6f70_0' }"
-    publishDir(
-      path: { "${params.out}/${task.process}".replace(':','/').toLowerCase() }, 
-      mode: 'copy',
-      overwrite: true,
-      saveAs: { fn -> fn.substring(fn.lastIndexOf('/')+1) }
-    ) 
     input:
         tuple val(meta), path(kmers)
 

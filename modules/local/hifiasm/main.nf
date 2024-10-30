@@ -39,12 +39,10 @@ process HIFIASM {
 process HIFIASM_UL {
     tag "$meta.id"
     label 'process_high'
-    publishDir(
-      path: { "${params.out}/${task.process}".replace(':','/').toLowerCase() }, 
-      mode: 'copy',
-      overwrite: true,
-      saveAs: { fn -> fn.substring(fn.lastIndexOf('/')+1) }
-    ) 
+    conda "${moduleDir}/environment.yml"
+    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
+        'https://depot.galaxyproject.org/singularity/hifiasm:0.19.9--h43eeafb_0' :
+        'biocontainers/hifiasm:0.19.9--h43eeafb_0' }"
 
     input:
     tuple val(meta), path(hifi_reads), path(ont_reads)

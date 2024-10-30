@@ -1,4 +1,4 @@
-process KMER_ASSEMBLY {
+process YAK_KMER_ASSEMBLY {
     tag "$meta.id"
     conda "${moduleDir}/environment.yml"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
@@ -23,7 +23,7 @@ process KMER_ASSEMBLY {
     """
 }
 
-process KMER_LONGREADS {
+process YAK_KMER_LONGREADS {
     tag "$meta.id"
     conda "${moduleDir}/environment.yml"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
@@ -40,12 +40,15 @@ process KMER_LONGREADS {
     task.ext.when == null || task.ext.when
 
     script:
+    def subworkflow = "${task.process}".replace(':','/').split("/")[-2].toLowerCase() // this gets the current subworkflow
+    def args = task.ext.args   ?: ''
+    def prefix = task.ext.prefix ?: "${meta.id}_${subworkflow}"
     """
-    yak count -b37 -t$task.cpus -o ${reads}.yak $reads
+    yak count -b37 -t$task.cpus -o ${prefix}.yak $reads
     """
 }
 
-process KMER_SHORTREADS {
+process YAK_KMER_SHORTREADS {
     tag "$meta.id"
     conda "${moduleDir}/environment.yml"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
@@ -69,7 +72,7 @@ process KMER_SHORTREADS {
     """
 }
 
-process READ_QV {
+process YAK_READ_QV {
     conda "${moduleDir}/environment.yml"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://depot.galaxyproject.org/singularity/yak:0.1--he4a0461_4':
@@ -88,11 +91,11 @@ process READ_QV {
     script:
     def prefix = "${meta.id}"
     """
-    name=(basename $longread_yak yak)
+    name=\$(basename $longread_yak .yak)
     yak inspect $longread_yak $shortread_yak > ${prefix}.\$name.longread_shortread.kqv.txt
     """
 }
-process ASSEMBLY_KQV {
+process YAK_ASSEMBLY_KQV {
     tag "$meta.id"
     conda "${moduleDir}/environment.yml"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
@@ -118,7 +121,7 @@ process ASSEMBLY_KQV {
     """
 }
 
-process KMER_HISTOGRAM {
+process YAK_KMER_HISTOGRAM {
     tag "$meta.id"
     conda "${moduleDir}/environment.yml"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?

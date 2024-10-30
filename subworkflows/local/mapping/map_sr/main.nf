@@ -9,9 +9,10 @@ workflow MAP_SR {
   main:
     // map reads to assembly
     in_reads
+      .map { it -> [[id: it[0].id], it[0].paired, it[1] ]}
       .join(genome_assembly)
       .set { map_assembly }
-
+      
     ALIGN_SHORT(map_assembly)
 
     ALIGN_SHORT

@@ -15,13 +15,17 @@ process  ALL_SAMPLES {
 
     script:
     def report_profile = "--profile "
-    if(params.ont) report_profile = report_profile < "nanoq,"
-    if(params.quast) report_profile = report_profile < "quast,"
-    if(params.busco) report_profile = report_profile < "busco,"
-    if(params.yak) report_profile = report_profile < "yak,"
-    if(params.meryl) report_profile = report_profile < "meryl,"
-    if(params.yak) report_profile = report_profile < "yak,"
+    if(params.ont) report_profile = report_profile << "nanoq,"
+    if(params.quast) report_profile = report_profile << "quast,"
+    if(params.busco) report_profile = report_profile << "busco,"
+    if(params.yak) report_profile = report_profile << "yak,"
+    if(params.meryl) report_profile = report_profile << "meryl,"
+    if(params.yak) report_profile = report_profile << "yak,"
     """
-    yak count -K1.5g -t$task.cpus -o ${prefix}.yak ${assembly}
+    quarto render report.qmd \\
+     $report_profile \\
+    --to dashboard
+
+
     """
 }

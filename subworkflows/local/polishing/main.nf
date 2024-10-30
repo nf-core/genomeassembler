@@ -23,11 +23,11 @@ workflow POLISH {
         POLISH_MEDAKA
             .out
             .set { ch_polished_genome }
-  }
+    }
 
-  /*
-  Polishing with short reads using pilon
-  */
+    /*
+    Polishing with short reads using pilon
+    */
 
     if(params.polish_pilon) {
         POLISH_PILON(inputs, ch_shortreads, ch_longreads, ch_polished_genome, reference_bam, yak_kmers, meryl_kmers)
@@ -35,7 +35,7 @@ workflow POLISH {
             .out
             .pilon_improved
             .set { ch_polished_genome }
-  } 
+    } 
 
   emit:
     ch_polished_genome
