@@ -101,7 +101,7 @@ workflow NFCORE_GENOMEASSEMBLER {
         refs
     )
     emit:
-    multiqc_report = GENOMEASSEMBLER.out.multiqc_report // channel: /path/to/multiqc_report.html
+    multiqc_report = GENOMEASSEMBLER.out._report // channel: /path/to/multiqc_report.html
 }
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

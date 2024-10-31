@@ -11,22 +11,54 @@ workflow POLISH_MEDAKA {
       in_reads
       assembly
       ch_aln_to_ref
-      yak_kmers
       meryl_kmers
 
     main:
-      RUN_MEDAKA(in_reads, assembly)
+      Channel.empty().set { quast_out }
+      Channel.empty().set { busco_out }
+      Channel.empty().set { merqury_report_files }
       
-      MAP_TO_ASSEMBLY(in_reads, RUN_MEDAKA.out)
+      RUN_MEDAKA(in_reads, assembly)
+      RUN_MEDAKA
+        .out
+        .set { polished_assembly }
+      MAP_TO_ASSEMBLY(in_reads, polished_assembly)
 
-      RUN_QUAST(RUN_MEDAKA.out, ch_input, ch_aln_to_ref, MAP_TO_ASSEMBLY.out.aln_to_assembly_bam)
+      RUN_QUAST(polished_assembly, ch_input, ch_aln_to_ref, MAP_TO_ASSEMBLY.out.aln_to_assembly_bam)
+      RUN_QUAST
+          .out
+          .quast_tsv
+          .set { quast_out }
 
-      RUN_BUSCO(RUN_MEDAKA.out)
+      RUN_BUSCO(polished_assembly)
+      RUN_BUSCO
+        .out
+        .busco_short_summary_txt
+        .set { busco_out }
 
-      if(params.short_reads) MERQURY_QC(RUN_MEDAKA.out, meryl_kmers)
+      if(params.short_reads) {
+        MERQURY_QC(polished_assembly, meryl_kmers)
+        MERQURY_QC
+          .out
+          .stats
+          .join(
+            MERQURY_QC
+              .out
+              .spectra_asm_hist
+          )
+          .join(
+            MERQURY_QC
+              .out
+              .spectra_cn_hist
+          )
+          .set { merqury_report_files }
+      }
 
-      if(params.lift_annotations) RUN_LIFTOFF(RUN_MEDAKA.out, ch_input)
+      if(params.lift_annotations) RUN_LIFTOFF(polished_assembly, ch_input)
 
     emit:
-      RUN_MEDAKA.out
+      polished_assembly
+      quast_out
+      busco_out
+      merqury_report_files
 }

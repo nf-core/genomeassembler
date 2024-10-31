@@ -45,6 +45,18 @@ workflow JELLYFISH {
       .estimated_hap_len
       .set{ hap_len }    
       
+    GENOMESCOPE
+      .out
+      .summary
+      .set{ genomescope_summary }    
+      
+    GENOMESCOPE
+      .out
+      .plot
+      .set{ genomescope_plot }    
+      
   emit:
    hap_len
+   genomescope_summary
+   genomescope_plot
 }

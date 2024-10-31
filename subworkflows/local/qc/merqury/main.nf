@@ -11,5 +11,21 @@ workflow MERQURY_QC {
             .join(assembly)
             .set { merqury_in }
         MERQURY(merqury_in)
+        MERQURY
+            .out
+            .stats
+            .set { stats }
+        MERQURY
+            .out
+            .spectra_asm_hist
+            .set { spectra_asm_hist }
+        MERQURY
+            .out
+            .spectra_cn_hist
+            .set { spectra_cn_hist }
+    emit:
+        stats
+        spectra_asm_hist
+        spectra_cn_hist
 }
 

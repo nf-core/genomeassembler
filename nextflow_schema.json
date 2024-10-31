@@ -309,17 +309,17 @@
         "flye_mode": {
             "type": "string",
             "description": "flye mode",
-            "default": "\"--nano-hq\""
+            "default": "--nano-hq"
         },
         "flye_args": {
             "type": "string",
             "description": "additional args for flye",
-            "default": "\"\""
+            "default": ""
         },
         "qc_reads": {
             "type": "string",
             "description": "Long reads that should be used for QC when both ONT and HiFi reads are provided. Options are `'ONT'` or `'HIFI'`",
-            "default": "\"ONT\""
+            "default": "ONT"
         },
         "hifiasm_ont": {
             "type": "boolean",
@@ -328,7 +328,7 @@
         "hifiasm_args": {
             "type": "string",
             "description": "Extra arguments passed to `hifiasm`",
-            "default": "\"\""
+            "default": ""
         },
         "polish_pilon": {
             "type": "boolean",
@@ -371,7 +371,7 @@
         "busco_lineage": {
             "type": "string",
             "description": "Busco lineage to use",
-            "default": "\"brassicales_odb10\""
+            "default": "brassicales_odb10"
         },
         "quast": {
             "type": "boolean",

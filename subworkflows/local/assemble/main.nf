@@ -4,7 +4,6 @@ include { MAP_TO_ASSEMBLY } from '../mapping/map_to_assembly/main'
 include { MAP_TO_REF } from '../mapping/map_to_ref/main'
 include { RUN_QUAST } from '../qc/quast/main'
 include { RUN_BUSCO } from '../qc/busco/main'
-include { YAK_QC } from '../qc/yak/main'
 include { MERQURY_QC } from '../qc/merqury/main'
 include { RUN_LIFTOFF } from '../liftoff/main'
 include { RAGTAG_SCAFFOLD } from '../../../modules/local/ragtag/main'
@@ -16,7 +15,6 @@ workflow ASSEMBLE {
     hifi_reads // meta, reads
     ch_input
     genomescope_out
-    yak_kmers
     meryl_kmers
     
   main:
@@ -24,6 +22,9 @@ workflow ASSEMBLE {
     Channel.empty().set { ch_refs }
     Channel.empty().set { ch_ref_bam }
     Channel.empty().set { ch_assembly_bam }
+    Channel.empty().set { assembly_quast_reports }
+    Channel.empty().set { assembly_busco_reports }
+    Channel.empty().set { assembly_merqury_reports }
 
     if (params.use_ref) {
       ch_input
@@ -183,17 +184,39 @@ workflow ASSEMBLE {
           .out
           .aln_to_assembly_bam_bai
           .set { ch_assembly_bam_bai }
-      RUN_QUAST(ch_assembly, ch_input, ch_ref_bam, ch_assembly_bam)
+        RUN_QUAST(ch_assembly, ch_input, ch_ref_bam, ch_assembly_bam)
+        RUN_QUAST
+          .out
+          .quast_tsv
+          .set { assembly_quast_reports }
       }
     }
     /*
     QC on initial assembly
     */
     RUN_BUSCO(ch_assembly)
+    RUN_BUSCO
+      .out
+      .busco_short_summary_txt
+      .set { assembly_busco_reports }
     
-    YAK_QC(ch_assembly, yak_kmers)
-
-    if(params.short_reads) MERQURY_QC(ch_assembly, meryl_kmers)
+    if(params.short_reads) {
+      MERQURY_QC(ch_assembly, meryl_kmers)
+      MERQURY_QC
+        .out
+        .stats
+        .join(
+          MERQURY_QC
+            .out
+            .spectra_asm_hist
+        )
+        .join(
+          MERQURY_QC
+            .out
+            .spectra_cn_hist
+        )
+        .set { assembly_merqury_reports }
+    }
 
     if(params.lift_annotations) RUN_LIFTOFF(ch_assembly, ch_input)
 
@@ -204,4 +227,7 @@ workflow ASSEMBLE {
     assembly
     ref_bam
     longreads
+    assembly_quast_reports
+    assembly_busco_reports
+    assembly_merqury_reports
 }

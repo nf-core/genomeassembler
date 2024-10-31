@@ -12,10 +12,13 @@ workflow RUN_LINKS {
     assembly
     references
     ch_aln_to_ref
-    yak_kmers
     meryl_kmers
   
   main:
+    Channel.empty().set { quast_out }
+    Channel.empty().set { busco_out }
+    Channel.empty().set { merqury_report_files }
+
     assembly
       .join(in_reads)
       .set { links_in }
@@ -28,13 +31,40 @@ workflow RUN_LINKS {
     MAP_TO_ASSEMBLY(in_reads, scaffolds)
 
     RUN_QUAST(scaffolds, inputs, ch_aln_to_ref, MAP_TO_ASSEMBLY.out.aln_to_assembly_bam)
+    RUN_QUAST
+       .out
+       .quast_tsv
+       .set { quast_out }
 
     RUN_BUSCO(scaffolds)
+    RUN_BUSCO
+      .out
+      .busco_short_summary_txt
+      .set { busco_out }
+      
+    if(params.short_reads) {
+        MERQURY_QC(scaffolds, meryl_kmers)
+        MERQURY_QC
+          .out
+          .stats
+          .join(
+            MERQURY_QC
+              .out
+              .spectra_asm_hist
+          )
+          .join(
+            MERQURY_QC
+              .out
+              .spectra_cn_hist
+          )
+          .set { merqury_report_files }
+      }
 
-    if(params.short_reads) MERQURY_QC(RUN_MEDAKA.out, meryl_kmers)
-
-    if(params.lift_annotations) RUN_LIFTOFF(LINKS.out.scaffolds, inputs)
+    if(params.lift_annotations) RUN_LIFTOFF(scaffolds, inputs)
     
   emit:
      scaffolds
+     quast_out
+     busco_out
+     merqury_report_files
 }

@@ -19,39 +19,24 @@
 
 ## Introduction
 
-**nf-core/genomeassembler** is a bioinformatics pipeline that ...
-
-<!-- TODO nf-core:
-   Complete this sentence with a 2-3 sentence summary of what types of data the pipeline ingests, a brief overview of the
-   major pipeline sections and the types of output it produces. You're giving an overview to someone new
-   to nf-core here, in 15-20 seconds. For an example, see https://github.com/nf-core/rnaseq/blob/master/README.md#introduction
--->
-
-<!-- TODO nf-core: Include a figure that guides the user through the major workflow steps. Many nf-core
-     workflows use the "tube map" design for that. See https://nf-co.re/docs/contributing/design_guidelines#examples for examples.   -->
-<!-- TODO nf-core: Fill in short bullet-pointed list of the default steps in the pipeline -->
-
-1. Read QC ([`FastQC`](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/))
-2. Present QC for raw reads ([`MultiQC`](http://multiqc.info/))
+**nf-core/genomeassembler** is a bioinformatics pipeline that carries out genome assembly, polishing and scaffolding from long reads (ONT or pacbio). Assembly can be done via `flye` or `hifiasm`, polishing can be carried out with `medaka` (ONT), or `pilon` (requires short-reads), and scaffolding can be done using `LINKS`, `Longstitch`, or `RagTag` (if a reference is available). Quality control includes, BUSCO, QUAST and merqury (requires short-reads).
+Currently, this pipeline does not implement phasing of polyploid genomes or HiC scaffolding. 
 
 ## Usage
 
 > [!NOTE]
 > If you are new to Nextflow and nf-core, please refer to [this page](https://nf-co.re/docs/usage/installation) on how to set-up Nextflow. Make sure to [test your setup](https://nf-co.re/docs/usage/introduction#how-to-run-a-pipeline) with `-profile test` before running the workflow on actual data.
 
-<!-- TODO nf-core: Describe the minimum required steps to execute the pipeline, e.g. how to prepare samplesheets.
-     Explain what rows and columns represent. For instance (please edit as appropriate):
-
 First, prepare a samplesheet with your input data that looks as follows:
 
 `samplesheet.csv`:
 
 ```csv
-sample,fastq_1,fastq_2
-CONTROL_REP1,AEG588A1_S1_L002_R1_001.fastq.gz,AEG588A1_S1_L002_R2_001.fastq.gz
+sample,ontreads,hifireads,ref_fasta,ref_gff,shortread_F,shortread_R,paired
+sampleName,ontreads.fa.gz,hifireads.fa.gz,assembly.fasta.gz,reference.fasta,reference.gff,short_F1.fastq,short_F2.fastq,true
 ```
 
-Each row represents a fastq file (single-end) or a pair of fastq files (paired end).
+Each row represents one genome to be assembled. `sample` should contain the name of the sample, `ontreads` should contain a path to ONT reads (fastq.gz), `hifireads` a path to HiFi reads (fastq.gz), `ref_fasta` and `ref_gff` contain reference genome fasta and annotations. `shortread_F` and `shortread_R` contain paths to short-read data, `paired` indicates if short-reads are paired. Columns can be omitted if they contain no data, with the exception of `shortread_R`, which needs to be present if `shortread_F` is there, even if it is empty.
 
 -->
 
@@ -70,6 +55,50 @@ nextflow run nf-core/genomeassembler \
 > Please provide pipeline parameters via the CLI or Nextflow `-params-file` option. Custom config files including those provided by the `-c` Nextflow option can be used to provide any configuration _**except for parameters**_; see [docs](https://nf-co.re/docs/usage/getting_started/configuration#custom-configuration-files).
 
 For more details and further functionality, please refer to the [usage documentation](https://nf-co.re/genomeassembler/usage) and the [parameter documentation](https://nf-co.re/genomeassembler/parameters).
+
+### Pipeline specific parameters
+
+| Parameter | Description | Type | Default | Required | Hidden |                                                                                                                                                                                                        
+|-----------|-----------|-----------|-----------|-----------|-----------|                                                                                                                                                                                               
+| `ont` | ONT reads available? | `boolean` |  |  |  |                                                                                                                                                                                                                   
+| `hifi` | HiFi reads available? | `boolean` |  |  |  |                                                                                                                                                                                                                 
+| `short_reads` | Short reads available? | `boolean` |  |  |  |                                                                                                                                                                                                         
+| `collect` | collect ONT reads into a single file | `boolean` |  |  |  |                                                                                                                                                                                               
+| `porechop` | run porechop on ONT reads | `boolean` |  |  |  |                                                                                                                                                                                                         
+| `lima` | run lima on HiFi reads? | `boolean` |  |  |  |                                                                                                                                                                                                               
+| `pacbio_primers` | file containing pacbio primers for trimming with lima | `string` |  |  |  |                                                                                                                                                                        
+| `trim_short_reads` | trim short reads with trimgalore | `boolean` |  |  |  |                                                                                                                                                                                          
+| `assembler` | Assembler to use. Valid choices are: `'hifiasm'`, `'flye'`, or `'flye_on_hifiasm'`. `flye_on_hifiasm` will scaffold flye assembly (ont) on hifiasm (hifi) assembly using ragtag | `string` |  |  |  |                                                   
+| `kmer_length` | kmer length to be used for jellyfish | `integer` |  |  |  |                                                                                                                                                                                           
+| `read_length` | read length for genomescope (ONT only) | `string` |  |  |  |                                                                                                                                                                                          
+| `dump` | dump jellyfish output | `boolean` |  |  |  |                                                                                                                                                                                                                 
+| `meryl_k` | kmer length for meryl | `integer` |  |  |  |                                                                                                                                                                                                              
+| `use_ref` | use reference genome | `boolean` |  |  |  |                                                                                                                                                                                                               
+| `genome_size` | expected genome size | `string` |  |  |  |                                                                                                                                                                                                            
+| `flye_mode` | flye mode | `string` | "--nano-hq" |  |  |                                                                                                                                                                                                              
+| `flye_args` | additional args for flye | `string` | "" |  |  |                                                                                                                                                                                                        
+| `qc_reads` | Long reads that should be used for QC when both ONT and HiFi reads are provided. Options are `'ONT'` or `'HIFI'` | `string` | "ONT" |  |  |                                                                                                              
+| `hifiasm_ont` | Use hifi and ONT reads with `hifiasm --ul` | `boolean` |  |  |  |                                                                                                                                                                                     
+| `hifiasm_args` | Extra arguments passed to `hifiasm` | `string` | "" |  |  |                                                                                                                                                                                          
+| `polish_pilon` | Polish assembly with pilon? | `boolean` |  |  |  |                                                                                                                                                                                                   
+| `polish_medaka` | Polish assembly with medaka (ONT only) | `boolean` |  |  |  |                                                                                                                                                                                       
+| `medaka_model` | model to use with medaka | `string` | 'r1041_e82_400bps_hac_v4.2.0' |  |  |                                                                                                                                                                          
+| `scaffold_ragtag` | Scaffold with ragtag (requires reference)? | `boolean` |  |  |  |                                                                                                                                                                                 
+| `scaffold_links` | Scaffolding with links? | `boolean` |  |  |  |                                                                                                                                                                                                     
+| `scaffold_longstitch` | Scaffold with longstitch? | `boolean` |  |  |  |                                                                                                                                                                                              
+| `lift_annotations` | Lift-over annotations (requires reference)? | `boolean` |  |  |  |                                                                                                                                                                               
+| `busco` | Run BUSCO? | `boolean` |  |  |  |                                                                                                                                                                                                                           
+| `busoc_db` | Path to busco db | `string` | '' |  |  |                                                                                                                                                                                                                 
+| `busco_lineage` | Busco lineage to use | `string` | "brassicales_odb10" |  |  |                                                                                                                                                                                       
+| `quast` | Run quast | `boolean` |  |  |  |                                                                                                                                                                                                                            
+| `skip_assembly` | skip assembly steps <details><summary>Help</summary><small>Skip assembly and perform only qc.</small></details>| `boolean` |  |  |  |                                                                                                               
+| `skip_alignments` | skip alignments during qc | `boolean` |  |  |  |                                                                                                                                                                                                  
+| `jellyfish` | run jellyfish and genomescope on ONT reads to compute k-mer distribution and estimate genome size | `boolean` |  |  |  |                                                                                                                                                
+| `yak` | run qc via yak | `boolean` |  |  |  |                                                                                                                                                                                                                         
+                                                                                                                                                                                                                                                                        
+
+
+
 
 ## Pipeline output
 

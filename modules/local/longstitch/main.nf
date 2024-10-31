@@ -9,8 +9,8 @@ process LONGSTITCH {
       tuple val(meta), path(assembly), path(reads)
 
   output:
-      tuple val(meta), path("${meta}.tigmint-ntLink-arks.longstitch-scaffolds.fa"), emit: ntlLinks_arks_scaffolds
-      tuple val(meta), path("${meta}.tigmint-ntLink.longstitch-scaffolds.fa"), emit: ntlLinks_scaffolds
+      tuple val(meta), path("${meta.id}.tigmint-ntLink-arks.longstitch-scaffolds.fa"), emit: ntlLinks_arks_scaffolds
+      tuple val(meta), path("${meta.id}.tigmint-ntLink.longstitch-scaffolds.fa"), emit: ntlLinks_scaffolds
   
   script:
       def prefix = task.ext.prefix ?: "${meta.id}"

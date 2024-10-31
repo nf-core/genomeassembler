@@ -27,6 +27,8 @@ include { POLISH                 } from '../subworkflows/local/polishing/main'
 
 // Scaffolding
 include { SCAFFOLD               } from '../subworkflows/local/scaffolding/main'
+// reporting
+include { REPORT                } from '../modules/local/report/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -53,13 +55,16 @@ workflow GENOMEASSEMBLER {
     Channel.empty().set { ch_ont_reads }
     Channel.empty().set { ch_hifi_reads }
     Channel.empty().set { ch_shortreads }
-    Channel.empty().set { yak_kmers }
     Channel.empty().set { meryl_kmers }
     Channel.empty().set { ch_flye_inputs }
     Channel.empty().set { ch_hifiasm_inputs }
     Channel.empty().set { genome_size }
     Channel.empty().set { ch_versions }
-    Channel.empty().set { ch_multiqc_files }
+    Channel.empty().set { nanoq_files }
+    Channel.empty().set { genomescope_files }
+    Channel.empty().set { busco_files }
+    Channel.empty().set { quast_files }
+    Channel.empty().set { merqury_files }
 
     /*
     =============
@@ -77,10 +82,6 @@ workflow GENOMEASSEMBLER {
             .set { ch_shortreads }
         PREPARE_SHORTREADS
             .out
-            .yak_kmers
-            .set { yak_kmers }
-        PREPARE_SHORTREADS
-            .out
             .meryl_kmers
             .set { meryl_kmers }
     }
@@ -90,7 +91,7 @@ workflow GENOMEASSEMBLER {
     ONT reads
     */
     if(params.ont) {
-        ONT(ch_input, yak_kmers)
+        ONT(ch_input)
         ONT
             .out
             .genome_size
@@ -99,6 +100,27 @@ workflow GENOMEASSEMBLER {
             .out
             .ont_reads
             .set { ch_ont_reads }
+
+        ONT
+            .out
+            .nanoq_report
+            .concat(
+                ONT
+                    .out
+                    .nanoq_stats
+            )
+            .collect { it -> it[1] }
+            .set { nanoq_files }
+        ONT
+            .out
+            .genomescope_summary
+            .concat(
+                ONT
+                    .out
+                    .genomescope_plot
+            )
+            .collect { it -> it[1] }
+            .set { genomescope_files }
     } 
 
 
@@ -117,7 +139,7 @@ workflow GENOMEASSEMBLER {
     Assembly
     */
 
-    ASSEMBLE(ch_ont_reads, ch_hifi_reads, ch_input, genome_size, yak_kmers, meryl_kmers)
+    ASSEMBLE(ch_ont_reads, ch_hifi_reads, ch_input, genome_size, meryl_kmers)
     ASSEMBLE
       .out
       .assembly
@@ -135,32 +157,90 @@ workflow GENOMEASSEMBLER {
     Polishing
     */
 
-    POLISH(ch_input, ch_ont_reads, ch_longreads, ch_shortreads, ch_polished_genome, ch_ref_bam, yak_kmers, meryl_kmers)
+    POLISH(ch_input, ch_ont_reads, ch_longreads, ch_shortreads, ch_polished_genome, ch_ref_bam, meryl_kmers)
     POLISH
       .out
+      .ch_polished_genome
       .set { ch_polished_genome }
 
     /*
     Scaffolding
     */
     
-    SCAFFOLD(ch_input, ch_longreads, ch_polished_genome, ch_refs, ch_ref_bam, yak_kmers, meryl_kmers)
+    SCAFFOLD(ch_input, ch_longreads, ch_polished_genome, ch_refs, ch_ref_bam, meryl_kmers)
 
     /*
-    The End
+    Report
     */
+        
+    quast_files
+        .concat(
+            ASSEMBLE
+                .out
+                .assembly_quast_reports
+                .concat(
+                    POLISH
+                        .out
+                        .polish_quast_reports
+                )
+                .concat(
+                    SCAFFOLD
+                        .out
+                        .scaffold_quast_reports
+                )
+        )
+        .collect { it -> it[1] }
+        .set { quast_files }
+
+    busco_files
+        .concat(
+            ASSEMBLE
+                .out
+                .assembly_busco_reports
+                .concat(
+                    POLISH
+                        .out
+                        .polish_busco_reports
+                )
+                .concat(
+                    SCAFFOLD
+                        .out
+                        .scaffold_busco_reports
+                )
+        )
+        .collect { it -> it[1] }
+        .set { busco_files }
+
+    merqury_files
+        .concat(
+            ASSEMBLE
+                .out
+                .assembly_merqury_reports
+                .concat(
+                    POLISH
+                        .out
+                        .polish_merqury_reports
+                )
+                .concat(
+                    SCAFFOLD
+                        .out
+                        .scaffold_merqury_reports
+                )
+        )
+        .collect { it -> it[1] }
+        .set { merqury_files }
+
+    Channel.fromPath("$projectDir/assets/report/*").set { report_files }
+    /* Channel debug
+    report_files.view()
+    nanoq_files.view()
+    genomescope_files.view()
+    quast_files.view()
+    busco_files.view()
+    merqury_files.view()
+    */
+    REPORT(report_files, nanoq_files, genomescope_files, quast_files, busco_files, merqury_files)
     
-    //
-    // MODULE: Run FastQC
-    //
-    /*
-    FASTQC (
-        params.input
-    )
-    */
-    //ch_multiqc_files = ch_multiqc_files.mix(FASTQC.out.zip.collect{it[1]})
-    //ch_versions = ch_versions.mix(FASTQC.out.versions.first())
-
     //
     // Collate and save software versions
     //
@@ -172,56 +252,13 @@ workflow GENOMEASSEMBLER {
             newLine: true
         ).set { ch_collated_versions }
 
+    _report = REPORT.out.report_html.toList() // channel: /path/to/multiqc_report.html
+    //Channel.empty().set { _report }
 
-    //
-    // MODULE: MultiQC
-    //
-    /*
-    ch_multiqc_config        = Channel.fromPath(
-        "$projectDir/assets/multiqc_config.yml", checkIfExists: true)
-    ch_multiqc_custom_config = params.multiqc_config ?
-        Channel.fromPath(params.multiqc_config, checkIfExists: true) :
-        Channel.empty()
-    ch_multiqc_logo          = params.multiqc_logo ?
-        Channel.fromPath(params.multiqc_logo, checkIfExists: true) :
-        Channel.empty()
-
-    summary_params      = paramsSummaryMap(
-        workflow, parameters_schema: "nextflow_schema.json")
-    ch_workflow_summary = Channel.value(paramsSummaryMultiqc(summary_params))
-    ch_multiqc_files = ch_multiqc_files.mix(
-        ch_workflow_summary.collectFile(name: 'workflow_summary_mqc.yaml'))
-    ch_multiqc_custom_methods_description = params.multiqc_methods_description ?
-        file(params.multiqc_methods_description, checkIfExists: true) :
-        file("$projectDir/assets/methods_description_template.yml", checkIfExists: true)
-    ch_methods_description                = Channel.value(
-        methodsDescriptionText(ch_multiqc_custom_methods_description))
-
-    ch_multiqc_files = ch_multiqc_files.mix(ch_collated_versions)
-    ch_multiqc_files = ch_multiqc_files.mix(
-        ch_methods_description.collectFile(
-            name: 'methods_description_mqc.yaml',
-            sort: true
-        )
-    )
-
-    MULTIQC (
-        ch_multiqc_files.collect(),
-        ch_multiqc_config.toList(),
-        ch_multiqc_custom_config.toList(),
-        ch_multiqc_logo.toList(),
-        [],
-        []
-    )
-    multiqc_report = MULTIQC.out.report.toList() // channel: /path/to/multiqc_report.html
-    */
-    Channel.empty().set { multiqc_report }
     emit:
-    multiqc_report 
+    _report 
     versions       = ch_versions                 // channel: [ path(versions.yml) ]
-
 }
-
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     THE END

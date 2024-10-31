@@ -61,6 +61,6 @@
                 "errorMessage": "paired must be true or false."
             }
         },
-        "required": ["sample", "paired"]
+        "required": ["sample"]
     }
 }

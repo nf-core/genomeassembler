@@ -1,8 +1,6 @@
 include { TRIMGALORE } from '../../../modules/nf-core/trimgalore/main'
 include { MERYL_COUNT } from '../../../modules/nf-core/meryl/count/main'
 include { MERYL_UNIONSUM } from '../../../modules/nf-core/meryl/unionsum/main'
-include { YAK_KMER_SHORTREADS } from '../../../modules/local/yak/main'
-include { YAK_KMER_HISTOGRAM } from '../../../modules/local/yak/main'
 
 def create_shortread_channel(LinkedHashMap row) {
     // create meta map
@@ -34,6 +32,7 @@ workflow PREPARE_SHORTREADS {
     input_channel
         .map { create_shortread_channel(it) }
         .set { shortreads }
+
     if(params.trim_short_reads) {
       TRIMGALORE(shortreads)
       TRIMGALORE
@@ -52,5 +51,4 @@ workflow PREPARE_SHORTREADS {
   emit:
     shortreads
     meryl_kmers
-    yak_kmers
 }
