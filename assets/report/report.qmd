@@ -650,16 +650,11 @@ cat(":::{.panel-tabset}\n",
 ```
 :::
 
-# merqury
+# merqury 
 
 ::: {.content-visible unless-profile="merqury"}
 meryl and merqury were not included in the pipeline run.
 :::
-
-::: {.content-visible when-profile="merqury"}
-merqury compares k-mer spectra between assemblies and short read libraries to assess assembly quality and completeness.
-
-## Stats
 
 ```{r}
 #| eval: !expr params$merqury == "yes"
@@ -748,7 +743,11 @@ ggplotly(p)\n```') %>%
 }
 ```
 
-::: {.panel-tabset .flow}
+:::: {.content-visible when-profile="merqury"  }
+merqury compares k-mer spectra between assemblies and short read libraries to assess assembly quality and completeness.
+
+:::  {.panel-tabset}
+
 ```{r merqury add plots and valueboxes}
 #| eval: !expr params$merqury == "yes"
 #| results: asis
@@ -776,40 +775,40 @@ for (i in 1:length(unique(merqury_stats$sample))) {
   img_files <- list.files(paste0(data_base,"merqury"), full.names = T, pattern = "spectra-cn.fl.png")  %>% 
     .[str_detect(., cur_sample)]
     
-  cat(paste('### ', cur_sample),
+  cat(paste('## ', cur_sample),
       paste0('\n\n'),
-      paste0('#### {orientation="columns" .float} \n'),
+      paste0('### {orientation="columns" .float} \n'),
       paste0('::: {.valuebox icon="percent" color="success" title="Highest k-mer completeness" }\n'),
       glue::glue("{unique(highest_val) %>% round(2)}%, at stage(s): {paste(highest_stage, collapse = ', ')}"),
       paste0('\n'),
       paste0(':::'), 
-      paste0('\n'),
+      paste0('\n\n'),
       paste0('::: {.valuebox icon="heartbreak" color="warning" title="Lowest k-mer completeness" }\n'),
-      paste0('\n'),
       glue::glue("{unique(lowest_val) %>% round(2)}%, at stage(s): {paste(lowest_stage, collapse = ', ')}"),
       paste0('\n'),
       paste0(':::'), 
       paste0('\n\n'),
-      paste0('#### Spectra {.panel-tabset}\n'),
-      paste0('\n\n\n'),
+      paste0('::: {.panel-tabset}'),
+      paste0('\n\n'),
+      paste0('### Spectra \n'),
+      paste0('\n'),
       knitr::knit_child(glue::glue('merqury_files/asm_plots/_{ cur_sample }_asm_plts.Rmd'), 
                   envir = globalenv(), 
                   quiet = TRUE),
-      paste0('\n\n\n'),
-      paste0('#### Copy Number \n'),
-      paste0('\n\n\n'),
+      paste0('\n'),
+      paste0('### Copy Number \n'),
+      paste0('\n'),
       knitr::knit_child(glue::glue('merqury_files/cn_plots/_{ cur_sample }_cn_plts.Rmd'),
                   envir = globalenv(),
                   quiet = TRUE),
       paste0('\n\n\n'),
-      "::::\n",
-      paste0('\n\n\n'),
+      paste0(':::\n'),
       sep = "")
 }
 ```
 :::
 
-:::
+::::
 
 ```{r}
 #| eval: !expr params$merqury == "yes"
