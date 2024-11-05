@@ -44,7 +44,6 @@ This report displays the main information gathered from various QC steps.
 nanoq was not included in the pipeline run, no ONT reads were included.
 :::
 
-::: {.content-visible when-profile="nanoq"}
 ```{r nanoq read inputs}
 #| eval: !expr params$nanoq == "yes"
 #| include: false
@@ -54,61 +53,6 @@ nanoq_reports <- list.files(paste0(data_base, "nanoq"),
                             pattern = "report.json",
                             full.names = T) %>% 
   map_dfr(\(x) read_nanoq(x))
-```
-
-::: {.panel-tabset .flow}
-## All samples
-
-### { width = 30% }
-
-```{r}
-#| eval: !expr params$nanoq == "yes"
-#| content: valuebox
-#| title: "Total bases sequenced"
-#| icon: magic
-#| color: primary
-nanoq_reports %>% filter(stat == "Bases") %$% sum(val) %>% format(scientific=-1,trim=T, digits = 3, drop0trailing=T)
-```
-
-```{r}
-#| eval: !expr params$nanoq == "yes"
-#| content: valuebox
-#| title: "Number of reads"
-#| icon: collection
-#| color: secondary	
-nanoq_reports %>% filter(stat == "N Reads") %$% sum(val,na.rm = T) %>% paste0()
-```
-
-```{r}
-#| eval: !expr params$nanoq == "yes"
-#| content: valuebox
-#| title: "Longest read"
-#| icon: chevron-double-up
-#| color: success
-nanoq_reports %>% filter(stat == "Longest") %$% max(val) %>% paste(" bases")
-```
-
-### 
-
-```{r nanoq plot}
-#| eval: !expr params$nanoq == "yes"
-#| title: "Nanoq read statistics"
-
-p <- nanoq_reports %>% 
-  filter(stat %in% c("Median Length", "Longest", "Median Quality","Bases")) %>% 
-  mutate(stat=fct_relevel(stat,c("Bases","Longest","Median Length","Median Quality"))) %>% 
-  ggplot(aes(x = sample, y = val)) +
-  geom_line() +
-  geom_point(size = 5, pch=21, aes(fill=stage)) +
-  facet_wrap(~stat, scales = "free_y", nrow=2, ncol=3) +
-  fill_scale_plots +
-  scale_y_continuous(labels = function(x) format(x,scientific=-1,trim=T, digits = 3, drop0trailing=T), n.breaks = 4) +
-  theme(axis.title.x = element_blank(),
-        axis.title.y = element_blank(),
-        legend.position = "none",
-        legend.title = element_blank(),
-        panel.grid.minor = element_blank())
-ggplotly(p)
 ```
 
 ```{r}
@@ -137,6 +81,10 @@ paste0('```{r}\n
     write_lines(glue::glue("nanoq_files/_{ unique(nanoq_reports$sample)[i] }_nanoq.Rmd"))
 }
 ```
+
+::: {.content-visible when-profile="nanoq"}
+
+::: {.panel-tabset .flow}
 
 ```{r nanoq add subplots}
 #| eval: !expr params$nanoq == "yes"
@@ -179,7 +127,9 @@ for (i in 1:length(unique(nanoq_reports$sample))) {
 #| eval: !expr params$nanoq == "yes"
 unlink("nanoq_files", recursive = T)
 ```
+
 :::
+
 :::
 
 # QUAST {.tabset}
@@ -214,77 +164,6 @@ quast_stats <- list.files(paste0(data_base, "quast"),
   )
 ```
 
-::: {.panel-tabset .flow}
-## All samples
-
-### { .width = 30% }
-
-```{r}
-#| eval: !expr params$quast == "yes"
-#| content: valuebox
-#| title: "Longest Total length"
-#| icon: arrow-up-right-circle
-#| color: primary
-    quast_stats %>%
-          filter(stat == "Total length (>= 0 bp)")  %>% 
-          filter(value == max(value)) %>% 
-          unique() %$%
-          glue::glue("{format(value,
-          scientific = -1,
-          trim = T,
-          digits = 3,
-          drop0trailing = T
-          ) %>%
-          paste('bp')} in: {sample %>% paste(collapse='')}")
-```
-
-```{r}
-#| eval: !expr params$quast == "yes"
-#| content: valuebox
-#| title: "Average GC Content"
-#| icon: percent
-#| color: success
-    quast_stats %>% 
-        filter(stat == "GC (%)") %$%
-        mean(value) %>%
-        paste(" %")
-```
-
-```{r}
-#| eval: !expr params$quast == "yes"
-#| content: valuebox
-#| title: "Largest N50"
-#| icon: emoji-heart-eyes
-#| color: info
-      quast_stats %>% 
-        filter(stat == "N50") %>% 
-        filter(value == max(value)) %$%
-        value %>% 
-        unique() 
-```
-
-### 
-
-```{r quast plot}
-#| eval: !expr params$quast == "yes"
-#| title: "Quast summary statistics"
-
-p <- quast_stats %>% 
-  filter(stat %in% c("Total length", "Largest contig", "GC (%)", "N50")) %>% 
-  mutate(stat=fct_relevel(stat,c("Total length", "Largest contig", "GC (%)", "N50"))) %>% 
-  ggplot(aes(x = sample, y = value)) +
-  geom_line() +
-  geom_point(size = 5, pch=21, aes(fill=stage), position=position_dodge(width=0.4)) +
-  facet_wrap(~stat, scales = "free_y", nrow=2, ncol=3) +
-  fill_scale_plots +
-  scale_y_continuous(labels = function(x) format(x,scientific=-1,trim=T, digits = 3, drop0trailing=T), n.breaks = 4) +
-  theme(axis.title.x = element_blank(),
-        axis.title.y = element_blank(),
-        legend.position = "none",
-        legend.title = element_blank(),
-        panel.grid.minor = element_blank())
-ggplotly(p)
-```
 
 ```{r quast write length plots}
 #| eval: !expr params$quast == "yes"
@@ -371,6 +250,8 @@ ggplotly(p)
 }
 ```
 
+::: {.panel-tabset .flow}
+
 ```{r quast add length subplots}
 #| eval: !expr params$quast == "yes"
 #| results: asis
@@ -397,6 +278,7 @@ for (i in 1:length(unique(quast_stats$sample))) {
         filter(sample == unique(quast_stats$sample)[i]) %>% 
         filter(stat == "GC (%)") %$%
         mean(value) %>%
+        round(2) %>% 
         paste(" %"),
       paste0('\n'),
       paste0(':::'),
@@ -433,16 +315,12 @@ write_csv(quast_stats,"quast_files/reports.csv")
 :::
 :::
 
-# BUSCO {.flow}
+# BUSCO 
 
 ::: {.content-visible unless-profile="busco"}
 BUSCO was not included in the pipeline run.
 :::
 
-::: {.content-visible when-profile="busco"}
-BUSCO assess assembly quality based on the presence / absence of expected single-copy orthologs.
-
-## Orthologs {.tabset}
 
 ```{r}
 #| eval: !expr params$busco == "yes"
@@ -506,7 +384,11 @@ paste0('```{r}\n
 }
 ```
 
+::: {.content-visible when-profile="busco"}
+BUSCO assess assembly quality based on the presence / absence of expected single-copy orthologs.
+
 ::: {.panel-tabset .flow}
+
 ```{r busco orthologs add subplots and valueboxes}
 #| eval: !expr params$busco == "yes"
 #| results: asis
@@ -545,9 +427,9 @@ for (i in 1:length(unique(busco_reports$sample))) {
     filter(BUSCO == "Missing") %>% 
     filter(percent == max(percent)) %$%
     stage
-  cat(paste('### ', unique(busco_reports$sample)[i]),
+  cat(paste('## ', unique(busco_reports$sample)[i]),
       paste0('\n\n'),
-      paste0('#### {.fill} \n\n'),
+      paste0('### {.fill} \n\n'),
       paste0('::: {.valuebox icon="percent" color="success" title="Max. BUSCO Completeness" }\n'),
       paste0('\n'),
       glue::glue("{unique(completeness_val)}%,\nat stage(s): {paste(unique(completeness_stage), collapse = ', ')}"),
@@ -565,7 +447,7 @@ for (i in 1:length(unique(busco_reports$sample))) {
       paste0('\n'),
       paste0(':::'), 
       paste0('\n\n'),
-      paste('#### { .flow }'),
+      paste('### { .flow }'),
       paste0('\n\n'),
       knitr::knit_child(glue::glue('busco_files/orthologs/_{ unique(nanoq_reports$sample)[i] }_orthologs.Rmd'), 
                         envir = globalenv(), 
@@ -574,6 +456,9 @@ for (i in 1:length(unique(busco_reports$sample))) {
       sep = "")
 }
 ```
+
+:::
+
 :::
 
 ```{r}
@@ -585,7 +470,7 @@ unlink("busco_files/orthologs", recursive = T)
 #| eval: !expr params$busco == "yes"
 write_csv(busco_reports,"busco_files/reports.csv")
 ```
-:::
+
 
 # genomescope
 
@@ -593,8 +478,7 @@ write_csv(busco_reports,"busco_files/reports.csv")
 jellyfish / genomescope was not included in the pipeline run.
 :::
 
-::: {.content-visible when-profile="jellyfish"}
-Jellyfish and genomescope are used to infer genome size from the initial ONT reads.
+
 
 ```{r}
 #| eval: !expr params$jellyfish == "yes"
@@ -606,37 +490,9 @@ genomescope_out <- list.files(paste0(data_base, "genomescope"), full.names = T, 
   map_dfr(\(x) read_genomescope(x))
 ```
 
-##  {.flow}
+::: {.content-visible when-profile="jellyfish"}
 
-```{r}
-#| eval: !expr params$jellyfish == "yes"
-#| content: valuebox
-#| title: "Largest estimated haploid genome"
-#| icon: flower3
-#| color: success
-genomescope_out %>% filter(property == "Genome Haploid Length")  %>% filter(max == max(max)) %$% sample
-```
-
-```{r}
-#| eval: !expr params$jellyfish == "yes"
-#| content: valuebox
-#| title: "Average heterozygosity"
-#| icon: person-arms-up
-#| color: info
-genomescope_out %>% filter(property == "Heterozygosity") %$% mean(c(min, max)) %>%  round(3) %>% paste("%")
-
-```
-
-```{r}
-#| eval: !expr params$jellyfish == "yes"
-#| content: valuebox
-#| title: "Average error rate"
-#| icon: emoji-frown
-#| color: danger
-genomescope_out %>% filter(property == "Read Error Rate") %$% mean(c(min, max)) %>% round(3) %>% paste("%")
-```
-
-## Genomescope plots {.flow}
+Jellyfish and genomescope are used to infer genome size from the initial ONT reads.
 
 ```{r}
 #| eval: !expr params$jellyfish == "yes"
@@ -651,7 +507,7 @@ for (file in img_files) {
 img_files <- list.files("genomescope_files", full.names = T, pattern = "plot.png")
 
 cat(":::{.panel-tabset}\n",
-    glue::glue('### <<str_extract(img_files %>% basename(), ".+?(?=_plot.png)")>>\n ![](<<img_files>>){width=50% fig-align="centre"}\n\n\n', .open = "<<", .close = ">>"),
+    glue::glue('## <<str_extract(img_files %>% basename(), ".+?(?=_plot.png)")>>\n ![](<<img_files>>){width=50% fig-align="centre"}\n\n\n', .open = "<<", .close = ">>"),
     ":::\n",
     sep = ""
 )
@@ -726,6 +582,20 @@ merqury_cn_hists <- list.files(paste0(data_base, "merqury"), full.names = T, pat
 #| eval: !expr params$merqury == "yes"
 #| include: false
 dir.create("merqury_files")
+dir.create("merqury_files/stat_plots/")
+for (i in 1:length(unique(merqury_stats$sample))) {
+  cur_sample <- unique(merqury_stats$sample)[i]
+  paste0('```{r}
+p <- merqury_stats %>% 
+        plot_merqury_stats("', cur_sample,'") 
+ggplotly(p)\n```') %>% 
+    write_lines(glue::glue("merqury_files/stat_plots/_{ cur_sample }_completeness_plt.Rmd"))
+}
+```
+
+```{r}
+#| eval: !expr params$merqury == "yes"
+#| include: false
 dir.create("merqury_files/asm_plots/")
 for (i in 1:length(unique(merqury_asm_hists$sample))) {
   cur_sample <- unique(merqury_asm_hists$sample)[i]
@@ -752,6 +622,7 @@ ggplotly(p)\n```') %>%
 ```
 
 :::: {.content-visible when-profile="merqury"  }
+
 merqury compares k-mer spectra between assemblies and short read libraries to assess assembly quality and completeness.
 
 :::  {.panel-tabset}
@@ -769,7 +640,8 @@ for (i in 1:length(unique(merqury_stats$sample))) {
   highest_stage  <-  merqury_stats %>% 
     filter(sample == cur_sample) %>% 
     filter(percent == highest_val) %$%
-    stage
+    stage %>% 
+    unique()
   lowest_val <-  merqury_stats %>% 
     filter(sample == cur_sample) %>% 
     filter(percent == min(percent)) %$% 
@@ -785,7 +657,7 @@ for (i in 1:length(unique(merqury_stats$sample))) {
     
   cat(paste('## ', cur_sample),
       paste0('\n\n'),
-      paste0('### {orientation="columns" .float} \n'),
+      paste0('### { orientation="columns" .float } \n'),
       paste0('::: {.valuebox icon="percent" color="success" title="Highest k-mer completeness" }\n'),
       glue::glue("{unique(highest_val) %>% round(2)}%, at stage(s): {paste(highest_stage, collapse = ', ')}"),
       paste0('\n'),
@@ -798,6 +670,12 @@ for (i in 1:length(unique(merqury_stats$sample))) {
       paste0('\n\n'),
       paste0('::: {.panel-tabset}'),
       paste0('\n\n'),
+      paste0('### Completeness \n'),
+      paste0('\n'),
+      knitr::knit_child(glue::glue('merqury_files/stat_plots/_{ cur_sample }_completeness_plt.Rmd'), 
+                  envir = globalenv(), 
+                  quiet = TRUE),
+      paste0('\n'),
       paste0('### Spectra \n'),
       paste0('\n'),
       knitr::knit_child(glue::glue('merqury_files/asm_plots/_{ cur_sample }_asm_plts.Rmd'), 
