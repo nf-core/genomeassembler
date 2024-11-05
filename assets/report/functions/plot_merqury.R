@@ -1,3 +1,18 @@
+plot_merqury_stats <- function(data, samplename) {
+  data %>%
+    filter(sample == paste(samplename)) %>%
+    ggplot(aes(x = stage, y = assembly*100/total)) +
+    geom_line(aes(group = sample)) +
+    geom_point(size = 7, color = "black", fill = "white", pch=21) +
+    labs(
+      y = "k-mer completeness [%]",
+      x = "Stage",
+      color = "k-mers copy number",
+      fill = "k-mers copy number",
+      title = glue::glue("k-mer completeness {samplename} assemblies")
+    ) 
+}
+
 plot_merqury_multiplicity <- function(data, samplename) {
   y_max <- data %>%
     filter(sample == paste(samplename), Assembly != "read-only") %$%
