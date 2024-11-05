@@ -20,6 +20,7 @@ process  REPORT {
         tuple path("report.html"), path("report_files/*")  , emit: report_html
         path("busco_files/reports.csv")                    , emit: busco_table, optional: true
         path("quast_files/reports.csv")                    , emit: quast_table, optional: true
+        path("genomescope_files/*")                        , emit: genomescope_plots, optional: true
 
 
     when:

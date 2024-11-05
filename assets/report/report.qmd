@@ -642,6 +642,14 @@ genomescope_out %>% filter(property == "Read Error Rate") %$% mean(c(min, max)) 
 #| eval: !expr params$jellyfish == "yes"
 #| output: asis
 img_files <- list.files(paste0(data_base,"genomescope"), full.names = T, pattern = "plot.png")
+dir.create("genomescope_files")
+for (file in img_files) {
+  file.copy(from = file,
+            to   = paste0("genomescope_files/", file %>% basename(), sep =""))
+  
+}
+img_files <- list.files("genomescope_files", full.names = T, pattern = "plot.png")
+
 cat(":::{.panel-tabset}\n",
     glue::glue('### <<str_extract(img_files %>% basename(), ".+?(?=_plot.png)")>>\n ![](<<img_files>>){width=50% fig-align="centre"}\n\n\n', .open = "<<", .close = ">>"),
     ":::\n",
