@@ -6,6 +6,12 @@ editor: visual
 nav-buttons:
       - icon: github
         href: https://github.com/nschan/genomeassembler
+params:
+  nanoq: "no"
+  busco: "no"
+  quast: "no"
+  jellyfish: "no"
+  merqury: "no"
 ---
 
 ```{r load libraries and functions}
@@ -25,7 +31,6 @@ theme_update(strip.background = element_blank(),
 ### For <=9 stages:
 color_scale_plots <- scale_color_manual(values = c("#CC6677", "#332288", "#DDCC77", "#117733", "#88CCEE", "#882255", "#44AA99", "#999933", "#AA4499"), na.value = "#DDDDDD")
 fill_scale_plots <- scale_fill_manual(values = c("#CC6677", "#332288", "#DDCC77", "#117733", "#88CCEE", "#882255", "#44AA99", "#999933", "#AA4499"), na.value = "#DDDDDD")
-
 data_base = "data/"
 ```
 
@@ -41,6 +46,7 @@ nanoq was not included in the pipeline run, no ONT reads were included.
 
 ::: {.content-visible when-profile="nanoq"}
 ```{r nanoq read inputs}
+#| eval: !expr params$nanoq == "yes"
 #| include: false
 #| message: false
 #| output: false
@@ -51,12 +57,12 @@ nanoq_reports <- list.files(paste0(data_base, "nanoq"),
 ```
 
 ::: {.panel-tabset .flow}
-
 ## All samples
 
 ### { width = 30% }
 
 ```{r}
+#| eval: !expr params$nanoq == "yes"
 #| content: valuebox
 #| title: "Total bases sequenced"
 #| icon: magic
@@ -65,6 +71,7 @@ nanoq_reports %>% filter(stat == "Bases") %$% sum(val) %>% format(scientific=-1,
 ```
 
 ```{r}
+#| eval: !expr params$nanoq == "yes"
 #| content: valuebox
 #| title: "Number of reads"
 #| icon: collection
@@ -73,6 +80,7 @@ nanoq_reports %>% filter(stat == "N Reads") %$% sum(val,na.rm = T) %>% paste0()
 ```
 
 ```{r}
+#| eval: !expr params$nanoq == "yes"
 #| content: valuebox
 #| title: "Longest read"
 #| icon: chevron-double-up
@@ -80,11 +88,10 @@ nanoq_reports %>% filter(stat == "N Reads") %$% sum(val,na.rm = T) %>% paste0()
 nanoq_reports %>% filter(stat == "Longest") %$% max(val) %>% paste(" bases")
 ```
 
-
 ### 
 
 ```{r nanoq plot}
-#| eval: true
+#| eval: !expr params$nanoq == "yes"
 #| title: "Nanoq read statistics"
 
 p <- nanoq_reports %>% 
@@ -101,10 +108,11 @@ p <- nanoq_reports %>%
         legend.position = "none",
         legend.title = element_blank(),
         panel.grid.minor = element_blank())
-ggplotly(p) %>% plotly::layout(font = plotly_fnt)
+ggplotly(p)
 ```
 
 ```{r}
+#| eval: !expr params$nanoq == "yes"
 #| include: false
 dir.create("nanoq_files")
 for (i in 1:length(unique(nanoq_reports$sample))) {
@@ -125,12 +133,13 @@ paste0('```{r}\n
                    legend.position = "none",
                    legend.title = element_blank(),
                    panel.grid.minor = element_blank())
-       ggplotly(p) %>% plotly::layout(font = plotly_fnt)\n```') %>% 
+       ggplotly(p)\n```') %>% 
     write_lines(glue::glue("nanoq_files/_{ unique(nanoq_reports$sample)[i] }_nanoq.Rmd"))
 }
 ```
 
 ```{r nanoq add subplots}
+#| eval: !expr params$nanoq == "yes"
 #| results: asis
 for (i in 1:length(unique(nanoq_reports$sample))) {
   cat(paste0('## ', unique(nanoq_reports$sample)[i], '\n\n'),
@@ -167,11 +176,10 @@ for (i in 1:length(unique(nanoq_reports$sample))) {
 ```
 
 ```{r}
+#| eval: !expr params$nanoq == "yes"
 unlink("nanoq_files", recursive = T)
 ```
-
 :::
-
 :::
 
 # QUAST {.tabset}
@@ -184,6 +192,7 @@ QUAST was not included in the pipeline run.
 QUAST reports assembly statistics, taking into account the reference, if provided.
 
 ```{r message = F}
+#| eval: !expr params$quast == "yes"
 quast_stats <- list.files(paste0(data_base, "quast"),
                           pattern = "report.tsv",
                           full.names = T) %>%
@@ -191,27 +200,27 @@ quast_stats <- list.files(paste0(data_base, "quast"),
   mutate(
     sample = str_extract(
       assembly,
-      ".+?(?=.assembly|_medaka|_pilon)"
+      ".+?(?=_assemble|\\.assembly|_medaka|_pilon|_links|\\.tigmint)"
     ),
     stage = case_when(
       str_detect(assembly, "_ragtag") ~ "RagTag",
       str_detect(assembly, "_medaka") ~ "medaka",
       str_detect(assembly, "_pilon") ~ "pilon",
-      str_detect(assembly, ".longstitch") ~ "longstitch",
+      str_detect(assembly, "\\.longstitch") ~ "longstitch",
       str_detect(assembly, "_links") ~ "LINKS",
-      str_detect(assembly, ".assembly") ~ "Assembly",
+      str_detect(assembly, "\\.assembly") ~ "Assembly",
       TRUE ~ "Unknown"
     )
   )
 ```
 
 ::: {.panel-tabset .flow}
-
 ## All samples
 
 ### { .width = 30% }
 
 ```{r}
+#| eval: !expr params$quast == "yes"
 #| content: valuebox
 #| title: "Longest Total length"
 #| icon: arrow-up-right-circle
@@ -230,6 +239,7 @@ quast_stats <- list.files(paste0(data_base, "quast"),
 ```
 
 ```{r}
+#| eval: !expr params$quast == "yes"
 #| content: valuebox
 #| title: "Average GC Content"
 #| icon: percent
@@ -241,6 +251,7 @@ quast_stats <- list.files(paste0(data_base, "quast"),
 ```
 
 ```{r}
+#| eval: !expr params$quast == "yes"
 #| content: valuebox
 #| title: "Largest N50"
 #| icon: emoji-heart-eyes
@@ -255,7 +266,7 @@ quast_stats <- list.files(paste0(data_base, "quast"),
 ### 
 
 ```{r quast plot}
-#| eval: true
+#| eval: !expr params$quast == "yes"
 #| title: "Quast summary statistics"
 
 p <- quast_stats %>% 
@@ -272,10 +283,11 @@ p <- quast_stats %>%
         legend.position = "none",
         legend.title = element_blank(),
         panel.grid.minor = element_blank())
-ggplotly(p) %>% plotly::layout(font = plotly_fnt)
+ggplotly(p)
 ```
 
 ```{r quast write length plots}
+#| eval: !expr params$quast == "yes"
 #| include: false
 dir.create("quast_files")
 dir.create("quast_files/length")
@@ -295,12 +307,13 @@ paste0('```{r}\n
   fill_scale_plots +
   labs(title = "QUAST: L(G) 50 and 90") +
   theme(panel.border = element_rect(fill = NA))
-  ggplotly(p) %>% plotly::layout(font = plotly_fnt) \n```') %>% 
+  ggplotly(p) \n```') %>% 
     write_lines(glue::glue("quast_files/length/_{ unique(quast_stats$sample)[i] }_quast.Rmd"))
 }
 ```
 
 ```{r quast contig plots}
+#| eval: !expr params$quast == "yes"
 #| include: false
 dir.create("quast_files/contigs")
 for (i in 1:length(unique(quast_stats$sample))) {
@@ -321,7 +334,7 @@ paste0('```{r}\n
   theme(axis.title.x = element_blank(),
         axis.title.y = element_blank()) +
   labs(title = "QUAST: Number of contigs by size") 
-ggplotly(p) %>% plotly::layout(font = plotly_fnt)
+ggplotly(p)
   p <- quast_stats %>%
   filter(sample == "', unique(quast_stats$sample)[i], '") %>%
   filter(str_detect(stat, "Total length")) %>%
@@ -352,13 +365,14 @@ ggplotly(p) %>% plotly::layout(font = plotly_fnt)
         drop0trailing = T
       )
   )
-ggplotly(p) %>% plotly::layout(font = plotly_fnt)
+ggplotly(p)
   \n```') %>% 
     write_lines(glue::glue("quast_files/contigs/_{ unique(quast_stats$sample)[i] }_quast.Rmd"))
 }
 ```
 
 ```{r quast add length subplots}
+#| eval: !expr params$quast == "yes"
 #| results: asis
 for (i in 1:length(unique(quast_stats$sample))) {
   cat(paste0('## ', unique(quast_stats$sample)[i], '\n'),
@@ -411,6 +425,7 @@ for (i in 1:length(unique(quast_stats$sample))) {
 ```
 
 ```{r unlink quast}
+#| eval: !expr params$quast == "yes"
 unlink("quast_files/contigs", recursive = T)
 unlink("quast_files/length", recursive = T)
 write_csv(quast_stats,"quast_files/reports.csv")
@@ -424,12 +439,13 @@ write_csv(quast_stats,"quast_files/reports.csv")
 BUSCO was not included in the pipeline run.
 :::
 
-::::: {.content-visible when-profile="busco"}
+::: {.content-visible when-profile="busco"}
 BUSCO assess assembly quality based on the presence / absence of expected single-copy orthologs.
 
 ## Orthologs {.tabset}
 
 ```{r}
+#| eval: !expr params$busco == "yes"
 #| warning: false
 #| message: false
 #| echo: false
@@ -440,21 +456,22 @@ busco_reports <- list.files(paste0(data_base, "busco"),
   mutate(
     sample = str_extract(
       assembly,
-      ".+?(?=.assembly|_medaka|_pilon)"
+      ".+?(?=_assemble|\\.assembly|_medaka|_pilon|_links|\\.tigmint)"
     ),
     stage = case_when(
       str_detect(assembly, "_ragtag") ~ "RagTag",
       str_detect(assembly, "_medaka") ~ "medaka",
       str_detect(assembly, "_pilon") ~ "pilon",
-      str_detect(assembly, ".longstitch") ~ "longstitch",
+      str_detect(assembly, "\\.longstitch") ~ "longstitch",
       str_detect(assembly, "_links") ~ "LINKS",
-      str_detect(assembly, ".assembly") ~ "Assembly",
+      str_detect(assembly, "\\.assembly") ~ "Assembly",
       TRUE ~ "Unknown"
     )
   )
 ```
 
 ```{r}
+#| eval: !expr params$busco == "yes"
 #| include: false
 dir.create("busco_files")
 dir.create("busco_files/orthologs")
@@ -483,15 +500,15 @@ paste0('```{r}\n
     axis.title.y = element_text(angle = 90),
     axis.title.x = element_blank()
   )
-  ggplotly(p) %>% plotly::layout(font = plotly_fnt)
+  ggplotly(p)
   \n```') %>% 
     write_lines(glue::glue("busco_files/orthologs/_{ unique(busco_reports$sample)[i] }_orthologs.Rmd"))
 }
 ```
 
-:::: {.panel-tabset .flow}
-
+::: {.panel-tabset .flow}
 ```{r busco orthologs add subplots and valueboxes}
+#| eval: !expr params$busco == "yes"
 #| results: asis
 for (i in 1:length(unique(busco_reports$sample))) {
     cur_sample <-  unique(busco_reports$sample)[i]
@@ -557,19 +574,18 @@ for (i in 1:length(unique(busco_reports$sample))) {
       sep = "")
 }
 ```
-
-:::: 
+:::
 
 ```{r}
+#| eval: !expr params$busco == "yes"
 unlink("busco_files/orthologs", recursive = T)
 ```
 
 ```{r}
+#| eval: !expr params$busco == "yes"
 write_csv(busco_reports,"busco_files/reports.csv")
 ```
-
-
-:::::
+:::
 
 # genomescope
 
@@ -578,10 +594,10 @@ jellyfish / genomescope was not included in the pipeline run.
 :::
 
 ::: {.content-visible when-profile="jellyfish"}
-
 Jellyfish and genomescope are used to infer genome size from the initial ONT reads.
 
 ```{r}
+#| eval: !expr params$jellyfish == "yes"
 #| message: false
 #| echo: false
 #| output: false
@@ -590,9 +606,10 @@ genomescope_out <- list.files(paste0(data_base, "genomescope"), full.names = T, 
   map_dfr(\(x) read_genomescope(x))
 ```
 
-## {.flow}
+##  {.flow}
 
 ```{r}
+#| eval: !expr params$jellyfish == "yes"
 #| content: valuebox
 #| title: "Largest estimated haploid genome"
 #| icon: flower3
@@ -601,6 +618,7 @@ genomescope_out %>% filter(property == "Genome Haploid Length")  %>% filter(max 
 ```
 
 ```{r}
+#| eval: !expr params$jellyfish == "yes"
 #| content: valuebox
 #| title: "Average heterozygosity"
 #| icon: person-arms-up
@@ -610,6 +628,7 @@ genomescope_out %>% filter(property == "Heterozygosity") %$% mean(c(min, max)) %
 ```
 
 ```{r}
+#| eval: !expr params$jellyfish == "yes"
 #| content: valuebox
 #| title: "Average error rate"
 #| icon: emoji-frown
@@ -620,8 +639,9 @@ genomescope_out %>% filter(property == "Read Error Rate") %$% mean(c(min, max)) 
 ## Genomescope plots {.flow}
 
 ```{r}
+#| eval: !expr params$jellyfish == "yes"
 #| output: asis
-img_files <- list.files("examples/genomescope", full.names = T, pattern = "plot.png")
+img_files <- list.files(paste0(data_base,"genomescope"), full.names = T, pattern = "plot.png")
 cat(":::{.panel-tabset}\n",
     glue::glue('### <<str_extract(img_files %>% basename(), ".+?(?=_plot.png)")>>\n ![](<<img_files>>){width=50% fig-align="centre"}\n\n\n', .open = "<<", .close = ">>"),
     ":::\n",
@@ -636,32 +656,32 @@ cat(":::{.panel-tabset}\n",
 meryl and merqury were not included in the pipeline run.
 :::
 
-:::::: {.content-visible when-profile="merqury"}
-
+::: {.content-visible when-profile="merqury"}
 merqury compares k-mer spectra between assemblies and short read libraries to assess assembly quality and completeness.
 
 ## Stats
 
 ```{r}
+#| eval: !expr params$merqury == "yes"
 #| include: false
 #| message: false
 #| output: false
 merqury_stats <- list.files(paste0(data_base, "merqury"), full.names = T, pattern = "stats") %>% 
   lapply(\(x) read_tsv(x, col_names = c("sample_stage","all","assembly","total","percent"), show_col_types = FALSE)) %>% 
   bind_rows() %>% 
-  mutate(sample = str_extract(sample_stage, ".+?(?=.assembly|_pilon|_medaka)"),
+  mutate(sample = str_extract(sample_stage,".+?(?=_assemble|\\.assembly|_medaka|_pilon|_links|\\.tigmint)"),
          stage = case_when(
                   str_detect(sample_stage, "_ragtag") ~ "RagTag",
                   str_detect(sample_stage, "_medaka") ~ "medaka",
                   str_detect(sample_stage, "_pilon") ~ "pilon",
-                  str_detect(sample_stage, ".longstitch") ~ "longstitch",
+                  str_detect(sample_stage, "\\.longstitch") ~ "longstitch",
                   str_detect(sample_stage, "_links") ~ "LINKS",
-                  str_detect(sample_stage, ".assembly") ~ "Assembly",
+                  str_detect(sample_stage, "\\.assembly") ~ "Assembly",
                   TRUE ~ "Unknown"))
 merqury_asm_hists <- list.files(paste0(data_base, "/merqury"), full.names = T, pattern = "asm.hist")  %>% 
   lapply(\(x) read_tsv(x, col_names = T, show_col_types = FALSE) %>% 
            mutate(
-             sample = str_extract(x %>% basename(), ".+?(?=_assemble|_polish|_run|.spectra)"),
+             sample = str_extract(x %>% basename(), ".+?(?=_assemble|\\.assembly|_medaka|_polish|_links|_run|\\.spectra)"),
              stage = case_when(
                str_detect(x, "_ragtag") ~ "RagTag",
                str_detect(x, "_medaka") ~ "medaka",
@@ -681,7 +701,7 @@ merqury_asm_hists <- list.files(paste0(data_base, "/merqury"), full.names = T, p
 merqury_cn_hists <- list.files(paste0(data_base, "merqury"), full.names = T, pattern = "cn.hist")  %>% 
   lapply(\(x) read_tsv(x, col_names = T, show_col_types = FALSE) %>% 
            mutate(
-             sample = str_extract(x %>% basename(), ".+?(?=_assemble|_polish|_run|.spectra)"),
+             sample = str_extract(x %>% basename(), ".+?(?=_assemble|\\.assembly|_medaka|_polish|_links|_run|\\.spectra)"),
              stage = case_when(
                str_detect(x, "_ragtag") ~ "RagTag",
                str_detect(x, "_medaka") ~ "medaka",
@@ -699,8 +719,8 @@ merqury_cn_hists <- list.files(paste0(data_base, "merqury"), full.names = T, pat
   bind_rows()
 ```
 
-
 ```{r}
+#| eval: !expr params$merqury == "yes"
 #| include: false
 dir.create("merqury_files")
 dir.create("merqury_files/asm_plots/")
@@ -709,13 +729,13 @@ for (i in 1:length(unique(merqury_asm_hists$sample))) {
   paste0('```{r}
 p <- merqury_asm_hists %>% 
         plot_merqury_multiplicity("', cur_sample,'") 
-ggplotly(p)
-```') %>% 
+ggplotly(p)\n```') %>% 
     write_lines(glue::glue("merqury_files/asm_plots/_{ cur_sample }_asm_plts.Rmd"))
 }
 ```
 
 ```{r}
+#| eval: !expr params$merqury == "yes"
 #| include: false
 dir.create("merqury_files/cn_plots/")
 for (i in 1:length(unique(merqury_cn_hists$sample))) {
@@ -723,15 +743,14 @@ for (i in 1:length(unique(merqury_cn_hists$sample))) {
   paste0('```{r}
 p <- merqury_cn_hists %>% 
          plot_merqury_copynumber("', cur_sample,'") 
-ggplotly(p)
-```') %>% 
+ggplotly(p)\n```') %>% 
     write_lines(glue::glue("merqury_files/cn_plots/_{ cur_sample }_cn_plts.Rmd"))
 }
 ```
 
-::::: {.panel-tabset .flow}
-
+::: {.panel-tabset .flow}
 ```{r merqury add plots and valueboxes}
+#| eval: !expr params$merqury == "yes"
 #| results: asis
 for (i in 1:length(unique(merqury_stats$sample))) {
     cur_sample <-  unique(merqury_stats$sample)[i]
@@ -754,7 +773,7 @@ for (i in 1:length(unique(merqury_stats$sample))) {
     filter(percent == lowest_val) %$%
     stage %>% 
     unique()
-  img_files <- list.files("examples/merqury", full.names = T, pattern = "spectra-cn.fl.png")  %>% 
+  img_files <- list.files(paste0(data_base,"merqury"), full.names = T, pattern = "spectra-cn.fl.png")  %>% 
     .[str_detect(., cur_sample)]
     
   cat(paste('### ', cur_sample),
@@ -771,14 +790,13 @@ for (i in 1:length(unique(merqury_stats$sample))) {
       paste0('\n'),
       paste0(':::'), 
       paste0('\n\n'),
-      "::::{.panel-tabset}\n",
-      glue::glue('#### Spectra \n'),
+      paste0('#### Spectra {.panel-tabset}\n'),
       paste0('\n\n\n'),
       knitr::knit_child(glue::glue('merqury_files/asm_plots/_{ cur_sample }_asm_plts.Rmd'), 
                   envir = globalenv(), 
                   quiet = TRUE),
       paste0('\n\n\n'),
-      glue::glue('#### Copy Number \n'),
+      paste0('#### Copy Number \n'),
       paste0('\n\n\n'),
       knitr::knit_child(glue::glue('merqury_files/cn_plots/_{ cur_sample }_cn_plts.Rmd'),
                   envir = globalenv(),
@@ -789,17 +807,13 @@ for (i in 1:length(unique(merqury_stats$sample))) {
       sep = "")
 }
 ```
+:::
 
-:::::
-
+:::
 
 ```{r}
+#| eval: !expr params$merqury == "yes"
 unlink("merqury_files/cn_plots")
 unlink("merqury_files/asm_plots")
 unlink("merqury_files")
 ```
-
-:::::: 
-
-
-

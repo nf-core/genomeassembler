@@ -57,15 +57,15 @@ workflow SCAFFOLD {
 
         if(params.scaffold_ragtag) {
             RUN_RAGTAG(inputs, in_reads, assembly, references, ch_aln_to_ref, meryl_kmers)
-            RUN_LONGSTITCH
+            RUN_RAGTAG
                 .out
                 .busco_out
                 .set { ragtag_busco }
-            RUN_LONGSTITCH
+            RUN_RAGTAG
                 .out
                 .quast_out
                 .set { ragtag_quast }
-            RUN_LONGSTITCH
+            RUN_RAGTAG
                 .out
                 .merqury_report_files
                 .set { ragtag_merqury }

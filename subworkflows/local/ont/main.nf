@@ -7,8 +7,11 @@ workflow ONT {
 
     main:
     Channel.empty().set { genome_size }
-    Channel.empty().set { genomescope_summary }
-    Channel.empty().set { genomescope_plot }
+    Channel
+        .fromPath("$projectDir/assets/report/.DUMMYFILE")
+        .map { it -> [null, it]}
+        .tap { genomescope_summary }
+        .tap { genomescope_plot }
 
     PREPARE_ONT(input_channel)
 

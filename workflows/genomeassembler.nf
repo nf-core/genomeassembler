@@ -60,11 +60,16 @@ workflow GENOMEASSEMBLER {
     Channel.empty().set { ch_hifiasm_inputs }
     Channel.empty().set { genome_size }
     Channel.empty().set { ch_versions }
-    Channel.empty().set { nanoq_files }
-    Channel.empty().set { genomescope_files }
-    Channel.empty().set { busco_files }
-    Channel.empty().set { quast_files }
-    Channel.empty().set { merqury_files }
+
+    Channel
+        .fromPath("$projectDir/assets/report/.DUMMYFILE") // quast emits a single file
+        .tap { quast_files }
+        .map { it -> [it, it]} // nanoq and busco emit meta and a file
+        .tap { nanoq_files }
+        .tap { busco_files }
+        .map { it -> [it[0], it[0], it[0], it[0]]} // merqury emits meta +  three files
+        .tap { merqury_files }
+        
 
     /*
     =============
@@ -119,6 +124,7 @@ workflow GENOMEASSEMBLER {
                     .out
                     .genomescope_plot
             )
+            .unique()
             .collect { it -> it[1] }
             .set { genomescope_files }
     } 
@@ -189,7 +195,8 @@ workflow GENOMEASSEMBLER {
                         .scaffold_quast_reports
                 )
         )
-        .collect { it -> it[1] }
+        .unique()
+        .collect()
         .set { quast_files }
 
     busco_files
@@ -208,7 +215,8 @@ workflow GENOMEASSEMBLER {
                         .scaffold_busco_reports
                 )
         )
-        .collect { it -> it[1] }
+        .unique()
+        .collect { it -> it[1] } // Keep only files
         .set { busco_files }
 
     merqury_files
@@ -227,19 +235,31 @@ workflow GENOMEASSEMBLER {
                         .scaffold_merqury_reports
                 )
         )
-        .collect { it -> it[1] }
+        .collect { it -> [it[1], it[2], it[3]] } // Keep only files
+        // I am unable to get uniques via .unique(), on the list this is a workaround
+        .toSet()
+        .flatten()
+        .collect()
+        // set channel
         .set { merqury_files }
 
-    Channel.fromPath("$projectDir/assets/report/*").set { report_files }
-    /* Channel debug
-    report_files.view()
-    nanoq_files.view()
-    genomescope_files.view()
-    quast_files.view()
-    busco_files.view()
-    merqury_files.view()
-    */
-    REPORT(report_files, nanoq_files, genomescope_files, quast_files, busco_files, merqury_files)
+    Channel.fromPath("$projectDir/assets/report/*")
+        .collect()
+        .set { report_files } // Report files
+    Channel.fromPath("$projectDir/assets/report/functions/*")
+        .collect()
+        .set { report_functions } // Report functions, mainly parsers
+    /* Debug         
+    report_files.view { f -> "Report Files: $f"}
+    report_functions.view { f -> "Report Functions: $f"}
+    nanoq_files.view { f -> "Nanoq Files: $f"}
+    genomescope_files.view { f -> "Genomescope Files: $f"}
+    quast_files.view { f -> "QUAST Files: $f"}
+    busco_files.view { f -> "BUSCO Files: $f"}
+    merqury_files.view { f -> "merqury Files: $f"}
+    */ 
+ 
+    REPORT(report_files, report_functions, nanoq_files, genomescope_files, quast_files, busco_files, merqury_files)
     
     //
     // Collate and save software versions
@@ -252,7 +272,7 @@ workflow GENOMEASSEMBLER {
             newLine: true
         ).set { ch_collated_versions }
 
-    _report = REPORT.out.report_html.toList() // channel: /path/to/multiqc_report.html
+    _report = REPORT.out.report_html.toList() 
     //Channel.empty().set { _report }
 
     emit:
