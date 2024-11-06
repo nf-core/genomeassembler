@@ -68,6 +68,7 @@ workflow ASSEMBLE {
           .set { ch_assembly }
       } 
       if(params.assembler == "hifiasm") {
+        if(!params.hifi) error 'hifiasm requires hifi reads'
         if(params.hifiasm_ont) {
            hifi_reads
             .join(ont_reads) 

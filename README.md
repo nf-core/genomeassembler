@@ -56,6 +56,19 @@ nextflow run nf-core/genomeassembler \
 
 For more details and further functionality, please refer to the [usage documentation](https://nf-co.re/genomeassembler/usage) and the [parameter documentation](https://nf-co.re/genomeassembler/parameters).
 
+### Pre-set profiles
+
+To ease configuration, there are a couple of pre-defined profiles for various combinations of read sources and assemblers (named readtype_assembler)
+
+| ONT | HiFI | Assembly-strategy | Profile name       |
+| --- | ---  | ---               |   ---              |
+| Yes | No   | flye              |   `ont_flye`       |
+| No  | Yes  | flye              |   `hifi_flye`      |
+| No  | Yes  | hifiasm           |   `hifi_hifiasm`   |
+| Yes | Yes  | hifiasm --ul      |   `hifiont_hifiasm`|
+| Yes | Yes  | Scaffolding of ONT assemblies onto HiFi assemblies      |   `hifiont_flyehifiasm`|
+
+
 ### Pipeline specific parameters
 
 | Parameter | Description | Type | Default | Required | Hidden |                                                                                                                                                                                                        
