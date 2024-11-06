@@ -60,13 +60,14 @@ For more details and further functionality, please refer to the [usage documenta
 
 To ease configuration, there are a couple of pre-defined profiles for various combinations of read sources and assemblers (named readtype_assembler)
 
-| ONT | HiFI | Assembly-strategy | Profile name       |
-| --- | ---  | ---               |   ---              |
-| Yes | No   | flye              |   `ont_flye`       |
-| No  | Yes  | flye              |   `hifi_flye`      |
-| No  | Yes  | hifiasm           |   `hifi_hifiasm`   |
-| Yes | Yes  | hifiasm --ul      |   `hifiont_hifiasm`|
-| Yes | Yes  | Scaffolding of ONT assemblies onto HiFi assemblies      |   `hifiont_flyehifiasm`|
+
+| ONT | HiFI | Assembly-strategy | Profile name |
+|---|---|---|---|
+| Yes | No | flye | `ont_flye`       |
+| No | Yes | flye  | `hifi_flye`      |
+| No | Yes | hifiasm | `hifi_hifiasm`   |
+| Yes | Yes | hifiasm --ul | `hifiont_hifiasm`|
+| Yes | Yes | Scaffolding of ONT assemblies onto HiFi assemblies |   `hifiont_flyehifiasm`|
 
 
 ### Pipeline specific parameters
