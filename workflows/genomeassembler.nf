@@ -64,13 +64,18 @@ workflow GENOMEASSEMBLER {
     Channel
         .fromPath("$projectDir/assets/report/.DUMMYFILE") // quast emits a single file
         .tap { quast_files }
-        .map { it -> [it, it]} // nanoq and busco emit meta and a file
+        .map { it -> [it, it]} // nanoq, genomescope and busco emit meta and a file
         .tap { nanoq_files }
+        .tap { genomescope_files }
         .tap { busco_files }
         .map { it -> [it[0], it[0], it[0], it[0]]} // merqury emits meta +  three files
         .tap { merqury_files }
-        
-
+    /*
+    =============
+    Some checks
+    =============
+    */  
+    if(!params.ont && !params.hifi) error 'At least one of params.ont, params.hifi needs to be true.'
     /*
     =============
     Prepare reads

@@ -72,6 +72,15 @@ workflow ASSEMBLE {
            hifi_reads
             .join(ont_reads) 
             .set { hifiasm_inputs }
+            /*Debug
+          hifi_reads
+            .map { it -> [it[0], it[1]] }
+            .view {channel -> "Hifireads: $channel"}
+            .join(ont_reads
+                  .map { it -> [it[0], it[1]] }
+                  .view {channel -> "ONTreads: $channel"})
+            .view {channel -> "Joined: $channel"}
+            */
           HIFIASM_UL(hifiasm_inputs, params.hifiasm_args)
           HIFIASM_UL
             .out
