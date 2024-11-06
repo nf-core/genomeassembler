@@ -30,6 +30,8 @@ include { SCAFFOLD               } from '../subworkflows/local/scaffolding/main'
 // reporting
 include { REPORT                } from '../modules/local/report/main'
 
+// TODO: Figure out how to run quast with a reference in a normal (non-writeable) container, biocontainer is missing bwa
+
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     RUN MAIN WORKFLOW
