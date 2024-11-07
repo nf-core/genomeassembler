@@ -64,11 +64,11 @@ workflow GENOMEASSEMBLER {
     Channel
         .fromPath("$projectDir/assets/report/.DUMMYFILE") // quast emits a single file
         .tap { quast_files }
-        .map { it -> [it, it]} // nanoq, genomescope and busco emit meta and a file
         .tap { nanoq_files }
         .tap { genomescope_files }
+        .map { it -> ["dummy", it] } // busco emits meta and a file
         .tap { busco_files }
-        .map { it -> [it[0], it[0], it[0], it[0]]} // merqury emits meta +  three files
+        .map { it -> [it[0], it[1], it[1], it[1]]} // merqury emits meta +  three files
         .tap { merqury_files }
     /*
     =============

@@ -27,7 +27,7 @@ theme_set(theme_bw(base_size = 14,
                    base_family = "Arial"))
 theme_update(strip.background = element_blank(),
              axis.text.x = element_text(angle = 70, hjust = 1))
-## Colors, these come from the khroma pacakge ("muted")
+## Colors, these come from the khroma package ("muted")
 ### For <=9 stages:
 color_scale_plots <- scale_color_manual(values = c("#CC6677", "#332288", "#DDCC77", "#117733", "#88CCEE", "#882255", "#44AA99", "#999933", "#AA4499"), na.value = "#DDDDDD")
 fill_scale_plots <- scale_fill_manual(values = c("#CC6677", "#332288", "#DDCC77", "#117733", "#88CCEE", "#882255", "#44AA99", "#999933", "#AA4499"), na.value = "#DDDDDD")
@@ -150,7 +150,7 @@ quast_stats <- list.files(paste0(data_base, "quast"),
   mutate(
     sample = str_extract(
       assembly,
-      ".+?(?=_assemble|\\.assembly|_medaka|_pilon|_links|\\.tigmint)"
+      ".+?(?=_assemble|\\.assembly|\\.asm|_medaka|_pilon|_links|\\.tigmint)"
     ),
     stage = case_when(
       str_detect(assembly, "_ragtag") ~ "RagTag",
@@ -158,7 +158,7 @@ quast_stats <- list.files(paste0(data_base, "quast"),
       str_detect(assembly, "_pilon") ~ "pilon",
       str_detect(assembly, "\\.longstitch") ~ "longstitch",
       str_detect(assembly, "_links") ~ "LINKS",
-      str_detect(assembly, "\\.assembly") ~ "Assembly",
+      str_detect(assembly, "\\.assembly|asm") ~ "Assembly",
       TRUE ~ "Unknown"
     )
   )
@@ -334,7 +334,7 @@ busco_reports <- list.files(paste0(data_base, "busco"),
   mutate(
     sample = str_extract(
       assembly,
-      ".+?(?=_assemble|\\.assembly|_medaka|_pilon|_links|\\.tigmint)"
+      ".+?(?=_assemble|\\.assembly|\\.asm|_medaka|_pilon|_links|\\.tigmint)"
     ),
     stage = case_when(
       str_detect(assembly, "_ragtag") ~ "RagTag",
@@ -342,7 +342,7 @@ busco_reports <- list.files(paste0(data_base, "busco"),
       str_detect(assembly, "_pilon") ~ "pilon",
       str_detect(assembly, "\\.longstitch") ~ "longstitch",
       str_detect(assembly, "_links") ~ "LINKS",
-      str_detect(assembly, "\\.assembly") ~ "Assembly",
+      str_detect(assembly, "\\.assembly|\\.asm") ~ "Assembly",
       TRUE ~ "Unknown"
     )
   )
@@ -449,7 +449,7 @@ for (i in 1:length(unique(busco_reports$sample))) {
       paste0('\n\n'),
       paste('### { .flow }'),
       paste0('\n\n'),
-      knitr::knit_child(glue::glue('busco_files/orthologs/_{ unique(nanoq_reports$sample)[i] }_orthologs.Rmd'), 
+      knitr::knit_child(glue::glue('busco_files/orthologs/_{ unique(busco_reports$sample)[i] }_orthologs.Rmd'), 
                         envir = globalenv(), 
                         quiet = TRUE),
       paste0('\n\n\n'),
@@ -528,26 +528,26 @@ meryl and merqury were not included in the pipeline run.
 merqury_stats <- list.files(paste0(data_base, "merqury"), full.names = T, pattern = "stats") %>% 
   lapply(\(x) read_tsv(x, col_names = c("sample_stage","all","assembly","total","percent"), show_col_types = FALSE)) %>% 
   bind_rows() %>% 
-  mutate(sample = str_extract(sample_stage,".+?(?=_assemble|\\.assembly|_medaka|_pilon|_links|\\.tigmint)"),
+  mutate(sample = str_extract(sample_stage,".+?(?=_assemble|\\.assembly|\\.asm|_medaka|_pilon|_links|\\.tigmint)"),
          stage = case_when(
                   str_detect(sample_stage, "_ragtag") ~ "RagTag",
                   str_detect(sample_stage, "_medaka") ~ "medaka",
                   str_detect(sample_stage, "_pilon") ~ "pilon",
                   str_detect(sample_stage, "\\.longstitch") ~ "longstitch",
                   str_detect(sample_stage, "_links") ~ "LINKS",
-                  str_detect(sample_stage, "\\.assembly") ~ "Assembly",
+                  str_detect(sample_stage, "\\.assembly|\\.asm") ~ "Assembly",
                   TRUE ~ "Unknown"))
 merqury_asm_hists <- list.files(paste0(data_base, "/merqury"), full.names = T, pattern = "asm.hist")  %>% 
   lapply(\(x) read_tsv(x, col_names = T, show_col_types = FALSE) %>% 
            mutate(
-             sample = str_extract(x %>% basename(), ".+?(?=_assemble|\\.assembly|_medaka|_polish|_links|_run|\\.spectra)"),
+             sample = str_extract(x %>% basename(), ".+?(?=_assemble|\\.assembly|\\.asm|_medaka|_polish|_links|_run|\\.spectra)"),
              stage = case_when(
                str_detect(x, "_ragtag") ~ "RagTag",
                str_detect(x, "_medaka") ~ "medaka",
                str_detect(x, "_pilon") ~ "pilon",
                str_detect(x, ".longstitch") ~ "longstitch",
                str_detect(x, "_links") ~ "LINKS",
-               str_detect(x, "_assemble") ~ "Assembly",
+               str_detect(x, "_assemble|\\.asm") ~ "Assembly",
                TRUE ~ "Unknown"),
               Assembly = as.factor(Assembly),
               stage = as.factor(stage),
@@ -560,14 +560,14 @@ merqury_asm_hists <- list.files(paste0(data_base, "/merqury"), full.names = T, p
 merqury_cn_hists <- list.files(paste0(data_base, "merqury"), full.names = T, pattern = "cn.hist")  %>% 
   lapply(\(x) read_tsv(x, col_names = T, show_col_types = FALSE) %>% 
            mutate(
-             sample = str_extract(x %>% basename(), ".+?(?=_assemble|\\.assembly|_medaka|_polish|_links|_run|\\.spectra)"),
+             sample = str_extract(x %>% basename(), ".+?(?=_assemble|\\.assembly|\\.asm|_medaka|_polish|_links|_run|\\.spectra)"),
              stage = case_when(
                str_detect(x, "_ragtag") ~ "RagTag",
                str_detect(x, "_medaka") ~ "medaka",
                str_detect(x, "_pilon") ~ "pilon",
                str_detect(x, ".longstitch") ~ "longstitch",
                str_detect(x, "_links") ~ "LINKS",
-               str_detect(x, "_assemble") ~ "Assembly",
+               str_detect(x, "_assemble|\\.asm") ~ "Assembly",
                TRUE ~ "Unknown"),
               Copies = as.factor(Copies),
               stage = as.factor(stage),
