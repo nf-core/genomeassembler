@@ -45,7 +45,7 @@ workflow ASSEMBLE {
       if(params.assembler == "flye") {
         if(params.hifi) {
           if(!hifi_only) error 'Cannot combine hifi and ont reads with flye'
-          ont_reads
+          hifi_reads
               .map { it -> [it[0], it[1], params.genome_size]}
               .set { flye_inputs }
         }

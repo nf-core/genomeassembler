@@ -14,8 +14,11 @@ process ALIGN {
 
     script:
     def prefix = task.ext.prefix ?: "${meta.id}"
+    def map_mode = (params.ont & !params.hifi) | (params.ont && params.hifi && params.qc_reads == "ONT") ? 'map-ont' :
+                     (!params.ont && params.hifi) | (params.ont && params.hifi && params.qc_reads == "HIFI") ? 'map-hifi' : 'map-ont'          
         """
         minimap2 -t $task.cpus \\
+            -ax $map_mode
             -ax map-ont ${reference} ${reads}  > ${prefix}.sam
         """
 }
@@ -36,9 +39,11 @@ process ALIGN_TO_BAM {
 
     script:
     def prefix = task.ext.prefix ?: "${meta.id}"
+    def map_mode = (params.ont & !params.hifi) | (params.ont && params.hifi && params.qc_reads == "ONT") ? 'map-ont' :
+                     (!params.ont && params.hifi) | (params.ont && params.hifi && params.qc_reads == "HIFI") ? 'map-hifi' : 'map-ont'          
         """
         minimap2 -t $task.cpus \\
-            -ax map-ont ${reference} ${reads} \\
+            -ax $map_mode ${reference} ${reads} \\
             | samtools sort -o ${prefix}_${reference}.bam
         """
 }
