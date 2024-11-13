@@ -68,7 +68,7 @@ workflow GENOMEASSEMBLER {
         .tap { genomescope_files }
         .map { it -> ["dummy", it] } // busco emits meta and a file
         .tap { busco_files }
-        .map { it -> [it[0], it[1], it[1], it[1]]} // merqury emits meta +  three files
+        .map { it -> [it[0], it[1], it[1], it[1], it[1]]} // merqury emits meta + 4 files
         .tap { merqury_files }
     /*
     =============
@@ -240,8 +240,8 @@ workflow GENOMEASSEMBLER {
                         .scaffold_merqury_reports
                 )
         )
-        .collect { it -> [it[1], it[2], it[3]] } // Keep only files
-        // I am unable to get uniques via .unique(), on the list this is a workaround
+        .collect { it -> [it[1], it[2], it[3], it[4]] } // Keep only files: [stats, spectra, copynumber, qv]
+        // I am unable to get uniques via .unique() on the list, this is a workaround
         .toSet()
         .flatten()
         .collect()
@@ -263,7 +263,7 @@ workflow GENOMEASSEMBLER {
     busco_files.view { f -> "BUSCO Files: $f"}
     merqury_files.view { f -> "merqury Files: $f"}
     */ 
- 
+    // TODO: Update report to include merqury qv!
     REPORT(report_files, report_functions, nanoq_files, genomescope_files, quast_files, busco_files, merqury_files)
     
     //
