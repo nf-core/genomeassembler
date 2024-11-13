@@ -2,7 +2,7 @@
 title: "nf-core/genomeassembler report"
 author: "Niklas Schandry"
 format: dashboard
-editor: visual
+editor: source
 nav-buttons:
       - icon: github
         href: https://github.com/nschan/genomeassembler
