@@ -301,16 +301,6 @@
             "description": "flye mode",
             "default": "--nano-hq"
         },
-        "mode_test": {
-            "type": "string",
-            "description": "testing",
-            "default": "this is a test"
-        },
-        "modetest": {
-            "type": "string",
-            "description": "more testing",
-            "default": "this is a test without underscore"
-        },
         "flye_args": {
             "type": "string",
             "description": "additional args for flye",
@@ -341,7 +331,7 @@
         "medaka_model": {
             "type": "string",
             "description": "model to use with medaka",
-            "default": "'r1041_e82_400bps_hac_v4.2.0'"
+            "default": ""
         },
         "scaffold_ragtag": {
             "type": "boolean",
