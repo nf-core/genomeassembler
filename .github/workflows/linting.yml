@@ -1,7 +1,7 @@
 name: nf-core linting
 # This workflow is triggered on pushes and PRs to the repository.
 # It runs the `nf-core pipelines lint` and markdown lint tests to ensure
-# that the code meets the nf-core guidelines. {%- raw %}
+# that the code meets the nf-core guidelines.
 on:
   push:
     branches:
@@ -80,4 +80,4 @@ jobs:
           path: |
             lint_log.txt
             lint_results.md
-            PR_number.txt {%- endraw %}
+            PR_number.txt
