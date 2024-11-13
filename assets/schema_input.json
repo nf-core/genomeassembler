@@ -56,7 +56,7 @@
                 ],
                 "errorMessage": "shortread_R cannot contain spaces and must have extension '.fq.gz' or '.fastq.gz'"
             },
-            "paired":{
+            "paired": {
                 "type": "boolean",
                 "errorMessage": "paired must be true or false."
             }
