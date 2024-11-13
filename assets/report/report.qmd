@@ -83,9 +83,7 @@ paste0('```{r}\n
 ```
 
 ::: {.content-visible when-profile="nanoq"}
-
 ::: {.panel-tabset .flow}
-
 ```{r nanoq add subplots}
 #| eval: !expr params$nanoq == "yes"
 #| results: asis
@@ -127,9 +125,7 @@ for (i in 1:length(unique(nanoq_reports$sample))) {
 #| eval: !expr params$nanoq == "yes"
 unlink("nanoq_files", recursive = T)
 ```
-
 :::
-
 :::
 
 # QUAST {.tabset}
@@ -163,7 +159,6 @@ quast_stats <- list.files(paste0(data_base, "quast"),
     )
   )
 ```
-
 
 ```{r quast write length plots}
 #| eval: !expr params$quast == "yes"
@@ -251,7 +246,6 @@ ggplotly(p)
 ```
 
 ::: {.panel-tabset .flow}
-
 ```{r quast add length subplots}
 #| eval: !expr params$quast == "yes"
 #| results: asis
@@ -315,12 +309,11 @@ write_csv(quast_stats,"quast_files/reports.csv")
 :::
 :::
 
-# BUSCO 
+# BUSCO
 
 ::: {.content-visible unless-profile="busco"}
 BUSCO was not included in the pipeline run.
 :::
-
 
 ```{r}
 #| eval: !expr params$busco == "yes"
@@ -388,7 +381,6 @@ paste0('```{r}\n
 BUSCO assess assembly quality based on the presence / absence of expected single-copy orthologs.
 
 ::: {.panel-tabset .flow}
-
 ```{r busco orthologs add subplots and valueboxes}
 #| eval: !expr params$busco == "yes"
 #| results: asis
@@ -456,9 +448,7 @@ for (i in 1:length(unique(busco_reports$sample))) {
       sep = "")
 }
 ```
-
 :::
-
 :::
 
 ```{r}
@@ -471,14 +461,11 @@ unlink("busco_files/orthologs", recursive = T)
 write_csv(busco_reports,"busco_files/reports.csv")
 ```
 
-
 # genomescope
 
 ::: {.content-visible unless-profile="jellyfish"}
 jellyfish / genomescope was not included in the pipeline run.
 :::
-
-
 
 ```{r}
 #| eval: !expr params$jellyfish == "yes"
@@ -491,7 +478,6 @@ genomescope_out <- list.files(paste0(data_base, "genomescope"), full.names = T, 
 ```
 
 ::: {.content-visible when-profile="jellyfish"}
-
 Jellyfish and genomescope are used to infer genome size from the initial ONT reads.
 
 ```{r}
@@ -514,7 +500,7 @@ cat(":::{.panel-tabset}\n",
 ```
 :::
 
-# merqury 
+# merqury
 
 ::: {.content-visible unless-profile="merqury"}
 meryl and merqury were not included in the pipeline run.
@@ -528,7 +514,8 @@ meryl and merqury were not included in the pipeline run.
 merqury_stats <- list.files(paste0(data_base, "merqury"), full.names = T, pattern = "stats") %>% 
   lapply(\(x) read_tsv(x, col_names = c("sample_stage","all","assembly","total","percent"), show_col_types = FALSE)) %>% 
   bind_rows() %>% 
-  mutate(sample = str_extract(sample_stage,".+?(?=_assemble|\\.assembly|\\.asm|_medaka|_pilon|_links|\\.tigmint)"),
+  mutate(sample = str_extract(sample_stage,
+                              ".+?(?=_assemble|\\.assembly|\\.asm|_medaka|_pilon|_links|\\.tigmint)"),
          stage = case_when(
                   str_detect(sample_stage, "_ragtag") ~ "RagTag",
                   str_detect(sample_stage, "_medaka") ~ "medaka",
@@ -540,7 +527,8 @@ merqury_stats <- list.files(paste0(data_base, "merqury"), full.names = T, patter
 merqury_asm_hists <- list.files(paste0(data_base, "/merqury"), full.names = T, pattern = "asm.hist")  %>% 
   lapply(\(x) read_tsv(x, col_names = T, show_col_types = FALSE) %>% 
            mutate(
-             sample = str_extract(x %>% basename(), ".+?(?=_assemble|\\.assembly|\\.asm|_medaka|_polish|_links|_run|\\.spectra)"),
+             sample = str_extract(x %>% basename(), 
+                                  ".+?(?=_assemble|\\.assembly|\\.asm|_medaka|_polish|_links|_run|\\.spectra)"),
              stage = case_when(
                str_detect(x, "_ragtag") ~ "RagTag",
                str_detect(x, "_medaka") ~ "medaka",
@@ -562,18 +550,42 @@ merqury_cn_hists <- list.files(paste0(data_base, "merqury"), full.names = T, pat
            mutate(
              sample = str_extract(x %>% basename(), ".+?(?=_assemble|\\.assembly|\\.asm|_medaka|_polish|_links|_run|\\.spectra)"),
              stage = case_when(
-               str_detect(x, "_ragtag") ~ "RagTag",
-               str_detect(x, "_medaka") ~ "medaka",
-               str_detect(x, "_pilon") ~ "pilon",
-               str_detect(x, ".longstitch") ~ "longstitch",
-               str_detect(x, "_links") ~ "LINKS",
-               str_detect(x, "_assemble|\\.asm") ~ "Assembly",
-               TRUE ~ "Unknown"),
+                      str_detect(x, "_ragtag") ~ "RagTag",
+                      str_detect(x, "_medaka") ~ "medaka",
+                      str_detect(x, "_pilon") ~ "pilon",
+                      str_detect(x, ".longstitch") ~ "longstitch",
+                      str_detect(x, "_links") ~ "LINKS",
+                      str_detect(x, "_assemble|\\.asm") ~ "Assembly",
+                      TRUE ~ "Unknown"),
               Copies = as.factor(Copies),
               stage = as.factor(stage),
               sample = as.factor(sample),
               kmer_multiplicity = as.integer(kmer_multiplicity),
               Count = as.integer(Count))
+           ) %>% 
+  bind_rows()
+
+  merqury_qv <- list.files(paste0(data_base, "merqury"), full.names = T, pattern = ".qv") %>% 
+        lapply(\(x) read_tsv(x,
+                       col_names = c("Assembly", "kmers_assembly_unique", "kmers_assembly_shared", "QV", "error_rate"),
+                       show_col_types = FALSE) %>% 
+               mutate(
+                  sample = str_extract(x %>% basename(),
+                                      ".+?(?=_assemble|\\.assembly|\\.asm|_medaka|_polish|_links|_run|\\.spectra)"),
+                  stage = case_when(
+                            str_detect(x, "_ragtag") ~ "RagTag",
+                            str_detect(x, "_medaka") ~ "medaka",
+                            str_detect(x, "_pilon") ~ "pilon",
+                            str_detect(x, ".longstitch") ~ "longstitch",
+                            str_detect(x, "_links") ~ "LINKS",
+                            str_detect(x, "_assemble|\\.asm") ~ "Assembly",
+                            TRUE ~ "Unknown"),
+                  stage = as.factor(stage),
+                  sample = as.factor(sample),
+                  kmers_assembly_shared = as.integer(kmers_assembly_shared),
+                  kmers_assembly_unique = as.integer(kmers_assembly_unique),
+                  QV = as.double(QV),
+                  error_rate = as.double(error_rate))
            ) %>% 
   bind_rows()
 ```
@@ -621,12 +633,10 @@ ggplotly(p)\n```') %>%
 }
 ```
 
-:::: {.content-visible when-profile="merqury"  }
-
+::: {.content-visible when-profile="merqury"}
 merqury compares k-mer spectra between assemblies and short read libraries to assess assembly quality and completeness.
 
-:::  {.panel-tabset}
-
+::: panel-tabset
 ```{r merqury add plots and valueboxes}
 #| eval: !expr params$merqury == "yes"
 #| results: asis
@@ -652,12 +662,23 @@ for (i in 1:length(unique(merqury_stats$sample))) {
     filter(percent == lowest_val) %$%
     stage %>% 
     unique()
+  highest_qv  <- merqury_qv  %>%
+    filter(sample == cur_sample)  %>%
+    filter(QV == max(QV)) %$%
+    QV %>%
+    unique()
+  highest_qv_stage  <- merqury_qv  %>%
+    filter(sample == cur_sample)  %>%
+    filter(QV == max(QV)) %$%
+    stage %>% 
+    unique()
+    
   img_files <- list.files(paste0(data_base,"merqury"), full.names = T, pattern = "spectra-cn.fl.png")  %>% 
     .[str_detect(., cur_sample)]
     
   cat(paste('## ', cur_sample),
       paste0('\n\n'),
-      paste0('### { orientation="columns" .float } \n'),
+      paste0('### { orientation="columns" .float .width=30%} \n'),
       paste0('::: {.valuebox icon="percent" color="success" title="Highest k-mer completeness" }\n'),
       glue::glue("{unique(highest_val) %>% round(2)}%, at stage(s): {paste(highest_stage, collapse = ', ')}"),
       paste0('\n'),
@@ -665,6 +686,12 @@ for (i in 1:length(unique(merqury_stats$sample))) {
       paste0('\n\n'),
       paste0('::: {.valuebox icon="heartbreak" color="warning" title="Lowest k-mer completeness" }\n'),
       glue::glue("{unique(lowest_val) %>% round(2)}%, at stage(s): {paste(lowest_stage, collapse = ', ')}"),
+      paste0('\n'),
+      paste0(':::'), 
+      paste0('\n\n'),
+      paste0('\n\n'),
+      paste0('::: {.valuebox icon="exclude" color="primary" title="Merqury QV" }\n'),
+      glue::glue("{unique(highest_qv) %>% round(2)}%, at stage(s): {paste(highest_qv_stage, collapse = ', ')}"),
       paste0('\n'),
       paste0(':::'), 
       paste0('\n\n'),
@@ -693,8 +720,7 @@ for (i in 1:length(unique(merqury_stats$sample))) {
 }
 ```
 :::
-
-::::
+:::
 
 ```{r}
 #| eval: !expr params$merqury == "yes"

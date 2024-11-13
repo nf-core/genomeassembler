@@ -56,6 +56,11 @@ workflow RUN_LINKS {
             MERQURY_QC
               .out
               .spectra_cn_hist
+          )          
+          .join(
+            MERQURY_QC
+              .out
+              .assembly_qv
           )
           .set { merqury_report_files }
       }

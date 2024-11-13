@@ -58,6 +58,11 @@ workflow RUN_LONGSTITCH {
             .out
             .spectra_cn_hist
         )
+        .join(
+            MERQURY_QC
+              .out
+              .assembly_qv
+          )
         .set { merqury_report_files }
       }
     if(params.lift_annotations) RUN_LIFTOFF(LONGSTITCH.out.ntlLinks_arks_scaffolds, inputs)

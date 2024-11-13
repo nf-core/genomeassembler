@@ -225,6 +225,11 @@ workflow ASSEMBLE {
             .out
             .spectra_cn_hist
         )
+        .join(
+            MERQURY_QC
+              .out
+              .assembly_qv
+          )
         .set { assembly_merqury_reports }
     }
 
