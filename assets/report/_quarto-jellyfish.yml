@@ -1,3 +1,2 @@
-metadata:
-    kmers:
-      jellyfish: true
+params:
+  jellyfish: "yes"

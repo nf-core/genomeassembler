@@ -1,3 +1,2 @@
-metadata:
-    kmers:
-      meryl: true
+params:
+    merqury: "yes"

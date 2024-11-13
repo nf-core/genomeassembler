@@ -1,2 +1,2 @@
-metadata:
-    busco: true
+params:
+    busco: "yes"
