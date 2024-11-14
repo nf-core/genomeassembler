@@ -225,8 +225,9 @@
                     "description": "run porechop on ONT reads"
                 },
                 "read_length": {
-                    "type": "string",
-                    "description": "read length for genomescope (ONT only)"
+                    "type": "integer",
+                    "description": "read length for genomescope (ONT only)",
+                    "minimum": 1
                 },
                 "jellyfish": {
                     "type": "boolean",
@@ -240,7 +241,8 @@
                 "kmer_length": {
                     "type": "integer",
                     "description": "kmer length to be used for jellyfish",
-                    "default": 21
+                    "default": 21,
+                    "minimum": 1
                 }
             }
         },
@@ -278,7 +280,8 @@
                 },
                 "genome_size": {
                     "type": "integer",
-                    "description": "expected genome size, optional"
+                    "description": "expected genome size, optional",
+                    "minimum": 1
                 },
                 "flye_mode": {
                     "type": "string",
@@ -318,7 +321,8 @@
                 "meryl_k": {
                     "type": "integer",
                     "description": "kmer length for meryl / merqury",
-                    "default": 21
+                    "default": 21,
+                    "minimum": 1
                 }
             }
         },
