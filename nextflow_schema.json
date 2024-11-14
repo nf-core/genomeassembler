@@ -27,7 +27,8 @@
                     "type": "string",
                     "format": "directory-path",
                     "description": "The output directory where the results will be saved. You have to use absolute paths to storage on Cloud infrastructure.",
-                    "fa_icon": "fas fa-folder-open"
+                    "fa_icon": "fas fa-folder-open",
+                    "default": "./results"
                 },
                 "email": {
                     "type": "string",
@@ -40,45 +41,6 @@
                     "type": "string",
                     "description": "MultiQC report title. Printed as page header, used for filename if not otherwise specified.",
                     "fa_icon": "fas fa-file-signature"
-                }
-            }
-        },
-        "reference_genome_options": {
-            "title": "Reference genome options",
-            "type": "object",
-            "fa_icon": "fas fa-dna",
-            "description": "Reference genome related files and options required for the workflow.",
-            "properties": {
-                "genome": {
-                    "type": "string",
-                    "description": "Name of iGenomes reference.",
-                    "fa_icon": "fas fa-book",
-                    "help_text": "If using a reference genome configured in the pipeline using iGenomes, use this parameter to give the ID for the reference. This is then used to build the full paths for all required reference genome files e.g. `--genome GRCh38`. \n\nSee the [nf-core website docs](https://nf-co.re/usage/reference_genomes) for more details."
-                },
-                "fasta": {
-                    "type": "string",
-                    "format": "file-path",
-                    "exists": true,
-                    "mimetype": "text/plain",
-                    "pattern": "^\\S+\\.fn?a(sta)?(\\.gz)?$",
-                    "description": "Path to FASTA genome file.",
-                    "help_text": "This parameter is *mandatory* if `--genome` is not specified. If you don't have a BWA index available this will be generated for you automatically. Combine with `--save_reference` to save BWA index for future runs.",
-                    "fa_icon": "far fa-file-code"
-                },
-                "igenomes_ignore": {
-                    "type": "boolean",
-                    "description": "Do not load the iGenomes reference config.",
-                    "fa_icon": "fas fa-ban",
-                    "hidden": true,
-                    "help_text": "Do not load `igenomes.config` when running the pipeline. You may choose this option if you observe clashes between custom parameters and those supplied in `igenomes.config`."
-                },
-                "igenomes_base": {
-                    "type": "string",
-                    "format": "directory-path",
-                    "description": "The base path to the igenomes reference files",
-                    "fa_icon": "fas fa-ban",
-                    "hidden": true,
-                    "default": "s3://ngi-igenomes/igenomes/"
                 }
             }
         },
@@ -149,7 +111,8 @@
                     "help_text": "The Nextflow `publishDir` option specifies which intermediate files should be saved to the output directory. This option tells the pipeline what method should be used to move these files. See [Nextflow docs](https://www.nextflow.io/docs/latest/process.html#publishdir) for details.",
                     "fa_icon": "fas fa-copy",
                     "enum": ["symlink", "rellink", "link", "copy", "copyNoFollow", "move"],
-                    "hidden": true
+                    "hidden": true,
+                    "default": "copy"
                 },
                 "email_on_fail": {
                     "type": "string",
@@ -228,7 +191,8 @@
             "properties": {
                 "use_ref": {
                     "type": "boolean",
-                    "description": "use reference genome"
+                    "description": "use reference genome",
+                    "default": true
                 },
                 "skip_assembly": {
                     "type": "boolean",
@@ -266,7 +230,8 @@
                 },
                 "jellyfish": {
                     "type": "boolean",
-                    "description": "run jellyfish on ONT reads to compute k-mer distribution and estimate genome size"
+                    "description": "run jellyfish on ONT reads to compute k-mer distribution and estimate genome size",
+                    "default": true
                 },
                 "dump": {
                     "type": "boolean",
@@ -274,7 +239,8 @@
                 },
                 "kmer_length": {
                     "type": "integer",
-                    "description": "kmer length to be used for jellyfish"
+                    "description": "kmer length to be used for jellyfish",
+                    "default": 21
                 }
             }
         },
@@ -307,7 +273,8 @@
                 "assembler": {
                     "type": "string",
                     "description": "Assembler to use. Valid choices are: `'hifiasm'`, `'flye'`, or `'flye_on_hifiasm'`. `flye_on_hifiasm` will scaffold flye assembly (ont) on hifiasm (hifi) assembly using ragtag",
-                    "enum": ["flye", "hifiasm", "flye_on_hifiasm"]
+                    "enum": ["flye", "hifiasm", "flye_on_hifiasm"],
+                    "default": "flye"
                 },
                 "genome_size": {
                     "type": "integer",
@@ -409,7 +376,8 @@
                 },
                 "busco": {
                     "type": "boolean",
-                    "description": "Run BUSCO?"
+                    "description": "Run BUSCO?",
+                    "default": true
                 },
                 "busco_db": {
                     "type": "string",
@@ -422,7 +390,8 @@
                 },
                 "quast": {
                     "type": "boolean",
-                    "description": "Run quast"
+                    "description": "Run quast",
+                    "default": true
                 }
             }
         },
@@ -434,7 +403,8 @@
             "properties": {
                 "lift_annotations": {
                     "type": "boolean",
-                    "description": "Lift-over annotations (requires reference)?"
+                    "description": "Lift-over annotations (requires reference)?",
+                    "default": true
                 }
             }
         }
@@ -442,9 +412,6 @@
     "allOf": [
         {
             "$ref": "#/$defs/input_output_options"
-        },
-        {
-            "$ref": "#/$defs/reference_genome_options"
         },
         {
             "$ref": "#/$defs/institutional_config_options"

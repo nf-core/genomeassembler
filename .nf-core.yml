@@ -1,12 +1,2 @@
 repository_type: pipeline
 nf_core_version: 3.0.2
-lint:
-  nextflow_config:
-    - config_defaults:
-        - params.flye_mode
-        - params.flye_args
-        - params.qc_reads
-        - params.hifiasm_args
-        - params.medaka_model
-        - params.busco_lineage
-        - params.busco_db
