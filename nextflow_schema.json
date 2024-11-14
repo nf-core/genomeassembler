@@ -353,7 +353,7 @@
             "type": "boolean",
             "description": "Run BUSCO?"
         },
-        "busoc_db": {
+        "busco_db": {
             "type": "string",
             "description": "Path to busco db",
             "default": "''"
