@@ -23,9 +23,14 @@ workflow MERQURY_QC {
             .out
             .spectra_cn_hist
             .set { spectra_cn_hist }
+        MERQURY
+            .out
+            .assembly_qv
+            .set { assembly_qv }
     emit:
         stats
         spectra_asm_hist
         spectra_cn_hist
+        assembly_qv
 }
 
