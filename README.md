@@ -19,7 +19,7 @@
 
 ## Introduction
 
-**nf-core/genomeassembler** is a bioinformatics pipeline that carries out genome assembly, polishing and scaffolding from long reads (ONT or pacbio). Assembly can be done via `flye` or `hifiasm`, polishing can be carried out with `medaka` (ONT), or `pilon` (requires short-reads), and scaffolding can be done using `LINKS`, `Longstitch`, or `RagTag` (if a reference is available). Quality control includes, BUSCO, QUAST and merqury (requires short-reads).
+**nf-core/genomeassembler** is a bioinformatics pipeline that carries out genome assembly, polishing and scaffolding from long reads (ONT or pacbio). Assembly can be done via `flye` or `hifiasm`, polishing can be carried out with `medaka` (ONT), or `pilon` (requires short-reads), and scaffolding can be done using `LINKS`, `Longstitch`, or `RagTag` (if a reference is available). Quality control includes BUSCO, QUAST and merqury (requires short-reads).
 Currently, this pipeline does not implement phasing of polyploid genomes or HiC scaffolding.
 
 ## Usage
