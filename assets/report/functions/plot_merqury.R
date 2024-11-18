@@ -77,3 +77,17 @@ plot_merqury_copynumber <- function(data, samplename) {
     color_scale_plots +
     fill_scale_plots
 }
+
+plot_merqury_qv <- function(data, samplename) {
+  data %>%
+    filter(sample == paste(samplename)) %>%
+    ggplot(aes(x = stage, y = QV)) +
+    geom_line(aes(group = sample)) +
+    geom_point(
+      pch = 21,
+      color = "black",
+      fill = "white",
+      size = 5
+    ) +
+    labs(y = "QV", x = "Stage", title = "QV across assembly stages")
+}

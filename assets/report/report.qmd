@@ -7,11 +7,11 @@ nav-buttons:
       - icon: github
         href: https://github.com/nschan/genomeassembler
 params:
-  nanoq: "no"
-  busco: "no"
-  quast: "no"
-  jellyfish: "no"
-  merqury: "no"
+  nanoq: false
+  busco: false
+  quast: false
+  jellyfish: false
+  merqury: false
 ---
 
 ```{r load libraries and functions}
@@ -45,7 +45,7 @@ nanoq was not included in the pipeline run, no ONT reads were included.
 :::
 
 ```{r nanoq read inputs}
-#| eval: !expr params$nanoq == "yes"
+#| eval: !expr params$nanoq
 #| include: false
 #| message: false
 #| output: false
@@ -56,7 +56,7 @@ nanoq_reports <- list.files(paste0(data_base, "nanoq"),
 ```
 
 ```{r}
-#| eval: !expr params$nanoq == "yes"
+#| eval: !expr params$nanoq
 #| include: false
 dir.create("nanoq_files")
 for (i in 1:length(unique(nanoq_reports$sample))) {
@@ -83,9 +83,11 @@ paste0('```{r}\n
 ```
 
 ::: {.content-visible when-profile="nanoq"}
+
 ::: {.panel-tabset .flow}
+
 ```{r nanoq add subplots}
-#| eval: !expr params$nanoq == "yes"
+#| eval: !expr params$nanoq
 #| results: asis
 for (i in 1:length(unique(nanoq_reports$sample))) {
   cat(paste0('## ', unique(nanoq_reports$sample)[i], '\n\n'),
@@ -122,10 +124,12 @@ for (i in 1:length(unique(nanoq_reports$sample))) {
 ```
 
 ```{r}
-#| eval: !expr params$nanoq == "yes"
+#| eval: !expr params$nanoq
 unlink("nanoq_files", recursive = T)
 ```
+
 :::
+
 :::
 
 # QUAST {.tabset}
@@ -138,7 +142,7 @@ QUAST was not included in the pipeline run.
 QUAST reports assembly statistics, taking into account the reference, if provided.
 
 ```{r message = F}
-#| eval: !expr params$quast == "yes"
+#| eval: !expr params$quast
 quast_stats <- list.files(paste0(data_base, "quast"),
                           pattern = "report.tsv",
                           full.names = T) %>%
@@ -161,7 +165,7 @@ quast_stats <- list.files(paste0(data_base, "quast"),
 ```
 
 ```{r quast write length plots}
-#| eval: !expr params$quast == "yes"
+#| eval: !expr params$quast
 #| include: false
 dir.create("quast_files")
 dir.create("quast_files/length")
@@ -187,7 +191,7 @@ paste0('```{r}\n
 ```
 
 ```{r quast contig plots}
-#| eval: !expr params$quast == "yes"
+#| eval: !expr params$quast
 #| include: false
 dir.create("quast_files/contigs")
 for (i in 1:length(unique(quast_stats$sample))) {
@@ -247,11 +251,11 @@ ggplotly(p)
 
 ::: {.panel-tabset .flow}
 ```{r quast add length subplots}
-#| eval: !expr params$quast == "yes"
+#| eval: !expr params$quast
 #| results: asis
 for (i in 1:length(unique(quast_stats$sample))) {
   cat(paste0('## ', unique(quast_stats$sample)[i], '\n'),
-      paste0('### { width = 30% }\n\n'),
+      paste0('### { width=30% }\n\n'),
       paste0('::: {.valuebox icon="arrow-up-right-circle" color="primary" title="Total length"}\n'),
       quast_stats %>%
           filter(sample == unique(quast_stats$sample)[i]) %>% 
@@ -301,7 +305,7 @@ for (i in 1:length(unique(quast_stats$sample))) {
 ```
 
 ```{r unlink quast}
-#| eval: !expr params$quast == "yes"
+#| eval: !expr params$quast
 unlink("quast_files/contigs", recursive = T)
 unlink("quast_files/length", recursive = T)
 write_csv(quast_stats,"quast_files/reports.csv")
@@ -316,7 +320,7 @@ BUSCO was not included in the pipeline run.
 :::
 
 ```{r}
-#| eval: !expr params$busco == "yes"
+#| eval: !expr params$busco
 #| warning: false
 #| message: false
 #| echo: false
@@ -342,7 +346,7 @@ busco_reports <- list.files(paste0(data_base, "busco"),
 ```
 
 ```{r}
-#| eval: !expr params$busco == "yes"
+#| eval: !expr params$busco
 #| include: false
 dir.create("busco_files")
 dir.create("busco_files/orthologs")
@@ -382,7 +386,7 @@ BUSCO assess assembly quality based on the presence / absence of expected single
 
 ::: {.panel-tabset .flow}
 ```{r busco orthologs add subplots and valueboxes}
-#| eval: !expr params$busco == "yes"
+#| eval: !expr params$busco
 #| results: asis
 for (i in 1:length(unique(busco_reports$sample))) {
     cur_sample <-  unique(busco_reports$sample)[i]
@@ -452,12 +456,12 @@ for (i in 1:length(unique(busco_reports$sample))) {
 :::
 
 ```{r}
-#| eval: !expr params$busco == "yes"
+#| eval: !expr params$busco
 unlink("busco_files/orthologs", recursive = T)
 ```
 
 ```{r}
-#| eval: !expr params$busco == "yes"
+#| eval: !expr params$busco
 write_csv(busco_reports,"busco_files/reports.csv")
 ```
 
@@ -468,7 +472,7 @@ jellyfish / genomescope was not included in the pipeline run.
 :::
 
 ```{r}
-#| eval: !expr params$jellyfish == "yes"
+#| eval: !expr params$jellyfish
 #| message: false
 #| echo: false
 #| output: false
@@ -481,7 +485,7 @@ genomescope_out <- list.files(paste0(data_base, "genomescope"), full.names = T, 
 Jellyfish and genomescope are used to infer genome size from the initial ONT reads.
 
 ```{r}
-#| eval: !expr params$jellyfish == "yes"
+#| eval: !expr params$jellyfish
 #| output: asis
 img_files <- list.files(paste0(data_base,"genomescope"), full.names = T, pattern = "plot.png")
 dir.create("genomescope_files")
@@ -507,7 +511,7 @@ meryl and merqury were not included in the pipeline run.
 :::
 
 ```{r}
-#| eval: !expr params$merqury == "yes"
+#| eval: !expr params$merqury
 #| include: false
 #| message: false
 #| output: false
@@ -565,7 +569,7 @@ merqury_cn_hists <- list.files(paste0(data_base, "merqury"), full.names = T, pat
            ) %>% 
   bind_rows()
 
-  merqury_qv <- list.files(paste0(data_base, "merqury"), full.names = T, pattern = ".qv") %>% 
+merqury_qv <- list.files(paste0(data_base, "merqury"), full.names = T, pattern = ".qv") %>% 
         lapply(\(x) read_tsv(x,
                        col_names = c("Assembly", "kmers_assembly_unique", "kmers_assembly_shared", "QV", "error_rate"),
                        show_col_types = FALSE) %>% 
@@ -590,8 +594,22 @@ merqury_cn_hists <- list.files(paste0(data_base, "merqury"), full.names = T, pat
   bind_rows()
 ```
 
-```{r}
-#| eval: !expr params$merqury == "yes"
+```{r merqury qv}
+#| eval: !expr params$merqury
+#| include: false
+dir.create("merqury_files/qv_plots/")
+for (i in 1:length(unique(merqury_qv$sample))) {
+  cur_sample <- unique(merqury_qv$sample)[i]
+  paste0('```{r}
+p <- merqury_qv %>% 
+         plot_merqury_qv("', cur_sample,'") 
+ggplotly(p)\n```') %>% 
+    write_lines(glue::glue("merqury_files/qv_plots/_{ cur_sample }_qv_plt.Rmd"))
+}
+```
+
+```{r merqury completeness}
+#| eval: !expr params$merqury
 #| include: false
 dir.create("merqury_files")
 dir.create("merqury_files/stat_plots/")
@@ -605,8 +623,8 @@ ggplotly(p)\n```') %>%
 }
 ```
 
-```{r}
-#| eval: !expr params$merqury == "yes"
+```{r merqury asm}
+#| eval: !expr params$merqury
 #| include: false
 dir.create("merqury_files/asm_plots/")
 for (i in 1:length(unique(merqury_asm_hists$sample))) {
@@ -615,12 +633,12 @@ for (i in 1:length(unique(merqury_asm_hists$sample))) {
 p <- merqury_asm_hists %>% 
         plot_merqury_multiplicity("', cur_sample,'") 
 ggplotly(p)\n```') %>% 
-    write_lines(glue::glue("merqury_files/asm_plots/_{ cur_sample }_asm_plts.Rmd"))
+    write_lines(glue::glue("merqury_files/asm_plots/_{ cur_sample }_asm_plt.Rmd"))
 }
 ```
 
-```{r}
-#| eval: !expr params$merqury == "yes"
+```{r merqury cn}
+#| eval: !expr params$merqury
 #| include: false
 dir.create("merqury_files/cn_plots/")
 for (i in 1:length(unique(merqury_cn_hists$sample))) {
@@ -629,16 +647,16 @@ for (i in 1:length(unique(merqury_cn_hists$sample))) {
 p <- merqury_cn_hists %>% 
          plot_merqury_copynumber("', cur_sample,'") 
 ggplotly(p)\n```') %>% 
-    write_lines(glue::glue("merqury_files/cn_plots/_{ cur_sample }_cn_plts.Rmd"))
+    write_lines(glue::glue("merqury_files/cn_plots/_{ cur_sample }_cn_plt.Rmd"))
 }
 ```
 
 ::: {.content-visible when-profile="merqury"}
 merqury compares k-mer spectra between assemblies and short read libraries to assess assembly quality and completeness.
 
-::: panel-tabset
+::: {.panel-tabset .flow}
 ```{r merqury add plots and valueboxes}
-#| eval: !expr params$merqury == "yes"
+#| eval: !expr params$merqury
 #| results: asis
 for (i in 1:length(unique(merqury_stats$sample))) {
     cur_sample <-  unique(merqury_stats$sample)[i]
@@ -678,7 +696,13 @@ for (i in 1:length(unique(merqury_stats$sample))) {
     
   cat(paste('## ', cur_sample),
       paste0('\n\n'),
-      paste0('### { orientation="columns" .float .width=30%} \n'),
+      paste0('### Valueboxes'),
+      paste0('\n\n'),
+      paste0('::: {.valuebox icon="exclude" color="primary" title="Merqury QV" }\n'),
+      glue::glue("QV: {unique(highest_qv) %>% round(2)}, at stage(s): {paste(highest_qv_stage, collapse = ', ')}"),
+      paste0('\n'),
+      paste0(':::'), 
+      paste0('\n\n'),
       paste0('::: {.valuebox icon="percent" color="success" title="Highest k-mer completeness" }\n'),
       glue::glue("{unique(highest_val) %>% round(2)}%, at stage(s): {paste(highest_stage, collapse = ', ')}"),
       paste0('\n'),
@@ -690,32 +714,36 @@ for (i in 1:length(unique(merqury_stats$sample))) {
       paste0(':::'), 
       paste0('\n\n'),
       paste0('\n\n'),
-      paste0('::: {.valuebox icon="exclude" color="primary" title="Merqury QV" }\n'),
-      glue::glue("{unique(highest_qv) %>% round(2)}%, at stage(s): {paste(highest_qv_stage, collapse = ', ')}"),
-      paste0('\n'),
-      paste0(':::'), 
+      paste0('### Plots { .tabset }'),
       paste0('\n\n'),
-      paste0('::: {.panel-tabset}'),
+      paste0('The plots below show the different statistics computed by merqury.'),
       paste0('\n\n'),
-      paste0('### Completeness \n'),
+      paste0('#### Completeness \n'),
       paste0('\n'),
       knitr::knit_child(glue::glue('merqury_files/stat_plots/_{ cur_sample }_completeness_plt.Rmd'), 
                   envir = globalenv(), 
                   quiet = TRUE),
       paste0('\n'),
-      paste0('### Spectra \n'),
+      paste0('#### QV \n'),
       paste0('\n'),
-      knitr::knit_child(glue::glue('merqury_files/asm_plots/_{ cur_sample }_asm_plts.Rmd'), 
+      paste0('QV is defined as:\n', expression(10*-log10(error_rate))),
+      paste0('\n'),
+      knitr::knit_child(glue::glue('merqury_files/qv_plots/_{ cur_sample }_qv_plt.Rmd'), 
                   envir = globalenv(), 
                   quiet = TRUE),
       paste0('\n'),
-      paste0('### Copy Number \n'),
+      paste0('#### Spectra \n'),
       paste0('\n'),
-      knitr::knit_child(glue::glue('merqury_files/cn_plots/_{ cur_sample }_cn_plts.Rmd'),
+      knitr::knit_child(glue::glue('merqury_files/asm_plots/_{ cur_sample }_asm_plt.Rmd'), 
+                  envir = globalenv(), 
+                  quiet = TRUE),
+      paste0('\n'),
+      paste0('#### Copy Number \n'),
+      paste0('\n'),
+      knitr::knit_child(glue::glue('merqury_files/cn_plots/_{ cur_sample }_cn_plt.Rmd'),
                   envir = globalenv(),
                   quiet = TRUE),
       paste0('\n\n\n'),
-      paste0(':::\n'),
       sep = "")
 }
 ```
@@ -723,7 +751,7 @@ for (i in 1:length(unique(merqury_stats$sample))) {
 :::
 
 ```{r}
-#| eval: !expr params$merqury == "yes"
+#| eval: !expr params$merqury
 unlink("merqury_files/cn_plots")
 unlink("merqury_files/asm_plots")
 unlink("merqury_files")

@@ -9,10 +9,10 @@ process  REPORT {
         path  qmdir_files, stageAs: "*"
         path  funct_files, stageAs: "functions/*"
         path  nanoq_files, stageAs: "data/nanoq/*"
-        path  jelly_files, stageAs: "data/genomescope/*" // these are genomescope files, but that is a long name
+        path  jelly_files, stageAs: "data/genomescope/*" 
         path  quast_files, stageAs: "data/quast/*"
         path  busco_files, stageAs: "data/busco/*"
-        path  meryl_files, stageAs: "data/merqury/*" // these are actually merqury files, but that would break the 5 letter scheme.
+        path  meryl_files, stageAs: "data/merqury/*" 
 
 
 
@@ -34,11 +34,11 @@ process  REPORT {
         if(params.jellyfish) report_profile = report_profile << ",jellyfish"
         if(params.short_reads) report_profile = report_profile << ",merqury"
     def report_params = ''
-        if(params.ont) report_params = report_params << ' -P nanoq:"yes"'
-        if(params.quast) report_params = report_params << ' -P quast:"yes" '
-        if(params.busco) report_params = report_params << ' -P busco:"yes"'
-        if(params.jellyfish) report_params = report_params << ' -P jellyfish:"yes"'
-        if(params.short_reads) report_params = report_params << ' -P merqury:"yes"'
+        if(params.ont) report_params = report_params << ' -P nanoq:true'
+        if(params.quast) report_params = report_params << ' -P quast:true '
+        if(params.busco) report_params = report_params << ' -P busco:true'
+        if(params.jellyfish) report_params = report_params << ' -P jellyfish:true'
+        if(params.short_reads) report_params = report_params << ' -P merqury:true'
     """
     export HOME="\$PWD"
     quarto render report.qmd \\
