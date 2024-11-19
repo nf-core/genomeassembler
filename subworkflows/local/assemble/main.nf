@@ -1,4 +1,4 @@
-include { FLYE } from '../../../modules/local/flye/main'    
+include { FLYE } from '../../../modules/nf-core/flye/main'    
 include { HIFIASM; HIFIASM_UL } from '../../../modules/local/hifiasm/main'
 include { MAP_TO_ASSEMBLY } from '../mapping/map_to_assembly/main'
 include { MAP_TO_REF } from '../mapping/map_to_ref/main'
@@ -50,18 +50,16 @@ workflow ASSEMBLE {
               .set { flye_inputs }
         }
         if(params.ont) {
+          ont_reads
+            .set { flye_inputs }
           if(params.genome_size == null && params.jellyfish) {
-            ont_reads
-              .join(genomescope_out)
-              .set { flye_inputs }
+            def flye_genome_size = genomescope_out
           } else {
-             ont_reads
-              .map { it -> [it[0], it[1], params.genome_size]}
-              .set { flye_inputs }
+            def flye_genome_size = params.genome_size
           }
         }
         // Run flye
-        FLYE(flye_inputs, params.flye_mode)
+        FLYE(flye_inputs)
         FLYE
           .out
           .fasta
@@ -73,15 +71,6 @@ workflow ASSEMBLE {
            hifi_reads
             .join(ont_reads) 
             .set { hifiasm_inputs }
-            /*Debug
-          hifi_reads
-            .map { it -> [it[0], it[1]] }
-            .view {channel -> "Hifireads: $channel"}
-            .join(ont_reads
-                  .map { it -> [it[0], it[1]] }
-                  .view {channel -> "ONTreads: $channel"})
-            .view {channel -> "Joined: $channel"}
-            */
           HIFIASM_UL(hifiasm_inputs, params.hifiasm_args)
           HIFIASM_UL
             .out

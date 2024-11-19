@@ -1,4 +1,4 @@
-include { BUSCO } from '../../../../modules/local/busco/main'
+include { BUSCO_BUSCO as BUSCO } from '../../../../modules/nf-core/busco/busco/main'
 
 workflow RUN_BUSCO {
   take: 
@@ -10,7 +10,7 @@ workflow RUN_BUSCO {
   Channel.empty().set { busco_short_summary_json }
 
   if(params.busco) {
-      BUSCO(assembly, params.busco_lineage, params.busco_db ? file( params.busco_db, checkIfExists: true ) : [])
+      BUSCO(assembly, 'genome', params.busco_lineage, params.busco_db ? file( params.busco_db, checkIfExists: true ) : [])
       BUSCO
         .out
         .batch_summary

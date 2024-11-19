@@ -39,7 +39,6 @@ workflow PREPARE_SHORTREADS {
         .out
         .reads
         .set { shortreads }
-      
     }
     MERYL_COUNT(shortreads.map { it -> [it[0], it[1]] }, params.meryl_k)
     MERYL_UNIONSUM(MERYL_COUNT.out.meryl_db, params.meryl_k)

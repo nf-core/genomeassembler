@@ -1,4 +1,4 @@
-include { MEDAKA } from '../../../../../modules/local/medaka/main'
+include { MEDAKA } from '../../../../../modules/nf-core/medaka/main'
 
 workflow RUN_MEDAKA {
   take:
@@ -10,7 +10,7 @@ workflow RUN_MEDAKA {
       .join(assembly)
       .set { medaka_in }
 
-    MEDAKA(medaka_in, params.medaka_model)
+    MEDAKA(medaka_in)
 
     MEDAKA
       .out

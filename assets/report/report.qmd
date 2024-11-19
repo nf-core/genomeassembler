@@ -716,8 +716,6 @@ for (i in 1:length(unique(merqury_stats$sample))) {
       paste0('\n\n'),
       paste0('### Plots { .tabset }'),
       paste0('\n\n'),
-      paste0('The plots below show the different statistics computed by merqury.'),
-      paste0('\n\n'),
       paste0('#### Completeness \n'),
       paste0('\n'),
       knitr::knit_child(glue::glue('merqury_files/stat_plots/_{ cur_sample }_completeness_plt.Rmd'), 
