@@ -53,10 +53,8 @@ workflow ASSEMBLE {
           ont_reads
             .set { flye_inputs }
           if(params.genome_size == null && params.jellyfish) {
-            def flye_genome_size = genomescope_out
-          } else {
-            def flye_genome_size = params.genome_size
-          }
+            params.genome_size = genomescope_out
+          } 
         }
         // Run flye
         FLYE(flye_inputs)
@@ -99,7 +97,7 @@ workflow ASSEMBLE {
                 .set { flye_inputs }
         } else {
              ont_reads
-                .map { it -> [it[0], it[1], params.genome_size]}
+                .map { it -> [it[0], it[1]]}
                 .set { flye_inputs }
         }
         FLYE(flye_inputs, params.flye_mode)
