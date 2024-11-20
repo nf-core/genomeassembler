@@ -28,7 +28,7 @@ workflow RUN_QUAST {
       /*
        * Run QUAST
        */
-      QUAST(quast_in, use_gff = params.use_ref, use_fasta = false)
+      QUAST(quast_in, params.use_ref, false)
       QUAST
         .out
         .results

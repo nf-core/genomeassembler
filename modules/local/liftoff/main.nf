@@ -16,7 +16,6 @@ process LIFTOFF {
 
   
   script:
-      def prefix = task.ext.prefix ?: "${meta.id}"
   """
   if [[ ${assembly} == *.gz ]]; then
     zcat ${assembly} > assembly.fasta
