@@ -1,5 +1,5 @@
 process SAMTOOLS_GET_UNMAPPED {
-    tag "$meta"
+    tag "$meta.id"
     label 'process_low'
     conda "bioconda::samtools=1.10"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
