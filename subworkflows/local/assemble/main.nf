@@ -46,7 +46,7 @@ workflow ASSEMBLE {
         if(params.hifi) {
           if(!hifi_only) error 'Cannot combine hifi and ont reads with flye'
           hifi_reads
-              .map { it -> [it[0], it[1], params.genome_size]}
+              .map { it -> [it[0], it[1] ]}
               .set { flye_inputs }
         }
         if(params.ont) {
@@ -57,7 +57,7 @@ workflow ASSEMBLE {
           } 
         }
         // Run flye
-        FLYE(flye_inputs)
+        FLYE(flye_inputs, params.flye_mode)
         FLYE
           .out
           .fasta
@@ -91,15 +91,11 @@ workflow ASSEMBLE {
         HIFIASM(hifiasm_inputs, params.hifiasm_args)
 
         // Run flye
+        ont_reads
+            .set { flye_inputs }
         if(params.genome_size == null && params.jellyfish) {
-            ont_reads
-                .join(genomescope_out)
-                .set { flye_inputs }
-        } else {
-             ont_reads
-                .map { it -> [it[0], it[1]]}
-                .set { flye_inputs }
-        }
+            params.genome_size = genomescope_out
+        } 
         FLYE(flye_inputs, params.flye_mode)
 
         FLYE
