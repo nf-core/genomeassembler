@@ -597,6 +597,7 @@ merqury_qv <- list.files(paste0(data_base, "merqury"), full.names = T, pattern =
 ```{r merqury qv}
 #| eval: !expr params$merqury
 #| include: false
+dir.create("merqury_files")
 dir.create("merqury_files/qv_plots/")
 for (i in 1:length(unique(merqury_qv$sample))) {
   cur_sample <- unique(merqury_qv$sample)[i]
@@ -611,7 +612,6 @@ ggplotly(p)\n```') %>%
 ```{r merqury completeness}
 #| eval: !expr params$merqury
 #| include: false
-dir.create("merqury_files")
 dir.create("merqury_files/stat_plots/")
 for (i in 1:length(unique(merqury_stats$sample))) {
   cur_sample <- unique(merqury_stats$sample)[i]
