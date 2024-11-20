@@ -39,3 +39,7 @@
 - [Singularity](https://pubmed.ncbi.nlm.nih.gov/28494014/)
 
   > Kurtzer GM, Sochat V, Bauer MW. Singularity: Scientific containers for mobility of compute. PLoS One. 2017 May 11;12(5):e0177459. doi: 10.1371/journal.pone.0177459. eCollection 2017. PubMed PMID: 28494014; PubMed Central PMCID: PMC5426675.
+
+- [charliecloud](https://hpc.github.io/charliecloud/)
+
+> Reid Priedhorsky and Tim Randles. “Charliecloud: Unprivileged containers for user-defined software stacks in HPC”, 2017. In Proc. Supercomputing. DOI: 10.1145/3126908.3126925.
