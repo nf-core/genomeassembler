@@ -9,8 +9,8 @@ workflow RUN_PILON {
         .join(aln_to_assembly_bam_bai)
         .set { pilon_in }
 
-      PILON(pilon_in.map {it-> [it[0],it[1],it[2]]},
-            pilon_in.map {it-> [it[0],it[3],it[4]]}, 
+      PILON(pilon_in.map {it-> [it[0], it[1]]},
+            pilon_in.map {it-> [it[0], it[2], it[3]]}, 
             "bam")
     
     emit:
