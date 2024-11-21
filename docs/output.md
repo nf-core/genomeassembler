@@ -145,22 +145,47 @@ The initial assembly can be scaffolded using different tools.
 
 ### Quality control
 
-All quality control files end up in `QC`.
+All quality control files end up in `QC`. Below is the tree assuming that all steps of the pipeline were run
 
 <details markdown="1">
-<summary>Output files</summary>
+<summary>Output folders</summary>
 
 - `QC/`
-  - `assemble/`: qc of the initiall assembly
-    - `busco`: BUSCO analysis of the assembly, per sample
-    - `quast`: QUAST analysis of the assembly, per sample, contains:
-      - `<Sample Name>`:
-        - `map_to_ref`: mapping of long reads to the reference
-        - `map_to_assembly`: mapping of long reads to assembly
-    - `merqury`: merqury analysis of the assembly, per sample.
-  - `longstitch/`: output from longstitch
-  - `ragtag/`: output from RagTag
-  - `liftoff`: outputs from the annotation liftover via liftoff, requires reference
+  - `assemble/`: qc after the initial assembly
+  - `polish/`:
+    - `pilon/`: qc after polishing with pilon
+    - `medaka/`: qc after polishing with medaka
+  - `scaffold`: qc of scaffolding - `links`: qc after scaffolding with links - `longstitch`: qc after scaffolding with longstitch - `ragtag`: qc after scaffolding with ragtag
+  </details>
+
+For each step, `BUSCO`,`QUAST`, and `merqury` can be used for QC. Each folder
+
+<details markdown="1">
+<summary>Folder contents</summary>
+
+- `busco`: BUSCO analysis of the assembly
+  - `<SampleName>`
+- `quast`: QUAST analysis of the assembly, per sample, contains:
+  - `<Sample Name>`:
+    - `map_to_ref`: mapping of long reads to the reference
+    - `map_to_assembly`: mapping of long reads to assembly
+- `merqury`: merqury analysis of the assembly
+  - `<SampleName>`:
+    - `<FastaFile>.<SampleName>.assembly.qv`: QV of the assembly (per sequence)
+    - `<FastaFile>.<SampleName>.assembly.spectra-cn.fl.png` : Copy Number plot, filled
+    - `<FastaFile>.<SampleName>.assembly.spectra-cn.ln.png` : Copy Number plot, lines
+    - `<FastaFile>.<SampleName>.assembly.spectra-cn.st.png` : Copy Number plot, semi-transparent
+    - `<FastaFile>.<SampleName>.assembly.spectra-cn.hist` : Copy Number histogram file
+    - `<FastaFile>.completeness.stats` : Assembly completeness statistics (overall)
+    - `<FastaFile>.qv` : Assembly QV (overall)
+    - `<FastaFile>.spectra-asm.fl.png` : Assembly k-mer spectrum, filled
+    - `<FastaFile>.spectra-asm.ln.png` : Assembly k-mer spectrum, lines
+    - `<FastaFile>.spectra-asm.st.png` : Assembly k-mer spectrum, semi-transparent
+    - `<FastaFile>.spectra-asm.hist` : Assembly QV (overall)
+    - `<FastaFile>.dist_only.hist` : Number of k-mers distinct to the assembly
+    - `<SampleName>.assembly_only.bed` : bp errors in assembly (bed)
+    - `<SampleName>.assembly_only.wig` : bp errors in assembly (wig)
+    - `<SampleName>.unionsum.hist.ploidy` : ploidy estimates from short-reads
 
 </details>
 
