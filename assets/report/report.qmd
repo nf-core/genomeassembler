@@ -150,7 +150,7 @@ quast_stats <- list.files(paste0(data_base, "quast"),
   mutate(
     sample = str_extract(
       assembly,
-      ".+?(?=_assemble|\\.assembly|\\.asm|_medaka|_pilon|_links|\\.tigmint)"
+      ".+?(?=_assemble|\\.assembly|\\.asm|_medaka|_pilon|_links|\\.tigmint||_run)"
     ),
     stage = case_when(
       str_detect(assembly, "_ragtag") ~ "RagTag",
@@ -331,7 +331,7 @@ busco_reports <- list.files(paste0(data_base, "busco"),
   mutate(
     sample = str_extract(
       assembly,
-      ".+?(?=_assemble|\\.assembly|\\.asm|_medaka|_pilon|_links|\\.tigmint)"
+      ".+?(?=_assemble|\\.assembly|\\.asm|_medaka|_pilon|_links|\\.tigmint|_run)"
     ),
     stage = case_when(
       str_detect(assembly, "_ragtag") ~ "RagTag",
