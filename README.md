@@ -116,11 +116,13 @@ For more details about the output files and reports, please refer to the
 
 ## Credits
 
-nf-core/genomeassembler was originally written by Niklas Schandry.
+nf-core/genomeassembler was originally written by Niklas Schandry (@nschan).
 
 We thank the following people for their extensive assistance in the development of this pipeline:
 
-<!-- TODO nf-core: If applicable, make list of people who have also contributed -->
+- Mahesh Binzer-Panchal (@mahesh-panchal)
+- Matthias Hörtenhuber (@mashehu)
+- Daniel Straub (@d4straub)
 
 ## Contributions and Support
 
