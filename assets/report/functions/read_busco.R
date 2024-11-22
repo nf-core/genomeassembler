@@ -1,4 +1,4 @@
-# read busco tsv
+# read busco short summary tsv
 
 read_busco_report <- function(file) {
   assembly <- read_lines(file,
@@ -58,3 +58,20 @@ read_busco_report <- function(file) {
       )
     )
 }
+
+## Read busco batch summary
+
+read_busco_batch <- \(x) {read_tsv(x, show_col_types = F) %>% 
+    set_colnames(colnames(.) %>% str_replace_all(" ", "_")) %>% 
+    mutate(sample = str_extract(x, "(?<=busco/).+?(?=-[run_|polish_|assemble])"),
+           stage = case_when(
+             str_detect(x, "ragtag") ~ "RagTag",
+             str_detect(x, "medaka") ~ "medaka",
+             str_detect(x, "pilon") ~ "pilon",
+             str_detect(x, "longstitch") ~ "longstitch",
+             str_detect(x, "links") ~ "LINKS",
+             str_detect(x, "assemble") ~ "Assembly",
+           ),
+           Percent_gaps = Percent_gaps %>% str_remove("%") %>% as.numeric) %>%
+    dplyr::select(-Dataset) %>% 
+    pivot_longer(Complete:Number_of_scaffolds, names_to = "Var")}

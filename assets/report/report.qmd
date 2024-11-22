@@ -150,7 +150,7 @@ quast_stats <- list.files(paste0(data_base, "quast"),
   mutate(
     sample = str_extract(
       assembly,
-      ".+?(?=_assemble|\\.assembly|\\.asm|_medaka|_pilon|_links|\\.tigmint||_run)"
+      ".+?(?=_assemble|\\.assembly|\\.asm|_medaka|_pilon|_links|\\.tigmint)"
     ),
     stage = case_when(
       str_detect(assembly, "_ragtag") ~ "RagTag",
@@ -326,24 +326,10 @@ BUSCO was not included in the pipeline run.
 #| echo: false
 busco_reports <- list.files(paste0(data_base, "busco"),
                             full.names = T,
-                            pattern = "short_summary") %>%
-  map_dfr(\(x) read_busco_report(x)) %>%
-  mutate(
-    sample = str_extract(
-      assembly,
-      ".+?(?=_assemble|\\.assembly|\\.asm|_medaka|_pilon|_links|\\.tigmint|_run)"
-    ),
-    stage = case_when(
-      str_detect(assembly, "_ragtag") ~ "RagTag",
-      str_detect(assembly, "_medaka") ~ "medaka",
-      str_detect(assembly, "_pilon") ~ "pilon",
-      str_detect(assembly, "\\.longstitch") ~ "longstitch",
-      str_detect(assembly, "_links") ~ "LINKS",
-      str_detect(assembly, "\\.assembly|\\.asm") ~ "Assembly",
-      TRUE ~ "Unknown"
-    )
-  )
+                            pattern = "batch_summary") %>%
+  map_dfr(\(x) read_busco_batch(x))
 ```
+
 
 ```{r}
 #| eval: !expr params$busco
@@ -354,8 +340,8 @@ for (i in 1:length(unique(busco_reports$sample))) {
 paste0('```{r}\n
            p <- busco_reports %>%
            filter(sample == "', unique(busco_reports$sample)[i], '") %>%
-  filter(!is.na(BUSCO)) %>% 
-  ggplot(aes(y = percent, x = BUSCO)) +
+  filter(Var %in% c("Complete","Single","Duplicated","Fragmented")) %>% 
+  ggplot(aes(y = value, x = Var)) +
   geom_point(
     aes(fill = stage),
     size = 6,
@@ -392,36 +378,36 @@ for (i in 1:length(unique(busco_reports$sample))) {
     cur_sample <-  unique(busco_reports$sample)[i]
   completeness_val <-  busco_reports %>% 
     filter(sample == cur_sample) %>% 
-    filter(BUSCO == "Complete") %>% 
-    filter(percent == max(percent)) %$%
-    percent %>% 
+    filter(Var == "Complete") %>% 
+    filter(value == max(value)) %$%
+    value %>% 
     unique()
   completeness_stage  <-  busco_reports %>% 
     filter(sample == cur_sample) %>% 
-    filter(BUSCO == "Complete") %>% 
-    filter(percent == max(percent)) %$%
+    filter(Var == "Complete") %>% 
+    filter(value == max(value)) %$%
     stage
   frag_val <-  busco_reports %>% 
     filter(sample == cur_sample) %>% 
-    filter(BUSCO == "Fragmented") %>% 
-    filter(percent == max(percent)) %$%
-    percent %>% 
+    filter(Var == "Fragmented") %>% 
+    filter(value == max(value)) %$%
+    value %>% 
     unique()
   frag_stage  <-  busco_reports %>% 
     filter(sample == cur_sample) %>% 
-    filter(BUSCO == "Fragmented") %>% 
-    filter(percent == max(percent)) %$%
+    filter(Var == "Fragmented") %>% 
+    filter(value == max(value)) %$%
     stage
   missing_val <-  busco_reports %>% 
     filter(sample == cur_sample) %>% 
-    filter(BUSCO == "Missing") %>% 
-    filter(percent == max(percent)) %$%
-    percent %>% 
+    filter(Var == "Missing") %>% 
+    filter(value == max(value)) %$%
+    value %>% 
     unique()
   missing_stage  <-  busco_reports %>% 
     filter(sample == cur_sample) %>% 
-    filter(BUSCO == "Missing") %>% 
-    filter(percent == max(percent)) %$%
+    filter(Var == "Missing") %>% 
+    filter(value == max(value)) %$%
     stage
   cat(paste('## ', unique(busco_reports$sample)[i]),
       paste0('\n\n'),
@@ -597,7 +583,6 @@ merqury_qv <- list.files(paste0(data_base, "merqury"), full.names = T, pattern =
 ```{r merqury qv}
 #| eval: !expr params$merqury
 #| include: false
-dir.create("merqury_files")
 dir.create("merqury_files/qv_plots/")
 for (i in 1:length(unique(merqury_qv$sample))) {
   cur_sample <- unique(merqury_qv$sample)[i]
@@ -612,6 +597,7 @@ ggplotly(p)\n```') %>%
 ```{r merqury completeness}
 #| eval: !expr params$merqury
 #| include: false
+dir.create("merqury_files")
 dir.create("merqury_files/stat_plots/")
 for (i in 1:length(unique(merqury_stats$sample))) {
   cur_sample <- unique(merqury_stats$sample)[i]
