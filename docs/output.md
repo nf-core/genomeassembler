@@ -57,12 +57,17 @@ Annotation and quality control are done at several stages of the pipeline, the o
   - `porechop/`: output from porechop, fastq.gz
   - `nanoq/`: output from nanoq
   - `genomescope/`: output from jellyfish and genomescope
-    - `jellyfish/`: output from jellyfish
-      - `count/`: output from jellyfish count
-      - `stats/`: output from jellyfish stats
-      - `histo/`: output from jellyfish histogram
-      - `dump/`: output from jellyfish dump
-    - `genomescope/`: genomescope
+    - `jellyfish/`
+      - `count/`
+        - `<SampleName>/`: output from jellyfish count
+      - `stats/`
+        - `<SampleName>/`: output from jellyfish stats
+      - `histo/`
+        - `<SampleName>/`: output from jellyfish histogram
+      - `dump/`
+        - `<SampleName>/`: output from jellyfish dump
+    - `genomescope/`
+      - `<SampleName>/`: genomescope plots
 
 </details>
 
@@ -82,7 +87,11 @@ Annotation and quality control are done at several stages of the pipeline, the o
 <summary>Output files</summary>
 
 - `short_reads/`
-  - `trimgalore/`: trimmed short reads
+  - `trimgalore/`:
+    - `<SampleName>_val_1.fq.gz`: Trimmed forward reads
+    - `<SampleName>_val_2.fq.gz`: Trimmed reverse reads (if included)
+    - `<SampleName>_1.fastq.gz.trimming_report.txt`: Trimming report forward
+    - `<SampleName>_2.fastq.gz.trimming_report.txt`: Trimming report reverse (if included)
   - `meryl/`: output from meryl
     - `count/`: k-mer counts per file
     - `unionsum/`: union of k-mer counts per sample
@@ -145,9 +154,20 @@ The initial assembly can be scaffolded using different tools.
   - `links/`: output from links
   - `longstitch/`: output from longstitch
   - `ragtag/`: output from RagTag
-  - `liftoff`: outputs from the annotation liftover via liftoff, requires reference
+  - `liftoff`: outputs from the annotation liftover via liftoff
 
 </details>
+
+### Annotations
+
+If a reference is provided, and annotation liftover is desired, liftoff will lift-over annotations at each stage of the assembly.
+
+<details markdown="1">
+<summary>Output files</summary>
+
+- `assemble/` | `polish/<tool>/` | `scaffold/<tool>/`:
+  - `liftoff/`: - `<SampleName>/`: - `<SampleName>.<suffix>_liftoff.gff` gff file produced by liftoff. Exact name depends on the stage of the pipeline.
+  </summary>
 
 ### Quality control
 
@@ -164,7 +184,7 @@ All quality control files end up in `QC`. Below is the tree assuming that all st
   - `scaffold`: qc of scaffolding - `links`: qc after scaffolding with links - `longstitch`: qc after scaffolding with longstitch - `ragtag`: qc after scaffolding with ragtag
   </details>
 
-For each step, `BUSCO`,`QUAST`, and `merqury` can be used for QC. Each folder
+For each step, `BUSCO`,`QUAST`, and `merqury` can be used for QC.
 
 <details markdown="1">
 <summary>Folder contents</summary>
@@ -173,8 +193,14 @@ For each step, `BUSCO`,`QUAST`, and `merqury` can be used for QC. Each folder
   - `<SampleName>`
 - `quast`: QUAST analysis of the assembly, per sample, contains:
   - `<Sample Name>`:
-    - `map_to_ref`: mapping of long reads to the reference
-    - `map_to_assembly`: mapping of long reads to assembly
+    - `map_to_ref` and `map_to_assembly`: mapping of long reads to the reference and assembly respectively. `map_to_ref` is only performed once, during the first run of QUAST, typically in `assemble`
+      - `align/`: Alignment of long reads to the genome in ` format
+        - `<FastaFile>.bam`: Alignment of long reads to the genome
+      - `samtools/`:
+        - `<FastaFile>.bam.bai`: bam index
+        - `<FastaFile>.bam.idxstats`: samtools idxstats
+        - `<FastaFile>.bam.flagstat`: samtools flagstats
+        - `<FastaFile>.bam.stats`: samtools stats
 - `merqury`: merqury analysis of the assembly
   - `<SampleName>`:
     - `<FastaFile>.<SampleName>.assembly.qv`: QV of the assembly (per sequence)
@@ -195,16 +221,20 @@ For each step, `BUSCO`,`QUAST`, and `merqury` can be used for QC. Each folder
 
 </details>
 
-### Annotations
+### Report
 
-If a reference is provided, and annotation liftover is desired, liftoff will lift-over annotations at each stage of the assembly.
+The pipeline collects the quality control outputs into an html report. Below is the tree assuming that all steps of the pipeline were run:
 
 <details markdown="1">
 <summary>Output files</summary>
+    
+  - `report/`:
+    - `busco_files/reports.tsv`: Table containing aggregated BUSCO reports
+    - `quast_files/reports.tsv`: Table containing aggregated QUAST reports
+    - `report.html` : The report file.
+    - `report_files/`: Folder containing js and css. required to properly display the `.html` file
 
-- `assemble/` | `polish/<tool>/` | `scaffold/<tool>/`:
-  - `liftoff/`: - `<SampleName>/`: - `<SampleName>.<suffix>_liftoff.gff` gff file produced by liftoff. Exact name depends on the stage of the pipeline.
-  </summary>
+</details>
 
 ### Pipeline information
 
