@@ -47,7 +47,7 @@
                     },
                     "pilon": {
                         "branch": "master",
-                        "git_sha": "666652151335353eef2fcd58880bcef5bc2928e1",
+                        "git_sha": "2816479e1de5c04f0907f74a53a2096ceaff558e",
                         "installed_by": ["modules"]
                     },
                     "porechop/porechop": {
