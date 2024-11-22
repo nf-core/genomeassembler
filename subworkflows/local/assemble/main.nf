@@ -190,7 +190,7 @@ workflow ASSEMBLE {
     RUN_BUSCO(ch_assembly)
     RUN_BUSCO
       .out
-      .busco_short_summary_txt
+      .batch_summary
       .set { assembly_busco_reports }
     
     if(params.short_reads) {

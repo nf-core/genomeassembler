@@ -118,15 +118,21 @@ This folder contains the initial assemblies of the provided reads.
         - `<SampleName>.assembly.fasta.gz_ragtag_<SampleName>.asm.bp.p_ctg.fa.gz.agp`: Scaffolds in agp format
         - `<SampleName>.assembly.fasta.gz_ragtag_<SampleName>.asm.bp.p_ctg.fa.gz.fasta`: Scaffolds in fasta format
         - `<SampleName>.assembly.fasta.gz_ragtag_<SampleName>.asm.bp.p_ctg.fa.gz.stats`: Scaffolding statistics.
-  - `liftoff/`: outputs from the annotation liftover via liftoff, requires reference.
-    - `<SampleName>/`
-      - `<SampleName>.<suffix>_liftoff.gff` gff file produced by liftoff. Exact name depends on the assembler used. `<suffix>` is `assembly.fasta.gz` for flye assemblies and `asm.bp.p_ctg.fa.gz` for hifiasm assemblies.
 
 </details>
 
 ### Polishing
 
 Polishing can be used to correct errors in the assembly.
+
+<details markdown="1">
+<summary>Output files</summary>
+
+- `polish/`
+  - `pilon/`: output from pilon
+  - `medaka/`: output from medaka
+
+</details>
 
 ### Scaffolding
 
@@ -188,6 +194,17 @@ For each step, `BUSCO`,`QUAST`, and `merqury` can be used for QC. Each folder
     - `<SampleName>.unionsum.hist.ploidy` : ploidy estimates from short-reads
 
 </details>
+
+### Annotations
+
+If a reference is provided, and annotation liftover is desired, liftoff will lift-over annotations at each stage of the assembly.
+
+<details markdown="1">
+<summary>Output files</summary>
+
+- `assemble/` | `polish/<tool>/` | `scaffold/<tool>/`:
+  - `liftoff/`: - `<SampleName>/`: - `<SampleName>.<suffix>_liftoff.gff` gff file produced by liftoff. Exact name depends on the stage of the pipeline.
+  </summary>
 
 ### Pipeline information
 

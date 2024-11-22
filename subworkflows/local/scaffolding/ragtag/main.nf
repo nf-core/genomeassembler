@@ -45,7 +45,7 @@ workflow RUN_RAGTAG {
     RUN_BUSCO(ragtag_scaffold_fasta)
     RUN_BUSCO
       .out
-      .busco_short_summary_txt
+      .batch_summary
       .set { busco_out }
     if(params.short_reads) {
       MERQURY_QC(ragtag_scaffold_fasta, meryl_kmers)

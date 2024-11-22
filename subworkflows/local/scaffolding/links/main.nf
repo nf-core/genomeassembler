@@ -39,7 +39,7 @@ workflow RUN_LINKS {
     RUN_BUSCO(scaffolds)
     RUN_BUSCO
       .out
-      .busco_short_summary_txt
+      .batch_summary
       .set { busco_out }
       
     if(params.short_reads) {
