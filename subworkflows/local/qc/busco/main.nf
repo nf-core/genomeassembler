@@ -14,19 +14,19 @@ workflow RUN_BUSCO {
       BUSCO
         .out
         .batch_summary
-        .set { busco_batch_summary }
+        .set { batch_summary }
       BUSCO
         .out
         .short_summaries_txt
-        .set { busco_short_summary_txt }
+        .set { short_summary_txt }
       BUSCO
         .out
         .short_summaries_json
-        .set { busco_short_summary_json }
+        .set { short_summary_json }
   }
   
   emit:
-    busco_batch_summary
-    busco_short_summary_json
-    busco_short_summary_txt
+    batch_summary
+    short_summary_json
+    short_summary_txt
 }
