@@ -187,11 +187,13 @@ workflow ASSEMBLE {
     /*
     QC on initial assembly
     */
-    RUN_BUSCO(ch_assembly)
-    RUN_BUSCO
-      .out
-      .batch_summary
-      .set { assembly_busco_reports }
+    if(params.busco) {
+      RUN_BUSCO(ch_assembly)
+      RUN_BUSCO
+        .out
+        .batch_summary
+        .set { assembly_busco_reports }
+    }
     
     if(params.short_reads) {
       MERQURY_QC(ch_assembly, meryl_kmers)
