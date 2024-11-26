@@ -27,8 +27,8 @@ workflow MAP_SR {
       .bai
       .set { aln_to_assembly_bai }
 
-    aln_to_assembly_bam.
-      join(aln_to_assembly_bai)
+    aln_to_assembly_bam
+      .join(aln_to_assembly_bai)
       .set { aln_to_assembly_bam_bai }
 
   emit:

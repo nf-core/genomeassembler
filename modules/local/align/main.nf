@@ -57,14 +57,14 @@ process ALIGN_SHORT_TO_BAM {
         'biocontainers/mulled-v2-66534bcbb7031a148b13e2ad42583020b9cd25c4:3161f532a5ea6f1dec9be5667c9efc2afdac6104-0' }"
     
     input:
-        tuple val(meta), val(paired), path(reads), path(reference)
+        tuple val(meta), val(paired), path(in_reads), path(reference)
 
     output:
         tuple val(meta), path("*.bam"), emit: alignment
 
     script:
      def prefix = task.ext.prefix ?: "${meta.id}"
-     def reads = paired ? "${reads[0]} ${reads[1]}" : "${reads[0]}"
+     def reads = paired ? "${in_reads[0]} ${in_reads[1]}" : "${in_reads[0]}"
         """
         minimap2 -t $task.cpus \\
         -ax sr ${reference}  ${reads} \\

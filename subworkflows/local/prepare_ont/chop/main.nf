@@ -4,7 +4,7 @@ workflow CHOP {
   take: in_reads
 
   main:
-  
+  Channel.empty().set { chopped_reads }
   if(params.porechop) {
     PORECHOP(in_reads)
     PORECHOP

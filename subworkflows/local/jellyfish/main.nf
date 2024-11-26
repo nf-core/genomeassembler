@@ -10,6 +10,7 @@ workflow JELLYFISH {
     nanoq_out
   
   main: 
+    Channel.empty().set { genomescope_in }
     COUNT(samples)
     COUNT
       .out

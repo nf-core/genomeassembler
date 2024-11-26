@@ -18,13 +18,17 @@ workflow ASSEMBLE {
     meryl_kmers
     
   main:
-    // References
+    // Empty channels 
     Channel.empty().set { ch_refs }
     Channel.empty().set { ch_ref_bam }
     Channel.empty().set { ch_assembly_bam }
+    Channel.empty().set { ch_assembly }
     Channel.empty().set { assembly_quast_reports }
     Channel.empty().set { assembly_busco_reports }
     Channel.empty().set { assembly_merqury_reports }
+    Channel.empty().set { flye_inputs }
+    Channel.empty().set { hifiasm_inputs }
+    Channel.empty().set { longreads }
 
     if (params.use_ref) {
       ch_input

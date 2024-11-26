@@ -1,0 +1,12 @@
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - conda-forge::quarto=1.5.57
+  - conda-forge::r-plotly=4.10.4
+  - conda-forge::r-quarto=1.4.4
+  - conda-forge::r-tidyverse=2.0.0
+  - pip
+  - pip:
+      - quarto-cli==1.5.56
+      - quarto==0.1.0
