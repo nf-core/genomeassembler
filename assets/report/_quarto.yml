@@ -1,2 +1,2 @@
 profile:
-  default: nanoq,busco,quast,jellyfish,merqury
+  default: base
