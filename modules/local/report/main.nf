@@ -1,5 +1,5 @@
 process  REPORT {
-    tag ""
+    tag "REPORT"
     label 'process_low'
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'oras://community.wave.seqera.io/library/quarto_r-plotly_r-quarto_r-tidyjson_pruned:2712f84a83ca0d9a' :

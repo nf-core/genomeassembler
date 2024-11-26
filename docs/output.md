@@ -152,9 +152,21 @@ The initial assembly can be scaffolded using different tools.
 
 - `scaffold/`
   - `links/`: output from links
+    - `<SampleName>/`:
+      - `<SampleName>_links.gv`: scaffolding graph
+      - `<SampleName>_links.log`: log file
+      - `<SampleName>_links.scaffolds`: scaffold statistics
+      - `<SampleName>_links.scaffolds.fa`: scaffold fasta
   - `longstitch/`: output from longstitch
+    - `<SampleName>/`:
+      - `<SampleName>_tigmint-ntLinks.arks.longstitch-scaffolds.fa`: Scaffolds after scaffolding with tigmint, ntLinks, and arks
+      - `<SampleName>_tigmint-ntLinks.longstitch-scaffolds.fa`: Scaffolds after scaffolding with tigmint, and ntLinks
   - `ragtag/`: output from RagTag
-  - `liftoff`: outputs from the annotation liftover via liftoff
+    - `<SampleName>/`:
+      - `<SampleName><suffix>_ragtag_<Reference>/`
+        - `<SampleName><suffix>_ragtag_<Reference>.agp`: agp file, scaffolding results
+        - `<SampleName><suffix>_ragtag_<Reference>.fasta`: Scaffold fasta file
+        - `<SampleName><suffix>_ragtag_<Reference>.stats`: Scaffolding statistics
 
 </details>
 
@@ -165,9 +177,11 @@ If a reference is provided, and annotation liftover is desired, liftoff will lif
 <details markdown="1">
 <summary>Output files</summary>
 
-- `assemble/` | `polish/<tool>/` | `scaffold/<tool>/`:
-  - `liftoff/`: - `<SampleName>/`: - `<SampleName>.<suffix>_liftoff.gff` gff file produced by liftoff. Exact name depends on the stage of the pipeline.
-  </summary>
+- `assemble/<SampleName>` | `polish/<tool>/<SampleName>` | `scaffold/<tool>/<SampleName>`:
+  - `liftoff/`:
+  - `<SampleName>.<suffix>_liftoff.gff` gff file produced by liftoff. Exact name depends on the stage of the pipeline.
+    </summary>
+  </details>
 
 ### Quality control
 
@@ -181,8 +195,11 @@ All quality control files end up in `QC`. Below is the tree assuming that all st
   - `polish/`:
     - `pilon/`: qc after polishing with pilon
     - `medaka/`: qc after polishing with medaka
-  - `scaffold`: qc of scaffolding - `links`: qc after scaffolding with links - `longstitch`: qc after scaffolding with longstitch - `ragtag`: qc after scaffolding with ragtag
-  </details>
+  - `scaffold`: qc of scaffolding
+    - `links`: qc after scaffolding with links
+    - `longstitch`: qc after scaffolding with longstitch
+    - `ragtag`: qc after scaffolding with ragtag
+    </details>
 
 For each step, `BUSCO`,`QUAST`, and `merqury` can be used for QC.
 
@@ -190,7 +207,10 @@ For each step, `BUSCO`,`QUAST`, and `merqury` can be used for QC.
 <summary>Folder contents</summary>
 
 - `busco`: BUSCO analysis of the assembly
-  - `<SampleName>`
+  - `<SampleName>/`:
+    - `<SampleName>-<Stage>-<BuscoLineage>-busco/`: BUSCO output folder, please refer to BUSCO documentation for details.
+    - `<SampleName>-<Stage>-<BuscoLineage>-busco.batch_summary.txt`: BUSCO batch summary output
+    - `short_summary.specific.<FastaFile>.{txt,json}`: BUSCO short summaries in txt and json format
 - `quast`: QUAST analysis of the assembly, per sample, contains:
   - `<Sample Name>`:
     - `map_to_ref` and `map_to_assembly`: mapping of long reads to the reference and assembly respectively. `map_to_ref` is only performed once, during the first run of QUAST, typically in `assemble`
@@ -201,6 +221,19 @@ For each step, `BUSCO`,`QUAST`, and `merqury` can be used for QC.
         - `<FastaFile>.bam.idxstats`: samtools idxstats
         - `<FastaFile>.bam.flagstat`: samtools flagstats
         - `<FastaFile>.bam.stats`: samtools stats
+    - `<Sample Name>_<stage>/`: QUAST results, cp. [QUAST Docs](https://github.com/ablab/quast?tab=readme-ov-file#output)
+      - `report.txt`: summary table
+      - `report.tsv`: tab-separated version, for parsing, or for spreadsheets (Google Docs, Excel, etc)
+      - `report.tex`: Latex version
+      - `report.pdf`: PDF version, includes all tables and plots for some statistics
+      - `report.html`: everything in an interactive HTML file
+      - `icarus.html`: Icarus main menu with links to interactive viewers
+      - `contigs_reports/`: [only if a reference genome is provided]
+        - `misassemblies_report`: detailed report on misassemblies
+        - `unaligned_report`: detailed report on unaligned and partially unaligned contigs
+      - `reads_stats/`: [only if reads are provided]
+        - `reads_report`: detailed report on mapped reads statistics
+    - `<Sample Name>_<stage_report.tsv>`: QUAST summary report
 - `merqury`: merqury analysis of the assembly
   - `<SampleName>`:
     - `<FastaFile>.<SampleName>.assembly.qv`: QV of the assembly (per sequence)
@@ -231,8 +264,8 @@ The pipeline collects the quality control outputs into an html report. Below is 
   - `report/`:
     - `busco_files/reports.tsv`: Table containing aggregated BUSCO reports
     - `quast_files/reports.tsv`: Table containing aggregated QUAST reports
-    - `report.html` : The report file.
-    - `report_files/`: Folder containing js and css. required to properly display the `.html` file
+    - `report.html` : The report file
+    - `report_files/`: Folder containing js and css. Required to properly display the `.html` file
 
 </details>
 

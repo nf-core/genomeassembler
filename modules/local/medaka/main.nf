@@ -1,6 +1,7 @@
 process MEDAKA {
     tag "$meta.id"
     label 'process_high'
+    label 'process_long'
 
     conda "${moduleDir}/environment.yml"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
@@ -33,9 +34,9 @@ process MEDAKA {
         -d \$assembly \\
         -o ./
 
-    mv consensus.fasta ${prefix}_medaka.fa
+    mv consensus.fasta ${prefix}.fa
 
-    gzip -n ${prefix}_medaka.fa
+    gzip -n ${prefix}.fa
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
