@@ -8,67 +8,49 @@ include { MERQURY_QC } from '../../../qc/merqury/main'
 
 workflow POLISH_PILON {
   take:
-    ch_input
-    shortreads
-    in_reads
-    assembly
-    ch_aln_to_ref
-    meryl_kmers
-  
+  ch_input
+  shortreads
+  in_reads
+  assembly
+  ch_aln_to_ref
+  meryl_kmers
+
   main:
-    Channel.empty().set { quast_out }
-    Channel.empty().set { busco_out }
-    Channel.empty().set { merqury_report_files }
+  Channel.empty().set { quast_out }
+  Channel.empty().set { busco_out }
+  Channel.empty().set { merqury_report_files }
 
-    MAP_SR(shortreads, assembly)
+  MAP_SR(shortreads, assembly)
 
-    RUN_PILON(assembly, MAP_SR.out.aln_to_assembly_bam_bai)
+  RUN_PILON(assembly, MAP_SR.out.aln_to_assembly_bam_bai)
 
-    RUN_PILON
-       .out
-       .set { pilon_polished }
+  RUN_PILON.out.set { pilon_polished }
 
-    MAP_TO_ASSEMBLY(in_reads, pilon_polished)
+  MAP_TO_ASSEMBLY(in_reads, pilon_polished)
 
-    RUN_QUAST(pilon_polished, ch_input, ch_aln_to_ref, MAP_TO_ASSEMBLY.out.aln_to_assembly_bam)
-    RUN_QUAST
-          .out
-          .quast_tsv
-          .set { quast_out }
-    RUN_BUSCO(pilon_polished)
-    RUN_BUSCO
-        .out
-        .batch_summary
-        .set { busco_out }
+  RUN_QUAST(pilon_polished, ch_input, ch_aln_to_ref, MAP_TO_ASSEMBLY.out.aln_to_assembly_bam)
+  RUN_QUAST.out.quast_tsv.set { quast_out }
+  RUN_BUSCO(pilon_polished)
+  RUN_BUSCO.out.batch_summary.set { busco_out }
 
-    if(params.short_reads) {
-      MERQURY_QC(pilon_polished, meryl_kmers)
-      MERQURY_QC
-        .out
-        .stats
-        .join(
-          MERQURY_QC
-            .out
-            .spectra_asm_hist
-        )
-        .join(
-          MERQURY_QC
-            .out
-            .spectra_cn_hist
-        )          
-        .join(
-            MERQURY_QC
-              .out
-              .assembly_qv
-          )
-        .set { merqury_report_files }
-    }
+  if (params.short_reads) {
+    MERQURY_QC(pilon_polished, meryl_kmers)
+    MERQURY_QC.out.stats.join(
+      MERQURY_QC.out.spectra_asm_hist
+    ).join(
+      MERQURY_QC.out.spectra_cn_hist
+    ).join(
+      MERQURY_QC.out.assembly_qv
+    ).set { merqury_report_files }
+  }
 
-    if(params.lift_annotations) RUN_LIFTOFF(pilon_polished, ch_input)
-  
+  if (params.lift_annotations) {
+    RUN_LIFTOFF(pilon_polished, ch_input)
+  }
+
   emit:
-    pilon_polished
-    quast_out
-    busco_out
-    merqury_report_files
+  pilon_polished
+  quast_out
+  busco_out
+  merqury_report_files
 }

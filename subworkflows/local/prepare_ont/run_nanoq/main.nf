@@ -1,29 +1,21 @@
 include { NANOQ } from '../../../../modules/local/nanoq/main'
 
 workflow RUN_NANOQ {
-  take: in_reads
+  take:
+  in_reads
 
   main:
-  
+
   NANOQ(in_reads)
 
-  NANOQ
-    .out
-    .report
-    .set { report }
+  NANOQ.out.report.set { report }
 
-  NANOQ
-    .out
-    .stats
-    .set { stats }
+  NANOQ.out.stats.set { stats }
 
-  NANOQ
-    .out
-    .median_length
-    .set { median_length }
+  NANOQ.out.median_length.set { median_length }
 
   emit:
-    report
-    stats
-    median_length
- }
+  report
+  stats
+  median_length
+}

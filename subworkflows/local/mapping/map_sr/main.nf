@@ -3,36 +3,30 @@ include { BAM_INDEX_STATS_SAMTOOLS as BAM_STATS } from '../../../../modules/loca
 
 workflow MAP_SR {
   take:
-    in_reads
-    genome_assembly
+  in_reads
+  genome_assembly
 
   main:
-    // map reads to assembly
-    in_reads
-      .map { it -> [[id: it[0].id], it[0].paired, it[1] ]}
-      .join(genome_assembly)
-      .set { map_assembly }
-      
-    ALIGN_SHORT(map_assembly)
+  // map reads to assembly
+  in_reads
+    .map { it -> [[id: it[0].id], it[0].paired, it[1]] }
+    .join(genome_assembly)
+    .set { map_assembly }
 
-    ALIGN_SHORT
-      .out
-      .alignment
-      .set { aln_to_assembly_bam }
+  ALIGN_SHORT(map_assembly)
 
-    BAM_STATS(aln_to_assembly_bam)
+  ALIGN_SHORT.out.alignment.set { aln_to_assembly_bam }
 
-    BAM_STATS
-      .out
-      .bai
-      .set { aln_to_assembly_bai }
+  BAM_STATS(aln_to_assembly_bam)
 
-    aln_to_assembly_bam
-      .join(aln_to_assembly_bai)
-      .set { aln_to_assembly_bam_bai }
+  BAM_STATS.out.bai.set { aln_to_assembly_bai }
+
+  aln_to_assembly_bam
+    .join(aln_to_assembly_bai)
+    .set { aln_to_assembly_bam_bai }
 
   emit:
-    aln_to_assembly_bam
-    aln_to_assembly_bai
-    aln_to_assembly_bam_bai
+  aln_to_assembly_bam
+  aln_to_assembly_bai
+  aln_to_assembly_bam_bai
 }
