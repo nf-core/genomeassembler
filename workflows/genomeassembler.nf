@@ -61,7 +61,7 @@ workflow GENOMEASSEMBLER {
     Channel.empty().set { ch_versions }
 
     Channel
-        .fromPath("$projectDir/assets/report/.DUMMYFILE") // quast emits a single file
+        .of ( [] ) // quast emits a single file
         .tap { quast_files }
         .tap { nanoq_files }
         .tap { genomescope_files }
