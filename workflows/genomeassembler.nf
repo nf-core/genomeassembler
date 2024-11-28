@@ -97,12 +97,19 @@ workflow GENOMEASSEMBLER {
         ONT.out.genome_size.set { genome_size }
         ONT.out.ont_reads.set { ch_ont_reads }
 
-        ONT.out.nanoq_report.concat(
-            ONT.out.nanoq_stats
-        ).collect { it -> it[1] }.set { nanoq_files }
-        ONT.out.genomescope_summary.concat(
-            ONT.out.genomescope_plot
-        ).unique().collect { it -> it[1] }.set { genomescope_files }
+        ONT.out.nanoq_report
+            .concat(
+                ONT.out.nanoq_stats
+            )
+            .collect { it -> it[1] }
+            .set { nanoq_files }
+        ONT.out.genomescope_summary
+            .concat(
+                ONT.out.genomescope_plot
+            )
+            .unique()
+            .collect { it -> it[1] }
+            .set { genomescope_files }
     }
 
 
