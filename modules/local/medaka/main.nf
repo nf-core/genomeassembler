@@ -6,8 +6,8 @@ process MEDAKA {
 
     conda "${moduleDir}/environment.yml"
     container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
-        ? 'https://depot.galaxyproject.org/singularity/medaka:2.0.1--py311hfd2b166_0'
-        : 'biocontainers/medaka:2.0.1--py311hfd2b166_0'}"
+        ? 'https://depot.galaxyproject.org/singularity/biocontainers/medaka:1.11.3--py310h87e71ce_0'
+        : 'biocontainers/medaka:1.11.3--py310h87e71ce_0'}"
 
     input:
     tuple val(meta), path(reads), path(assembly)

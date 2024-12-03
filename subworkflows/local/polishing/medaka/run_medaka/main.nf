@@ -1,4 +1,4 @@
-include { MEDAKA } from '../../../../../modules/local/medaka/main'
+include { MEDAKA_PARALLEL as MEDAKA } from '../../../../../modules/local/medaka/medaka_consensus/main'
 
 workflow RUN_MEDAKA {
   take:
