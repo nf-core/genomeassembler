@@ -18,10 +18,10 @@ process ALIGN {
         ? 'map-ont'
         : (!params.ont && params.hifi) | (params.ont && params.hifi && params.qc_reads == "HIFI") ? 'map-hifi' : 'map-ont'
     """
-        minimap2 -t ${task.cpus} \\
-            -ax ${map_mode}
-            -ax map-ont ${reference} ${reads}  > ${prefix}.sam
-        """
+    minimap2 -t ${task.cpus} \\
+        -ax ${map_mode} \\
+        ${reference} ${reads}  > ${prefix}.sam
+    """
 }
 
 process ALIGN_TO_BAM {
@@ -44,10 +44,10 @@ process ALIGN_TO_BAM {
         ? 'map-ont'
         : (!params.ont && params.hifi) | (params.ont && params.hifi && params.qc_reads == "HIFI") ? 'map-hifi' : 'map-ont'
     """
-        minimap2 -t ${task.cpus} \\
-            -ax ${map_mode} ${reference} ${reads} \\
-            | samtools sort -o ${prefix}_${reference}.bam
-        """
+    minimap2 -t ${task.cpus} \\
+        -ax ${map_mode} ${reference} ${reads} \\
+    | samtools sort -o ${prefix}_${reference}.bam
+    """
 }
 
 process ALIGN_SHORT_TO_BAM {
@@ -68,8 +68,8 @@ process ALIGN_SHORT_TO_BAM {
     def prefix = task.ext.prefix ?: "${meta.id}"
     def reads = paired ? "${in_reads[0]} ${in_reads[1]}" : "${in_reads[0]}"
     """
-        minimap2 -t ${task.cpus} \\
-        -ax sr ${reference}  ${reads} \\
-        | samtools sort -o ${prefix}_${reference}_shortreads.bam
-        """
+    minimap2 -t ${task.cpus} \\
+        -ax sr ${reference} ${reads} \\
+    | samtools sort -o ${prefix}_${reference}_shortreads.bam
+    """
 }
