@@ -40,16 +40,18 @@ process MEDAKA_PARALLEL {
 
     # In medaka >= 2.0 this step is medaka inference, in earlier versions it is consensus
     mkdir inference
-    grep '>' \$assembly \\
-    | sed 's/>//g' \\
-    | xargs \\
-      -P${task.cpus} \\
-      -n${task.cpus} \\
-      -I{} \\
-        medaka inference ${prefix}_calls_to_draft.bam \\
-          inference/{}.hdf \\
-          --region {} \\
-          ${args2}
+    # Start with the largest contigs, they probably take longest
+    sort -nrk2 \${assembly}.fai \\
+     | cut -f1 \\ 
+     | xargs \\
+       -P \$((${task.cpus}-4)) \\
+       -n1 \\
+       -I{} \\
+         medaka inference ${prefix}_calls_to_draft.bam \\
+           inference/{}.hdf \\
+           --region {} \\
+           ${args2}
+
     # In medaka >= 2.0 this step is medaka sequence, in earlier versions it is stitch
     medaka sequence \\
           ${args3} \\
