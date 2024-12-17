@@ -7,9 +7,7 @@ workflow ONT {
 
     main:
     Channel.empty().set { genome_size }
-    Channel
-        .fromPath("${projectDir}/assets/report/.DUMMYFILE")
-        .map { it -> [null, it] }
+    Channel.of([[],[]])
         .tap { genomescope_summary }
         .tap { genomescope_plot }
 
