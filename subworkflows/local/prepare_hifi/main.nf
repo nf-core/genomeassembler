@@ -10,7 +10,7 @@ workflow PREPARE_HIFI {
     .map { it -> [it.meta, it.hifireads] }
     .set { hifireads }
   if (params.lima) {
-    if (params.pacbio_primers == null) {
+    if (!params.pacbio_primers) {
       error('Trimming with lima requires a file containing primers (--pacbio_primers)')
     }
     LIMA(hifireads, params.pacbio_primers)
