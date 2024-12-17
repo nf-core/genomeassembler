@@ -1,5 +1,5 @@
 include { ALIGN_SHORT_TO_BAM as ALIGN_SHORT } from '../../../../modules/local/align/main'
-include { BAM_INDEX_STATS_SAMTOOLS as BAM_STATS } from '../../../../modules/local/bam_sort_stat/main'
+include { BAM_INDEX_STATS_SAMTOOLS as BAM_STATS } from '../../bam_sort_stat/main'
 
 workflow MAP_SR {
   take:
