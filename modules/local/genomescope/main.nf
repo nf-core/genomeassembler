@@ -3,8 +3,8 @@ process GENOMESCOPE {
     label 'process_medium'
     conda "${moduleDir}/environment.yml"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/r-base:4.4.1':
-        'biocontainers/r-base:4.4.1' }"
+        'https://depot.galaxyproject.org/singularity/genomescope2:2.0--py311r42hdfd78af_6':
+        'biocontainers/genomescope2:2.0--py311r42hdfd78af_6' }"
 
     input:
         tuple val(meta), path(histo), val(kmer_length), val(read_length)
