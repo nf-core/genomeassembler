@@ -11,8 +11,8 @@ workflow RUN_PILON {
     .set { pilon_in }
 
   PILON(
-    pilon_in.map { it -> [it[0], it[1]] },
-    pilon_in.map { it -> [it[0], it[2], it[3]] },
+    pilon_in.map { meta, assembly, bam, bai -> [meta, assembly] }, // meta, assembly
+    pilon_in.map { meta, assembly, bam, bai -> [meta, bam, bai] }, // meta, bam, bai
     "bam"
   )
 
