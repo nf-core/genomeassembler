@@ -9,6 +9,8 @@
 This pipeline is designed to assemble haploid (or diploid inbred) genomes from long-reads. `nf-core/genomeassembler` can take ONT and HiFi reads, and supports different assembly strategies. The pipeline can also integrate information on a reference genome (e.g. closely related individual) and short-reads for quality control.
 This pipeline can perform assembly, polishing, scaffolding and annotation lift-over from a reference genome. Phasing or HiC scaffolding are currently unsupported.
 
+![Pipeline metromap](images/genomeassembler.light.png)
+
 ## Samplesheet input
 
 You will need to create a samplesheet with information about the samples you would like to analyse before running the pipeline. Use the `input` parameter to specify its location:
