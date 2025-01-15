@@ -41,7 +41,7 @@ workflow GENOMEASSEMBLER {
     ch_refs
 
     main:
-
+    // Initialize empty channels
     Channel.empty().set { ch_ref_bam }
     Channel.empty().set { ch_assembly }
     Channel.empty().set { ch_assembly_bam }
@@ -56,7 +56,7 @@ workflow GENOMEASSEMBLER {
     Channel.empty().set { ch_hifiasm_inputs }
     Channel.empty().set { genome_size }
     Channel.empty().set { ch_versions }
-
+    // Initialize channels for QC report collection
     Channel
         .of([])
         .tap { quast_files }
@@ -204,7 +204,6 @@ workflow GENOMEASSEMBLER {
     busco_files.view { f -> "BUSCO Files: $f"}
     merqury_files.view { f -> "merqury Files: $f"}
     */
-    // TODO: Update report to include merqury qv!
     REPORT(report_files, report_functions, nanoq_files, genomescope_files, quast_files, busco_files, merqury_files)
 
     //
