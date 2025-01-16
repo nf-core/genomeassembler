@@ -6,8 +6,8 @@ name: nf-core AWS full size tests
 on:
   pull_request:
     branches:
-      - master
       - main
+      - master
   workflow_dispatch:
   pull_request_review:
     types: [submitted]
