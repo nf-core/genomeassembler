@@ -14,11 +14,12 @@ params.bam_stats_options = [:]
 workflow BAM_INDEX_STATS_SAMTOOLS {
     take:
     bam // channel: [ val(meta), [ bam ] ]
+    fasta
 
     main:
 
     SAMTOOLS_INDEX(bam)
-    BAM_STATS_SAMTOOLS(bam.join(SAMTOOLS_INDEX.out.bai, by: [0]), [])
+    BAM_STATS_SAMTOOLS(bam.join(SAMTOOLS_INDEX.out.bai, by: [0]), fasta)
 
     emit:
     bai = SAMTOOLS_INDEX.out.bai // channel: [ val(meta), [ bai ] ]

@@ -6,6 +6,11 @@ workflow MERQURY_QC {
     meryl_out
 
     main:
+    Channel.empty().set { stats }
+    Channel.empty().set { spectra_asm_hist }
+    Channel.empty().set { spectra_cn_hist }
+    Channel.empty().set { assembly_qv }
+    if (params.merqury) {
     meryl_out
         .map { it -> [[id: it[0].id], it[1]] }
         .join(assembly)
@@ -15,6 +20,7 @@ workflow MERQURY_QC {
     MERQURY.out.spectra_asm_hist.set { spectra_asm_hist }
     MERQURY.out.spectra_cn_hist.set { spectra_cn_hist }
     MERQURY.out.assembly_qv.set { assembly_qv }
+    }
 
     emit:
     stats

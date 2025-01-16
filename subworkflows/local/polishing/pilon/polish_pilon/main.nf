@@ -19,7 +19,7 @@ workflow POLISH_PILON {
   Channel.empty().set { quast_out }
   Channel.empty().set { busco_out }
   Channel.empty().set { merqury_report_files }
-
+  
   MAP_SR(shortreads, assembly)
 
   RUN_PILON(assembly, MAP_SR.out.aln_to_assembly_bam_bai)

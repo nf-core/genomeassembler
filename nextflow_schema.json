@@ -372,6 +372,11 @@
             "description": "Options for QC tools",
             "default": "",
             "properties": {
+                "merqury": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Run merqury"
+                },
                 "qc_reads": {
                     "type": "string",
                     "description": "Long reads that should be used for QC when both ONT and HiFi reads are provided. Options are `'ONT'` or `'HIFI'`",

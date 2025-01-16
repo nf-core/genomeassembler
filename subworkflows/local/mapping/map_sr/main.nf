@@ -17,7 +17,9 @@ workflow MAP_SR {
 
   ALIGN_SHORT.out.alignment.set { aln_to_assembly_bam }
 
-  BAM_STATS(aln_to_assembly_bam)
+  ch_fasta = map_assembly.map { meta, paired, reads, fasta -> [ meta, fasta ] }
+
+  BAM_STATS(aln_to_assembly_bam, ch_fasta)
 
   BAM_STATS.out.bai.set { aln_to_assembly_bai }
 

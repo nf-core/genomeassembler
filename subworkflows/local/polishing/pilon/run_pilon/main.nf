@@ -9,10 +9,9 @@ workflow RUN_PILON {
   assembly_in
     .join(aln_to_assembly_bam_bai)
     .set { pilon_in }
-
   PILON(
-    pilon_in.map { meta, assembly, bam, bai -> [meta, assembly] }, // meta, assembly
-    pilon_in.map { meta, assembly, bam, bai -> [meta, bam, bai] }, // meta, bam, bai
+    pilon_in.map { meta, assembly, _bam, _bai -> [meta, assembly] }, // meta, assembly
+    pilon_in.map { meta, _assembly, bam, bai -> [meta, bam, bai] }, // meta, bam, bai
     "bam"
   )
 
