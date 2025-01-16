@@ -1,7 +1,7 @@
-sample_id,data_type,read1,read2
-sample_A,HiFi,https://raw.githubusercontent.com/nf-core/test-datasets/modules/data/genomics/sarscov2/illumina/bam/test.single_end.bam,
-sample_A,HiC,https://raw.githubusercontent.com/nf-core/test-datasets/modules/data/genomics/sarscov2/illumina/fastq/test_1.fastq.gz,https://raw.githubusercontent.com/nf-core/test-datasets/modules/data/genomics/sarscov2/illumina/fastq/test_2.fastq.gz
-sample_A,Isoseq,https://raw.githubusercontent.com/nf-core/test-datasets/modules/data/genomics/sarscov2/illumina/bam/test.single_end.bam,
-sample_B,ONT,https://raw.githubusercontent.com/nf-core/test-datasets/modules/data/genomics/sarscov2/nanopore/fastq/test.fastq.gz,
-sample_B,Illumina,https://raw.githubusercontent.com/nf-core/test-datasets/modules/data/genomics/sarscov2/illumina/fastq/test_1.fastq.gz,https://raw.githubusercontent.com/nf-core/test-datasets/modules/data/genomics/sarscov2/illumina/fastq/test_2.fastq.gz
-sample_B,RNAseq,https://raw.githubusercontent.com/nf-core/test-datasets/modules/data/genomics/sarscov2/illumina/fastq/test_1.fastq.gz,https://raw.githubusercontent.com/nf-core/test-datasets/modules/data/genomics/sarscov2/illumina/fastq/test_2.fastq.gz
+sample,ontreads,hifireads,ref_fasta,ref_gff,shortread_F,shortread_R,paired
+REF_SHORTREADS_PAIRED,ONT.fastq.gz,PacBio.fastq.gz,Ref.fasta,Ref.gff3,SR_1.fastq.gz,SR_2.fastq.gz,true
+REF_SHORTREADS_SE,ONT.fastq.gz,PacBio.fastq.gz,Ref.fasta,Ref.gff3,SR_1.fastq.gz,,false
+REF_NO_SHORTREADS,ONT.fastq.gz,PacBio.fastq.gz,Ref.fasta,Ref.gff3,,,false
+NO_REF_SHORTREADS_PAIRED,ONT.fastq.gz,PacBio.fastq.gz,,,SR_1.fastq.gz,SR_2.fastq.gz,true
+NO_REF_SHORTREADS_SE,ONT.fastq.gz,PacBio.fastq.gz,,,SR_1.fastq.gz,,false
+NO_REF_NO_SHORTREADS,ONT.fastq.gz,PacBio.fastq.gz,,,,,false

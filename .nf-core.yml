@@ -1,1 +1,7 @@
 repository_type: pipeline
+nf_core_version: 3.1.1
+lint:
+  files_exist:
+    - conf/igenomes.config
+    - conf/igenomes_ignored.config
+    - ro-crate-metadata.json

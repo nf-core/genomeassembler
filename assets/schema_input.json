@@ -1,5 +1,5 @@
 {
-    "$schema": "http://json-schema.org/draft-07/schema",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$id": "https://raw.githubusercontent.com/nf-core/genomeassembler/master/assets/schema_input.json",
     "title": "nf-core/genomeassembler pipeline - params.input schema",
     "description": "Schema for the file provided with params.input",
@@ -10,15 +10,40 @@
             "sample": {
                 "type": "string",
                 "pattern": "^\\S+$",
-                "errorMessage": "Sample name must be provided and cannot contain spaces"
+                "errorMessage": "Sample name must be provided and cannot contain spaces",
+                "meta": ["id"]
             },
-            "fastq_1": {
+            "ontreads": {
                 "type": "string",
+                "format": "file-path",
                 "pattern": "^\\S+\\.f(ast)?q\\.gz$",
-                "errorMessage": "FastQ file for reads 1 must be provided, cannot contain spaces and must have extension '.fq.gz' or '.fastq.gz'"
+                "errorMessage": "ONT reads must be provided, cannot contain spaces and must have extension '.fq.gz' or '.fastq.gz'"
             },
-            "fastq_2": {
-                "errorMessage": "FastQ file for reads 2 cannot contain spaces and must have extension '.fq.gz' or '.fastq.gz'",
+            "hifireads": {
+                "type": "string",
+                "format": "file-path",
+                "pattern": "^\\S+\\.f(ast)?q\\.gz$",
+                "errorMessage": "HiFi reads must be provided, cannot contain spaces and must have extension '.fq.gz' or '.fastq.gz'"
+            },
+            "ref_fasta": {
+                "type": "string",
+                "format": "file-path",
+                "pattern": "^\\S+\\.f(ast)?a",
+                "errorMessage": "Reference fasta cannot contain spaces and must have extension '.fa' or '.fasta'"
+            },
+            "ref_gff": {
+                "type": "string",
+                "format": "file-path",
+                "pattern": "^\\S+\\.gff(3)",
+                "errorMessage": "Reference gff cannot contain spaces and must have extension '.gff' or '.gff3'"
+            },
+            "shortread_F": {
+                "type": "string",
+                "format": "file-path",
+                "pattern": "^\\S+\\.f(ast)?q\\.gz$",
+                "errorMessage": "shortread_F cannot contain spaces and must have extension '.fq.gz' or '.fastq.gz'"
+            },
+            "shortread_R": {
                 "anyOf": [
                     {
                         "type": "string",
@@ -28,9 +53,14 @@
                         "type": "string",
                         "maxLength": 0
                     }
-                ]
+                ],
+                "errorMessage": "shortread_R cannot contain spaces and must have extension '.fq.gz' or '.fastq.gz'"
+            },
+            "paired": {
+                "type": "boolean",
+                "errorMessage": "paired must be true or false."
             }
         },
-        "required": ["sample", "fastq_1"]
+        "required": ["sample"]
     }
 }

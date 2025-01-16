@@ -2,10 +2,10 @@ process SAMTOOLS_FASTQ {
     tag "$meta.id"
     label 'process_low'
 
-    conda "bioconda::samtools=1.16.1"
+    conda "${moduleDir}/environment.yml"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/samtools:1.16.1--h6899075_1' :
-        'quay.io/biocontainers/samtools:1.16.1--h6899075_1' }"
+        'https://depot.galaxyproject.org/singularity/samtools:1.21--h50ea8bc_0' :
+        'biocontainers/samtools:1.21--h50ea8bc_0' }"
 
     input:
     tuple val(meta), path(input)
@@ -13,7 +13,7 @@ process SAMTOOLS_FASTQ {
 
     output:
     tuple val(meta), path("*_{1,2}.fastq.gz")      , optional:true, emit: fastq
-    tuple val(meta), path("*_interleaved.fastq.gz"), optional:true, emit: interleaved
+    tuple val(meta), path("*_interleaved.fastq")   , optional:true, emit: interleaved
     tuple val(meta), path("*_singleton.fastq.gz")  , optional:true, emit: singleton
     tuple val(meta), path("*_other.fastq.gz")      , optional:true, emit: other
     path  "versions.yml"                           , emit: versions
@@ -24,9 +24,8 @@ process SAMTOOLS_FASTQ {
     script:
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
-    // Change -1 to -o and remove -s since test data doesn't work otherwise. May need further patching.
-    def output = ( interleave && ! meta.single_end ) ? "> ${prefix}_interleaved.fastq.gz" :
-        meta.single_end ? "-o ${prefix}_1.fastq.gz" :
+    def output = ( interleave && ! meta.single_end ) ? "> ${prefix}_interleaved.fastq" :
+        meta.single_end ? "-1 ${prefix}_1.fastq.gz -s ${prefix}_singleton.fastq.gz" :
         "-1 ${prefix}_1.fastq.gz -2 ${prefix}_2.fastq.gz -s ${prefix}_singleton.fastq.gz"
     """
     samtools \\

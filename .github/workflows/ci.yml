@@ -24,20 +24,23 @@ jobs:
     strategy:
       matrix:
         NXF_VER:
-          - "22.10.1"
+          - "24.04.2"
           - "latest-everything"
+        ASSEMBLER:
+          - "hifi_flye"
+          - "hifi_hifiasm"
+          - "ont_flye"
+          - "hifiont_hifiasm"
+          - "hifiont_flyehifiasm"
     steps:
       - name: Check out pipeline code
         uses: actions/checkout@v3
 
       - name: Install Nextflow
-        uses: nf-core/setup-nextflow@v1
+        uses: nf-core/setup-nextflow@v2
         with:
           version: "${{ matrix.NXF_VER }}"
 
-      - name: Run pipeline with test data
-        # TODO nf-core: You can customise CI pipeline run tests as required
-        # For example: adding multiple test runs with different parameters
-        # Remember that you can parallelise this by using strategy.matrix
+      - name: "Run pipeline with test data ${{ matrix.ASSEMBLER }}"
         run: |
-          nextflow run ${GITHUB_WORKSPACE} -profile test,docker --outdir ./results
+          nextflow run ${GITHUB_WORKSPACE} -profile test,docker,${{ matrix.ASSEMBLER }}  --outdir ./results_${{ matrix.ASSEMBLER }}
