@@ -34,7 +34,7 @@
             "ref_gff": {
                 "type": "string",
                 "format": "file-path",
-                "pattern": "^\\S+\\.gff(3)",
+                "pattern": "^\\S+\\.gff(3)?",
                 "errorMessage": "Reference gff cannot contain spaces and must have extension '.gff' or '.gff3'"
             },
             "shortread_F": {
