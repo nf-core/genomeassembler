@@ -416,6 +416,34 @@
                     "default": true
                 }
             }
+        },
+        "assembler_presets": {
+            "title": "Assembler presets",
+            "type": "object",
+            "description": "These are profiles that contain presets for common assembly strategies.",
+            "default": "",
+            "properties": {
+                "ont_flye": {
+                    "type": "string",
+                    "description": "Assemble ONT reads using flye"
+                },
+                "hifi_flye": {
+                    "type": "string",
+                    "description": "Assembly HiFi reads using flye"
+                },
+                "hifi_hifiasm": {
+                    "type": "string",
+                    "description": "Assemble HiFi reads using hifiasm"
+                },
+                "hifiont_hifiasm": {
+                    "type": "string",
+                    "description": "Assemble ONT + HiFi reads using hifiasm --ul"
+                },
+                "hifiont_flyehifiasm": {
+                    "type": "string",
+                    "description": "Scaffolding of ONT assemblies onto HiFi assemblies"
+                }
+            }
         }
     },
     "allOf": [
@@ -454,6 +482,9 @@
         },
         {
             "$ref": "#/$defs/annotations_options"
+        },
+        {
+            "$ref": "#/$defs/assembler_presets"
         }
     ]
 }
