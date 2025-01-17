@@ -94,7 +94,7 @@ This folder contains the initial assemblies of the provided reads.
 Depending on the assembly strategy chosen, different assemblers are used.
 [flye](https://github.com/mikolmogorov/Flye) performs assembly of ONT reads
 [hifiasm](https://github.com/chhylp123/hifiasm) performs assembly of HiFi reads, or combinations of HiFi reads and ONT reads in `--ul` mode.
-[ragtag](https://github.com/malonge/RagTag) performs scaffolding and can be used to scaffold assemblies of HiFi reads onto assemblies of ONT reads
+[ragtag](https://github.com/malonge/RagTag) performs scaffolding and can be used to scaffold assemblies of ONT onto assemblies of HiFi reads
 
 <details markdown="1">
 <summary>Output files</summary>
