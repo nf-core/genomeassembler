@@ -11,6 +11,18 @@ This pipeline can perform assembly, polishing, scaffolding and annotation lift-o
 
 ![Pipeline metromap](images/genomeassembler.light.png)
 
+### Pre-set profiles
+
+To ease configuration, there are a couple of pre-defined profiles for various combinations of read sources and assemblers (named readtype_assembler)
+
+| ONT | HiFI  | Assembly-strategy                                  | Profile name          |
+| --- | ----- | -------------------------------------------------- | --------------------- |
+| Yes | No    | flye                                               | `ont_flye`            |
+| No  | Yes   | flye                                               | `hifi_flye`           |
+| No  | Yes   | hifiasm                                            | `hifi_hifiasm`        |
+| Yes | Yes   | hifiasm --ul                                       | `hifiont_hifiasm`     |
+| Yes | Yes   | Scaffolding of ONT assemblies onto HiFi assemblies | `hifiont_flyehifiasm` |
+
 ## Samplesheet input
 
 You will need to create a samplesheet with information about the samples you would like to analyse before running the pipeline. Use the `input` parameter to specify its location:
