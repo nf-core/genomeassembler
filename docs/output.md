@@ -10,42 +10,29 @@ The directories listed below will be created in the results directory after the 
 
 The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes data using the following steps:
 
-- Read preparation
-  - **ONT Reads**:
-    - `collect` into single fastq file
-    - `porechop` to remove adaptors
-    - `nanoq` for statistics
-    - `jellyfish` / `genomescope` genome size estimate based on k-mer spectrum
-  - **HiFi reads**:
-    - `lima`
-  - **Short reads**:
-    - `trimgalore`
-- **Assembly**, choice between assemblers
-  - `flye` for ONT or HiFi reads
-  - `hifiasm` for HiFi reads or ONT+HiFi reads
-- **Polishing**
-  - `medaka` for ONT reads
-  - `pilon` for short reads
-- **Scaffolding**
-  - `LINKS` for scaffolding based on long-reads
-  - `longstitch` scaffolding based on long-reads
-  - `RagTag` scaffolding on reference
-- **Annotation liftover**
-  - `liftoff`
-- **Quality control**
-  - `QUAST`, assembly statistics, can incorporate reference
-  - `BUSCO`, assembly completeness based on expected single copy ortholgos
-  - `merqury`, various assembly measures, compares k-mer between short reads and assembly
-- **Reporting**
-  - html dashboard
+- [**Read preparation**](#read-preparation)
+  - [**ONT Reads**](#ont-reads):
+  - [**HiFi reads**](#hifi-reads):
+  - [**Short reads**](#short-reads):
+- [**Assembly**](#assembly), choice between assemblers
+- [**Polishing**](#polishing)
+- [**Scaffolding**](#scaffolding)
+- [**Annotation liftover**](#annotations)
+- [**Quality control**](#quality-control)
+- [**Reporting**](#report)
 
 ## Output structure
 
 Annotation and quality control are done at several stages of the pipeline, the output is organized by subworkflow, corresponding to the bolded steps above.
 
-/!\ This is still work in progress
+### Read preparation
 
-### ONT reads
+#### ONT reads
+
+If the basecalls are scattered across multiple files, `collect` can be used to collect those into a single file.
+[porechop](https://github.com/rrwick/Porechop) is a tool that identifies and trims adapter sequences from ONT reads.
+[nanoq](https://github.com/esteinig/nanoq) generates descriptive statistics of the nanopore reads.
+[genomescope](https://github.com/tbenavi1/genomescope2.0) estimates genome size and ploidy from the k-mer spectrum computed by [jellyfish](https://github.com/gmarcais/Jellyfish).
 
 <details markdown="1">
 <summary>Output files</summary>
@@ -69,17 +56,22 @@ Annotation and quality control are done at several stages of the pipeline, the o
 
 </details>
 
-### HiFi reads
+#### HiFi reads
+
+[lima](https://lima.how/) performs trimming of adapters from pacbio HiFi reads.
 
 <details markdown="1">
 <summary>Output files</summary>
 
 - `hifi_reads/`
-  - `lima/`: hifi reads after adaptor removal with lima
+  - `lima/`: hifi reads after adapter removal with lima
 
 </details>
 
-### Short reads
+#### Short reads
+
+[TrimGalore!](https://github.com/FelixKrueger/TrimGalore) can remove adapters from illumina short-reads.
+[meryl](https://github.com/marbl/meryl) calculates the k-mer spectrum of short reads.
 
 <details markdown="1">
 <summary>Output files</summary>
@@ -99,6 +91,10 @@ Annotation and quality control are done at several stages of the pipeline, the o
 ### Assembly
 
 This folder contains the initial assemblies of the provided reads.
+Depending on the assembly strategy chosen, different assemblers are used.
+[flye](https://github.com/mikolmogorov/Flye) performs assembly of ONT reads
+[hifiasm](https://github.com/chhylp123/hifiasm) performs assembly of HiFi reads, or combinations of HiFi reads and ONT reads in `--ul` mode.
+[ragtag](https://github.com/malonge/RagTag) performs scaffolding and can be used to scaffold assemblies of HiFi reads onto assemblies of ONT reads
 
 <details markdown="1">
 <summary>Output files</summary>
@@ -130,7 +126,9 @@ This folder contains the initial assemblies of the provided reads.
 
 ### Polishing
 
-Polishing can be used to correct errors in the assembly.
+Polishing can be used to correct errors in the assembly. This pipeline supports two polishing tools.
+[medaka](https://github.com/nanoporetech/medaka/) polishes assemblies using the ONT reads that were used for assembly.
+[pilon](https://github.com/broadinstitute/pilon) polishes any type of assembly using short-reads.
 
 <details markdown="1">
 <summary>Output files</summary>
@@ -143,7 +141,9 @@ Polishing can be used to correct errors in the assembly.
 
 ### Scaffolding
 
-The initial assembly can be scaffolded using different tools.
+The (polished) assembly can be scaffolded using different tools.
+[links](https://github.com/bcgsc/LINKS) performs scaffolding of the assembly using long-reads
+[longstitch](https://github.com/bcgsc/longstitch) performs correction via [Tigmint](https://github.com/bcgsc/tigmint) and scaffolding using long reads via [ntLink](https://github.com/bcgsc/ntLink) and [ARKS](https://github.com/bcgsc/arcs)
 
 <details markdown="1">
 <summary>Output files</summary>
@@ -170,7 +170,8 @@ The initial assembly can be scaffolded using different tools.
 
 ### Annotations
 
-If a reference is provided, and annotation liftover is desired, liftoff will lift-over annotations at each stage of the assembly.
+If a reference is provided, and annotation liftover is desired, the pipeline will lift-over annotations at each stage of the assembly.
+[liftoff](https://github.com/agshumate/Liftoff) performs lift-over of annotations from a closely related species / individual.
 
 <details markdown="1">
 <summary>Output files</summary>
@@ -185,21 +186,10 @@ If a reference is provided, and annotation liftover is desired, liftoff will lif
 
 All quality control files end up in `QC`. Below is the tree assuming that all steps of the pipeline were run
 
-<details markdown="1">
-<summary>Output folders</summary>
-
-- `QC/`
-  - `assemble/`: qc after the initial assembly
-  - `polish/`:
-    - `pilon/`: qc after polishing with pilon
-    - `medaka/`: qc after polishing with medaka
-  - `scaffold`: qc of scaffolding
-    - `links`: qc after scaffolding with links
-    - `longstitch`: qc after scaffolding with longstitch
-    - `ragtag`: qc after scaffolding with ragtag
-    </details>
-
-For each step, `BUSCO`,`QUAST`, and `merqury` can be used for QC.
+For each step three quality control tools can be run.
+[`QUAST`](https://github.com/ablab/quast) provides assembly statistics (e.g. size, N50, etc. )
+[`BUSCO`](https://busco.ezlab.org/) assess genome quality based on the presence of lineage-specific single-copy orthologs
+[`merqury`](https://github.com/marbl/merqury) compares the genome k-mer spectrum to the short-read k-mer spectrum to assess base-accuracy of the assembly.
 
 <details markdown="1">
 <summary>Folder contents</summary>
@@ -251,6 +241,20 @@ For each step, `BUSCO`,`QUAST`, and `merqury` can be used for QC.
     - `<SampleName>.unionsum.hist.ploidy` : ploidy estimates from short-reads
 
 </details>
+
+<details markdown="1">
+<summary>Output folders</summary>
+
+- `QC/`
+  - `assemble/`: qc after the initial assembly
+  - `polish/`:
+    - `pilon/`: qc after polishing with pilon
+    - `medaka/`: qc after polishing with medaka
+  - `scaffold`: qc of scaffolding
+    - `links`: qc after scaffolding with links
+    - `longstitch`: qc after scaffolding with longstitch
+    - `ragtag`: qc after scaffolding with ragtag
+    </details>
 
 ### Report
 
