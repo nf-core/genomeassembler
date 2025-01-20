@@ -20,6 +20,11 @@
                         "git_sha": "ce1a66562156776bb0dd1c1bb5640d368dadd4e6",
                         "installed_by": ["modules"]
                     },
+                    "hifiasm": {
+                        "branch": "master",
+                        "git_sha": "ea8610177512dff284c7d3dc0c8dcbcc12fb4cf0",
+                        "installed_by": ["modules"]
+                    },
                     "liftoff": {
                         "branch": "master",
                         "git_sha": "666652151335353eef2fcd58880bcef5bc2928e1",
