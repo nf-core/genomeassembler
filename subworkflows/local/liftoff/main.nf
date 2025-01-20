@@ -1,4 +1,4 @@
-include { LIFTOFF } from '../../../modules/local/liftoff/main'
+include { LIFTOFF } from '../../../modules/nf-core/liftoff/main'
 
 workflow RUN_LIFTOFF {
   take:

@@ -1,0 +1,97 @@
+Changes in component 'nf-core/liftoff'
+'modules/nf-core/liftoff/environment.yml' is unchanged
+'modules/nf-core/liftoff/meta.yml' is unchanged
+Changes in 'liftoff/main.nf':
+--- modules/nf-core/liftoff/main.nf
++++ modules/nf-core/liftoff/main.nf
+@@ -1,62 +1,44 @@
+ process LIFTOFF {
+-    tag "$meta.id"
++    tag "${meta.id}"
+     label 'process_high'
+ 
+     conda "${moduleDir}/environment.yml"
+-    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
+-        'https://depot.galaxyproject.org/singularity/liftoff:1.6.3--pyhdfd78af_0':
+-        'biocontainers/liftoff:1.6.3--pyhdfd78af_0' }"
++    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
++        ? 'https://depot.galaxyproject.org/singularity/liftoff:1.6.3--pyhdfd78af_0'
++        : 'biocontainers/liftoff:1.6.3--pyhdfd78af_0'}"
+ 
+     input:
+-    tuple val(meta), path(target_fa)
+-    path ref_fa, name: 'ref_assembly.fa'
+-    path ref_annotation
+-    path ref_db
++    tuple val(meta), path(assembly), path(reference_fasta), path(reference_gff)
+ 
+     output:
+-    tuple val(meta), path("${prefix}.gff3")     , emit: gff3
+-    tuple val(meta), path("*.polished.gff3")    , emit: polished_gff3, optional: true
+-    tuple val(meta), path("*.unmapped.txt")     , emit: unmapped_txt
+-    path "versions.yml"                         , emit: versions
+-
+-    when:
+-    task.ext.when == null || task.ext.when
++    tuple val(meta), path("*_liftoff.gff"), emit: lifted_annotations
+ 
+     script:
+-    def args    = task.ext.args     ?:  ''
+-    def arg_g   = ref_annotation    ?   "-g $ref_annotation"    : ''
+-    def arg_db  = ref_db            ?   "-db $ref_db"           : ''
+-    prefix      = task.ext.prefix   ?:  "${meta.id}"
+     """
+-    liftoff \\
+-        $arg_g \\
+-        $arg_db \\
+-        -p $task.cpus \\
+-        -o "${prefix}.gff3" \\
+-        -u "${prefix}.unmapped.txt" \\
+-        $args \\
+-        $target_fa \\
+-        ref_assembly.fa
++  if [[ ${assembly} == *.gz ]]; then
++    zcat ${assembly} > assembly.fasta
++  fi
+ 
+-    mv \\
+-        "${prefix}.gff3_polished" \\
+-        "${prefix}.polished.gff3" \\
+-        || echo "-polish is absent"
++  if [[ ${assembly} == *.fa || ${assembly} == *.fasta ]]; then
++    cp ${assembly} assembly.fasta
++  fi
+ 
+-    cat <<-END_VERSIONS > versions.yml
+-    "${task.process}":
+-        liftoff: \$(liftoff --version 2> /dev/null)
+-    END_VERSIONS
++  liftoff \\
++    -g ${reference_gff} \\
++    -p ${task.cpus} \\
++    assembly.fasta  \\
++    ${reference_fasta} \\
++    -o ${assembly.baseName}_liftoff.gff
+     """
+ 
+     stub:
+-    def args            = task.ext.args     ?: ''
+-    prefix              = task.ext.prefix   ?: "${meta.id}"
+-    def touch_polished  = args.contains('-polish') ? "touch ${prefix}.polished.gff3" : ''
++    def args = task.ext.args ?: ''
++    prefix = task.ext.prefix ?: "${meta.id}"
++    def touch_polished = args.contains('-polish') ? "touch ${prefix}.polished.gff" : ''
+     """
+-    touch "${prefix}.gff3"
++    touch "${prefix}.gff"
+     touch "${prefix}.unmapped.txt"
+-    $touch_polished
++    ${touch_polished}
+ 
+     cat <<-END_VERSIONS > versions.yml
+     "${task.process}":
+
+'modules/nf-core/liftoff/tests/nextflow.config' is unchanged
+'modules/nf-core/liftoff/tests/main.nf.test' is unchanged
+'modules/nf-core/liftoff/tests/main.nf.test.snap' is unchanged
+************************************************************
