@@ -15,7 +15,7 @@ workflow MAP_TO_REF {
   ALIGN(ch_map_ref_in)
 
   ALIGN.out.alignment.set { ch_aln_to_ref }
-  ch_fasta = ch_map_ref_in.map { meta, reads, fasta -> [ meta, fasta ] }
+  ch_fasta = ch_map_ref_in.map { meta, _reads, fasta -> [ meta, fasta ] }
   BAM_STATS(ch_aln_to_ref, ch_fasta)
 
   emit:

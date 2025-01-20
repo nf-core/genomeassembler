@@ -16,7 +16,7 @@ workflow MAP_TO_ASSEMBLY {
 
   ALIGN.out.alignment.set { aln_to_assembly_bam }
 
-  ch_fasta = map_assembly.map { meta, reads, fasta -> [meta, fasta] }
+  ch_fasta = map_assembly.map { meta, _reads, fasta -> [meta, fasta] }
 
   BAM_STATS(aln_to_assembly_bam, ch_fasta )
 
