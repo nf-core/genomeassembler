@@ -3,7 +3,9 @@
     <source media="(prefers-color-scheme: dark)" srcset="docs/images/nf-core-genomeassembler_logo_dark.png">
     <img alt="nf-core/genomeassembler" src="docs/images/nf-core-genomeassembler_logo_light.png">
   </picture>
-</h1>[![GitHub Actions CI Status](https://github.com/nf-core/genomeassembler/actions/workflows/ci.yml/badge.svg)](https://github.com/nf-core/genomeassembler/actions/workflows/ci.yml)
+</h1>
+
+[![GitHub Actions CI Status](https://github.com/nf-core/genomeassembler/actions/workflows/ci.yml/badge.svg)](https://github.com/nf-core/genomeassembler/actions/workflows/ci.yml)
 [![GitHub Actions Linting Status](https://github.com/nf-core/genomeassembler/actions/workflows/linting.yml/badge.svg)](https://github.com/nf-core/genomeassembler/actions/workflows/linting.yml)[![AWS CI](https://img.shields.io/badge/CI%20tests-full%20size-FF9900?labelColor=000000&logo=Amazon%20AWS)](https://nf-co.re/genomeassembler/results)[![Cite with Zenodo](http://img.shields.io/badge/DOI-10.5281/zenodo.XXXXXXX-1073c8?labelColor=000000)](https://doi.org/10.5281/zenodo.XXXXXXX)
 [![nf-test](https://img.shields.io/badge/unit_tests-nf--test-337ab7.svg)](https://www.nf-test.com)
 
@@ -32,7 +34,7 @@
 ## Usage
 
 > [!NOTE]
-> If you are new to Nextflow and nf-core, please refer to [this page](https://nf-co.re/docs/usage/installation) on how to set-up Nextflow.Make sure to [test your setup](https://nf-co.re/docs/usage/introduction#how-to-run-a-pipeline) with `-profile test` before running the workflow on actual data.
+> If you are new to Nextflow and nf-core, please refer to [this page](https://nf-co.re/docs/usage/installation) on how to set-up Nextflow. Make sure to [test your setup](https://nf-co.re/docs/usage/introduction#how-to-run-a-pipeline) with `-profile test` before running the workflow on actual data.
 
 <!-- TODO nf-core: Describe the minimum required steps to execute the pipeline, e.g. how to prepare samplesheets.
      Explain what rows and columns represent. For instance (please edit as appropriate):
@@ -74,7 +76,7 @@ For more details about the output files and reports, please refer to the
 
 ## Credits
 
-nf-core/genomeassembler was originally written by @mahesh-panchal;@d4straub.
+nf-core/genomeassembler was originally written by Niklas Schandry.
 
 We thank the following people for their extensive assistance in the development of this pipeline:
 
@@ -89,7 +91,9 @@ For further information or help, don't hesitate to get in touch on the [Slack `#
 ## Citations
 
 <!-- TODO nf-core: Add citation for pipeline after first release. Uncomment lines below and update Zenodo doi and badge at the top of this file. -->
-<!-- If you use nf-core/genomeassembler for your analysis, please cite it using the following doi: [10.5281/zenodo.XXXXXX](https://doi.org/10.5281/zenodo.XXXXXX) --><!-- TODO nf-core: Add bibliography of tools and data used in your pipeline -->
+<!-- If you use nf-core/genomeassembler for your analysis, please cite it using the following doi: [10.5281/zenodo.XXXXXX](https://doi.org/10.5281/zenodo.XXXXXX) -->
+
+<!-- TODO nf-core: Add bibliography of tools and data used in your pipeline -->
 
 An extensive list of references for the tools used by the pipeline can be found in the [`CITATIONS.md`](CITATIONS.md) file.
 

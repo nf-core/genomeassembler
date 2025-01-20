@@ -1,11 +1,16 @@
-nf_core_version: 3.1.1
+lint:
+  files_exist:
+    - conf/igenomes.config
+    - conf/igenomes_ignored.config
+    - ro-crate-metadata.json
+nf_core_version: 3.1.2
 repository_type: pipeline
 template:
-  author: "@mahesh-panchal;@d4straub"
-  description: Genome assembly and annotation pipeline for prokaryotes and eukaryotes
+  author: Niklas Schandry
+  description: Assemble genomes from long ONT or pacbio HiFi reads
   force: false
   is_nfcore: true
   name: genomeassembler
   org: nf-core
   outdir: .
-  version: 1.0dev
+  version: 1.0.0

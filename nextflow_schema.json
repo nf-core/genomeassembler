@@ -2,7 +2,7 @@
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$id": "https://raw.githubusercontent.com/nf-core/genomeassembler/master/nextflow_schema.json",
     "title": "nf-core/genomeassembler pipeline parameters",
-    "description": "Genome assembly and annotation pipeline for prokaryotes and eukaryotes",
+    "description": "Assemble genomes from long ONT or pacbio HiFi reads",
     "type": "object",
     "$defs": {
         "input_output_options": {
