@@ -43,29 +43,23 @@ workflow GENOMEASSEMBLER {
     main:
     // Initialize empty channels
     Channel.empty().set { ch_ref_bam }
-    Channel.empty().set { ch_assembly }
-    Channel.empty().set { ch_assembly_bam }
-    Channel.empty().set { ch_assembly_bam_bai }
-    Channel.empty().set { ch_medaka_in }
     Channel.empty().set { ch_polished_genome }
     Channel.empty().set { ch_ont_reads }
     Channel.empty().set { ch_hifi_reads }
     Channel.empty().set { ch_shortreads }
     Channel.empty().set { meryl_kmers }
-    Channel.empty().set { ch_flye_inputs }
-    Channel.empty().set { ch_hifiasm_inputs }
     Channel.empty().set { genome_size }
     Channel.empty().set { ch_versions }
     // Initialize channels for QC report collection
     Channel
         .of([])
-        .tap { quast_files }
-        .tap { nanoq_files }
-        .tap { genomescope_files }
+        .set { quast_files }
+        .set { nanoq_files }
+        .set { genomescope_files }
         .map { it -> ["dummy", it] }
-        .tap { busco_files }
+        .set { busco_files }
         .map { it -> [it[0], it[1], it[1], it[1], it[1]] }
-        .tap { merqury_files }
+        .set { merqury_files }
     /*
     =============
     Some checks
