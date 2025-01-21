@@ -83,7 +83,7 @@ workflow ASSEMBLE {
           .map { meta, ontreads -> [meta, ontreads, []] }
           .set { hifiasm_inputs }
         HIFIASM_ONT(hifiasm_inputs, [[], [], []], [[], [], []])
-        GFA_2_FA(HIFIASM.out.processed_contigs)
+        GFA_2_FA(HIFIASM_ONT.out.processed_contigs)
         GFA_2_FA.out.set { ch_assembly }
       }
       // HiFI reads only 
