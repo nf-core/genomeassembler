@@ -1,7 +1,4 @@
-library(magrittr)
 library(tidyjson)
-library(dplyr)
-library(readr)
 
 # Read a nanoq json report
 read_nanoq <- function(file) {

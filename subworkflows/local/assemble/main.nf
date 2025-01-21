@@ -1,5 +1,7 @@
 include { FLYE } from '../../../modules/nf-core/flye/main'
-include { HIFIASM ; HIFIASM_UL } from '../../../modules/local/hifiasm/main'
+include { HIFIASM } from '../../../modules/nf-core/hifiasm/main'
+include { HIFIASM as HIFIASM_ONT } from '../../../modules/nf-core/hifiasm/main'
+include { GFA_2_FA } from '../../../modules/local/gfa2fa/main'
 include { MAP_TO_ASSEMBLY } from '../mapping/map_to_assembly/main'
 include { MAP_TO_REF } from '../mapping/map_to_ref/main'
 include { RUN_QUAST } from '../qc/quast/main'
@@ -66,26 +68,41 @@ workflow ASSEMBLE {
       FLYE.out.fasta.set { ch_assembly }
     }
     if (params.assembler == "hifiasm") {
-      if (!params.hifi) {
-        error('hifiasm requires hifi reads')
-      }
-      if (params.hifiasm_ont) {
+      // HiFi and ONT reads in ultralong mode
+      if (params.hifi && params.ont) {
         hifi_reads
           .join(ont_reads)
           .set { hifiasm_inputs }
-        HIFIASM_UL(hifiasm_inputs, params.hifiasm_args)
-        HIFIASM_UL.out.primary_contigs_fasta.set { ch_assembly }
+        HIFIASM(hifiasm_inputs, [[], [], []], [[], [], []])
+        GFA_2_FA(HIFIASM.out.processed_contigs)
+        GFA_2_FA.out.set { ch_assembly }
       }
-      else {
-        hifi_reads.set { hifiasm_inputs }
-        HIFIASM(hifiasm_inputs, params.hifiasm_args)
-        HIFIASM.out.primary_contigs_fasta.set { ch_assembly }
+      // ONT reads only
+      if (!params.hifi && params.ont) {
+        ont_reads
+          .map { meta, ontreads -> [meta, ontreads, []] }
+          .set { hifiasm_inputs }
+        HIFIASM_ONT(hifiasm_inputs, [[], [], []], [[], [], []])
+        GFA_2_FA(HIFIASM.out.processed_contigs)
+        GFA_2_FA.out.set { ch_assembly }
+      }
+      // HiFI reads only 
+      if (params.hifi && !params.ont) {
+        hifi_reads
+          .map { meta, ontreads -> [meta, ontreads, []] }
+          .set { hifiasm_inputs }
+        HIFIASM(hifiasm_inputs, [[], [], []], [[], [], []])
+        GFA_2_FA(HIFIASM.out.processed_contigs)
+        GFA_2_FA.out.set { ch_assembly }
       }
     }
     if (params.assembler == "flye_on_hifiasm") {
       // Run hifiasm
-      hifi_reads.set { hifiasm_inputs }
-      HIFIASM(hifiasm_inputs, params.hifiasm_args)
+      hifi_reads
+        .map { meta, hifireads -> [meta, hifireads, [] ] }
+        .set { hifiasm_inputs }
+      HIFIASM(hifiasm_inputs, [[], [], []], [[], [], []])
+      GFA_2_FA(HIFIASM.out.processed_contigs)
 
       // Run flye
       ont_reads.set { flye_inputs }
@@ -94,9 +111,11 @@ workflow ASSEMBLE {
       }
       FLYE(flye_inputs, params.flye_mode)
 
-      FLYE.out.fasta.join(
-        HIFIASM.out.primary_contigs_fasta
-      ).set { ragtag_in }
+      FLYE.out.fasta
+        .join(
+          GFA_2_FA.out
+        )
+        .set { ragtag_in }
 
       RAGTAG_SCAFFOLD(ragtag_in)
       // takes: meta, assembly (flye), reference (hifi)
@@ -131,8 +150,7 @@ workflow ASSEMBLE {
     if (params.assembler == "hifiasm" || params.assembler == "flye_on_hifiasm") {
       hifiasm_inputs.set { longreads }
       // When using either hifiasm_ont or flye_on_hifiasm, both reads are available, which should be used for qc?
-      if (params.hifiasm_ont || params.assembler == "flye_on_hifiasm" || (params.hifi && params.ont)) {
-        // CHANGE: NEW PARAM: qc_reads
+      if (params.hifi && params.ont) {
         if (!params.qc_reads) {
           error("Please specify which reads should be used for qc: 'ONT' or 'HIFI'")
         }
@@ -174,13 +192,17 @@ workflow ASSEMBLE {
 
   if (params.short_reads) {
     MERQURY_QC(ch_assembly, meryl_kmers)
-    MERQURY_QC.out.stats.join(
-      MERQURY_QC.out.spectra_asm_hist
-    ).join(
-      MERQURY_QC.out.spectra_cn_hist
-    ).join(
-      MERQURY_QC.out.assembly_qv
-    ).set { assembly_merqury_reports }
+    MERQURY_QC.out.stats
+      .join(
+        MERQURY_QC.out.spectra_asm_hist
+      )
+      .join(
+        MERQURY_QC.out.spectra_cn_hist
+      )
+      .join(
+        MERQURY_QC.out.assembly_qv
+      )
+      .set { assembly_merqury_reports }
   }
 
   if (params.lift_annotations) {

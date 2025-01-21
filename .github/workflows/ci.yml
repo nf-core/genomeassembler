@@ -30,6 +30,7 @@ jobs:
           - "hifi_flye"
           - "hifi_hifiasm"
           - "ont_flye"
+          - "ont_hifiasm"
           - "hifiont_hifiasm"
           - "hifiont_flyehifiasm"
     steps:

@@ -1,4 +1,4 @@
-include { LIFTOFF } from '../../../modules/local/liftoff/main'
+include { LIFTOFF } from '../../../modules/nf-core/liftoff/main'
 
 workflow RUN_LIFTOFF {
   take:
@@ -12,9 +12,9 @@ workflow RUN_LIFTOFF {
     )
     .set { liftoff_in }
 
-  LIFTOFF(liftoff_in)
+  LIFTOFF(liftoff_in, [])
 
-  LIFTOFF.out.set { lifted_annotations }
+  LIFTOFF.out.gff3.set { lifted_annotations }
 
   emit:
   lifted_annotations

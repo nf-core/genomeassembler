@@ -6,10 +6,10 @@ workflow MERQURY_QC {
     meryl_out
 
     main:
-    Channel.empty().set { stats }
-    Channel.empty().set { spectra_asm_hist }
-    Channel.empty().set { spectra_cn_hist }
-    Channel.empty().set { assembly_qv }
+    assembly.map {meta, _assembly -> [meta.id, []]}.set { stats }
+    assembly.map {meta, _assembly -> [meta.id, []]}.set { spectra_asm_hist }
+    assembly.map {meta, _assembly -> [meta.id, []]}.set { spectra_cn_hist }
+    assembly.map {meta, _assembly -> [meta.id, []]}.set { assembly_qv }
     if (params.merqury) {
     meryl_out
         .map { it -> [[id: it[0].id], it[1]] }

@@ -1,4 +1,3 @@
-
 read_quast_report <- function(file) {
   assembly = read_tsv(
     file,

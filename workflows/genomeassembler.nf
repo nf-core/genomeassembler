@@ -194,7 +194,11 @@ workflow GENOMEASSEMBLER {
         .fromPath("${projectDir}/assets/report/functions/*")
         .collect()
         .set { report_functions }
-    // Report functions, mainly parsers
+        
+    if(!params.merqury) {
+        merqury_files = Channel.of([])
+    }
+
     /* Debug         
     report_files.view { f -> "Report Files: $f"}
     report_functions.view { f -> "Report Functions: $f"}

@@ -18,11 +18,16 @@ params:
 #| message: false
 #| output: false
 #| include: false
+
+# Load libraries
 library(tidyverse)
 library(magrittr)
 library(plotly)
+# Load functions
 list.files("functions", full.names = T, pattern = ".R") %>% 
   map(\(x) source(x))
+
+# Set default ggplot theme
 theme_set(theme_bw(base_size = 14,
                    base_family = "Arial"))
 theme_update(strip.background = element_blank(),
@@ -31,6 +36,7 @@ theme_update(strip.background = element_blank(),
 ### For <=9 stages:
 color_scale_plots <- scale_color_manual(values = c("#CC6677", "#332288", "#DDCC77", "#117733", "#88CCEE", "#882255", "#44AA99", "#999933", "#AA4499"), na.value = "#DDDDDD")
 fill_scale_plots <- scale_fill_manual(values = c("#CC6677", "#332288", "#DDCC77", "#117733", "#88CCEE", "#882255", "#44AA99", "#999933", "#AA4499"), na.value = "#DDDDDD")
+# Base directory containing reports
 data_base = "data/"
 ```
 
@@ -50,6 +56,8 @@ nanoq was not included in the pipeline run, no ONT reads were included.
 #| include: false
 #| message: false
 #| output: false
+
+# Parse nanoq reports into table
 nanoq_reports <- list.files(paste0(data_base, "nanoq"), 
                             pattern = "report.json",
                             full.names = T) %>% 
@@ -59,6 +67,10 @@ nanoq_reports <- list.files(paste0(data_base, "nanoq"),
 ```{r}
 #| eval: !expr params$nanoq
 #| include: false
+
+# For each sample, we create one plot chunk that will be saved into nanoq files
+# This is an rmd chunk in plain text.
+
 dir.create("nanoq_files")
 for (i in 1:length(unique(nanoq_reports$sample))) {
 paste0('```{r}\n
@@ -90,6 +102,11 @@ paste0('```{r}\n
 ```{r nanoq add subplots}
 #| eval: !expr params$nanoq
 #| results: asis
+
+# This loop creates one tab per sample.
+## Each tab contains 3 valueboxes
+## Below the valueboxes, the sample-specific plot code generated above is inserted
+
 for (i in 1:length(unique(nanoq_reports$sample))) {
   cat(paste0('## ', unique(nanoq_reports$sample)[i], '\n\n'),
       paste0('### { width = 30% }', '\n\n'),
@@ -126,6 +143,7 @@ for (i in 1:length(unique(nanoq_reports$sample))) {
 
 ```{r}
 #| eval: !expr params$nanoq
+# Clean up the intermediate files
 unlink("nanoq_files", recursive = T)
 ```
 
@@ -144,6 +162,7 @@ QUAST reports assembly statistics, taking into account the reference, if provide
 
 ```{r message = F}
 #| eval: !expr params$quast
+# This chunk parses the quast reports from data/quast
 quast_stats <- list.files(paste0(data_base, "quast"),
                           pattern = "report.tsv",
                           full.names = T) %>%
@@ -165,6 +184,7 @@ quast_stats <- list.files(paste0(data_base, "quast"),
 ```{r quast write length plots}
 #| eval: !expr params$quast
 #| include: false
+# This creates code that will generate the length plot based on the contents of the quast report.
 dir.create("quast_files")
 dir.create("quast_files/length")
 for (i in 1:length(unique(quast_stats$sample))) {
@@ -191,6 +211,8 @@ paste0('```{r}\n
 ```{r quast contig plots}
 #| eval: !expr params$quast
 #| include: false
+# This creates code that will generate the contig plots based on the contents of the quast report.
+
 dir.create("quast_files/contigs")
 for (i in 1:length(unique(quast_stats$sample))) {
 paste0('```{r}\n
@@ -251,6 +273,10 @@ ggplotly(p)
 ```{r quast add length subplots}
 #| eval: !expr params$quast
 #| results: asis
+# This generates the tab-page for each sample
+# Per sample there are 3 value boxes
+# Below the value boxes there are two plots, one showing the length and one showing the contig statistics
+
 for (i in 1:length(unique(quast_stats$sample))) {
   cat(paste0('## ', unique(quast_stats$sample)[i], '\n'),
       paste0('### { width=30% }\n\n'),
@@ -304,6 +330,7 @@ for (i in 1:length(unique(quast_stats$sample))) {
 
 ```{r unlink quast}
 #| eval: !expr params$quast
+# Remove temporary files, write out collected report (mainly for debugging)
 unlink("quast_files/contigs", recursive = T)
 unlink("quast_files/length", recursive = T)
 write_csv(quast_stats,"quast_files/reports.csv")
@@ -322,6 +349,7 @@ BUSCO was not included in the pipeline run.
 #| warning: false
 #| message: false
 #| echo: false
+# Parse the reports from busco
 busco_reports <- list.files(paste0(data_base, "busco"),
                             full.names = T,
                             pattern = "batch_summary") %>%
@@ -332,6 +360,8 @@ busco_reports <- list.files(paste0(data_base, "busco"),
 ```{r}
 #| eval: !expr params$busco
 #| include: false
+# This creates code that will generate the plots based on BUSCO results
+
 dir.create("busco_files")
 dir.create("busco_files/orthologs")
 for (i in 1:length(unique(busco_reports$sample))) {
@@ -372,8 +402,14 @@ BUSCO assess assembly quality based on the presence / absence of expected single
 ```{r busco orthologs add subplots and valueboxes}
 #| eval: !expr params$busco
 #| results: asis
+#
+# This generates the tab-page for each sample
+# Per sample there are 3 value boxes
+# Below the value boxes there are one plots, showing the BUSCO statistics
+
 for (i in 1:length(unique(busco_reports$sample))) {
     cur_sample <-  unique(busco_reports$sample)[i]
+    # The BUSCO valueboxes contain information on which stage of the assembly had the highest quality, this requires some variables.
   completeness_val <-  busco_reports %>% 
     filter(sample == cur_sample) %>% 
     filter(Var == "Complete") %>% 
@@ -441,11 +477,13 @@ for (i in 1:length(unique(busco_reports$sample))) {
 
 ```{r}
 #| eval: !expr params$busco
+# Delete temporary files
 unlink("busco_files/orthologs", recursive = T)
 ```
 
 ```{r}
 #| eval: !expr params$busco
+# Export large report table, mainly for debugging
 write_csv(busco_reports,"busco_files/reports.csv")
 ```
 
@@ -461,6 +499,7 @@ jellyfish / genomescope was not included in the pipeline run.
 #| echo: false
 #| output: false
 #| warning: false
+# Parse the genomescope statistics
 genomescope_out <- list.files(paste0(data_base, "genomescope"), full.names = T, pattern = "genomescope.txt") %>% 
   map_dfr(\(x) read_genomescope(x))
 ```
@@ -471,6 +510,7 @@ Jellyfish and genomescope are used to infer genome size from the initial ONT rea
 ```{r}
 #| eval: !expr params$jellyfish
 #| output: asis
+# Since genomescope produces plots, I am simply including those here instead of recreating them, the proper QC for kmers comes with merqury.
 img_files <- list.files(paste0(data_base,"genomescope"), full.names = T, pattern = "plot.png")
 dir.create("genomescope_files")
 for (file in img_files) {
@@ -499,6 +539,8 @@ meryl and merqury were not included in the pipeline run.
 #| include: false
 #| message: false
 #| output: false
+
+# Here the merqury stats are parsed and the assembly stage is extracted
 merqury_stats <- list.files(paste0(data_base, "merqury"), full.names = T, pattern = "stats") %>% 
   lapply(\(x) {
     read_tsv(x, col_names = c("sample_stage","all","assembly","total","percent"), show_col_types = FALSE) %>% 
@@ -513,6 +555,7 @@ merqury_stats <- list.files(paste0(data_base, "merqury"), full.names = T, patter
                   str_detect(x, "assemble") ~ "Assembly",
                   TRUE ~ "Unknown")) }) %>% 
   bind_rows()
+# This parses the assembly stats
 merqury_asm_hists <- list.files(paste0(data_base, "/merqury"), full.names = T, pattern = "asm.hist")  %>% 
   lapply(\(x) {
            read_tsv(x, col_names = T, show_col_types = FALSE) %>% 
@@ -534,7 +577,7 @@ merqury_asm_hists <- list.files(paste0(data_base, "/merqury"), full.names = T, p
               Count = as.integer(Count))
            }) %>% 
   bind_rows()
-
+# This parses the copy number file
 merqury_cn_hists <- list.files(paste0(data_base, "merqury"), full.names = T, pattern = "cn.hist")  %>% 
   lapply(\(x) {
            read_tsv(x, col_names = T, show_col_types = FALSE) %>% 
@@ -556,7 +599,7 @@ merqury_cn_hists <- list.files(paste0(data_base, "merqury"), full.names = T, pat
               Count = as.integer(Count))
            }) %>% 
   bind_rows()
-
+# This parses the qv file
 merqury_qv <- list.files(paste0(data_base, "merqury"), full.names = T, pattern = ".qv") %>% 
         lapply(\(x) {
               read_tsv(x,
@@ -588,6 +631,7 @@ dir.create("merqury_files")
 ```{r merqury qv}
 #| eval: !expr params$merqury
 #| include: false
+# This generates QV-plots from merqury; the plot function is stuffed into plot_merqury
 dir.create("merqury_files/qv_plots/")
 for (i in 1:length(unique(merqury_qv$sample))) {
   cur_sample <- unique(merqury_qv$sample)[i]
@@ -602,6 +646,8 @@ ggplotly(p)\n```') %>%
 ```{r merqury completeness}
 #| eval: !expr params$merqury
 #| include: false
+# This generates stat-plots from merqury; the plot function is stuffed into plot_merqury
+
 dir.create("merqury_files/stat_plots/")
 for (i in 1:length(unique(merqury_stats$sample))) {
   cur_sample <- unique(merqury_stats$sample)[i]
@@ -616,6 +662,8 @@ ggplotly(p)\n```') %>%
 ```{r merqury asm}
 #| eval: !expr params$merqury
 #| include: false
+# This generates assembly plots from merqury; the plot function is stuffed into plot_merqury
+
 dir.create("merqury_files/asm_plots/")
 for (i in 1:length(unique(merqury_asm_hists$sample))) {
   cur_sample <- unique(merqury_asm_hists$sample)[i]
@@ -630,6 +678,8 @@ ggplotly(p)\n```') %>%
 ```{r merqury cn}
 #| eval: !expr params$merqury
 #| include: false
+# This generates copy-number from merqury; the plot function is stuffed into plot_merqury
+
 dir.create("merqury_files/cn_plots/")
 for (i in 1:length(unique(merqury_cn_hists$sample))) {
   cur_sample <- unique(merqury_cn_hists$sample)[i]
@@ -648,6 +698,11 @@ merqury compares k-mer spectra between assemblies and short read libraries to as
 ```{r merqury add plots and valueboxes}
 #| eval: !expr params$merqury
 #| results: asis
+# This generates the tab-page for each sample
+# Per sample there are 3 value boxes
+# Below the value boxes there is a tabset of plots, each tab contains one of the plot-types produced above.
+# Those are: Completeness, k-mer specatr, QV and CN
+
 for (i in 1:length(unique(merqury_stats$sample))) {
     cur_sample <-  unique(merqury_stats$sample)[i]
   highest_val <-  merqury_stats %>% 
@@ -680,10 +735,7 @@ for (i in 1:length(unique(merqury_stats$sample))) {
     filter(QV == max(QV)) %$%
     stage %>% 
     unique()
-    
-  img_files <- list.files(paste0(data_base,"merqury"), full.names = T, pattern = "spectra-cn.fl.png")  %>% 
-    .[str_detect(., cur_sample)]
-    
+        
   cat(paste('## ', cur_sample),
       paste0('\n\n'),
       paste0('### Valueboxes'),
@@ -740,6 +792,7 @@ for (i in 1:length(unique(merqury_stats$sample))) {
 
 ```{r}
 #| eval: !expr params$merqury
+# Delete files.
 unlink("merqury_files/cn_plots")
 unlink("merqury_files/asm_plots")
 unlink("merqury_files")

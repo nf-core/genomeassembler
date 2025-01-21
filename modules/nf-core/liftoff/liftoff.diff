@@ -1,0 +1,53 @@
+Changes in component 'nf-core/liftoff'
+'modules/nf-core/liftoff/environment.yml' is unchanged
+'modules/nf-core/liftoff/meta.yml' is unchanged
+Changes in 'liftoff/main.nf':
+--- modules/nf-core/liftoff/main.nf
++++ modules/nf-core/liftoff/main.nf
+@@ -8,9 +8,7 @@
+         'biocontainers/liftoff:1.6.3--pyhdfd78af_0' }"
+ 
+     input:
+-    tuple val(meta), path(target_fa)
+-    path ref_fa, name: 'ref_assembly.fa'
+-    path ref_annotation
++    tuple val(meta), path(target_fa), path(ref_fasta), path(ref_annotation)
+     path ref_db
+ 
+     output:
+@@ -28,6 +26,14 @@
+     def arg_db  = ref_db            ?   "-db $ref_db"           : ''
+     prefix      = task.ext.prefix   ?:  "${meta.id}"
+     """
++    if [[ ${target_fa} == *.gz ]]; then
++    zcat ${target_fa} > assembly.fasta
++    fi
++
++    if [[ ${target_fa} == *.fa || ${target_fa} == *.fasta ]]; then
++    cp ${target_fa} assembly.fasta
++    fi
++
+     liftoff \\
+         $arg_g \\
+         $arg_db \\
+@@ -35,8 +41,8 @@
+         -o "${prefix}.gff3" \\
+         -u "${prefix}.unmapped.txt" \\
+         $args \\
+-        $target_fa \\
+-        ref_assembly.fa
++        assembly.fasta \\
++        $ref_fasta
+ 
+     mv \\
+         "${prefix}.gff3_polished" \\
+@@ -63,4 +69,4 @@
+         liftoff: \$(liftoff --version 2> /dev/null)
+     END_VERSIONS
+     """
+-}
++}
+'modules/nf-core/liftoff/tests/nextflow.config' is unchanged
+'modules/nf-core/liftoff/tests/main.nf.test' is unchanged
+'modules/nf-core/liftoff/tests/main.nf.test.snap' is unchanged
+************************************************************

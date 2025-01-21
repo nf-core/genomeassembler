@@ -33,13 +33,13 @@ process  REPORT {
         if(params.quast) report_profile = report_profile << ",quast"
         if(params.busco) report_profile = report_profile << ",busco"
         if(params.jellyfish) report_profile = report_profile << ",jellyfish"
-        if(params.short_reads) report_profile = report_profile << ",merqury"
+        if(params.merqury) report_profile = report_profile << ",merqury"
     def report_params = ''
         if(params.ont) report_params = report_params << ' -P nanoq:true'
         if(params.quast) report_params = report_params << ' -P quast:true '
         if(params.busco) report_params = report_params << ' -P busco:true'
         if(params.jellyfish) report_params = report_params << ' -P jellyfish:true'
-        if(params.short_reads) report_params = report_params << ' -P merqury:true'
+        if(params.merqury) report_params = report_params << ' -P merqury:true'
     """
     export HOME="\$PWD"
     quarto render report.qmd \\

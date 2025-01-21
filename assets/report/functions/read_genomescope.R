@@ -1,4 +1,3 @@
-## WIP
 read_genomescope <- function(path) {
   rbind(
     read_table(path, skip = 3, n_max = 1) %>% dplyr::select(-X4),
