@@ -43,17 +43,11 @@ workflow GENOMEASSEMBLER {
     main:
     // Initialize empty channels
     Channel.empty().set { ch_ref_bam }
-    Channel.empty().set { ch_assembly }
-    Channel.empty().set { ch_assembly_bam }
-    Channel.empty().set { ch_assembly_bam_bai }
-    Channel.empty().set { ch_medaka_in }
     Channel.empty().set { ch_polished_genome }
     Channel.empty().set { ch_ont_reads }
     Channel.empty().set { ch_hifi_reads }
     Channel.empty().set { ch_shortreads }
     Channel.empty().set { meryl_kmers }
-    Channel.empty().set { ch_flye_inputs }
-    Channel.empty().set { ch_hifiasm_inputs }
     Channel.empty().set { genome_size }
     Channel.empty().set { ch_versions }
     // Initialize channels for QC report collection
