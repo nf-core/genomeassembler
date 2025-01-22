@@ -53,13 +53,13 @@ workflow GENOMEASSEMBLER {
     // Initialize channels for QC report collection
     Channel
         .of([])
-        .set { quast_files }
-        .set { nanoq_files }
-        .set { genomescope_files }
+        .tap { quast_files }
+        .tap { nanoq_files }
+        .tap { genomescope_files }
         .map { it -> ["dummy", it] }
-        .set { busco_files }
+        .tap { busco_files }
         .map { it -> [it[0], it[1], it[1], it[1], it[1]] }
-        .set { merqury_files }
+        .tap { merqury_files }
     /*
     =============
     Some checks
