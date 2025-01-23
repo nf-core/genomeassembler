@@ -176,11 +176,12 @@ If a reference is provided, and annotation liftover is desired, the pipeline wil
 <details markdown="1">
 <summary>Output files</summary>
 
-- `assemble/<SampleName>` | `polish/<tool>/<SampleName>` | `scaffold/<tool>/<SampleName>`:
-  - `liftoff/`:
-  - `<SampleName>.<suffix>_liftoff.gff` gff file produced by liftoff. Exact name depends on the stage of the pipeline.
-    </summary>
-  </details>
+- `liftoff/`
+- `<SampleName>/`
+- `assemble/` | `polish/<tool>/` | `scaffold/<tool>/`:
+  - `<SampleName>_<suffix>_liftoff.gff` gff file produced by liftoff. Exact name depends on the stage of the pipeline. For assembly the stage the suffix is `assembly` for the other stages is it the name of the tool used (e.g. `pilon` or `links`).
+
+ </details>
 
 ### Quality control
 
