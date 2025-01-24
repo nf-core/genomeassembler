@@ -148,7 +148,9 @@ workflow ASSEMBLE {
         .set { longreads }
     }
     if (params.assembler == "hifiasm" || params.assembler == "flye_on_hifiasm") {
-      hifiasm_inputs.set { longreads }
+      hifiasm_inputs
+        .map { meta, long_reads, _ultralong -> [meta, long_reads] }
+        .set { longreads }
       // When using either hifiasm_ont or flye_on_hifiasm, both reads are available, which should be used for qc?
       if (params.hifi && params.ont) {
         if (!params.qc_reads) {

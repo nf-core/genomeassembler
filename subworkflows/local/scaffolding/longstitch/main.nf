@@ -10,7 +10,7 @@ workflow RUN_LONGSTITCH {
   inputs
   in_reads
   assembly
-  references
+  _references
   ch_aln_to_ref
   meryl_kmers
 
