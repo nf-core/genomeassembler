@@ -100,23 +100,22 @@ Depending on the assembly strategy chosen, different assemblers are used.
 <summary>Output files</summary>
 
 - `assemble/`
-  - `flye/`: output from flye.
-    - `<SampleName>/`
+  - `<SampleName>`
+    - `flye/`: output from flye.
       - `<SampleName>.assembly.fasta.gz`: Assembly in gzipped fasta format
       - `<SampleName>.assembly_graph.gfa.gz`: Assembly graph in gzipped gfa format
       - `<SampleName>.assembly_graph.gv.gz`: Assembly graph in gzipped gv format
       - `<SampleName>.assembly_info.txt`: Information on the assembly
       - `<SampleName>.flye.log`: flye log-file
       - `<SampleName>.params.json`: params used for running flye
-  - `hifiasm/`: output from hifiasm. Contains one folder per sample
-    - `<SampleName>`
+    - `hifiasm/`: output from hifiasm. Contains one folder per sample
       - `<SampleName>.asm.bp.p_ctg.fa.gz`: gzipped fasta file of the primary contigs
       - `<SampleName>.asm.bp.p_ctg.gfa`: primary contigs in gfa format
       - `<SampleName>.asm.bp.p_utg.gfa`: processed unitigs in gfa format
       - `<SampleName>.asm.bp.r_utg.gfa`: raw unitigs in gfa format
       - `<SampleName>.stderr.log`: Any output form hifiasm to stderr
-  - `ragtag/`: output from RagTag, only if `'flye_on_hifiasm'` was used as the assembler. Contains one folder per sample.
-    - `<SampleName>`
+    - `gfa2_fasta`: hifiasm assembly in fasta format.
+    - `ragtag/`: output from RagTag, only if `'flye_on_hifiasm'` was used as the assembler. Contains one folder per sample.
       - `<SampleName>.assembly.fasta.gz_on_<SampleName>.asm.bp.p_ctg.fa.gz/`
         - `<SampleName>.assembly.fasta.gz_ragtag_<SampleName>.asm.bp.p_ctg.fa.gz.agp`: Scaffolds in agp format
         - `<SampleName>.assembly.fasta.gz_ragtag_<SampleName>.asm.bp.p_ctg.fa.gz.fasta`: Scaffolds in fasta format
