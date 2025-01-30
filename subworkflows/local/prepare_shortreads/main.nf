@@ -29,6 +29,7 @@ def create_shortread_channel(row) {
     def meta = [:]
     meta.id = row.meta.id
     meta.paired = row.paired.toBoolean()
+    meta.single_end = !meta.paired
 
     // add path(s) of the fastq file(s) to the meta map
     def shortreads = []
