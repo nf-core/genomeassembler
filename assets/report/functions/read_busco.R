@@ -63,7 +63,7 @@ read_busco_report <- function(file) {
 
 read_busco_batch <- \(x) {read_tsv(x, show_col_types = F) %>% 
     set_colnames(colnames(.) %>% str_replace_all(" ", "_")) %>% 
-    mutate(sample = str_extract(x, "(?<=busco/).+?(?=-[run_|polish_|assemble])"),
+    mutate(sample = str_extract(x, "(?<=busco/).+?(?=_[assemble|medaka|pilon|links|longstitch|ragtag])"),
            stage = case_when(
              str_detect(x, "ragtag") ~ "RagTag",
              str_detect(x, "medaka") ~ "medaka",
