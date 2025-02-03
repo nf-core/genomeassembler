@@ -94,7 +94,8 @@ workflow PIPELINE_INITIALISATION {
     if (params.hifi && params.ont) {
         if (!params.qc_reads) {
           error("Please specify which reads should be used for qc: 'ONT' or 'HIFI'")
-
+        }
+    }
 
     emit:
     samplesheet = ch_samplesheet
