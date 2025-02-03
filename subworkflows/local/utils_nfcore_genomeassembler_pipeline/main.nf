@@ -83,6 +83,7 @@ workflow PIPELINE_INITIALISATION {
             .set { ch_refs }
     }
     // check for assembler / read combination
+    def hifi_only = params.hifi && !params.ont ? true : false
     if (params.assembler == "flye") {
       if (params.hifi) {
         if (!hifi_only) {
