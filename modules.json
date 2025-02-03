@@ -27,7 +27,7 @@
                     },
                     "liftoff": {
                         "branch": "master",
-                        "git_sha": "666652151335353eef2fcd58880bcef5bc2928e1",
+                        "git_sha": "32b1f7f4e3d5c6e68af8f1d732f61c3d2aa6e67e",
                         "installed_by": ["modules"],
                         "patch": "modules/nf-core/liftoff/liftoff.diff"
                     },
