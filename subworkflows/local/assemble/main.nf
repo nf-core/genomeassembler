@@ -50,9 +50,6 @@ workflow ASSEMBLE {
     // Define inputs for flye
     if (params.assembler == "flye") {
       if (params.hifi) {
-        if (!hifi_only) {
-          error('Cannot combine hifi and ont reads with flye')
-        }
         hifi_reads
           .map { it -> [it[0], it[1]] }
           .set { flye_inputs }
@@ -153,9 +150,6 @@ workflow ASSEMBLE {
         .set { longreads }
       // When using either hifiasm_ont or flye_on_hifiasm, both reads are available, which should be used for qc?
       if (params.hifi && params.ont) {
-        if (!params.qc_reads) {
-          error("Please specify which reads should be used for qc: 'ONT' or 'HIFI'")
-        }
         if (params.qc_reads == 'ONT') {
           ont_reads
             .map { it -> [it[0], it[1]] }

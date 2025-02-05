@@ -40,8 +40,6 @@ sampleName,ontreads.fa.gz,hifireads.fa.gz,assembly.fasta.gz,reference.fasta,refe
 
 Each row represents one genome to be assembled. `sample` should contain the name of the sample, `ontreads` should contain a path to ONT reads (fastq.gz), `hifireads` a path to HiFi reads (fastq.gz), `ref_fasta` and `ref_gff` contain reference genome fasta and annotations. `shortread_F` and `shortread_R` contain paths to short-read data, `paired` indicates if short-reads are paired. Columns can be omitted if they contain no data, with the exception of `shortread_R`, which needs to be present if `shortread_F` is there, even if it is empty.
 
--->
-
 Now, you can run the pipeline using:
 
 ```bash

@@ -8,7 +8,7 @@ process LIFTOFF {
         'biocontainers/liftoff:1.6.3--pyhdfd78af_0' }"
 
     input:
-    tuple val(meta), path(target_fa), path(ref_fasta), path(ref_annotation)
+    tuple val(meta), path(target_fa), path(ref_fa), path(ref_annotation)
     path ref_db
 
     output:
@@ -27,11 +27,19 @@ process LIFTOFF {
     prefix      = task.ext.prefix   ?:  "${meta.id}"
     """
     if [[ ${target_fa} == *.gz ]]; then
-    zcat ${target_fa} > assembly.fasta
+        zcat ${target_fa} > target.fasta
     fi
 
-    if [[ ${target_fa} == *.fa || ${target_fa} == *.fasta ]]; then
-    cp ${target_fa} assembly.fasta
+    if [[ ${target_fa} != *.gz ]]; then
+        ln -s ${target_fa} target.fasta
+    fi
+
+    if [[ ${ref_fa} == *.gz ]]; then
+        zcat ${ref_fa} > reference.fasta
+    fi
+
+    if [[ ${ref_fa} != *.gz  ]]; then
+        ln -s ${ref_fa} reference.fasta
     fi
 
     liftoff \\
@@ -41,8 +49,8 @@ process LIFTOFF {
         -o "${prefix}.gff3" \\
         -u "${prefix}.unmapped.txt" \\
         $args \\
-        assembly.fasta \\
-        $ref_fasta
+        target.fasta \\
+        reference.fasta
 
     mv \\
         "${prefix}.gff3_polished" \\
