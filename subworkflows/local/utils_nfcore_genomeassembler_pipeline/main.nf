@@ -85,16 +85,16 @@ workflow PIPELINE_INITIALISATION {
     // check for assembler / read combination
     def hifi_only = params.hifi && !params.ont ? true : false
     if (params.assembler == "flye") {
-      if (params.hifi) {
-        if (!hifi_only) {
-          error('Cannot combine hifi and ont reads with flye')
+        if (params.hifi) {
+            if (!hifi_only) {
+                error('Cannot combine hifi and ont reads with flye')
+            }
         }
-      }
     }
     // check for QC reads
     if (params.hifi && params.ont) {
         if (!params.qc_reads) {
-          error("Please specify which reads should be used for qc: 'ONT' or 'HIFI'")
+            error("Please specify which reads should be used for qc: 'ONT' or 'HIFI'")
         }
     }
 

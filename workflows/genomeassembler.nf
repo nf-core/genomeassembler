@@ -3,7 +3,6 @@
     IMPORT MODULES / SUBWORKFLOWS / FUNCTIONS
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
-include { FASTQC } from '../modules/nf-core/fastqc/main'
 include { paramsSummaryMap } from 'plugin/nf-schema'
 include { paramsSummaryMultiqc } from '../subworkflows/nf-core/utils_nfcore_pipeline'
 include { softwareVersionsToYAML } from '../subworkflows/nf-core/utils_nfcore_pipeline'
@@ -17,7 +16,7 @@ include { PREPARE_SHORTREADS } from '../subworkflows/local/prepare_shortreads/ma
 include { ONT } from '../subworkflows/local/ont/main'
 include { HIFI } from '../subworkflows/local/hifi/main'
 
-// Assembly 
+// Assembly
 include { ASSEMBLE } from '../subworkflows/local/assemble/main'
 
 // Polishing
@@ -188,12 +187,12 @@ workflow GENOMEASSEMBLER {
         .fromPath("${projectDir}/assets/report/functions/*")
         .collect()
         .set { report_functions }
-        
+
     if(!params.merqury) {
         merqury_files = Channel.of([])
     }
 
-    /* Debug         
+    /* Debug
     report_files.view { f -> "Report Files: $f"}
     report_functions.view { f -> "Report Functions: $f"}
     nanoq_files.view { f -> "Nanoq Files: $f"}
