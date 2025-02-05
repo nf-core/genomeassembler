@@ -4,14 +4,14 @@ author: "Niklas Schandry"
 format: dashboard
 editor: source
 nav-buttons:
-      - icon: github
-        href: https://github.com/nschan/genomeassembler
+        - icon: github
+            href: https://github.com/nschan/genomeassembler
 params:
-  nanoq: false
-  busco: false
-  quast: false
-  jellyfish: false
-  merqury: false
+    nanoq: false
+    busco: false
+    quast: false
+    jellyfish: false
+    merqury: false
 ---
 
 ```{r load libraries and functions}
@@ -24,14 +24,14 @@ library(tidyverse)
 library(magrittr)
 library(plotly)
 # Load functions
-list.files("functions", full.names = T, pattern = ".R") %>% 
-  map(\(x) source(x))
+list.files("functions", full.names = T, pattern = ".R") %>%
+    map(\(x) source(x))
 
 # Set default ggplot theme
 theme_set(theme_bw(base_size = 14,
-                   base_family = "Arial"))
+                    base_family = "Arial"))
 theme_update(strip.background = element_blank(),
-             axis.text.x = element_text(angle = 70, hjust = 1))
+                axis.text.x = element_text(angle = 70, hjust = 1))
 ## Colors, these come from the khroma package ("muted")
 ### For <=9 stages:
 color_scale_plots <- scale_color_manual(values = c("#CC6677", "#332288", "#DDCC77", "#117733", "#88CCEE", "#882255", "#44AA99", "#999933", "#AA4499"), na.value = "#DDDDDD")
@@ -58,10 +58,10 @@ nanoq was not included in the pipeline run, no ONT reads were included.
 #| output: false
 
 # Parse nanoq reports into table
-nanoq_reports <- list.files(paste0(data_base, "nanoq"), 
+nanoq_reports <- list.files(paste0(data_base, "nanoq"),
                             pattern = "report.json",
-                            full.names = T) %>% 
-  map_dfr(\(x) read_nanoq(x))
+                            full.names = T) %>%
+    map_dfr(\(x) read_nanoq(x))
 ```
 
 ```{r}
@@ -74,23 +74,23 @@ nanoq_reports <- list.files(paste0(data_base, "nanoq"),
 dir.create("nanoq_files")
 for (i in 1:length(unique(nanoq_reports$sample))) {
 paste0('```{r}\n
-           #| title: "Nanoq read statistics"
-           p <- nanoq_reports %>% 
-           filter(stat %in% c("Median Length", "Longest", "Median Quality","Bases")) %>% 
-           filter(sample == "', unique(nanoq_reports$sample)[i], '") %>% 
-           mutate(stat=fct_relevel(stat,c("Bases","Longest","Median Length","Median Quality"))) %>% 
-           ggplot(aes(x = sample, y = val)) +
-           geom_line() +
-           geom_point(size = 5, pch=21, aes(fill=stage)) +
-           facet_wrap(~stat, scales = "free_y", ncol=2) +
-           fill_scale_plots +
-           scale_y_continuous(labels = function(x) format(x,scientific=-1,trim=T, digits = 3, drop0trailing=T), n.breaks = 4) +
-           theme(axis.title.x = element_blank(),
-                   axis.title.y = element_blank(),
-                   legend.position = "none",
-                   legend.title = element_blank(),
-                   panel.grid.minor = element_blank())
-       ggplotly(p)\n```') %>% 
+            #| title: "Nanoq read statistics"
+            p <- nanoq_reports %>%
+            filter(stat %in% c("Median Length", "Longest", "Median Quality","Bases")) %>%
+            filter(sample == "', unique(nanoq_reports$sample)[i], '") %>%
+            mutate(stat=fct_relevel(stat,c("Bases","Longest","Median Length","Median Quality"))) %>%
+            ggplot(aes(x = sample, y = val)) +
+            geom_line() +
+            geom_point(size = 5, pch=21, aes(fill=stage)) +
+            facet_wrap(~stat, scales = "free_y", ncol=2) +
+            fill_scale_plots +
+            scale_y_continuous(labels = function(x) format(x,scientific=-1,trim=T, digits = 3, drop0trailing=T), n.breaks = 4) +
+            theme(axis.title.x = element_blank(),
+                    axis.title.y = element_blank(),
+                    legend.position = "none",
+                    legend.title = element_blank(),
+                    panel.grid.minor = element_blank())
+        ggplotly(p)\n```') %>%
     write_lines(glue::glue("nanoq_files/_{ unique(nanoq_reports$sample)[i] }_nanoq.Rmd"))
 }
 ```
@@ -108,36 +108,36 @@ paste0('```{r}\n
 ## Below the valueboxes, the sample-specific plot code generated above is inserted
 
 for (i in 1:length(unique(nanoq_reports$sample))) {
-  cat(paste0('## ', unique(nanoq_reports$sample)[i], '\n\n'),
-      paste0('### { width = 30% }', '\n\n'),
-      paste0('::: {.valuebox icon="magic" color="primary" title="Total bases sequenced"}','\n'),
-      paste0(nanoq_reports %>% 
-             filter(stat == "Bases") %>%
-             filter(sample == unique(nanoq_reports$sample)[i],) %$%
-             sum(val) %>% 
-             format(scientific=-1,trim=T, digits = 3, drop0trailing=T),'\n'),
-      paste0(':::', '\n\n'),
-      paste0('::: {.valuebox icon="collection" color="secondary" title="Number of reads"}', '\n'),
-      paste0(nanoq_reports %>% 
-             filter(stat == "N Reads") %>% 
-             filter(sample == unique(nanoq_reports$sample)[i]) %$%
-             min(val) %>% 
-             paste(" bases"), '\n'),
-      paste0(':::', '\n\n'),
-      paste0('::: {.valuebox icon="chevron-double-up" color="success" title="Longest read"}', '\n'),
-      paste0(nanoq_reports %>% 
-             filter(stat == "Longest") %>%
-             filter(sample == unique(nanoq_reports$sample)[i]) %$%
-             max(val) %>% 
-             paste0(" bases"),'\n'),
-      paste0(':::', '\n\n'),
-      paste0('### ', '\n\n'),
-      knitr::knit_child(glue::glue('nanoq_files/_{ unique(nanoq_reports$sample)[i] }_nanoq.Rmd'),
+    cat(paste0('## ', unique(nanoq_reports$sample)[i], '\n\n'),
+        paste0('### { width = 30% }', '\n\n'),
+        paste0('::: {.valuebox icon="magic" color="primary" title="Total bases sequenced"}','\n'),
+        paste0(nanoq_reports %>%
+            filter(stat == "Bases") %>%
+            filter(sample == unique(nanoq_reports$sample)[i],) %$%
+            sum(val) %>%
+            format(scientific=-1,trim=T, digits = 3, drop0trailing=T),'\n'),
+        paste0(':::', '\n\n'),
+        paste0('::: {.valuebox icon="collection" color="secondary" title="Number of reads"}', '\n'),
+        paste0(nanoq_reports %>%
+                filter(stat == "N Reads") %>%
+                filter(sample == unique(nanoq_reports$sample)[i]) %$%
+                min(val) %>%
+                paste(" bases"), '\n'),
+        paste0(':::', '\n\n'),
+        paste0('::: {.valuebox icon="chevron-double-up" color="success" title="Longest read"}', '\n'),
+        paste0(nanoq_reports %>%
+                filter(stat == "Longest") %>%
+                filter(sample == unique(nanoq_reports$sample)[i]) %$%
+                max(val) %>%
+                paste0(" bases"),'\n'),
+        paste0(':::', '\n\n'),
+        paste0('### ', '\n\n'),
+        knitr::knit_child(glue::glue('nanoq_files/_{ unique(nanoq_reports$sample)[i] }_nanoq.Rmd'),
                         envir = globalenv(),
                         quiet = TRUE),
-      paste0('\n\n'),
-      sep = ""
-      )
+        paste0('\n\n'),
+        sep = ""
+    )
 }
 ```
 
@@ -164,21 +164,21 @@ QUAST reports assembly statistics, taking into account the reference, if provide
 #| eval: !expr params$quast
 # This chunk parses the quast reports from data/quast
 quast_stats <- list.files(paste0(data_base, "quast"),
-                          pattern = "report.tsv",
-                          full.names = T) %>%
-  map_dfr(\(x) {
+                            pattern = "report.tsv",
+                            full.names = T) %>%
+    map_dfr(\(x) {
     read_quast_report(x) %>%
     mutate(
-             sample = str_extract(x %>% basename(),
-                                  ".+?(?=_[assemble|polish|run])"),
-              stage = case_when(
-                  str_detect(x, "_ragtag") ~ "RagTag",
-                  str_detect(x, "_medaka") ~ "medaka",
-                  str_detect(x, "_pilon") ~ "pilon",
-                  str_detect(x, "_longstitch") ~ "longstitch",
-                  str_detect(x, "_links") ~ "LINKS",
-                  str_detect(x, "assemble") ~ "Assembly",
-                  TRUE ~ "Unknown")) })
+            sample = str_extract(x %>% basename(),
+                                ".+?(?=_[assemble|polish|run])"),
+            stage = case_when(
+                str_detect(x, "_ragtag") ~ "RagTag",
+                str_detect(x, "_medaka") ~ "medaka",
+                str_detect(x, "_pilon") ~ "pilon",
+                str_detect(x, "_longstitch") ~ "longstitch",
+                str_detect(x, "_links") ~ "LINKS",
+                str_detect(x, "assemble") ~ "Assembly",
+                TRUE ~ "Unknown")) })
 ```
 
 ```{r quast write length plots}
@@ -189,21 +189,21 @@ dir.create("quast_files")
 dir.create("quast_files/length")
 for (i in 1:length(unique(quast_stats$sample))) {
 paste0('```{r}\n
-           p <- quast_stats %>% 
-           filter(sample == "', unique(quast_stats$sample)[i], '") %>%
-  filter(str_detect(stat, "[L].*[59]0")) %>% 
-  mutate(stat = fct_relevel(stat, "L50","L90","LG50","LG90")) %>% 
-  ggplot(aes(x=stat, y=value)) +
-  geom_point(aes(fill = stage), 
-             size = 5,
-             pch = 21,
-             alpha = 0.8,
-             position = position_dodge(width = 0.4)) +
-  facet_wrap(~ sample, scales = "free_y") +
-  fill_scale_plots +
-  labs(title = "QUAST: L(G) 50 and 90") +
-  theme(panel.border = element_rect(fill = NA))
-  ggplotly(p) \n```') %>% 
+    p <- quast_stats %>%
+        filter(sample == "', unique(quast_stats$sample)[i], '") %>%
+        filter(str_detect(stat, "[L].*[59]0")) %>%
+        mutate(stat = fct_relevel(stat, "L50","L90","LG50","LG90")) %>%
+        ggplot(aes(x=stat, y=value)) +
+        geom_point(aes(fill = stage),
+            size = 5,
+            pch = 21,
+            alpha = 0.8,
+            position = position_dodge(width = 0.4)) +
+        facet_wrap(~ sample, scales = "free_y") +
+        fill_scale_plots +
+        labs(title = "QUAST: L(G) 50 and 90") +
+        theme(panel.border = element_rect(fill = NA))
+        ggplotly(p) \n```') %>%
     write_lines(glue::glue("quast_files/length/_{ unique(quast_stats$sample)[i] }_quast.Rmd"))
 }
 ```
@@ -216,30 +216,30 @@ paste0('```{r}\n
 dir.create("quast_files/contigs")
 for (i in 1:length(unique(quast_stats$sample))) {
 paste0('```{r}\n
-  p <- quast_stats %>% 
-  filter(sample == "', unique(quast_stats$sample)[i], '") %>%
-  filter(str_detect(stat, "# contigs \\\\(")) %>%
-  filter(!str_detect(stat, ">= 0")) %>% 
-  mutate(stat = stat %>% str_remove_all("# contigs ") %>% str_remove_all("[()]") %>% fct_inorder()) %>% 
-  ggplot(aes(x=stat, y=value)) +
-  geom_point(aes(fill = stage), 
-             size = 5,
-             pch = 21,
-             alpha = 0.8,
-             position = position_dodge(width = 0.4)) +
-  facet_wrap(~ sample, scales = "free_y") +
-  fill_scale_plots +
-  theme(axis.title.x = element_blank(),
+    p <- quast_stats %>%
+    filter(sample == "', unique(quast_stats$sample)[i], '") %>%
+    filter(str_detect(stat, "# contigs \\\\(")) %>%
+    filter(!str_detect(stat, ">= 0")) %>%
+    mutate(stat = stat %>% str_remove_all("# contigs ") %>% str_remove_all("[()]") %>% fct_inorder()) %>%
+    ggplot(aes(x=stat, y=value)) +
+    geom_point(aes(fill = stage),
+            size = 5,
+            pch = 21,
+            alpha = 0.8,
+            position = position_dodge(width = 0.4)) +
+    facet_wrap(~ sample, scales = "free_y") +
+    fill_scale_plots +
+    theme(axis.title.x = element_blank(),
         axis.title.y = element_blank()) +
-  labs(title = "QUAST: Number of contigs by size") 
+    labs(title = "QUAST: Number of contigs by size")
 ggplotly(p)
-  p <- quast_stats %>%
-  filter(sample == "', unique(quast_stats$sample)[i], '") %>%
-  filter(str_detect(stat, "Total length")) %>%
-  filter(!str_detect(stat, ">= 0")) %>%
-  mutate(stat = stat %>% str_remove_all("Total length ") %>% str_remove_all("[()]") %>% fct_inorder()) %>%
-  ggplot(aes(x = stat, y = value)) +
-  geom_point(
+    p <- quast_stats %>%
+    filter(sample == "', unique(quast_stats$sample)[i], '") %>%
+    filter(str_detect(stat, "Total length")) %>%
+    filter(!str_detect(stat, ">= 0")) %>%
+    mutate(stat = stat %>% str_remove_all("Total length ") %>% str_remove_all("[()]") %>% fct_inorder()) %>%
+    ggplot(aes(x = stat, y = value)) +
+    geom_point(
     aes(fill = stage),
     size = 5,
     pch = 21,
@@ -247,24 +247,24 @@ ggplotly(p)
     width = 0.2,
     alpha = 0.8,
     position = position_dodge(width = 0.4)
-  ) +
-  facet_wrap( ~ sample, scales = "free_y") +
-  fill_scale_plots +
-  theme(axis.title.x = element_blank(),
+    ) +
+    facet_wrap( ~ sample, scales = "free_y") +
+    fill_scale_plots +
+    theme(axis.title.x = element_blank(),
         axis.title.y = element_blank()) +
-  labs(title = "QUAST: Aggregated length") +
-  scale_y_continuous(
+    labs(title = "QUAST: Aggregated length") +
+    scale_y_continuous(
     labels = function(x)
-      format(
-        x,
-        scientific = -1,
-        trim = T,
-        digits = 3,
-        drop0trailing = T
-      )
-  )
+        format(
+            x,
+            scientific = -1,
+            trim = T,
+            digits = 3,
+            drop0trailing = T
+        )
+    )
 ggplotly(p)
-  \n```') %>% 
+    \n```') %>%
     write_lines(glue::glue("quast_files/contigs/_{ unique(quast_stats$sample)[i] }_quast.Rmd"))
 }
 ```
@@ -278,53 +278,53 @@ ggplotly(p)
 # Below the value boxes there are two plots, one showing the length and one showing the contig statistics
 
 for (i in 1:length(unique(quast_stats$sample))) {
-  cat(paste0('## ', unique(quast_stats$sample)[i], '\n'),
-      paste0('### { width=30% }\n\n'),
-      paste0('::: {.valuebox icon="arrow-up-right-circle" color="primary" title="Total length"}\n'),
-      quast_stats %>%
-          filter(sample == unique(quast_stats$sample)[i]) %>% 
-          filter(stat == "Total length (>= 0 bp)") %$%
-          max(value) %>%
-          format(
-          scientific = -1,
-          trim = T,
-          digits = 3,
-          drop0trailing = T
-          ) %>%
-          paste("bp"),
-      paste0('\n'),
-      paste0(':::'), 
-      paste0('\n\n'),
-      paste0('::: {.valuebox icon="percent" color="success" title="GC Content"}\n'),
-      quast_stats %>% 
-        filter(sample == unique(quast_stats$sample)[i]) %>% 
-        filter(stat == "GC (%)") %$%
-        mean(value) %>%
-        round(2) %>% 
-        paste(" %"),
-      paste0('\n'),
-      paste0(':::'),
-      paste0('\n\n'),
-      paste0('::: {.valuebox icon="emoji-heart-eyes" color="info" title="Lowest L90"}\n'),
-      quast_stats %>% 
-        filter(sample == unique(quast_stats$sample)[i]) %>% 
-        filter(stat == "L90") %>% 
-        filter(value == min(value)) %>% 
-        unique() %$% 
-        glue::glue("{unique(value)}, at stage(s): {paste(stage, collapse = ', ')}"),
-      paste0('\n'),
-      paste0(':::'), 
-      paste0('\n\n'),
-      paste0('### Plots \n\n'),
-      knitr::knit_child(glue::glue('quast_files/length/_{ unique(quast_stats$sample)[i] }_quast.Rmd'),
-                        envir = globalenv(),
-                       quiet = TRUE),
-      paste0('\n\n\n'), 
-      knitr::knit_child(glue::glue('quast_files/contigs/_{ unique(quast_stats$sample)[i] }_quast.Rmd'),
+    cat(paste0('## ', unique(quast_stats$sample)[i], '\n'),
+        paste0('### { width=30% }\n\n'),
+        paste0('::: {.valuebox icon="arrow-up-right-circle" color="primary" title="Total length"}\n'),
+        quast_stats %>%
+            filter(sample == unique(quast_stats$sample)[i]) %>%
+            filter(stat == "Total length (>= 0 bp)") %$%
+            max(value) %>%
+            format(
+                scientific = -1,
+                trim = T,
+                digits = 3,
+                drop0trailing = T
+            ) %>%
+            paste("bp"),
+        paste0('\n'),
+        paste0(':::'),
+        paste0('\n\n'),
+        paste0('::: {.valuebox icon="percent" color="success" title="GC Content"}\n'),
+        quast_stats %>%
+            filter(sample == unique(quast_stats$sample)[i]) %>%
+            filter(stat == "GC (%)") %$%
+            mean(value) %>%
+            round(2) %>%
+            paste(" %"),
+        paste0('\n'),
+        paste0(':::'),
+        paste0('\n\n'),
+        paste0('::: {.valuebox icon="emoji-heart-eyes" color="info" title="Lowest L90"}\n'),
+        quast_stats %>%
+            filter(sample == unique(quast_stats$sample)[i]) %>%
+            filter(stat == "L90") %>%
+            filter(value == min(value)) %>%
+            unique() %$%
+            glue::glue("{unique(value)}, at stage(s): {paste(stage, collapse = ', ')}"),
+        paste0('\n'),
+        paste0(':::'),
+        paste0('\n\n'),
+        paste0('### Plots \n\n'),
+        knitr::knit_child(glue::glue('quast_files/length/_{ unique(quast_stats$sample)[i] }_quast.Rmd'),
+                            envir = globalenv(),
+                            quiet = TRUE),
+        paste0('\n\n\n'),
+        knitr::knit_child(glue::glue('quast_files/contigs/_{ unique(quast_stats$sample)[i] }_quast.Rmd'),
                         envir = globalenv(),
                         quiet = TRUE),
-      paste0('\n\n\n'), 
-      sep = "")
+        paste0('\n\n\n'),
+    sep = "")
 }
 ```
 
@@ -353,7 +353,7 @@ BUSCO was not included in the pipeline run.
 busco_reports <- list.files(paste0(data_base, "busco"),
                             full.names = T,
                             pattern = "batch_summary") %>%
-  map_dfr(\(x) read_busco_batch(x))
+    map_dfr(\(x) read_busco_batch(x))
 ```
 
 
@@ -366,31 +366,31 @@ dir.create("busco_files")
 dir.create("busco_files/orthologs")
 for (i in 1:length(unique(busco_reports$sample))) {
 paste0('```{r}\n
-           p <- busco_reports %>%
-           filter(sample == "', unique(busco_reports$sample)[i], '") %>%
-  filter(Var %in% c("Complete","Single","Duplicated","Fragmented")) %>% 
-  ggplot(aes(y = value, x = Var)) +
-  geom_point(
-    aes(fill = stage),
-    size = 6,
-    pch = 21,
-    height = 0,
-    alpha = 0.8,
-    position = position_dodge(width = 0.4)
-  ) +
-  facet_wrap( ~ sample, nrow = 3) +
-  fill_scale_plots +
-  labs(y = "% of Single Copy Orthologs",
-       title = "BUSCO: Conserved Orthologs") +
-  coord_cartesian(clip = "on") +
-  theme(
-    panel.border = element_rect(fill = NA),
-    legend.position = "bottom",
-    axis.title.y = element_text(angle = 90),
-    axis.title.x = element_blank()
-  )
-  ggplotly(p)
-  \n```') %>% 
+            p <- busco_reports %>%
+                filter(sample == "', unique(busco_reports$sample)[i], '") %>%
+                filter(Var %in% c("Complete","Single","Duplicated","Fragmented")) %>%
+                ggplot(aes(y = value, x = Var)) +
+                geom_point(
+                    aes(fill = stage),
+                    size = 6,
+                    pch = 21,
+                    height = 0,
+                    alpha = 0.8,
+                    position = position_dodge(width = 0.4)
+                ) +
+                facet_wrap( ~ sample, nrow = 3) +
+                fill_scale_plots +
+                labs(   y = "% of Single Copy Orthologs",
+                        title = "BUSCO: Conserved Orthologs") +
+                coord_cartesian(clip = "on") +
+                theme(
+                    panel.border = element_rect(fill = NA),
+                    legend.position = "bottom",
+                    axis.title.y = element_text(angle = 90),
+                    axis.title.x = element_blank()
+                )
+                ggplotly(p)
+                \n```') %>%
     write_lines(glue::glue("busco_files/orthologs/_{ unique(busco_reports$sample)[i] }_orthologs.Rmd"))
 }
 ```
@@ -410,66 +410,66 @@ BUSCO assess assembly quality based on the presence / absence of expected single
 for (i in 1:length(unique(busco_reports$sample))) {
     cur_sample <-  unique(busco_reports$sample)[i]
     # The BUSCO valueboxes contain information on which stage of the assembly had the highest quality, this requires some variables.
-  completeness_val <-  busco_reports %>% 
-    filter(sample == cur_sample) %>% 
-    filter(Var == "Complete") %>% 
-    filter(value == max(value)) %$%
-    value %>% 
-    unique()
-  completeness_stage  <-  busco_reports %>% 
-    filter(sample == cur_sample) %>% 
-    filter(Var == "Complete") %>% 
-    filter(value == max(value)) %$%
+    completeness_val <-  busco_reports %>%
+        filter(sample == cur_sample) %>%
+        filter(Var == "Complete") %>%
+        filter(value == max(value)) %$%
+        value %>%
+        unique()
+    completeness_stage  <-  busco_reports %>%
+        filter(sample == cur_sample) %>%
+        filter(Var == "Complete") %>%
+        filter(value == max(value)) %$%
+        stage
+    frag_val <-  busco_reports %>%
+        filter(sample == cur_sample) %>%
+        filter(Var == "Fragmented") %>%
+        filter(value == max(value)) %$%
+        value %>%
+        unique()
+    frag_stage  <-  busco_reports %>%
+        filter(sample == cur_sample) %>%
+        filter(Var == "Fragmented") %>%
+        filter(value == max(value)) %$%
+        stage
+    missing_val <-  busco_reports %>%
+        filter(sample == cur_sample) %>%
+        filter(Var == "Missing") %>%
+        filter(value == max(value)) %$%
+    value %>%
+        unique()
+    missing_stage  <-  busco_reports %>%
+        filter(sample == cur_sample) %>%
+        filter(Var == "Missing") %>%
+        filter(value == max(value)) %$%
     stage
-  frag_val <-  busco_reports %>% 
-    filter(sample == cur_sample) %>% 
-    filter(Var == "Fragmented") %>% 
-    filter(value == max(value)) %$%
-    value %>% 
-    unique()
-  frag_stage  <-  busco_reports %>% 
-    filter(sample == cur_sample) %>% 
-    filter(Var == "Fragmented") %>% 
-    filter(value == max(value)) %$%
-    stage
-  missing_val <-  busco_reports %>% 
-    filter(sample == cur_sample) %>% 
-    filter(Var == "Missing") %>% 
-    filter(value == max(value)) %$%
-    value %>% 
-    unique()
-  missing_stage  <-  busco_reports %>% 
-    filter(sample == cur_sample) %>% 
-    filter(Var == "Missing") %>% 
-    filter(value == max(value)) %$%
-    stage
-  cat(paste('## ', unique(busco_reports$sample)[i]),
-      paste0('\n\n'),
-      paste0('### {.fill} \n\n'),
-      paste0('::: {.valuebox icon="percent" color="success" title="Max. BUSCO Completeness" }\n'),
-      paste0('\n'),
-      glue::glue("{unique(completeness_val)}%,\nat stage(s): {paste(unique(completeness_stage), collapse = ', ')}"),
-      paste0('\n'),
-      paste0(':::'), 
-      paste0('\n'),
-      paste0('::: {.valuebox icon="heartbreak" color="warning" title="Max. BUSCO Fragmented"}\n'),
-      glue::glue("{unique(frag_val)}%,\nat stage(s): {paste(unique(frag_stage), collapse = ', ')}"),
-      paste0('\n'),
-      paste0('\n'),
-      paste0(':::'), 
-      paste0('\n'),
-      paste0('::: {.valuebox icon="person-walking" color="danger" title="Max. BUSCOs Missing"}\n'),
-      glue::glue("{unique(missing_val)}%, at stage(s): {paste(unique(missing_stage), collapse = ', ')}"),
-      paste0('\n'),
-      paste0(':::'), 
-      paste0('\n\n'),
-      paste('### { .flow }'),
-      paste0('\n\n'),
-      knitr::knit_child(glue::glue('busco_files/orthologs/_{ unique(busco_reports$sample)[i] }_orthologs.Rmd'), 
-                        envir = globalenv(), 
-                        quiet = TRUE),
-      paste0('\n\n\n'),
-      sep = "")
+    cat(paste('## ', unique(busco_reports$sample)[i]),
+        paste0('\n\n'),
+        paste0('### {.fill} \n\n'),
+        paste0('::: {.valuebox icon="percent" color="success" title="Max. BUSCO Completeness" }\n'),
+        paste0('\n'),
+        glue::glue("{unique(completeness_val)}%,\nat stage(s): {paste(unique(completeness_stage), collapse = ', ')}"),
+        paste0('\n'),
+        paste0(':::'),
+        paste0('\n'),
+        paste0('::: {.valuebox icon="heartbreak" color="warning" title="Max. BUSCO Fragmented"}\n'),
+        glue::glue("{unique(frag_val)}%,\nat stage(s): {paste(unique(frag_stage), collapse = ', ')}"),
+        paste0('\n'),
+        paste0('\n'),
+        paste0(':::'),
+        paste0('\n'),
+        paste0('::: {.valuebox icon="person-walking" color="danger" title="Max. BUSCOs Missing"}\n'),
+        glue::glue("{unique(missing_val)}%, at stage(s): {paste(unique(missing_stage), collapse = ', ')}"),
+        paste0('\n'),
+        paste0(':::'),
+        paste0('\n\n'),
+        paste('### { .flow }'),
+        paste0('\n\n'),
+        knitr::knit_child(glue::glue('busco_files/orthologs/_{ unique(busco_reports$sample)[i] }_orthologs.Rmd'),
+                            envir = globalenv(),
+                            quiet = TRUE),
+        paste0('\n\n\n'),
+        sep = "")
 }
 ```
 :::
@@ -500,8 +500,8 @@ jellyfish / genomescope was not included in the pipeline run.
 #| output: false
 #| warning: false
 # Parse the genomescope statistics
-genomescope_out <- list.files(paste0(data_base, "genomescope"), full.names = T, pattern = "genomescope.txt") %>% 
-  map_dfr(\(x) read_genomescope(x))
+genomescope_out <- list.files(paste0(data_base, "genomescope"), full.names = T, pattern = "genomescope.txt") %>%
+    map_dfr(\(x) read_genomescope(x))
 ```
 
 ::: {.content-visible when-profile="jellyfish"}
@@ -514,9 +514,9 @@ Jellyfish and genomescope are used to infer genome size from the initial ONT rea
 img_files <- list.files(paste0(data_base,"genomescope"), full.names = T, pattern = "plot.png")
 dir.create("genomescope_files")
 for (file in img_files) {
-  file.copy(from = file,
+    file.copy(from = file,
             to   = paste0("genomescope_files/", file %>% basename(), sep =""))
-  
+
 }
 img_files <- list.files("genomescope_files", full.names = T, pattern = "plot.png")
 
@@ -541,90 +541,90 @@ meryl and merqury were not included in the pipeline run.
 #| output: false
 
 # Here the merqury stats are parsed and the assembly stage is extracted
-merqury_stats <- list.files(paste0(data_base, "merqury"), full.names = T, pattern = "stats") %>% 
-  lapply(\(x) {
-    read_tsv(x, col_names = c("sample_stage","all","assembly","total","percent"), show_col_types = FALSE) %>% 
-    mutate(sample = str_extract(x %>% basename(),
-                              ".+?(?=_[assemble|links|longstitch|ragtag|medaka|pilon])"),
-         stage = case_when(
-                  str_detect(x, "_ragtag") ~ "RagTag",
-                  str_detect(x, "_medaka") ~ "medaka",
-                  str_detect(x, "_pilon") ~ "pilon",
-                  str_detect(x, "_longstitch") ~ "longstitch",
-                  str_detect(x, "_links") ~ "LINKS",
-                  str_detect(x, "assemble") ~ "Assembly",
-                  TRUE ~ "Unknown")) }) %>% 
-  bind_rows()
+merqury_stats <- list.files(paste0(data_base, "merqury"), full.names = T, pattern = "stats") %>%
+    lapply(\(x) {
+    read_tsv(x, col_names = c("sample_stage","all","assembly","total","percent"), show_col_types = FALSE) %>%
+    mutate( sample = str_extract(x %>% basename(),
+                                ".+?(?=_[assemble|links|longstitch|ragtag|medaka|pilon])"),
+            stage = case_when(
+                    str_detect(x, "_ragtag") ~ "RagTag",
+                    str_detect(x, "_medaka") ~ "medaka",
+                    str_detect(x, "_pilon") ~ "pilon",
+                    str_detect(x, "_longstitch") ~ "longstitch",
+                    str_detect(x, "_links") ~ "LINKS",
+                    str_detect(x, "assemble") ~ "Assembly",
+                    TRUE ~ "Unknown")) }) %>%
+    bind_rows()
 # This parses the assembly stats
-merqury_asm_hists <- list.files(paste0(data_base, "/merqury"), full.names = T, pattern = "asm.hist")  %>% 
-  lapply(\(x) {
-           read_tsv(x, col_names = T, show_col_types = FALSE) %>% 
-           mutate(
-             sample = str_extract(x %>% basename(),
-                              ".+?(?=_[assemble|links|longstitch|ragtag|medaka|pilon])"),
-              stage = case_when(
-                  str_detect(x, "_ragtag") ~ "RagTag",
-                  str_detect(x, "_medaka") ~ "medaka",
-                  str_detect(x, "_pilon") ~ "pilon",
-                  str_detect(x, "_longstitch") ~ "longstitch",
-                  str_detect(x, "_links") ~ "LINKS",
-                  str_detect(x, "assemble") ~ "Assembly",
-                  TRUE ~ "Unknown"),
-              Assembly = as.factor(Assembly),
-              stage = as.factor(stage),
-              sample = as.factor(sample),
-              kmer_multiplicity = as.integer(kmer_multiplicity),
-              Count = as.integer(Count))
-           }) %>% 
-  bind_rows()
+merqury_asm_hists <- list.files(paste0(data_base, "/merqury"), full.names = T, pattern = "asm.hist")  %>%
+    lapply(\(x) {
+            read_tsv(x, col_names = T, show_col_types = FALSE) %>%
+            mutate(
+                sample = str_extract(x %>% basename(),
+                                    ".+?(?=_[assemble|links|longstitch|ragtag|medaka|pilon])"),
+                stage = case_when(
+                    str_detect(x, "_ragtag") ~ "RagTag",
+                    str_detect(x, "_medaka") ~ "medaka",
+                    str_detect(x, "_pilon") ~ "pilon",
+                    str_detect(x, "_longstitch") ~ "longstitch",
+                    str_detect(x, "_links") ~ "LINKS",
+                    str_detect(x, "assemble") ~ "Assembly",
+                    TRUE ~ "Unknown"),
+                Assembly = as.factor(Assembly),
+                stage = as.factor(stage),
+                sample = as.factor(sample),
+                kmer_multiplicity = as.integer(kmer_multiplicity),
+                Count = as.integer(Count))
+            }) %>%
+    bind_rows()
 # This parses the copy number file
-merqury_cn_hists <- list.files(paste0(data_base, "merqury"), full.names = T, pattern = "cn.hist")  %>% 
-  lapply(\(x) {
-           read_tsv(x, col_names = T, show_col_types = FALSE) %>% 
-           mutate(
-             sample = str_extract(x %>% basename(),
-                              ".+?(?=_[assemble|links|longstitch|ragtag|medaka|pilon])"),
-              stage = case_when(
-                  str_detect(x, "_ragtag") ~ "RagTag",
-                  str_detect(x, "_medaka") ~ "medaka",
-                  str_detect(x, "_pilon") ~ "pilon",
-                  str_detect(x, "_longstitch") ~ "longstitch",
-                  str_detect(x, "_links") ~ "LINKS",
-                  str_detect(x, "assemble") ~ "Assembly",
-                  TRUE ~ "Unknown"),
-              Copies = as.factor(Copies),
-              stage = as.factor(stage),
-              sample = as.factor(sample),
-              kmer_multiplicity = as.integer(kmer_multiplicity),
-              Count = as.integer(Count))
-           }) %>% 
-  bind_rows()
+merqury_cn_hists <- list.files(paste0(data_base, "merqury"), full.names = T, pattern = "cn.hist")  %>%
+    lapply(\(x) {
+            read_tsv(x, col_names = T, show_col_types = FALSE) %>%
+            mutate(
+                sample = str_extract(x %>% basename(),
+                                ".+?(?=_[assemble|links|longstitch|ragtag|medaka|pilon])"),
+                stage = case_when(
+                    str_detect(x, "_ragtag") ~ "RagTag",
+                    str_detect(x, "_medaka") ~ "medaka",
+                    str_detect(x, "_pilon") ~ "pilon",
+                    str_detect(x, "_longstitch") ~ "longstitch",
+                    str_detect(x, "_links") ~ "LINKS",
+                    str_detect(x, "assemble") ~ "Assembly",
+                    TRUE ~ "Unknown"),
+                Copies = as.factor(Copies),
+                stage = as.factor(stage),
+                sample = as.factor(sample),
+                kmer_multiplicity = as.integer(kmer_multiplicity),
+                Count = as.integer(Count))
+            }) %>%
+    bind_rows()
 # This parses the qv file
-merqury_qv <- list.files(paste0(data_base, "merqury"), full.names = T, pattern = ".qv") %>% 
+merqury_qv <- list.files(paste0(data_base, "merqury"), full.names = T, pattern = ".qv") %>%
         lapply(\(x) {
-              read_tsv(x,
-                       col_names = c("Assembly", "kmers_assembly_unique", "kmers_assembly_shared", "QV", "error_rate"),
-                       show_col_types = FALSE) %>% 
-               mutate(
-             sample = str_extract(x %>% basename(),
-                              ".+?(?=_[assemble|links|longstitch|ragtag|medaka|pilon])"),
-              stage = case_when(
-                  str_detect(x, "_ragtag") ~ "RagTag",
-                  str_detect(x, "_medaka") ~ "medaka",
-                  str_detect(x, "_pilon") ~ "pilon",
-                  str_detect(x, "_longstitch") ~ "longstitch",
-                  str_detect(x, "_links") ~ "LINKS",
-                  str_detect(x, "assemble") ~ "Assembly",
-                  TRUE ~ "Unknown"),
-                  stage = as.factor(stage),
-                  sample = as.factor(sample),
-                  kmers_assembly_shared = as.integer(kmers_assembly_shared),
-                  kmers_assembly_unique = as.integer(kmers_assembly_unique),
-                  QV = as.double(QV),
-                  error_rate = as.double(error_rate))
-          }
-          ) %>% 
-  bind_rows()
+                read_tsv(x,
+                    col_names = c("Assembly", "kmers_assembly_unique", "kmers_assembly_shared", "QV", "error_rate"),
+                    show_col_types = FALSE) %>%
+                mutate(
+                    sample = str_extract(x %>% basename(),
+                                ".+?(?=_[assemble|links|longstitch|ragtag|medaka|pilon])"),
+                    stage = case_when(
+                        str_detect(x, "_ragtag") ~ "RagTag",
+                        str_detect(x, "_medaka") ~ "medaka",
+                        str_detect(x, "_pilon") ~ "pilon",
+                        str_detect(x, "_longstitch") ~ "longstitch",
+                        str_detect(x, "_links") ~ "LINKS",
+                        str_detect(x, "assemble") ~ "Assembly",
+                        TRUE ~ "Unknown"),
+                    stage = as.factor(stage),
+                    sample = as.factor(sample),
+                    kmers_assembly_shared = as.integer(kmers_assembly_shared),
+                    kmers_assembly_unique = as.integer(kmers_assembly_unique),
+                    QV = as.double(QV),
+                    error_rate = as.double(error_rate))
+            }
+        ) %>%
+    bind_rows()
 dir.create("merqury_files")
 ```
 
@@ -634,11 +634,11 @@ dir.create("merqury_files")
 # This generates QV-plots from merqury; the plot function is stuffed into plot_merqury
 dir.create("merqury_files/qv_plots/")
 for (i in 1:length(unique(merqury_qv$sample))) {
-  cur_sample <- unique(merqury_qv$sample)[i]
-  paste0('```{r}
-p <- merqury_qv %>% 
-         plot_merqury_qv("', cur_sample,'") 
-ggplotly(p)\n```') %>% 
+    cur_sample <- unique(merqury_qv$sample)[i]
+    paste0('```{r}
+p <- merqury_qv %>%
+    plot_merqury_qv("', cur_sample,'")
+ggplotly(p)\n```') %>%
     write_lines(glue::glue("merqury_files/qv_plots/_{ cur_sample }_qv_plt.Rmd"))
 }
 ```
@@ -650,11 +650,11 @@ ggplotly(p)\n```') %>%
 
 dir.create("merqury_files/stat_plots/")
 for (i in 1:length(unique(merqury_stats$sample))) {
-  cur_sample <- unique(merqury_stats$sample)[i]
-  paste0('```{r}
-p <- merqury_stats %>% 
-        plot_merqury_stats("', cur_sample,'") 
-ggplotly(p)\n```') %>% 
+    cur_sample <- unique(merqury_stats$sample)[i]
+    paste0('```{r}
+p <- merqury_stats %>%
+    plot_merqury_stats("', cur_sample,'")
+ggplotly(p)\n```') %>%
     write_lines(glue::glue("merqury_files/stat_plots/_{ cur_sample }_completeness_plt.Rmd"))
 }
 ```
@@ -666,11 +666,11 @@ ggplotly(p)\n```') %>%
 
 dir.create("merqury_files/asm_plots/")
 for (i in 1:length(unique(merqury_asm_hists$sample))) {
-  cur_sample <- unique(merqury_asm_hists$sample)[i]
-  paste0('```{r}
-p <- merqury_asm_hists %>% 
-        plot_merqury_multiplicity("', cur_sample,'") 
-ggplotly(p)\n```') %>% 
+    cur_sample <- unique(merqury_asm_hists$sample)[i]
+    paste0('```{r}
+p <- merqury_asm_hists %>%
+        plot_merqury_multiplicity("', cur_sample,'")
+ggplotly(p)\n```') %>%
     write_lines(glue::glue("merqury_files/asm_plots/_{ cur_sample }_asm_plt.Rmd"))
 }
 ```
@@ -682,11 +682,11 @@ ggplotly(p)\n```') %>%
 
 dir.create("merqury_files/cn_plots/")
 for (i in 1:length(unique(merqury_cn_hists$sample))) {
-  cur_sample <- unique(merqury_cn_hists$sample)[i]
-  paste0('```{r}
-p <- merqury_cn_hists %>% 
-         plot_merqury_copynumber("', cur_sample,'") 
-ggplotly(p)\n```') %>% 
+    cur_sample <- unique(merqury_cn_hists$sample)[i]
+    paste0('```{r}
+p <- merqury_cn_hists %>%
+        plot_merqury_copynumber("', cur_sample,'")
+ggplotly(p)\n```') %>%
     write_lines(glue::glue("merqury_files/cn_plots/_{ cur_sample }_cn_plt.Rmd"))
 }
 ```
@@ -705,86 +705,86 @@ merqury compares k-mer spectra between assemblies and short read libraries to as
 
 for (i in 1:length(unique(merqury_stats$sample))) {
     cur_sample <-  unique(merqury_stats$sample)[i]
-  highest_val <-  merqury_stats %>% 
-    filter(sample == cur_sample) %>% 
-    filter(percent == max(percent)) %$% 
-    percent %>% 
-    unique() 
-  highest_stage  <-  merqury_stats %>% 
-    filter(sample == cur_sample) %>% 
-    filter(percent == highest_val) %$%
-    stage %>% 
-    unique()
-  lowest_val <-  merqury_stats %>% 
-    filter(sample == cur_sample) %>% 
-    filter(percent == min(percent)) %$% 
-    percent %>% 
-    unique() 
-  lowest_stage  <-  merqury_stats %>% 
-    filter(sample == cur_sample) %>% 
-    filter(percent == lowest_val) %$%
-    stage %>% 
-    unique()
-  highest_qv  <- merqury_qv  %>%
-    filter(sample == cur_sample)  %>%
-    filter(QV == max(QV)) %$%
-    QV %>%
-    unique()
-  highest_qv_stage  <- merqury_qv  %>%
-    filter(sample == cur_sample)  %>%
-    filter(QV == max(QV)) %$%
-    stage %>% 
-    unique()
-        
-  cat(paste('## ', cur_sample),
-      paste0('\n\n'),
-      paste0('### Valueboxes'),
-      paste0('\n\n'),
-      paste0('::: {.valuebox icon="exclude" color="primary" title="Merqury QV" }\n'),
-      glue::glue("QV: {unique(highest_qv) %>% round(2)}, at stage(s): {paste(highest_qv_stage, collapse = ', ')}"),
-      paste0('\n'),
-      paste0(':::'), 
-      paste0('\n\n'),
-      paste0('::: {.valuebox icon="percent" color="success" title="Highest k-mer completeness" }\n'),
-      glue::glue("{unique(highest_val) %>% round(2)}%, at stage(s): {paste(highest_stage, collapse = ', ')}"),
-      paste0('\n'),
-      paste0(':::'), 
-      paste0('\n\n'),
-      paste0('::: {.valuebox icon="heartbreak" color="warning" title="Lowest k-mer completeness" }\n'),
-      glue::glue("{unique(lowest_val) %>% round(2)}%, at stage(s): {paste(lowest_stage, collapse = ', ')}"),
-      paste0('\n'),
-      paste0(':::'), 
-      paste0('\n\n'),
-      paste0('\n\n'),
-      paste0('### Plots { .tabset }'),
-      paste0('\n\n'),
-      paste0('#### Completeness \n'),
-      paste0('\n'),
-      knitr::knit_child(glue::glue('merqury_files/stat_plots/_{ cur_sample }_completeness_plt.Rmd'), 
-                  envir = globalenv(), 
-                  quiet = TRUE),
-      paste0('\n'),
-      paste0('#### QV \n'),
-      paste0('\n'),
-      paste0('QV is defined as:\n', expression(10*-log10(error_rate))),
-      paste0('\n'),
-      knitr::knit_child(glue::glue('merqury_files/qv_plots/_{ cur_sample }_qv_plt.Rmd'), 
-                  envir = globalenv(), 
-                  quiet = TRUE),
-      paste0('\n'),
-      paste0('#### Spectra \n'),
-      paste0('\n'),
-      knitr::knit_child(glue::glue('merqury_files/asm_plots/_{ cur_sample }_asm_plt.Rmd'), 
-                  envir = globalenv(), 
-                  quiet = TRUE),
-      paste0('\n'),
-      paste0('#### Copy Number \n'),
-      paste0('\n'),
-      knitr::knit_child(glue::glue('merqury_files/cn_plots/_{ cur_sample }_cn_plt.Rmd'),
-                  envir = globalenv(),
-                  quiet = TRUE),
-      paste0('\n\n\n'),
-      sep = "")
+    highest_val <-  merqury_stats %>%
+        filter(sample == cur_sample) %>%
+        filter(percent == max(percent)) %$%
+        percent %>%
+        unique()
+    highest_stage  <-  merqury_stats %>%
+        filter(sample == cur_sample) %>%
+        filter(percent == highest_val) %$%
+        stage %>%
+        unique()
+    lowest_val <-  merqury_stats %>%
+        filter(sample == cur_sample) %>%
+        filter(percent == min(percent)) %$%
+        percent %>%
+        unique()
+    lowest_stage  <-  merqury_stats %>%
+        filter(sample == cur_sample) %>%
+        filter(percent == lowest_val) %$%
+        stage %>%
+        unique()
+    highest_qv  <- merqury_qv  %>%
+        filter(sample == cur_sample)  %>%
+        filter(QV == max(QV)) %$%
+        QV %>%
+        unique()
+    highest_qv_stage  <- merqury_qv  %>%
+        filter(sample == cur_sample)  %>%
+        filter(QV == max(QV)) %$%
+        stage %>%
+        unique()
+
+    cat(paste('## ', cur_sample),
+        paste0('\n\n'),
+        paste0('### Valueboxes'),
+        paste0('\n\n'),
+        paste0('::: {.valuebox icon="exclude" color="primary" title="Merqury QV" }\n'),
+        glue::glue("QV: {unique(highest_qv) %>% round(2)}, at stage(s): {paste(highest_qv_stage, collapse = ', ')}"),
+        paste0('\n'),
+        paste0(':::'),
+        paste0('\n\n'),
+        paste0('::: {.valuebox icon="percent" color="success" title="Highest k-mer completeness" }\n'),
+        glue::glue("{unique(highest_val) %>% round(2)}%, at stage(s): {paste(highest_stage, collapse = ', ')}"),
+        paste0('\n'),
+        paste0(':::'),
+        paste0('\n\n'),
+        paste0('::: {.valuebox icon="heartbreak" color="warning" title="Lowest k-mer completeness" }\n'),
+        glue::glue("{unique(lowest_val) %>% round(2)}%, at stage(s): {paste(lowest_stage, collapse = ', ')}"),
+        paste0('\n'),
+        paste0(':::'),
+        paste0('\n\n'),
+        paste0('\n\n'),
+        paste0('### Plots { .tabset }'),
+        paste0('\n\n'),
+        paste0('#### Completeness \n'),
+        paste0('\n'),
+        knitr::knit_child(glue::glue('merqury_files/stat_plots/_{ cur_sample }_completeness_plt.Rmd'),
+                    envir = globalenv(),
+                    quiet = TRUE),
+        paste0('\n'),
+        paste0('#### QV \n'),
+        paste0('\n'),
+        paste0('QV is defined as:\n', expression(10*-log10(error_rate))),
+        paste0('\n'),
+        knitr::knit_child(glue::glue('merqury_files/qv_plots/_{ cur_sample }_qv_plt.Rmd'),
+                    envir = globalenv(),
+                    quiet = TRUE),
+        paste0('\n'),
+        paste0('#### Spectra \n'),
+        paste0('\n'),
+        knitr::knit_child(glue::glue('merqury_files/asm_plots/_{ cur_sample }_asm_plt.Rmd'),
+                    envir = globalenv(),
+                    quiet = TRUE),
+        paste0('\n'),
+        paste0('#### Copy Number \n'),
+        paste0('\n'),
+        knitr::knit_child(glue::glue('merqury_files/cn_plots/_{ cur_sample }_cn_plt.Rmd'),
+                    envir = globalenv(),
+                    quiet = TRUE),
+        paste0('\n\n\n'),
+        sep = "")
 }
 ```
 :::
