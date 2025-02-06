@@ -12,7 +12,7 @@ workflow MAP_TO_ASSEMBLY {
         .join(genome_assembly)
         .set { map_assembly }
 
-    ALIGN(map_assembly, true, false, false, false)
+    ALIGN(map_assembly, true, 'bai', false, false)
 
     ALIGN.out.bam.set { aln_to_assembly_bam }
 
