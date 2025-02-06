@@ -201,6 +201,7 @@ workflow GENOMEASSEMBLER {
     busco_files.view { f -> "BUSCO Files: $f"}
     merqury_files.view { f -> "merqury Files: $f"}
     */
+
     REPORT(report_files, report_functions, nanoq_files, genomescope_files, quast_files, busco_files, merqury_files)
 
     //
