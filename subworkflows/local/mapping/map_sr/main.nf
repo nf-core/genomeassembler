@@ -9,11 +9,11 @@ workflow MAP_SR {
     main:
     // map reads to assembly
     in_reads
-        .map { it -> [[id: it[0].id], it[0].paired, it[1]] }
+        .map { meta, reads -> [[id: meta.id, single_end: meta.single_end], reads] }
         .join(genome_assembly)
         .set { map_assembly }
 
-    ALIGN_SHORT(map_assembly, true, false, false, false)
+    ALIGN_SHORT(map_assembly, true, 'bai', false, false)
 
     ALIGN_SHORT.out.bam.set { aln_to_assembly_bam }
 
