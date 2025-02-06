@@ -1,4 +1,4 @@
-include { ALIGN_TO_BAM as ALIGN } from '../../../../modules/local/align/main'
+include { MINIMAP2_ALIGN as ALIGN } from '../../../../modules/nf-core/minimap2/align/main'
 include { BAM_INDEX_STATS_SAMTOOLS as BAM_STATS } from '../../bam_sort_stat/main'
 
 workflow MAP_TO_ASSEMBLY {
@@ -9,14 +9,16 @@ workflow MAP_TO_ASSEMBLY {
     main:
     // map reads to assembly
     in_reads
-    .join(genome_assembly)
-    .set { map_assembly }
+        .join(genome_assembly)
+        .set { map_assembly }
 
-    ALIGN(map_assembly)
+    ALIGN(map_assembly, true, false, false, false)
 
-    ALIGN.out.alignment.set { aln_to_assembly_bam }
+    ALIGN.out.bam.set { aln_to_assembly_bam }
 
-    ch_fasta = map_assembly.map { meta, _reads, fasta -> [meta, fasta] }
+    map_assembly
+        .map { meta, _reads, fasta -> [meta, fasta] }
+        .set { ch_fasta }
 
     BAM_STATS(aln_to_assembly_bam, ch_fasta )
 
