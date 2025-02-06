@@ -9,7 +9,7 @@ workflow MAP_SR {
     main:
     // map reads to assembly
     in_reads
-        .map { meta, reads -> [[id: meta.id, single_end: meta.single_end], reads] }
+        .map { meta, reads -> [[id: meta.id], reads] }
         .join(genome_assembly)
         .set { map_assembly }
 
@@ -18,7 +18,7 @@ workflow MAP_SR {
     ALIGN_SHORT.out.bam.set { aln_to_assembly_bam }
 
     map_assembly
-        .map { meta, _paired, _reads, fasta -> [ meta, fasta ] }
+        .map { meta, _reads, fasta -> [ meta, fasta ] }
         .set { ch_fasta }
 
     BAM_STATS(aln_to_assembly_bam, ch_fasta)
