@@ -168,6 +168,7 @@ To ease configuration, there are a couple of pre-defined profiles for various co
 | ONT | HiFI  | Assembly strategy                                  | Profile name          |
 | --- | ----- | -------------------------------------------------- | --------------------- |
 | Yes | No    | flye                                               | `ont_flye`            |
+| Yes | No    | hifiasm                                            | `ont_hifiasm`         |
 | No  | Yes   | flye                                               | `hifi_flye`           |
 | No  | Yes   | hifiasm                                            | `hifi_hifiasm`        |
 | Yes | Yes   | hifiasm --ul                                       | `hifiont_hifiasm`     |
