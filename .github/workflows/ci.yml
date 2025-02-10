@@ -36,6 +36,8 @@ jobs:
           - "ont_hifiasm"
           - "hifiont_hifiasm"
           - "hifiont_flyehifiasm"
+        profile: ["conda", "docker", "singularity"]
+
     steps:
       - name: Check out pipeline code
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
@@ -49,4 +51,4 @@ jobs:
 
       - name: "Run pipeline with test data ${{ matrix.ASSEMBLER }}"
         run: |
-          nextflow run ${GITHUB_WORKSPACE} -profile test,docker,${{ matrix.ASSEMBLER }}  --outdir ./results_${{ matrix.ASSEMBLER }}
+          nextflow run ${GITHUB_WORKSPACE} -profile test,${{matrix.profile}},${{ matrix.ASSEMBLER }}  --outdir ./results_${{matrix.profile}}_${{ matrix.ASSEMBLER }}
