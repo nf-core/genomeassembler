@@ -27,8 +27,6 @@ Currently, this pipeline does not implement phasing of polyploid genomes or HiC 
   <img alt="nf-core/genomeassembler" src="docs/images/genomeassembler.light.png">
 </picture>
 
-![Pipeline metromap](docs/images/genomeassembler.light.png)
-
 ## Usage
 
 > [!NOTE]
