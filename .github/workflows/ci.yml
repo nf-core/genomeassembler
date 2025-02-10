@@ -51,4 +51,4 @@ jobs:
 
       - name: "Run pipeline with test data ${{ matrix.ASSEMBLER }}"
         run: |
-          nextflow run ${GITHUB_WORKSPACE} -profile test,${{matrix.profile}},${{ matrix.ASSEMBLER }}  --outdir ./results_${{matrix.profile}}_${{ matrix.ASSEMBLER }}
+          nextflow run ${GITHUB_WORKSPACE} -profile ${{ matrix.ASSEMBLER }},test,${{matrix.profile}}  --outdir ./results_${{matrix.profile}}_${{ matrix.ASSEMBLER }}
