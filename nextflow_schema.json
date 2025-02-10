@@ -197,7 +197,7 @@
                 "skip_assembly": {
                     "type": "boolean",
                     "description": "skip assembly steps",
-                    "help_text": "Skip assembly and perform only qc."
+                    "help_text": "Skip assembly and perform only qc. Requires 'assembly' column in the samplesheet"
                 },
                 "skip_alignments": {
                     "type": "boolean",
