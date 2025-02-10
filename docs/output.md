@@ -262,12 +262,12 @@ The pipeline collects the quality control outputs into an html report. Below is 
 
 <details markdown="1">
 <summary>Output files</summary>
-    
-  - `report/`:
-    - `busco_files/reports.tsv`: Table containing aggregated BUSCO reports
-    - `quast_files/reports.tsv`: Table containing aggregated QUAST reports
-    - `report.html` : The report file
-    - `report_files/`: Folder containing js and css. Required to properly display the `.html` file
+
+- `report/`:
+  - `busco_files/reports.tsv`: Table containing aggregated BUSCO reports
+  - `quast_files/reports.tsv`: Table containing aggregated QUAST reports
+  - `report.html` : The report file
+  - `report_files/`: Folder containing js and css. Required to properly display the `.html` file
 
 </details>
 

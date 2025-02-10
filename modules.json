@@ -51,6 +51,12 @@
                         "git_sha": "42140b76b12c18dbde34bfa7f2ef09afae8b054f",
                         "installed_by": ["modules"]
                     },
+                    "minimap2/align": {
+                        "branch": "master",
+                        "git_sha": "81880787133db07d9b4c1febd152c090eb8325dc",
+                        "installed_by": ["modules"],
+                        "patch": "modules/nf-core/minimap2/align/minimap2-align.diff"
+                    },
                     "pilon": {
                         "branch": "master",
                         "git_sha": "2816479e1de5c04f0907f74a53a2096ceaff558e",

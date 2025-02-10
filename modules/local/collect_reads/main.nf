@@ -6,16 +6,16 @@ process COLLECT_READS {
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://depot.galaxyproject.org/singularity/python:3.11':
         'biocontainers/python:3.11' }"
-  input:
+    input:
     tuple val(meta), path(read_directory)
-  
-  output:
+
+    output:
     tuple val(meta), path("*.fastq"), emit: combined_reads
-  
-  script:
+
+    script:
     def prefix = task.ext.prefix ?: "${meta.id}"
-      
-  """
-  gunzip -c ${read_directory}/*.gz > ${prefix}_all_reads.fastq
-  """
+
+    """
+    gunzip -c ${read_directory}/*.gz > ${prefix}_all_reads.fastq
+    """
 }

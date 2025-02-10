@@ -36,7 +36,7 @@ process MEDAKA_PARALLEL {
         -P -m \\
         -t $task.cpus \\
         -p ${prefix}_calls_to_draft \\
-          ${args1}
+        ${args1}
 
     # In medaka >= 2.0 this step is medaka inference, in earlier versions it is consensus
     mkdir inference
@@ -44,20 +44,20 @@ process MEDAKA_PARALLEL {
             # Medaka can do with 2 threads and may need some extra for IO
 
     sort -nrk2 \${assembly}.fai \\
-     | cut -f1 | xargs -P \$((${task.cpus}/2-4)) \\
-       -n1 \\
-       -I{} \\
-         medaka inference ${prefix}_calls_to_draft.bam \\
-           inference/{}.hdf \\
-           --region {} \\
-           --threads 2 \\
-           ${args2}
+        | cut -f1 | xargs -P \$((${task.cpus}/2-4)) \\
+        -n1 \\
+        -I{} \\
+            medaka inference ${prefix}_calls_to_draft.bam \\
+                inference/{}.hdf \\
+                --region {} \\
+                --threads 2 \\
+                ${args2}
 
     # In medaka >= 2.0 this step is medaka sequence, in earlier versions it is stitch
     medaka sequence \\
-         --threads \$((${task.cpus}-4)) \\
-          ${args3} \\
-          inference/*.hdf \$assembly ${prefix}.fa
+        --threads \$((${task.cpus}-4)) \\
+        ${args3} \\
+        inference/*.hdf \$assembly ${prefix}.fa
 
     gzip -n ${prefix}.fa
 

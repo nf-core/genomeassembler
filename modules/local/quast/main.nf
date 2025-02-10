@@ -1,11 +1,11 @@
 process QUAST {
-    tag "$meta.id"
+    tag "${meta.id}"
     label 'process_medium'
 
     conda "${moduleDir}/environment.yml"
-    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/quast:5.2.0--py39pl5321h2add14b_1' :
-        'biocontainers/quast:5.2.0--py39pl5321heaaa4ec_4' }"
+    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
+        ? 'https://depot.galaxyproject.org/singularity/quast:5.2.0--py39pl5321h2add14b_1'
+        : 'biocontainers/quast:5.2.0--py39pl5321heaaa4ec_4'}"
 
     input:
     tuple val(meta), path(consensus), path(fasta), path(gff), path(ref_bam), path(bam)
@@ -13,31 +13,31 @@ process QUAST {
     val use_gff
 
     output:
-    path "${meta.id}_*" , emit: results
-    path "*report.tsv"  , emit: tsv
-    path "versions.yml" , emit: versions
-    
+    path "${meta.id}_*", emit: results
+    path "*report.tsv", emit: tsv
+    path "versions.yml", emit: versions
 
     when:
     task.ext.when == null || task.ext.when
 
     script:
-    def subworkflow = "${task.process}".replace(':','/').split("/")[-3].toLowerCase() // this gets the current subworkflow
-    def args = task.ext.args   ?: ''
+    def subworkflow = "${task.process}".replace(':', '/').split("/")[-3].toLowerCase()
+    // this gets the current subworkflow
+    def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}_${subworkflow}"
-    def features  = use_gff ? "--features $gff" : ''
-    def reference = use_fasta ? "-r $fasta" : ''
+    def features = use_gff ? "--features ${gff}" : ''
+    def reference = use_fasta ? "-r ${fasta}" : ''
     def reference_bam = params.use_ref ? "--ref-bam ${ref_bam}" : ''
 
     """
     quast.py \\
         --output-dir ${prefix} \\
-        $reference \\
-        $features \\
-        --threads $task.cpus \\
+        ${reference} \\
+        ${features} \\
+        --threads ${task.cpus} \\
         ${consensus.join(' ')} \\
         --glimmer \\
-        $reference_bam \\
+        ${reference_bam} \\
         --bam ${bam} \\
         --large \\
         ${args}

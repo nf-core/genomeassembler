@@ -1,7 +1,16 @@
-repository_type: pipeline
-nf_core_version: 3.1.1
 lint:
   files_exist:
     - conf/igenomes.config
     - conf/igenomes_ignored.config
     - ro-crate-metadata.json
+nf_core_version: 3.2.0
+repository_type: pipeline
+template:
+  author: Niklas Schandry
+  description: Assemble genomes from long ONT or pacbio HiFi reads
+  force: false
+  is_nfcore: true
+  name: genomeassembler
+  org: nf-core
+  outdir: .
+  version: 1.0.0

@@ -5,41 +5,41 @@ include { STATS } from '../../../modules/local/jellyfish/main'
 include { GENOMESCOPE } from '../../../modules/local/genomescope/main'
 
 workflow JELLYFISH {
-  take:
-  samples // id, fasta
-  nanoq_out
+    take:
+    samples // id, fasta
+    nanoq_out
 
-  main:
-  Channel.empty().set { genomescope_in }
-  COUNT(samples)
-  COUNT.out.set { kmers }
+    main:
+    Channel.empty().set { genomescope_in }
+    COUNT(samples)
+    COUNT.out.set { kmers }
 
-  if (params.dump) {
+    if (params.dump) {
     DUMP(kmers)
-  }
+    }
 
-  HISTO(kmers)
+    HISTO(kmers)
 
-  if (!params.read_length == null) {
+    if (!params.read_length == null) {
     HISTO.out.map { it -> [it[0], it[1], params.kmer_length, params.read_length] }.set { genomescope_in }
-  }
+    }
 
-  if (params.read_length == null) {
+    if (params.read_length == null) {
     HISTO.out.map { it -> [it[0], it[1], params.kmer_length] }.join(nanoq_out).set { genomescope_in }
-  }
+    }
 
-  GENOMESCOPE(genomescope_in)
+    GENOMESCOPE(genomescope_in)
 
-  STATS(kmers)
+    STATS(kmers)
 
-  GENOMESCOPE.out.estimated_hap_len.set { hap_len }
+    GENOMESCOPE.out.estimated_hap_len.set { hap_len }
 
-  GENOMESCOPE.out.summary.set { genomescope_summary }
+    GENOMESCOPE.out.summary.set { genomescope_summary }
 
-  GENOMESCOPE.out.plot.set { genomescope_plot }
+    GENOMESCOPE.out.plot.set { genomescope_plot }
 
-  emit:
-  hap_len
-  genomescope_summary
-  genomescope_plot
+    emit:
+    hap_len
+    genomescope_summary
+    genomescope_plot
 }
