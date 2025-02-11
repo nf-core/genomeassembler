@@ -13,10 +13,15 @@ process GFA_2_FA {
     tuple val(meta), path("*fa.gz"), emit: contigs_fasta
 
     script:
-
     """
     outfile=\$(basename $gfa_file .gfa).fa.gz
     awk '/^S/{print ">"\$2;print \$3}' ${gfa_file} \\
     | gzip > \$outfile
+    """
+
+    stub:
+    """
+    outfile=\$(basename $gfa_file .gfa).fa.gz
+    touch outfile
     """
 }
