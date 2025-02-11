@@ -10,7 +10,7 @@ on:
       testbranch:
         description: "The specific branch you wish to utilize for the test execution of nf-core pipelines download."
         required: true
-        default: "dev"
+        default: "gha_download"
   pull_request:
     types:
       - opened
