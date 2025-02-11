@@ -64,4 +64,12 @@ process REPORT {
         ${report_params} \\
         --to dashboard
     """
+    stub:
+    """
+    mkdir report_files && touch report_files/file.txt
+    touch report.html
+    mkdir busco_files && touch busco_files/reports.csv
+    mkdir quast_files && touch quast_files/reports.csv
+    mkdir genomescope_files && touch genomescope_files/file.txt
+    """
 }

@@ -23,4 +23,12 @@ process LINKS {
     LINKS -f ${assembly} -s readfile.fof -j 3 -b ${prefix}_links -t 40,200 -d 500,2000,5000
     sed -i 's/\\(scaffold[0-9]*\\).*/\\1/' ${prefix}_links.scaffolds.fa
     """
+    stub:
+    def prefix = task.ext.prefix ?: "${meta.id}"
+    """
+    touch ${prefix}_links.scaffolds.fa
+    touch ${prefix}_links.scaffolds
+    touch ${prefix}.gv
+    touch ${prefix}.log
+    """
 }

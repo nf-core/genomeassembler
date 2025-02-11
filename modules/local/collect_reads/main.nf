@@ -18,4 +18,10 @@ process COLLECT_READS {
     """
     gunzip -c ${read_directory}/*.gz > ${prefix}_all_reads.fastq
     """
+
+    stub:
+    def prefix = task.ext.prefix ?: "${meta.id}"
+    """
+    touch ${prefix}_all_reads.fastq
+    """
 }

@@ -31,6 +31,12 @@ process COUNT {
 
         mv mer_counts.jf ${prefix}_mer_counts.jf
         """
+        stub:
+        def prefix = task.ext.prefix ?: "${meta.id}"
+        """
+        touch ${prefix}_mer_counts.jf
+        """
+
 }
 
 process HISTO {
@@ -50,6 +56,11 @@ process HISTO {
     def prefix = task.ext.prefix ?: "${meta.id}"
     """
     jellyfish histo ${kmers} > ${prefix}_hist.tsv
+    """
+    stub:
+    def prefix = task.ext.prefix ?: "${meta.id}"
+    """
+    touch ${prefix}_hist.tsv
     """
 }
 
@@ -71,6 +82,11 @@ process STATS {
     """
     jellyfish stats ${kmers} > ${prefix}_stats.txt
     """
+    stub:
+    def prefix = task.ext.prefix ?: "${meta.id}"
+    """
+    touch ${prefix}_stats.txt
+    """
 }
 
 process DUMP {
@@ -90,5 +106,10 @@ process DUMP {
     def prefix = task.ext.prefix ?: "${meta.id}"
     """
     jellyfish dump ${kmers} > ${prefix}_kmers.fa
+    """
+    stub:
+    def prefix = task.ext.prefix ?: "${meta.id}"
+    """
+    touch ${prefix}_kmers.fa
     """
 }
