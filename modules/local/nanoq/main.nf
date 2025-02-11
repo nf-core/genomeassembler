@@ -18,7 +18,21 @@ process NANOQ {
     script:
     def prefix = task.ext.prefix ?: "${meta.id}"
     """
-        nanoq -i ${reads} -j -r ${prefix}_report.json -s -H -vvv > ${prefix}_stats.json
-        median=\$(cat ${prefix}_report.json | grep -o '"median_length":[0-9]*' | grep -o '[0-9]*')
-        """
+    nanoq -i ${reads} -j -r ${prefix}_report.json -s -H -vvv > ${prefix}_stats.json
+    median=\$(cat ${prefix}_report.json | grep -o '"median_length":[0-9]*' | grep -o '[0-9]*')
+    """
+
+    stub:
+    def args = task.ext.args ?: ''
+    def prefix = task.ext.prefix ?: "${meta.id}"
+    """
+    touch ${prefix}_report.json
+    touch ${prefix}_stats.json
+    median=1
+
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+        nanoq: \$(nanoq -V 2>&1)
+    END_VERSIONS
+    """
 }
