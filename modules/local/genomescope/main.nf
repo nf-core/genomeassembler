@@ -17,15 +17,23 @@ process GENOMESCOPE {
 
     script:
     def prefix = task.ext.prefix ?: "${meta.id}"
-        """
-        genomescope.R $histo $kmer_length $read_length genomescope
-        mv genomescope/summary.txt ${prefix}_genomescope.txt
-        mv genomescope/plot.log.png ${prefix}_plot.log.png
-        mv genomescope/plot.png ${prefix}_plot.png
-        est_hap_len=\$(cat ${prefix}_genomescope.txt \\
-            | grep 'Haploid Length' \\
-            | sed 's@ bp@@g' \\
-            | sed 's@,@@g' \\
-            | awk '{printf "%i", (\$4+\$5)/2 }')
-        """
+    """
+    genomescope.R $histo $kmer_length $read_length genomescope
+    mv genomescope/summary.txt ${prefix}_genomescope.txt
+    mv genomescope/plot.log.png ${prefix}_plot.log.png
+    mv genomescope/plot.png ${prefix}_plot.png
+    est_hap_len=\$(cat ${prefix}_genomescope.txt \\
+        | grep 'Haploid Length' \\
+        | sed 's@ bp@@g' \\
+        | sed 's@,@@g' \\
+        | awk '{printf "%i", (\$4+\$5)/2 }')
+    """
+    stub:
+    def prefix = task.ext.prefix ?: "${meta.id}"
+    """
+    touch ${prefix}_genomescope.txt
+    touch ${prefix}_plot.log.png
+    touch ${prefix}_plot.png
+    est_hap_len=1
+    """
 }

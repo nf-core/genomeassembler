@@ -37,4 +37,12 @@ process RAGTAG_SCAFFOLD {
     mv ${assembly}_ragtag_${reference}/ragtag.scaffold.agp ${assembly}_ragtag_${reference}/${assembly}_ragtag_${reference}.agp
     mv ${assembly}_ragtag_${reference}/ragtag.scaffold.stats ${assembly}_ragtag_${reference}/${assembly}_ragtag_${reference}.stats
     """
+
+    stub:
+    """
+    mkdir ${assembly}_ragtag_${reference}
+    touch ${assembly}_ragtag_${reference}/${assembly}_ragtag_${reference}.fasta
+    touch ${assembly}_ragtag_${reference}/${assembly}_ragtag_${reference}.agp
+    touch ${assembly}_ragtag_${reference}/${assembly}_ragtag_${reference}.stats
+    """
 }

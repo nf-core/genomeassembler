@@ -44,4 +44,13 @@ process MEDAKA {
         medaka: \$( medaka --version 2>&1 | sed 's/medaka //g' )
     END_VERSIONS
     """
+    stub:
+    def prefix = task.ext.prefix ?: "${meta.id}"
+    """
+    touch ${prefix}_medaka.fa.gz
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+        medaka: \$( medaka --version 2>&1 | sed 's/medaka //g' )
+    END_VERSIONS
+    """
 }

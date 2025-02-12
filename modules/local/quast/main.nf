@@ -13,7 +13,7 @@ process QUAST {
     val use_gff
 
     output:
-    path "${meta.id}_*", emit: results
+    path "${prefix}*", emit: results
     path "*report.tsv", emit: tsv
     path "versions.yml", emit: versions
 
@@ -21,10 +21,8 @@ process QUAST {
     task.ext.when == null || task.ext.when
 
     script:
-    def subworkflow = "${task.process}".replace(':', '/').split("/")[-3].toLowerCase()
-    // this gets the current subworkflow
     def args = task.ext.args ?: ''
-    def prefix = task.ext.prefix ?: "${meta.id}_${subworkflow}"
+    def prefix = task.ext.prefix ?: "${meta.id}"
     def features = use_gff ? "--features ${gff}" : ''
     def reference = use_fasta ? "-r ${fasta}" : ''
     def reference_bam = params.use_ref ? "--ref-bam ${ref_bam}" : ''
@@ -42,6 +40,17 @@ process QUAST {
         --large \\
         ${args}
 
+    ln -s ${prefix}/report.tsv ${prefix}_report.tsv
+
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+        quast: \$(quast.py --version 2>&1 | sed 's/^.*QUAST v//; s/ .*\$//')
+    END_VERSIONS
+    """
+    stub:
+    def prefix = task.ext.prefix ?: "${meta.id}"
+    """
+    mkdir ${prefix} && touch ${prefix}/report.tsv
     ln -s ${prefix}/report.tsv ${prefix}_report.tsv
 
     cat <<-END_VERSIONS > versions.yml
