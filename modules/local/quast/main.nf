@@ -13,7 +13,7 @@ process QUAST {
     val use_gff
 
     output:
-    path "${prefix}/*", emit: results
+    path "${meta.id}*/", emit: results
     path "*report.tsv", emit: tsv
     path "versions.yml", emit: versions
 
