@@ -35,8 +35,13 @@ process LONGSTITCH {
     fi
 
     longstitch tigmint-ntLink-arks draft=assembly reads=reads t=${task.cpus} G=135e6 out_prefix=${prefix}
-    cat *.tigmint-ntLink-arks.longstitch-scaffolds.fa | sed 's/\\(scaffold[0-9]*\\),.*/\\1/' > ${prefix}.tigmint-ntLink-arks.longstitch-scaffolds.fa
-    cat *.tigmint-ntLink.longstitch-scaffolds.fa | sed 's/\\(scaffold[0-9]*\\),.*/\\1/' > ${prefix}.tigmint-ntLink.longstitch-scaffolds.fa
+
+    mv *.tigmint-ntLink-arks.longstitch-scaffolds.fa ${prefix}.tigmint-ntLink-arks.longstitch-scaffolds.fa
+    sed -i 's/\\(scaffold[0-9]*\\),.*/\\1/' ${prefix}.tigmint-ntLink-arks.longstitch-scaffolds.fa
+
+
+    mv  *.tigmint-ntLink.longstitch-scaffolds.fa  ${prefix}.tigmint-ntLink.longstitch-scaffolds.fa
+    sed -i 's/\\(scaffold[0-9]*\\),.*/\\1/' ${prefix}.tigmint-ntLink.longstitch-scaffolds.fa
     """
     stub:
     def prefix = task.ext.prefix ?: "${meta.id}"
