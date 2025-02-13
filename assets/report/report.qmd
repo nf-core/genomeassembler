@@ -4,8 +4,8 @@ author: "Niklas Schandry"
 format: dashboard
 editor: source
 nav-buttons:
-        - icon: github
-            href: https://github.com/nschan/genomeassembler
+    - icon: github
+    - href: https://github.com/nf-core/genomeassembler
 params:
     nanoq: false
     busco: false
