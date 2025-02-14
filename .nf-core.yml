@@ -2,6 +2,11 @@ lint:
   files_exist:
     - conf/igenomes.config
     - conf/igenomes_ignored.config
+    - assets/multiqc_config.yml
+    - assets/sendmail_template.txt
+  files_unchanged:
+    - ".github/CONTRIBUTING.md"
+  multiqc_config: False
 nf_core_version: 3.2.0
 repository_type: pipeline
 template:
