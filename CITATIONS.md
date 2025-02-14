@@ -20,6 +20,8 @@
 
 - [porechop](https://github.com/rrwick/Porechop)
 
+  > Wick RR, Judd LM, Gorrie CL, Holt KE. Completing bacterial genome assemblies with multiplex MinION sequencing. Microb Genom. 2017;3(10):e000132. Published 2017 Sep 14. doi:10.1099/mgen.0.000132
+
 - [TrimGalore](https://github.com/FelixKrueger/TrimGalore)
 
   > Felix Krueger, Frankie James, Phil Ewels, Ebrahim Afyounian, Michael Weinstein, Benjamin Schuster-Boeckler, Gert Hulselmans, & sclamons. (2023). FelixKrueger/TrimGalore. Zenodo. https://doi.org/10.5281/zenodo.7598955
