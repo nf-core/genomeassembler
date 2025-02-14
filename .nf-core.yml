@@ -15,3 +15,10 @@ template:
   org: nf-core
   outdir: .
   version: 1.0.0
+linting:
+  files_unchanged:
+    - ".github/CONTRIBUTING.md"
+    - "assets/sendmail_template.txt"
+  files_exist:
+    - "assets/multiqc_config.yml"
+  multiqc_config: False
