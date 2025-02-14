@@ -2,6 +2,7 @@ lint:
   files_exist:
     - conf/igenomes.config
     - conf/igenomes_ignored.config
+    - assets/multiqc_config.yml
     - ro-crate-metadata.json
 nf_core_version: 3.2.0
 repository_type: pipeline
