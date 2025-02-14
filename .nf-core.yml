@@ -3,7 +3,10 @@ lint:
     - conf/igenomes.config
     - conf/igenomes_ignored.config
     - assets/multiqc_config.yml
-    - ro-crate-metadata.json
+    - assets/sendmail_template.txt
+  files_unchanged:
+    - ".github/CONTRIBUTING.md"
+  multiqc_config: False
 nf_core_version: 3.2.0
 repository_type: pipeline
 template:
@@ -15,10 +18,3 @@ template:
   org: nf-core
   outdir: .
   version: 1.0.0
-linting:
-  files_unchanged:
-    - ".github/CONTRIBUTING.md"
-    - "assets/sendmail_template.txt"
-  files_exist:
-    - "assets/multiqc_config.yml"
-  multiqc_config: False
