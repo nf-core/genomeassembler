@@ -161,19 +161,6 @@ If `-profile` is not specified, the pipeline will run locally and expect all sof
 - `conda`
   - A generic configuration profile to be used with [Conda](https://conda.io/docs/). Please only use Conda as a last resort i.e. when it's not possible to run the pipeline with Docker, Singularity, Podman, Shifter, Charliecloud, or Apptainer.
 
-#### Included profiles
-
-To ease configuration, there are a couple of pre-defined profiles for various combinations of read sources and assemblers (named readtype_assembler)
-
-| ONT | HiFI  | Assembly strategy                                  | Profile name          |
-| --- | ----- | -------------------------------------------------- | --------------------- |
-| Yes | No    | flye                                               | `ont_flye`            |
-| Yes | No    | hifiasm                                            | `ont_hifiasm`         |
-| No  | Yes   | flye                                               | `hifi_flye`           |
-| No  | Yes   | hifiasm                                            | `hifi_hifiasm`        |
-| Yes | Yes   | hifiasm --ul                                       | `hifiont_hifiasm`     |
-| Yes | Yes   | Scaffolding of ONT assemblies onto HiFi assemblies | `hifiont_flyehifiasm` |
-
 ### `-resume`
 
 Specify this when restarting a pipeline. Nextflow will use cached results from any pipeline steps where the inputs are the same, continuing from where it got to previously. For input to be considered the same, not only the names must be identical but the files' contents as well. For more info about this parameter, see [this blog post](https://www.nextflow.io/blog/2019/demystifying-nextflow-resume.html).
