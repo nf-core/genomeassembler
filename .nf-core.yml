@@ -18,3 +18,6 @@ template:
   org: nf-core
   outdir: .
   version: 1.0.0
+  skip_features:
+    - multiqc
+    - igenomes
