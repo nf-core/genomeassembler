@@ -74,7 +74,7 @@ workflow ASSEMBLE {
                     .set { hifiasm_inputs }
                 HIFIASM(hifiasm_inputs, [[], [], []], [[], [], []])
                 GFA_2_FA(HIFIASM.out.processed_contigs)
-                GFA_2_FA.out.set { ch_assembly }
+                GFA_2_FA.out.contigs_fasta.set { ch_assembly }
 
                 ch_versions = ch_versions.mix(HIFIASM.out.versions).mix(GFA_2_FA.out.versions)
             }
@@ -85,7 +85,8 @@ workflow ASSEMBLE {
                     .set { hifiasm_inputs }
                 HIFIASM_ONT(hifiasm_inputs, [[], [], []], [[], [], []])
                 GFA_2_FA(HIFIASM_ONT.out.processed_contigs)
-                GFA_2_FA.out.set { ch_assembly }
+                GFA_2_FA.out.contigs_fasta.set { ch_assembly }
+
                 ch_versions = ch_versions.mix(HIFIASM.out.versions).mix(GFA_2_FA.out.versions)
             }
             // HiFI reads only
