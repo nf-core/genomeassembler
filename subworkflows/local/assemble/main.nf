@@ -94,8 +94,10 @@ workflow ASSEMBLE {
                     .map { meta, ontreads -> [meta, ontreads, []] }
                     .set { hifiasm_inputs }
                 HIFIASM(hifiasm_inputs, [[], [], []], [[], [], []])
+
                 GFA_2_FA(HIFIASM.out.processed_contigs)
-                GFA_2_FA.out.set { ch_assembly }
+                GFA_2_FA.out.contigs_fasta.set { ch_assembly }
+
                 ch_versions = ch_versions.mix(HIFIASM.out.versions).mix(GFA_2_FA.out.versions)
             }
         }
@@ -105,7 +107,9 @@ workflow ASSEMBLE {
                 .map { meta, hifireads -> [meta, hifireads, []] }
                 .set { hifiasm_inputs }
             HIFIASM(hifiasm_inputs, [[], [], []], [[], [], []])
+
             GFA_2_FA(HIFIASM.out.processed_contigs)
+
             ch_versions = ch_versions.mix(HIFIASM.out.versions).mix(GFA_2_FA.out.versions)
 
             // Run flye
@@ -116,7 +120,7 @@ workflow ASSEMBLE {
             FLYE(flye_inputs, params.flye_mode)
             FLYE.out.fasta
                 .join(
-                    GFA_2_FA.out
+                    GFA_2_FA.out.contigs_fasta
                 )
                 .set { ragtag_in }
             RAGTAG_SCAFFOLD(ragtag_in)
@@ -173,7 +177,7 @@ workflow ASSEMBLE {
             if (params.use_ref) {
                 MAP_TO_REF(longreads, ch_refs)
 
-                MAP_TO_REF.out.set { ch_ref_bam }
+                MAP_TO_REF.out.ch_aln_to_ref.set { ch_ref_bam }
             }
 
             MAP_TO_ASSEMBLY(longreads, ch_assembly)
