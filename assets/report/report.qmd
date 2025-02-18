@@ -168,17 +168,19 @@ quast_stats <- list.files(paste0(data_base, "quast"),
                             full.names = T) %>%
     map_dfr(\(x) {
     read_quast_report(x) %>%
-    mutate(
-            sample = str_extract(x %>% basename(),
-                                ".+?(?=_[assemble|polish|run])"),
+    mutate(sample = str_extract(x %>% basename(),
+                        ".+?(?=_[assembly|links|longstitch|ragtag|medaka|pilon])"),
             stage = case_when(
                 str_detect(x, "_ragtag") ~ "RagTag",
                 str_detect(x, "_medaka") ~ "medaka",
                 str_detect(x, "_pilon") ~ "pilon",
                 str_detect(x, "_longstitch") ~ "longstitch",
                 str_detect(x, "_links") ~ "LINKS",
-                str_detect(x, "assemble") ~ "Assembly",
-                TRUE ~ "Unknown")) })
+                str_detect(x, "assembly") ~ "Assembly",
+                TRUE ~ "Unknown")
+            )
+        }
+    )
 ```
 
 ```{r quast write length plots}
@@ -544,16 +546,20 @@ meryl and merqury were not included in the pipeline run.
 merqury_stats <- list.files(paste0(data_base, "merqury"), full.names = T, pattern = "stats") %>%
     lapply(\(x) {
     read_tsv(x, col_names = c("sample_stage","all","assembly","total","percent"), show_col_types = FALSE) %>%
-    mutate( sample = str_extract(x %>% basename(),
-                                ".+?(?=_[assemble|links|longstitch|ragtag|medaka|pilon])"),
+    mutate(sample = str_extract(x %>% basename(),
+                                ".+?(?=_[assembly|links|longstitch|ragtag|medaka|pilon])"),
             stage = case_when(
                     str_detect(x, "_ragtag") ~ "RagTag",
                     str_detect(x, "_medaka") ~ "medaka",
                     str_detect(x, "_pilon") ~ "pilon",
                     str_detect(x, "_longstitch") ~ "longstitch",
                     str_detect(x, "_links") ~ "LINKS",
-                    str_detect(x, "assemble") ~ "Assembly",
-                    TRUE ~ "Unknown")) }) %>%
+                    str_detect(x, "assembly") ~ "Assembly",
+                    TRUE ~ "Unknown"
+                    )
+            )
+        }
+    ) %>%
     bind_rows()
 # This parses the assembly stats
 merqury_asm_hists <- list.files(paste0(data_base, "/merqury"), full.names = T, pattern = "asm.hist")  %>%
@@ -561,21 +567,23 @@ merqury_asm_hists <- list.files(paste0(data_base, "/merqury"), full.names = T, p
             read_tsv(x, col_names = T, show_col_types = FALSE) %>%
             mutate(
                 sample = str_extract(x %>% basename(),
-                                    ".+?(?=_[assemble|links|longstitch|ragtag|medaka|pilon])"),
+                                ".+?(?=_[assembly|links|longstitch|ragtag|medaka|pilon])"),
                 stage = case_when(
-                    str_detect(x, "_ragtag") ~ "RagTag",
-                    str_detect(x, "_medaka") ~ "medaka",
-                    str_detect(x, "_pilon") ~ "pilon",
-                    str_detect(x, "_longstitch") ~ "longstitch",
-                    str_detect(x, "_links") ~ "LINKS",
-                    str_detect(x, "assemble") ~ "Assembly",
-                    TRUE ~ "Unknown"),
+                        str_detect(x, "_ragtag") ~ "RagTag",
+                        str_detect(x, "_medaka") ~ "medaka",
+                        str_detect(x, "_pilon") ~ "pilon",
+                        str_detect(x, "_longstitch") ~ "longstitch",
+                        str_detect(x, "_links") ~ "LINKS",
+                        str_detect(x, "assembly") ~ "Assembly",
+                        TRUE ~ "Unknown"),
                 Assembly = as.factor(Assembly),
                 stage = as.factor(stage),
                 sample = as.factor(sample),
                 kmer_multiplicity = as.integer(kmer_multiplicity),
-                Count = as.integer(Count))
-            }) %>%
+                Count = as.integer(Count)
+            )
+        }
+    ) %>%
     bind_rows()
 # This parses the copy number file
 merqury_cn_hists <- list.files(paste0(data_base, "merqury"), full.names = T, pattern = "cn.hist")  %>%
@@ -583,45 +591,49 @@ merqury_cn_hists <- list.files(paste0(data_base, "merqury"), full.names = T, pat
             read_tsv(x, col_names = T, show_col_types = FALSE) %>%
             mutate(
                 sample = str_extract(x %>% basename(),
-                                ".+?(?=_[assemble|links|longstitch|ragtag|medaka|pilon])"),
+                                ".+?(?=_[assembly|links|longstitch|ragtag|medaka|pilon])"),
                 stage = case_when(
                     str_detect(x, "_ragtag") ~ "RagTag",
                     str_detect(x, "_medaka") ~ "medaka",
                     str_detect(x, "_pilon") ~ "pilon",
                     str_detect(x, "_longstitch") ~ "longstitch",
                     str_detect(x, "_links") ~ "LINKS",
-                    str_detect(x, "assemble") ~ "Assembly",
+                    str_detect(x, "assembly") ~ "Assembly",
                     TRUE ~ "Unknown"),
                 Copies = as.factor(Copies),
                 stage = as.factor(stage),
                 sample = as.factor(sample),
                 kmer_multiplicity = as.integer(kmer_multiplicity),
-                Count = as.integer(Count))
-            }) %>%
+                Count = as.integer(Count)
+            )
+        }
+    ) %>%
     bind_rows()
 # This parses the qv file
-merqury_qv <- list.files(paste0(data_base, "merqury"), full.names = T, pattern = ".qv") %>%
+merqury_qv <-
+    list.files(paste0(data_base, "merqury"), full.names = T, pattern = ".qv") %>%
         lapply(\(x) {
                 read_tsv(x,
                     col_names = c("Assembly", "kmers_assembly_unique", "kmers_assembly_shared", "QV", "error_rate"),
                     show_col_types = FALSE) %>%
                 mutate(
                     sample = str_extract(x %>% basename(),
-                                ".+?(?=_[assemble|links|longstitch|ragtag|medaka|pilon])"),
+                                ".+?(?=_[assembly|links|longstitch|ragtag|medaka|pilon])"),
                     stage = case_when(
                         str_detect(x, "_ragtag") ~ "RagTag",
                         str_detect(x, "_medaka") ~ "medaka",
                         str_detect(x, "_pilon") ~ "pilon",
                         str_detect(x, "_longstitch") ~ "longstitch",
                         str_detect(x, "_links") ~ "LINKS",
-                        str_detect(x, "assemble") ~ "Assembly",
+                        str_detect(x, "assembly") ~ "Assembly",
                         TRUE ~ "Unknown"),
                     stage = as.factor(stage),
                     sample = as.factor(sample),
                     kmers_assembly_shared = as.integer(kmers_assembly_shared),
                     kmers_assembly_unique = as.integer(kmers_assembly_unique),
                     QV = as.double(QV),
-                    error_rate = as.double(error_rate))
+                    error_rate = as.double(error_rate)
+                )
             }
         ) %>%
     bind_rows()
