@@ -87,7 +87,7 @@ workflow ASSEMBLE {
                 GFA_2_FA(HIFIASM_ONT.out.processed_contigs)
                 GFA_2_FA.out.contigs_fasta.set { ch_assembly }
 
-                ch_versions = ch_versions.mix(HIFIASM.out.versions).mix(GFA_2_FA.out.versions)
+                ch_versions = ch_versions.mix(HIFIASM_ONT.out.versions).mix(GFA_2_FA.out.versions)
             }
             // HiFI reads only
             if (params.hifi && !params.ont) {
