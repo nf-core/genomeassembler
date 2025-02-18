@@ -46,7 +46,7 @@ process LONGSTITCH {
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        LINKS: \$(echo \$(longstitch | head -n1 | sed 's/LongStitch v//'))
+        LongStitch: \$(echo \$(longstitch | head -n1 | sed 's/LongStitch v//'))
     END_VERSIONS
     """
     stub:
@@ -56,7 +56,7 @@ process LONGSTITCH {
     touch ${prefix}.tigmint-ntLink.longstitch-scaffolds.fa
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        LINKS: \$(echo \$(longstitch | head -n1 | sed 's/LongStitch v//'))
+        LongStitch: \$(echo \$(longstitch | head -n1 | sed 's/LongStitch v//'))
     END_VERSIONS
     """
 }
