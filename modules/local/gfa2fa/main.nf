@@ -11,17 +11,28 @@ process GFA_2_FA {
 
     output:
     tuple val(meta), path("*fa.gz"), emit: contigs_fasta
+    path "versions.yml", emit: versions
 
     script:
     """
     outfile=\$(basename $gfa_file .gfa).fa.gz
     awk '/^S/{print ">"\$2;print \$3}' ${gfa_file} \\
     | gzip > \$outfile
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+        awk:  \$(echo \$(awk --version | head -n1 | sed 's/mawk //; s/ .*//'))
+        gzip: \$(echo \$(gzip --version | head -n1 | sed 's/gzip //'))
+    END_VERSIONS
     """
 
     stub:
     """
     outfile=\$(basename $gfa_file .gfa).fa.gz
     touch outfile
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+        awk:  \$(echo \$(awk --version | head -n1 | sed 's/mawk //; s/ .*//'))
+        gzip: \$(echo \$(gzip --version | head -n1 | sed 's/gzip //'))
+    END_VERSIONS
     """
 }
