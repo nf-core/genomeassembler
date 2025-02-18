@@ -31,9 +31,11 @@ workflow RUN_QUAST {
         QUAST(quast_in, params.use_ref, false)
         QUAST.out.results.set { quast_results }
         QUAST.out.tsv.set { quast_tsv }
+        QUAST.out.versions.set { versions }
     }
 
     emit:
     quast_results
     quast_tsv
+    versions
 }
