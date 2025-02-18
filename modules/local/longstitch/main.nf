@@ -36,17 +36,17 @@ process LONGSTITCH {
 
     longstitch tigmint-ntLink-arks draft=assembly reads=reads t=${task.cpus} G=135e6 out_prefix=${prefix}
 
-    mv *.tigmint-ntLink-arks.longstitch-scaffolds.fa ${prefix}.tigmint-ntLink-arks.longstitch-scaffolds.fa
-    sed -i 's/\\(scaffold[0-9]*\\),.*/\\1/' ${prefix}.tigmint-ntLink-arks.longstitch-scaffolds.fa
+    mv *.tigmint-ntLink-arks.longstitch-scaffolds.fa ${prefix}.tigmint-ntLink-arks.fa
+    sed -i 's/\\(scaffold[0-9]*\\),.*/\\1/' ${prefix}.tigmint-ntLink-arks.fa
 
 
-    mv  *.tigmint-ntLink.longstitch-scaffolds.fa  ${prefix}.tigmint-ntLink.longstitch-scaffolds.fa
-    sed -i 's/\\(scaffold[0-9]*\\),.*/\\1/' ${prefix}.tigmint-ntLink.longstitch-scaffolds.fa
+    mv  *.tigmint-ntLink.longstitch-scaffolds.fa  ${prefix}.tigmint-ntLink.fa
+    sed -i 's/\\(scaffold[0-9]*\\),.*/\\1/' ${prefix}.tigmint-ntLink.fa
     """
     stub:
     def prefix = task.ext.prefix ?: "${meta.id}"
     """
-    touch ${prefix}.tigmint-ntLink-arks.longstitch-scaffolds.fa
-    touch ${prefix}.tigmint-ntLink.longstitch-scaffolds.fa
+    touch ${prefix}.tigmint-ntLink-arks.fa
+    touch ${prefix}.tigmint-ntLink.fa
     """
 }
