@@ -202,75 +202,55 @@ All quality control files end up in `QC`. Below is the tree assuming that all st
 - [`BUSCO`](https://busco.ezlab.org/) assess genome quality based on the presence of lineage-specific single-copy orthologs
 - [`merqury`](https://github.com/marbl/merqury) compares the genome k-mer spectrum to the short-read k-mer spectrum to assess base-accuracy of the assembly.
 
+The files and folders in the different QC folders are named based on
+`<SampleName>` and `<stage>`. SampleName is the sample name, and stage is one of: `assembly`, `medaka`, `pilon`, `links`, `longstitch` or `ragtag`.
+
 <details markdown="1">
 <summary>Folder contents</summary>
 
 - `<SampleName>`
-- `busco`: BUSCO analysis of the assembly
-  - `<SampleName>/`:
-    - `<SampleName>-<Stage>-<BuscoLineage>-busco/`: BUSCO output folder, please refer to BUSCO documentation for details.
-    - `<SampleName>-<Stage>-<BuscoLineage>-busco.batch_summary.txt`: BUSCO batch summary output
-    - `short_summary.specific.<FastaFile>.{txt,json}`: BUSCO short summaries in txt and json format
-- `quast`: QUAST analysis of the assembly, per sample, contains:
-  - `<Sample Name>`:
-    - `map_to_ref` and `map_to_assembly`: mapping of long reads to the reference and assembly respectively. `map_to_ref` is only performed once, during the first run of QUAST, typically in `assemble`
-      - `align/`: Alignment of long reads to the genome in ` format
-        - `<FastaFile>.bam`: Alignment of long reads to the genome
-      - `samtools/`:
-        - `<FastaFile>.bam.bai`: bam index
-        - `<FastaFile>.bam.idxstats`: samtools idxstats
-        - `<FastaFile>.bam.flagstat`: samtools flagstats
-        - `<FastaFile>.bam.stats`: samtools stats
-    - `<Sample Name>_<stage>/`: QUAST results, cp. [QUAST Docs](https://github.com/ablab/quast?tab=readme-ov-file#output)
-      - `report.txt`: summary table
-      - `report.tsv`: tab-separated version, for parsing, or for spreadsheets (Google Docs, Excel, etc)
-      - `report.tex`: Latex version
-      - `report.pdf`: PDF version, includes all tables and plots for some statistics
-      - `report.html`: everything in an interactive HTML file
-      - `icarus.html`: Icarus main menu with links to interactive viewers
-      - `contigs_reports/`: [only if a reference genome is provided]
-        - `misassemblies_report`: detailed report on misassemblies
-        - `unaligned_report`: detailed report on unaligned and partially unaligned contigs
-      - `reads_stats/`: [only if reads are provided]
-        - `reads_report`: detailed report on mapped reads statistics
-    - `<Sample Name>_<stage_report.tsv>`: QUAST summary report
-- `merqury`: merqury analysis of the assembly
-  - `<SampleName>`:
-    - `<FastaFile>.<SampleName>.assembly.qv`: QV of the assembly (per sequence)
-    - `<FastaFile>.<SampleName>.assembly.spectra-cn.fl.png` : Copy Number plot, filled
-    - `<FastaFile>.<SampleName>.assembly.spectra-cn.ln.png` : Copy Number plot, lines
-    - `<FastaFile>.<SampleName>.assembly.spectra-cn.st.png` : Copy Number plot, semi-transparent
-    - `<FastaFile>.<SampleName>.assembly.spectra-cn.hist` : Copy Number histogram file
-    - `<FastaFile>.completeness.stats` : Assembly completeness statistics (overall)
-    - `<FastaFile>.qv` : Assembly QV (overall)
-    - `<FastaFile>.spectra-asm.fl.png` : Assembly k-mer spectrum, filled
-    - `<FastaFile>.spectra-asm.ln.png` : Assembly k-mer spectrum, lines
-    - `<FastaFile>.spectra-asm.st.png` : Assembly k-mer spectrum, semi-transparent
-    - `<FastaFile>.spectra-asm.hist` : Assembly QV (overall)
-    - `<FastaFile>.dist_only.hist` : Number of k-mers distinct to the assembly
-    - `<SampleName>.assembly_only.bed` : bp errors in assembly (bed)
-    - `<SampleName>.assembly_only.wig` : bp errors in assembly (wig)
-    - `<SampleName>.unionsum.hist.ploidy` : ploidy estimates from short-reads
+  - `QC/`:
+    - `BUSCO/`: BUSCO reports
+      - `<SampleName>_<stage>-<BuscoLineage>-busco/`: BUSCO output folder, please refer to BUSCO documentation for details.
+      - `<SampleName>_<stage>-<BuscoLineage>-busco.batch_summary.txt`: BUSCO batch summary output
+      - `short_summary.specific.<SampleName>_<stage>.{txt,json}`: BUSCO short summaries in txt and json format
+    - `QUAST`: QUAST analysis
+      - `<Sample Name>_<stage>/`: QUAST results, cp. [QUAST Docs](https://github.com/ablab/quast?tab=readme-ov-file#output)
+        - `report.txt`: summary table
+        - `report.tsv`: tab-separated version, for parsing, or for spreadsheets (Google Docs, Excel, etc)
+        - `report.tex`: Latex version
+        - `report.pdf`: PDF version, includes all tables and plots for some statistics
+        - `report.html`: everything in an interactive HTML file
+        - `icarus.html`: Icarus main menu with links to interactive viewers
+        - `contigs_reports/`: [only if a reference genome is provided]
+          - `misassemblies_report`: detailed report on misassemblies
+          - `unaligned_report`: detailed report on unaligned and partially unaligned contigs
+        - `reads_stats/`: [only if reads are provided]
+          - `reads_report`: detailed report on mapped reads statistics
+      - `<Sample Name>_<stage_report>.tsv`: QUAST summary report
+    - `merqury`: merqury analysis of the assembly
+      - `<SampleName>_<stage>.<SampleName>.assembly.qv`: QV of the assembly (per sequence)
+      - `<SampleName>_<stage>.<SampleName>.assembly.spectra-cn.fl.png` : Copy Number plot, filled
+      - `<SampleName>_<stage>.<SampleName>.assembly.spectra-cn.ln.png` : Copy Number plot, lines
+      - `<SampleName>_<stage>.<SampleName>.assembly.spectra-cn.st.png` : Copy Number plot, semi-transparent
+      - `<SampleName>_<stage>.<SampleName>.assembly.spectra-cn.hist` : Copy Number histogram file
+      - `<SampleName>_<stage>.completeness.stats` : Assembly completeness statistics (overall)
+      - `<SampleName>_<stage>.qv` : Assembly QV (overall)
+      - `<SampleName>_<stage>.spectra-asm.fl.png` : Assembly k-mer spectrum, filled
+      - `<SampleName>_<stage>.spectra-asm.ln.png` : Assembly k-mer spectrum, lines
+      - `<SampleName>_<stage>.spectra-asm.st.png` : Assembly k-mer spectrum, semi-transparent
+      - `<SampleName>_<stage>.spectra-asm.hist` : Assembly QV (overall)
+      - `<SampleName>_<stage>.dist_only.hist` : Number of k-mers distinct to the assembly
+      - `<SampleName>_<stage>.assembly_only.bed` : bp errors in assembly (bed)
+      - `<SampleName>_<stage>.assembly_only.wig` : bp errors in assembly (wig)
+      - `<SampleName>_<stage>.unionsum.hist.ploidy` : ploidy estimates from short-reads
 
 </details>
 
-<details markdown="1">
-<summary>Output folders</summary>
-
-- `QC/`
-  - `assemble/`: qc after the initial assembly
-  - `polish/`:
-    - `pilon/`: qc after polishing with pilon
-    - `medaka/`: qc after polishing with medaka
-  - `scaffold`: qc of scaffolding
-    - `links`: qc after scaffolding with links
-    - `longstitch`: qc after scaffolding with longstitch
-    - `ragtag`: qc after scaffolding with ragtag
-    </details>
-
 #### Alignments
 
-All alignments created are saved to results.
+All alignments created are saved to the results directory.
+
 Alignments are created for:
 
 - pilon: short read alignment
@@ -278,19 +258,33 @@ Alignments are created for:
   - long reads against reference (if provided)
   - long reads against assemblies / polishs / scaffolds
 
+The files in the alignment folder have the following base name structure:
+`<SampleName>_<stage>`. SampleName is the sample name, and stage is one of:
+`assembly`, `medaka`, `pilon`, `links`, `longstitch` or `ragtag`.
+
 <details markdown="1">
 <summary>Output files</summary>
 
 - `<SampleName>`
   - `QC/`
-    - `alignments`: all alignments
-      - `<SampleName>_pilon.fasta` Polished assembly
-      - `<SampleName>_pilon.gff3` annotation liftover
-      - `<SampleName>_pilon.unnapped.txt` annotations that could not be lifted over during annotation liftover
-    - `medaka/`: output from medaka
-      - `<SampleName>_medaka.fa.gz` Polished assembly
-      - `<SampleName>_medaka.gff3` annotation liftover
-      - `<SampleName>_medaka.unnapped.txt` annotations that could not be lifted over during annotation liftover
+    - `alignments`: alignments to assemblies
+      - `<SampleName>_<stage>.bam` Alignment
+      - `<SampleName>_<stage>.bai` bam index file
+      - `<SampleName>_<stage>.stats` comprehensive statistics from alignment file
+      - `<SampleName>_<stage>.idxstats` alignment summary statistics
+      - `<SampleName>_<stage>.flagstat` number of alignments for each FLAG type
+      - `shortreads/`: folder containing short read mapping for pilon
+        - `<SampleName>_shortreads.bam` Alignment
+        - `<SampleName>_shortreads.bai` bam index file
+        - `<SampleName>_shortreads.stats` comprehensive statistics from alignment file
+        - `<SampleName>_shortreads.idxstats` alignment summary statistics
+        - `<SampleName>_shortreads.flagstat` number of alignments for each FLAG type
+      - `reference/`: folder containing alignment of long reads to reference
+        - `<SampleName>_to_reference.bam` Alignment
+        - `<SampleName>_to_reference.bai` bam index file
+        - `<SampleName>_to_reference.stats` comprehensive statistics from alignment file
+        - `<SampleName>_to_reference.idxstats` alignment summary statistics
+        - `<SampleName>_to_reference.flagstat` number of alignments for each FLAG type
 
 </details>
 
