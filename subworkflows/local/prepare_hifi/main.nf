@@ -6,7 +6,7 @@ workflow PREPARE_HIFI {
     inputs
 
     main:
-    Channel.empty.set { ch_versions }
+    Channel.empty().set { ch_versions }
     inputs
         .map { it -> [it.meta, it.hifireads] }
         .set { hifireads }
