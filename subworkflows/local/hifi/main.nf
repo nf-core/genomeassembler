@@ -12,7 +12,7 @@ workflow HIFI {
 
     PREPARE_HIFI(inputs)
 
-    PREPARE_HIFI.out.set { hifi_reads }
+    PREPARE_HIFI.out.hifireads.set { hifi_reads }
 
     ch_versions.mix(PREPARE_HIFI.out.versions)
 
