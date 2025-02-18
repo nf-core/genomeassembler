@@ -1,5 +1,5 @@
 process COLLECT_READS {
-    tag "$meta.id"
+    tag "${meta.id}"
     label 'process_low'
 
     conda "${moduleDir}/environment.yml"
@@ -12,17 +12,26 @@ process COLLECT_READS {
 
     output:
     tuple val(meta), path("*.fastq"), emit: combined_reads
+    path "versions.yml", emit: versions
 
     script:
     def prefix = task.ext.prefix ?: "${meta.id}"
 
     """
     gunzip -c ${read_directory}/*.gz > ${prefix}_all_reads.fastq
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+        gzip: \$(echo \$(gzip --version | head -n1 | sed 's/gzip //'))
+    END_VERSIONS
     """
 
     stub:
     def prefix = task.ext.prefix ?: "${meta.id}"
     """
     touch ${prefix}_all_reads.fastq
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+        gzip: \$(echo \$(gzip --version | head -n1 | sed 's/gzip //'))
+    END_VERSIONS
     """
 }
