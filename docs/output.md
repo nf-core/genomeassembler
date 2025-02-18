@@ -23,7 +23,6 @@ The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes d
 
 ## Output structure
 
-Annotation and quality control are done at several stages of the pipeline, the output is organized by subworkflow, corresponding to the bolded steps above.
 Outputs are collect into the output directory by sample:
 
 <details markdown="1">
@@ -118,18 +117,18 @@ Annotation `gff3` and `unmapped.txt` files are only created if a reference for a
       - `<SampleName>.assembly_info.txt`: Information on the assembly
       - `<SampleName>.flye.log`: flye log-file
       - `<SampleName>.params.json`: params used for running flye
-    - `hifiasm/`: output from hifiasm. Contains one folder per sample
+    - `hifiasm/`: output from hifiasm.
       - `<SampleName>.asm.bp.p_ctg.fa.gz`: gzipped fasta file of the primary contigs
       - `<SampleName>.asm.bp.p_ctg.gfa`: primary contigs in gfa format
       - `<SampleName>.asm.bp.p_utg.gfa`: processed unitigs in gfa format
       - `<SampleName>.asm.bp.r_utg.gfa`: raw unitigs in gfa format
       - `<SampleName>.stderr.log`: Any output form hifiasm to stderr
-      - `gfa2_fasta`: hifiasm assembly in fasta format.
+      - `gfa2_fasta/`: hifiasm assembly in fasta format.
     - `ragtag/`: output from RagTag, only if `'flye_on_hifiasm'` was used as the assembler. Contains one folder per sample.
-      - `<SampleName>.assembly.fasta.gz_on_<SampleName>.asm.bp.p_ctg.fa.gz/`
-        - `<SampleName>.assembly.fasta.gz_ragtag_<SampleName>.asm.bp.p_ctg.fa.gz.agp`: Scaffolds in agp format
-        - `<SampleName>.assembly.fasta.gz_ragtag_<SampleName>.asm.bp.p_ctg.fa.gz.fasta`: Scaffolds in fasta format
-        - `<SampleName>.assembly.fasta.gz_ragtag_<SampleName>.asm.bp.p_ctg.fa.gz.stats`: Scaffolding statistics.
+      - `<SampleName>_assembly_scaffold/`
+        - `<SampleName>_assembly_scaffold.agp`: Scaffolds in agp format
+        - `<SampleName>_assembly_scaffold.fasta`: Scaffolds in fasta format
+        - `<SampleName>_assembly_scaffold.stats`: Scaffolding statistics.
     - `<SampleName>_assembly.gff3` annotation liftover
     - `<SampleName>_assembly.unnapped.txt` annotations that could not be lifted over during annotation liftover
 
@@ -194,7 +193,7 @@ Annotation `gff3` and `unmapped.txt` files are only created if a reference for a
 
 ### Quality control
 
-All quality control files end up in `QC`. Below is the tree assuming that all steps of the pipeline were run
+All quality control files end up in `QC`. Below is the tree assuming that all steps of the pipeline were run:
 
 - [`nanoq`](https://github.com/esteinig/nanoq) generates descriptive statistics of the nanopore reads.
   For each step three quality control tools can be run.
@@ -214,21 +213,7 @@ The files and folders in the different QC folders are named based on
       - `<SampleName>_<stage>-<BuscoLineage>-busco/`: BUSCO output folder, please refer to BUSCO documentation for details.
       - `<SampleName>_<stage>-<BuscoLineage>-busco.batch_summary.txt`: BUSCO batch summary output
       - `short_summary.specific.<SampleName>_<stage>.{txt,json}`: BUSCO short summaries in txt and json format
-    - `QUAST`: QUAST analysis
-      - `<Sample Name>_<stage>/`: QUAST results, cp. [QUAST Docs](https://github.com/ablab/quast?tab=readme-ov-file#output)
-        - `report.txt`: summary table
-        - `report.tsv`: tab-separated version, for parsing, or for spreadsheets (Google Docs, Excel, etc)
-        - `report.tex`: Latex version
-        - `report.pdf`: PDF version, includes all tables and plots for some statistics
-        - `report.html`: everything in an interactive HTML file
-        - `icarus.html`: Icarus main menu with links to interactive viewers
-        - `contigs_reports/`: [only if a reference genome is provided]
-          - `misassemblies_report`: detailed report on misassemblies
-          - `unaligned_report`: detailed report on unaligned and partially unaligned contigs
-        - `reads_stats/`: [only if reads are provided]
-          - `reads_report`: detailed report on mapped reads statistics
-      - `<Sample Name>_<stage_report>.tsv`: QUAST summary report
-    - `merqury`: merqury analysis of the assembly
+    - `merqury/`: merqury analysis of the assembly
       - `<SampleName>_<stage>.<SampleName>.assembly.qv`: QV of the assembly (per sequence)
       - `<SampleName>_<stage>.<SampleName>.assembly.spectra-cn.fl.png` : Copy Number plot, filled
       - `<SampleName>_<stage>.<SampleName>.assembly.spectra-cn.ln.png` : Copy Number plot, lines
@@ -244,6 +229,23 @@ The files and folders in the different QC folders are named based on
       - `<SampleName>_<stage>.assembly_only.bed` : bp errors in assembly (bed)
       - `<SampleName>_<stage>.assembly_only.wig` : bp errors in assembly (wig)
       - `<SampleName>_<stage>.unionsum.hist.ploidy` : ploidy estimates from short-reads
+    - `nanoq/`: nanoq results
+      - `<SampleName>_report.json`: nanoq report in json format
+      - `<SampleName>_stats.json`: nanoq stats in json format
+    - `QUAST/`: QUAST analysis
+      - `<Sample Name>_<stage>/`: QUAST results, cp. [QUAST Docs](https://github.com/ablab/quast?tab=readme-ov-file#output)
+        - `report.txt`: summary table
+        - `report.tsv`: tab-separated version, for parsing, or for spreadsheets (Google Docs, Excel, etc)
+        - `report.tex`: Latex version
+        - `report.pdf`: PDF version, includes all tables and plots for some statistics
+        - `report.html`: everything in an interactive HTML file
+        - `icarus.html`: Icarus main menu with links to interactive viewers
+        - `contigs_reports/`: [only if a reference genome is provided]
+          - `misassemblies_report`: detailed report on misassemblies
+          - `unaligned_report`: detailed report on unaligned and partially unaligned contigs
+        - `reads_stats/`: [only if reads are provided]
+          - `reads_report`: detailed report on mapped reads statistics
+      - `<Sample Name>_<stage_report>.tsv`: QUAST summary report
 
 </details>
 
@@ -267,7 +269,7 @@ The files in the alignment folder have the following base name structure:
 
 - `<SampleName>`
   - `QC/`
-    - `alignments`: alignments to assemblies
+    - `alignments/`: alignments to assemblies
       - `<SampleName>_<stage>.bam` Alignment
       - `<SampleName>_<stage>.bai` bam index file
       - `<SampleName>_<stage>.stats` comprehensive statistics from alignment file
