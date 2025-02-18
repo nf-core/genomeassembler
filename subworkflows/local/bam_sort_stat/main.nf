@@ -17,7 +17,7 @@ workflow BAM_INDEX_STATS_SAMTOOLS {
     fasta
 
     main:
-    Channel.empty.set { ch_versions }
+    Channel.empty().set { ch_versions }
 
     SAMTOOLS_INDEX(bam)
 
