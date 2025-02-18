@@ -12,6 +12,7 @@ process LONGSTITCH {
     output:
     tuple val(meta), path("*.tigmint-ntLink-arks.longstitch-scaffolds.fa"), emit: ntlLinks_arks_scaffolds
     tuple val(meta), path("*.tigmint-ntLink.longstitch-scaffolds.fa"), emit: ntlLinks_scaffolds
+    path "versions.yml", emit: versions
 
     script:
     def prefix = task.ext.prefix ?: "${meta.id}"
@@ -42,11 +43,20 @@ process LONGSTITCH {
 
     mv  *.tigmint-ntLink.longstitch-scaffolds.fa  ${prefix}.tigmint-ntLink.longstitch-scaffolds.fa
     sed -i 's/\\(scaffold[0-9]*\\),.*/\\1/' ${prefix}.tigmint-ntLink.longstitch-scaffolds.fa
+
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+        LINKS: \$(echo \$(longstitch | head -n1 | sed 's/LongStitch v//'))
+    END_VERSIONS
     """
     stub:
     def prefix = task.ext.prefix ?: "${meta.id}"
     """
     touch ${prefix}.tigmint-ntLink-arks.longstitch-scaffolds.fa
     touch ${prefix}.tigmint-ntLink.longstitch-scaffolds.fa
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+        LINKS: \$(echo \$(longstitch | head -n1 | sed 's/LongStitch v//'))
+    END_VERSIONS
     """
 }
