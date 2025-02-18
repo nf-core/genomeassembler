@@ -15,6 +15,7 @@ process LINKS {
     tuple val(meta), path("*.scaffolds"), emit: scaffold_csv
     tuple val(meta), path("*.gv"), emit: graph
     tuple val(meta), path("*.log"), emit: log
+    path "versions.yml", emit: versions
 
     script:
     def prefix = task.ext.prefix ?: "${meta.id}"
@@ -22,6 +23,11 @@ process LINKS {
     echo "${reads}" > readfile.fof
     LINKS -f ${assembly} -s readfile.fof -j 3 -b ${prefix}_links -t 40,200 -d 500,2000,5000
     sed -i 's/\\(scaffold[0-9]*\\).*/\\1/' ${prefix}_links.scaffolds.fa
+
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+        LINKS: \$(echo \$(LINKS | grep -o 'LINKS v.*' | sed 's/LINKS v//'))
+    END_VERSIONS
     """
     stub:
     def prefix = task.ext.prefix ?: "${meta.id}"
@@ -30,5 +36,10 @@ process LINKS {
     touch ${prefix}_links.scaffolds
     touch ${prefix}.gv
     touch ${prefix}.log
+
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+        LINKS: \$(echo \$(LINKS | grep -o 'LINKS v.*' | sed 's/LINKS v//'))
+    END_VERSIONS
     """
 }
