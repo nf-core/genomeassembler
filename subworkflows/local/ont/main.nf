@@ -6,6 +6,7 @@ workflow ONT {
     input_channel
 
     main:
+    Channel.empty().set { ch_versions }
     Channel.empty().set { genome_size }
     Channel.of([[],[]])
         .tap { genomescope_summary }
@@ -19,6 +20,7 @@ workflow ONT {
 
     PREPARE_ONT.out.nanoq_stats.set { nanoq_stats }
 
+    ch_versions = ch_versions.mix(PREPARE_ONT.out.versions)
 
     if (params.jellyfish) {
         JELLYFISH(PREPARE_ONT.out.trimmed, PREPARE_ONT.out.med_len)
@@ -27,7 +29,10 @@ workflow ONT {
         }
         JELLYFISH.out.genomescope_summary.set { genomescope_summary }
         JELLYFISH.out.genomescope_plot.set { genomescope_plot }
+        ch_versions = ch_versions.mix(JELLYFISH.out.versions)
     }
+
+    versions = ch_versions
 
     emit:
     ont_reads
@@ -36,4 +41,5 @@ workflow ONT {
     nanoq_stats
     genomescope_plot
     genomescope_summary
+    versions
 }

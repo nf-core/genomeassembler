@@ -14,7 +14,10 @@ workflow RUN_PILON {
         pilon_in.map { meta, _assembly, bam, bai -> [meta, bam, bai] },
         "bam",
     )
+    versions = PILON.out.versions
+    improved_assembly = PILON.out.improved_assembly
 
     emit:
-    PILON.out.improved_assembly
+    improved_assembly
+    versions
 }

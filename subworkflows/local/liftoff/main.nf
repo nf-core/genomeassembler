@@ -6,7 +6,7 @@ workflow RUN_LIFTOFF {
     inputs
 
     main:
-    Channel.empty().set { versions }
+    Channel.empty().set { ch_versions }
     assembly
         .join(
             inputs.map { row -> [row.meta, row.ref_fasta, row.ref_gff] }
@@ -17,6 +17,7 @@ workflow RUN_LIFTOFF {
 
     LIFTOFF.out.gff3.set { lifted_annotations }
 
+    versions = ch_versions.mix(LIFTOFF.out.versions)
     emit:
     lifted_annotations
     versions

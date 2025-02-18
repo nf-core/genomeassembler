@@ -31,7 +31,7 @@ process GENOMESCOPE {
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        genomescope2: \$(echo \$(genomescope2 -v) | sed 's/GenomeScope //')
+        genomescope2: \$(echo \$(genomescope2 -v | sed 's/GenomeScope //'))
     END_VERSIONS
     """
     stub:

@@ -79,6 +79,7 @@ workflow GENOMEASSEMBLER {
         PREPARE_SHORTREADS(ch_input)
         PREPARE_SHORTREADS.out.shortreads.set { ch_shortreads }
         PREPARE_SHORTREADS.out.meryl_kmers.set { meryl_kmers }
+        ch_versions = ch_versions.mix(PREPARE_SHORTREADS.out.versions)
     }
 
 
@@ -103,6 +104,8 @@ workflow GENOMEASSEMBLER {
             .unique()
             .collect { it -> it[1] }
             .set { genomescope_files }
+
+        ch_versions = ch_versions.mix(ONT.out.versions)
     }
 
 
@@ -112,6 +115,8 @@ workflow GENOMEASSEMBLER {
     if (params.hifi) {
         HIFI(ch_input)
         HIFI.out.hifi_reads.set { ch_hifi_reads }
+
+        ch_versions = ch_versions.mix(HIFI.out.versions)
     }
 
     /*
@@ -123,6 +128,7 @@ workflow GENOMEASSEMBLER {
     ASSEMBLE.out.ref_bam.set { ch_ref_bam }
     ASSEMBLE.out.longreads.set { ch_longreads }
 
+    ch_versions = ch_versions.mix(ASSEMBLE.out.versions)
     /*
     Polishing
     */
@@ -130,11 +136,15 @@ workflow GENOMEASSEMBLER {
     POLISH(ch_input, ch_ont_reads, ch_longreads, ch_shortreads, ch_polished_genome, ch_ref_bam, meryl_kmers)
     POLISH.out.ch_polished_genome.set { ch_polished_genome }
 
+    ch_versions = ch_versions.mix(POLISH.out.versions)
+
     /*
     Scaffolding
     */
 
     SCAFFOLD(ch_input, ch_longreads, ch_polished_genome, ch_refs, ch_ref_bam, meryl_kmers)
+
+    ch_versions = ch_versions.mix(SCAFFOLD.out.versions)
 
     /*
     Report
@@ -204,17 +214,17 @@ workflow GENOMEASSEMBLER {
 
     REPORT(report_files, report_functions, nanoq_files, genomescope_files, quast_files, busco_files, merqury_files)
 
+    ch_versions = ch_versions.mix(REPORT.out.versions)
     //
     // Collate and save software versions
     //
     softwareVersionsToYAML(ch_versions)
         .collectFile(
             storeDir: "${params.outdir}/pipeline_info",
-            name: 'nf_core_' + 'pipeline_software_' + 'mqc_' + 'versions.yml',
+            name: 'nf_core_' + 'pipeline_software_' + 'versions.yml',
             sort: true,
             newLine: true
         )
-        .set { ch_collated_versions }
 
     _report = REPORT.out.report_html.toList()
 

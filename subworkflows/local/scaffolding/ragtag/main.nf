@@ -16,6 +16,7 @@ workflow RUN_RAGTAG {
     meryl_kmers
 
     main:
+    Channel.empty().set { ch_versions }
     Channel.empty().set { quast_out }
     Channel.empty().set { busco_out }
     Channel.empty().set { merqury_report_files }
@@ -29,12 +30,23 @@ workflow RUN_RAGTAG {
 
     RAGTAG_SCAFFOLD.out.corrected_agp.set { ragtag_scaffold_agp }
 
+    ch_versions = ch_versions.mix(RAGTAG_SCAFFOLD.out.versions)
+
     MAP_TO_ASSEMBLY(in_reads, ragtag_scaffold_fasta)
+
+    ch_versions = ch_versions.mix(MAP_TO_ASSEMBLY.out.versions)
+
 
     RUN_QUAST(ragtag_scaffold_fasta, inputs, ch_aln_to_ref, MAP_TO_ASSEMBLY.out.aln_to_assembly_bam)
     RUN_QUAST.out.quast_tsv.set { quast_out }
+
+    ch_versions = ch_versions.mix(RUN_QUAST.out.versions)
+
     RUN_BUSCO(ragtag_scaffold_fasta)
     RUN_BUSCO.out.batch_summary.set { busco_out }
+
+    ch_versions = ch_versions.mix(RUN_BUSCO.out.versions)
+
     if (params.short_reads) {
         MERQURY_QC(ragtag_scaffold_fasta, meryl_kmers)
         MERQURY_QC.out.stats
@@ -48,11 +60,16 @@ workflow RUN_RAGTAG {
                 MERQURY_QC.out.assembly_qv
             )
             .set { merqury_report_files }
+
+        ch_versions = ch_versions.mix(MERQURY_QC.out.versions)
     }
 
     if (params.lift_annotations) {
         RUN_LIFTOFF(RAGTAG_SCAFFOLD.out.corrected_assembly, inputs)
+        ch_versions = ch_versions.mix(RUN_LIFTOFF.out.versions)
     }
+
+    versions = ch_versions
 
     emit:
     ragtag_scaffold_fasta
@@ -60,4 +77,5 @@ workflow RUN_RAGTAG {
     quast_out
     busco_out
     merqury_report_files
+    versions
 }

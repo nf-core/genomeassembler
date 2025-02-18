@@ -7,6 +7,7 @@ workflow MAP_TO_REF {
     ch_refs
 
     main:
+    Channel.empty().set { ch_versions }
     // Map reads to reference
     in_reads
         .join(ch_refs)
@@ -21,6 +22,9 @@ workflow MAP_TO_REF {
 
     BAM_STATS(ch_aln_to_ref, ch_fasta)
 
+    versions = ch_versions.mix(ALIGN.out.versions).mix(BAM_STATS.out.versions)
+
     emit:
     ch_aln_to_ref
+    versions
 }

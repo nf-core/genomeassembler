@@ -8,6 +8,7 @@ workflow RUN_QUAST {
     aln_to_assembly
 
     main:
+    Channel.empty().set { versions }
     /* prepare for quast:
      * This makes use of the input channel to obtain the reference and reference annotations
      * See quast module for details

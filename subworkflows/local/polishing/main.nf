@@ -13,6 +13,7 @@ workflow POLISH {
 
     main:
 
+    Channel.empty().set { ch_versions }
     Channel.empty().set { polish_busco_reports }
     Channel.empty().set { polish_quast_reports }
     Channel.empty().set { polish_merqury_reports }
@@ -35,6 +36,8 @@ workflow POLISH {
         POLISH_MEDAKA.out.quast_out.set { polish_quast_reports }
 
         POLISH_MEDAKA.out.merqury_report_files.set { polish_merqury_reports }
+
+        ch_versions = ch_versions.mix(POLISH_MEDAKA.out.versions)
     }
 
     /*
@@ -63,11 +66,16 @@ workflow POLISH {
                 POLISH_PILON.out.merqury_report_files
             )
             .set { polish_merqury_reports }
+
+        ch_versions = ch_versions.mix(POLISH_PILON.out.versions)
     }
+
+    versions = ch_versions
 
     emit:
     ch_polished_genome
     polish_busco_reports
     polish_quast_reports
     polish_merqury_reports
+    versions
 }

@@ -18,10 +18,13 @@ workflow BAM_INDEX_STATS_SAMTOOLS {
 
     main:
     Channel.empty.set { ch_versions }
+
     SAMTOOLS_INDEX(bam)
+
     BAM_STATS_SAMTOOLS(bam.join(SAMTOOLS_INDEX.out.bai, by: [0]), fasta)
-    ch_versions.mix(SAMTOOLS_INDEX.out.versions).mix(BAM_STATS_SAMTOOLS.out.versions)
-    versions = ch_versions
+
+    versions = ch_versions.mix(SAMTOOLS_INDEX.out.versions).mix(BAM_STATS_SAMTOOLS.out.versions)
+
     emit:
     bai = SAMTOOLS_INDEX.out.bai // channel: [ val(meta), [ bai ] ]
     stats = BAM_STATS_SAMTOOLS.out.stats // channel: [ val(meta), [ stats ] ]

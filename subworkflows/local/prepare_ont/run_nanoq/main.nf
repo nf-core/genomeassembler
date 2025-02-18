@@ -14,8 +14,11 @@ workflow RUN_NANOQ {
 
     NANOQ.out.median_length.set { median_length }
 
+    NANOQ.out.versions.set { versions }
+
     emit:
     report
     stats
     median_length
+    versions
 }

@@ -5,10 +5,10 @@ workflow RUN_BUSCO {
     assembly
 
     main:
+    Channel.empty().set { versions }
     Channel.empty().set { batch_summary }
     Channel.empty().set { short_summary_txt }
     Channel.empty().set { short_summary_json }
-    Channel.empty().set { versions }
 
     if (params.busco) {
         BUSCO(assembly, 'genome', params.busco_lineage, params.busco_db ? file(params.busco_db, checkIfExists: true) : [], [])

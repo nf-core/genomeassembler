@@ -6,6 +6,7 @@ workflow RUN_MEDAKA {
     assembly
 
     main:
+
     in_reads
         .join(assembly)
         .set { medaka_in }
@@ -13,7 +14,9 @@ workflow RUN_MEDAKA {
     MEDAKA(medaka_in)
 
     MEDAKA.out.assembly.set { medaka_out }
+    MEDAKA.out.versions.set { versions }
 
     emit:
     medaka_out
+    versions
 }

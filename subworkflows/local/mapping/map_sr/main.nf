@@ -7,6 +7,7 @@ workflow MAP_SR {
     genome_assembly
 
     main:
+    Channel.empty().set { ch_versions }
     // map reads to assembly
     in_reads
         .map { meta, reads -> [[id: meta.id], reads] }
@@ -29,8 +30,11 @@ workflow MAP_SR {
         .join(aln_to_assembly_bai)
         .set { aln_to_assembly_bam_bai }
 
+    versions = ch_versions.mix(ALIGN_SHORT.out.versions).mix(BAM_STATS.out.versions)
+
     emit:
     aln_to_assembly_bam
     aln_to_assembly_bai
     aln_to_assembly_bam_bai
+    versions
 }
