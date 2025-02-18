@@ -11,9 +11,9 @@ workflow PREPARE_ONT {
 
     COLLECT(inputs)
 
-    CHOP(COLLECT.out)
+    CHOP(COLLECT.out.reads)
 
-    CHOP.out.set { trimmed }
+    CHOP.out.chopped_reads.set { trimmed }
 
     RUN_NANOQ(trimmed)
 
