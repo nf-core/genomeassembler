@@ -226,7 +226,7 @@ workflow ASSEMBLE {
 
     assembly = ch_assembly
     ref_bam = ch_ref_bam
-
+    versions = ch_versions
     emit:
     assembly
     ref_bam
