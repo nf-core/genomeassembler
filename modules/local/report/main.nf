@@ -20,6 +20,7 @@ process REPORT {
     path ("busco_files/reports.csv"), emit: busco_table, optional: true
     path ("quast_files/reports.csv"), emit: quast_table, optional: true
     path ("genomescope_files/*"), emit: genomescope_plots, optional: true
+    path "versions.yml", emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -63,6 +64,10 @@ process REPORT {
         ${report_profile} \\
         ${report_params} \\
         --to dashboard
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+        report: 1.0.0
+    END_VERSIONS
     """
     stub:
     """
@@ -71,5 +76,9 @@ process REPORT {
     mkdir busco_files && touch busco_files/reports.csv
     mkdir quast_files && touch quast_files/reports.csv
     mkdir genomescope_files && touch genomescope_files/file.txt
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+        report: 1.0.0
+    END_VERSIONS
     """
 }
