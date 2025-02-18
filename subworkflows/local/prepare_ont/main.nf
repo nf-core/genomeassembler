@@ -7,7 +7,7 @@ workflow PREPARE_ONT {
     inputs
 
     main:
-    Channel.empty.set { ch_versions }
+    Channel.empty().set { ch_versions }
 
     COLLECT(inputs)
 
