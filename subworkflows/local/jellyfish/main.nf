@@ -13,7 +13,7 @@ workflow JELLYFISH {
     Channel.empty().set { genomescope_in }
     Channel.empty().set { ch_versions }
     COUNT(samples)
-    COUNT.out.set { kmers }
+    COUNT.out.kmers.set { kmers }
 
     ch_versions = ch_versions.mix(COUNT.out.versions)
 
@@ -26,11 +26,11 @@ workflow JELLYFISH {
     ch_versions = ch_versions.mix(HISTO.out.versions)
 
     if (!params.read_length == null) {
-    HISTO.out.map { it -> [it[0], it[1], params.kmer_length, params.read_length] }.set { genomescope_in }
+    HISTO.out.histo.map { it -> [it[0], it[1], params.kmer_length, params.read_length] }.set { genomescope_in }
     }
 
     if (params.read_length == null) {
-    HISTO.out.map { it -> [it[0], it[1], params.kmer_length] }.join(nanoq_out).set { genomescope_in }
+    HISTO.out.histo.map { it -> [it[0], it[1], params.kmer_length] }.join(nanoq_out).set { genomescope_in }
     }
 
     GENOMESCOPE(genomescope_in)
