@@ -13,6 +13,7 @@ process RAGTAG_SCAFFOLD {
     tuple val(meta), path("${assembly}_ragtag_${reference}/*.fasta"), emit: corrected_assembly
     tuple val(meta), path("${assembly}_ragtag_${reference}/*.agp"), emit: corrected_agp
     tuple val(meta), path("${assembly}_ragtag_${reference}/*.stats"), emit: corrected_stats
+    path "versions.yml", emit: versions
 
     script:
     def prefix = task.ext.prefix ?: "${meta.id}"
@@ -36,6 +37,11 @@ process RAGTAG_SCAFFOLD {
     mv ${assembly}_ragtag_${reference}/ragtag.scaffold.fasta ${assembly}_ragtag_${reference}/${assembly}_ragtag_${reference}.fasta
     mv ${assembly}_ragtag_${reference}/ragtag.scaffold.agp ${assembly}_ragtag_${reference}/${assembly}_ragtag_${reference}.agp
     mv ${assembly}_ragtag_${reference}/ragtag.scaffold.stats ${assembly}_ragtag_${reference}/${assembly}_ragtag_${reference}.stats
+
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+        RagTag: \$(echo \$(ragtag.py -v | sed 's/v//'))
+    END_VERSIONS
     """
 
     stub:
@@ -44,5 +50,9 @@ process RAGTAG_SCAFFOLD {
     touch ${assembly}_ragtag_${reference}/${assembly}_ragtag_${reference}.fasta
     touch ${assembly}_ragtag_${reference}/${assembly}_ragtag_${reference}.agp
     touch ${assembly}_ragtag_${reference}/${assembly}_ragtag_${reference}.stats
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+        RagTag: \$(echo \$(ragtag.py -v | sed 's/v//'))
+    END_VERSIONS
     """
 }
