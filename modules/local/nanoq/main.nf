@@ -24,7 +24,7 @@ process NANOQ {
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        nanoq: \$(nanoq -V 2>&1)
+        nanoq: \$(nanoq -V | sed 's/nanoq //')
     END_VERSIONS
     """
 
@@ -37,7 +37,7 @@ process NANOQ {
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        nanoq: \$(nanoq -V 2>&1)
+        nanoq: \$(nanoq -V | sed 's/nanoq //')
     END_VERSIONS
     """
 }
