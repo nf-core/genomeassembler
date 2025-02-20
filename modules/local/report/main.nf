@@ -14,6 +14,7 @@ process REPORT {
     path quast_files, stageAs: "data/quast/*"
     path busco_files, stageAs: "data/busco/*"
     path meryl_files, stageAs: "data/merqury/*"
+    path versions, stageAs: "versions.yml"
 
     output:
     tuple path("report.html"), path("report_files/*"), emit: report_html

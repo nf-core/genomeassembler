@@ -149,6 +149,13 @@ workflow GENOMEASSEMBLER {
     /*
     Report
     */
+    softwareVersionsToYAML(ch_versions)
+        .collectFile(
+            storeDir: "${params.outdir}/pipeline_info",
+            name: 'nf_core_' + 'pipeline_software_' + 'versions.yml',
+            sort: true,
+            newLine: true
+        )
 
     quast_files
         .concat(
@@ -212,9 +219,8 @@ workflow GENOMEASSEMBLER {
     merqury_files.view { f -> "merqury Files: $f"}
     */
 
-    REPORT(report_files, report_functions, nanoq_files, genomescope_files, quast_files, busco_files, merqury_files)
+    REPORT(report_files, report_functions, nanoq_files, genomescope_files, quast_files, busco_files, merqury_files, Channel.fromPath("${params.outdir}/pipeline_info/nf_core_pipeline_software_versions.yml"))
 
-    ch_versions = ch_versions.mix(REPORT.out.versions)
     //
     // Collate and save software versions
     //
