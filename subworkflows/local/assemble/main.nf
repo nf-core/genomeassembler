@@ -143,10 +143,6 @@ workflow ASSEMBLE {
         ch_input
             .map { row -> [row.meta, row.assembly_bam] }
             .set { ch_assembly_bam }
-
-        ch_input
-            .map { row -> [row.meta, row.assembly_bam, row.assembly_bai] }
-            .set { ch_assembly_bam_bai }
     }
     else {
         Channel.empty().set { ch_ref_bam }
@@ -184,7 +180,6 @@ workflow ASSEMBLE {
             MAP_TO_ASSEMBLY(longreads, ch_assembly)
             MAP_TO_ASSEMBLY.out.aln_to_assembly_bam.set { ch_assembly_bam }
 
-            MAP_TO_ASSEMBLY.out.aln_to_assembly_bam_bai.set { ch_assembly_bam_bai }
             RUN_QUAST(ch_assembly, ch_input, ch_ref_bam, ch_assembly_bam)
             RUN_QUAST.out.quast_tsv.set { assembly_quast_reports }
 
