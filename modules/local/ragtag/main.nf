@@ -11,7 +11,7 @@ process RAGTAG_SCAFFOLD {
 
     output:
     tuple val(meta), path("*.fasta"), emit: corrected_assembly
-    tuple val(meta), path("*.agp"), emit: corrected_agp
+    tuple val(meta), path("*.agp"),   emit: corrected_agp
     tuple val(meta), path("*.stats"), emit: corrected_stats
 
     script:
