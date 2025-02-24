@@ -70,7 +70,11 @@ process REPORT {
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        report: 1.0.0
+        R: \$(R --version | head -n1 | sed 's/R version //; s/ .*//')
+        r-tidyverse: \$(ls opt/conda/pkgs/ | grep tidyverse | sed 's/r-tidyverse-//; s/-.*//')
+        r-plotly: \$(ls opt/conda/pkgs/ | grep plotly | sed 's/r-plotly-//; s/-.*//')
+        r-quarto: \$(ls opt/conda/pkgs/ | grep r-quarto | sed 's/r-quarto-//; s/-.*//')
+        quarto-cli: \$(quarto --version)
     END_VERSIONS
     """
     stub:
@@ -83,7 +87,11 @@ process REPORT {
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        report: 1.0.0
+        R: \$(R --version | head -n1 | sed 's/R version //; s/ .*//')
+        r-tidyverse: \$(ls opt/conda/pkgs/ | grep tidyverse | sed 's/r-tidyverse-//; s/-.*//')
+        r-plotly: \$(ls opt/conda/pkgs/ | grep plotly | sed 's/r-plotly-//; s/-.*//')
+        r-quarto: \$(ls opt/conda/pkgs/ | grep r-quarto | sed 's/r-quarto-//; s/-.*//')
+        quarto-cli: \$(quarto --version)
     END_VERSIONS
     """
 }
