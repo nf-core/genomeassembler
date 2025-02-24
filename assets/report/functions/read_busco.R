@@ -68,15 +68,16 @@ read_busco_batch <- \(x) {
     read_tsv(x, show_col_types = F) %>%
         set_colnames(colnames(.) %>% str_replace_all(" ", "_")) %>%
         mutate(
-            sample = str_extract(x, "(?<=busco/).+?(?=_[assemble|medaka|pilon|links|longstitch|ragtag])"),
-            stage = case_when(
-                str_detect(x, "ragtag") ~ "RagTag",
-                str_detect(x, "medaka") ~ "medaka",
-                str_detect(x, "pilon") ~ "pilon",
-                str_detect(x, "longstitch") ~ "longstitch",
-                str_detect(x, "links") ~ "LINKS",
-                str_detect(x, "assemble") ~ "Assembly",
-            ),
+                sample = str_extract(x %>% basename(),
+                                ".+?(?=_[assembly|links|longstitch|ragtag|medaka|pilon])"),
+                stage = case_when(
+                        str_detect(x, "_ragtag") ~ "RagTag",
+                        str_detect(x, "_medaka") ~ "medaka",
+                        str_detect(x, "_pilon") ~ "pilon",
+                        str_detect(x, "_longstitch") ~ "longstitch",
+                        str_detect(x, "_links") ~ "LINKS",
+                        str_detect(x, "assembly") ~ "Assembly",
+                        TRUE ~ "Unknown"),
             Percent_gaps = Percent_gaps %>% str_remove("%") %>% as.numeric()
         ) %>%
         dplyr::select(-Dataset) %>%
