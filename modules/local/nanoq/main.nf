@@ -14,12 +14,18 @@ process NANOQ {
     tuple val(meta), path("*_report.json"), emit: report
     tuple val(meta), path("*_stats.json"), emit: stats
     tuple val(meta), env(median), emit: median_length
+    path "versions.yml", emit: versions
 
     script:
     def prefix = task.ext.prefix ?: "${meta.id}"
     """
     nanoq -i ${reads} -j -r ${prefix}_report.json -s -H -vvv > ${prefix}_stats.json
     median=\$(cat ${prefix}_report.json | grep -o '"median_length":[0-9]*' | grep -o '[0-9]*')
+
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+        nanoq: \$(nanoq -V | sed 's/nanoq //')
+    END_VERSIONS
     """
 
     stub:
@@ -31,7 +37,7 @@ process NANOQ {
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        nanoq: \$(nanoq -V 2>&1)
+        nanoq: \$(nanoq -V | sed 's/nanoq //')
     END_VERSIONS
     """
 }

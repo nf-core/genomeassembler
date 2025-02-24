@@ -7,6 +7,7 @@ workflow MAP_TO_ASSEMBLY {
     genome_assembly
 
     main:
+    Channel.empty().set { ch_versions }
     // map reads to assembly
     in_reads
         .join(genome_assembly)
@@ -27,8 +28,11 @@ workflow MAP_TO_ASSEMBLY {
 
     BAM_STATS(aln_to_assembly_bam_bai, ch_fasta )
 
+    versions = ch_versions.mix(ALIGN.out.versions).mix(BAM_STATS.out.versions)
+
     emit:
     aln_to_assembly_bam
     aln_to_assembly_bai
     aln_to_assembly_bam_bai
+    versions
 }

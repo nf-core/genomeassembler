@@ -40,7 +40,6 @@ fill_scale_plots <- scale_fill_manual(values = c("#CC6677", "#332288", "#DDCC77"
 data_base = "data/"
 ```
 
-
 # About
 
 This report displays the main information gathered from various QC steps.
@@ -808,4 +807,24 @@ for (i in 1:length(unique(merqury_stats$sample))) {
 unlink("merqury_files/cn_plots")
 unlink("merqury_files/asm_plots")
 unlink("merqury_files")
+```
+
+# Software versions
+
+The pipeline was run using the following software versions:
+
+```{r}
+versions <- yaml::read_yaml("software_versions.yml")
+lapply(1:length(versions), \(process) {
+    proc = versions[[process]]
+    proc_name = names(versions[process])
+    tools <- lapply(1:length(proc), \(tool) {
+        tool_name = proc[tool] %>% names
+        tool_version = proc[[tool]] %>% as.character()
+        return(tibble(Process = proc_name,Tool = tool_name, Version = tool_version))
+        }) %>%
+    bind_rows()
+    }) %>%
+bind_rows() %>%
+knitr::kable()
 ```

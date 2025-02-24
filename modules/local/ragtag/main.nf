@@ -13,6 +13,7 @@ process RAGTAG_SCAFFOLD {
     tuple val(meta), path("*.fasta"), emit: corrected_assembly
     tuple val(meta), path("*.agp"),   emit: corrected_agp
     tuple val(meta), path("*.stats"), emit: corrected_stats
+    path "versions.yml", emit: versions
 
     script:
     def prefix = task.ext.prefix ?: "${meta.id}"
@@ -36,14 +37,22 @@ process RAGTAG_SCAFFOLD {
     mv ${prefix}/ragtag.scaffold.fasta ${prefix}.fasta
     mv ${prefix}/ragtag.scaffold.agp ${prefix}.agp
     mv ${prefix}/ragtag.scaffold.stats ${prefix}.stats
+
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+        RagTag: \$(echo \$(ragtag.py -v | sed 's/v//'))
+    END_VERSIONS
     """
 
     stub:
     def prefix = task.ext.prefix ?: "${meta.id}"
     """
-    mkdir ${prefix}
-    touch ${prefix}/${prefix}.fasta
-    touch ${prefix}/${prefix}.agp
-    touch ${prefix}/${prefix}.stats
+    ${prefix}.fasta
+    ${prefix}.agp
+    ${prefix}.stats
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+        RagTag: \$(echo \$(ragtag.py -v | sed 's/v//'))
+    END_VERSIONS
     """
 }

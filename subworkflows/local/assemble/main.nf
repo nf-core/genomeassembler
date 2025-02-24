@@ -31,6 +31,7 @@ workflow ASSEMBLE {
     Channel.empty().set { flye_inputs }
     Channel.empty().set { hifiasm_inputs }
     Channel.empty().set { longreads }
+    Channel.empty().set { ch_versions }
 
     if (params.use_ref) {
         ch_input
@@ -63,6 +64,7 @@ workflow ASSEMBLE {
             // Run flye
             FLYE(flye_inputs, params.flye_mode)
             FLYE.out.fasta.set { ch_assembly }
+            ch_versions = ch_versions.mix(FLYE.out.versions)
         }
         if (params.assembler == "hifiasm") {
             // HiFi and ONT reads in ultralong mode
@@ -72,7 +74,9 @@ workflow ASSEMBLE {
                     .set { hifiasm_inputs }
                 HIFIASM(hifiasm_inputs, [[], [], []], [[], [], []])
                 GFA_2_FA(HIFIASM.out.processed_contigs)
-                GFA_2_FA.out.set { ch_assembly }
+                GFA_2_FA.out.contigs_fasta.set { ch_assembly }
+
+                ch_versions = ch_versions.mix(HIFIASM.out.versions).mix(GFA_2_FA.out.versions)
             }
             // ONT reads only
             if (!params.hifi && params.ont) {
@@ -81,7 +85,9 @@ workflow ASSEMBLE {
                     .set { hifiasm_inputs }
                 HIFIASM_ONT(hifiasm_inputs, [[], [], []], [[], [], []])
                 GFA_2_FA(HIFIASM_ONT.out.processed_contigs)
-                GFA_2_FA.out.set { ch_assembly }
+                GFA_2_FA.out.contigs_fasta.set { ch_assembly }
+
+                ch_versions = ch_versions.mix(HIFIASM_ONT.out.versions).mix(GFA_2_FA.out.versions)
             }
             // HiFI reads only
             if (params.hifi && !params.ont) {
@@ -89,8 +95,11 @@ workflow ASSEMBLE {
                     .map { meta, ontreads -> [meta, ontreads, []] }
                     .set { hifiasm_inputs }
                 HIFIASM(hifiasm_inputs, [[], [], []], [[], [], []])
+
                 GFA_2_FA(HIFIASM.out.processed_contigs)
-                GFA_2_FA.out.set { ch_assembly }
+                GFA_2_FA.out.contigs_fasta.set { ch_assembly }
+
+                ch_versions = ch_versions.mix(HIFIASM.out.versions).mix(GFA_2_FA.out.versions)
             }
         }
         if (params.assembler == "flye_on_hifiasm") {
@@ -99,7 +108,10 @@ workflow ASSEMBLE {
                 .map { meta, hifireads -> [meta, hifireads, []] }
                 .set { hifiasm_inputs }
             HIFIASM(hifiasm_inputs, [[], [], []], [[], [], []])
+
             GFA_2_FA(HIFIASM.out.processed_contigs)
+
+            ch_versions = ch_versions.mix(HIFIASM.out.versions).mix(GFA_2_FA.out.versions)
 
             // Run flye
             ont_reads.set { flye_inputs }
@@ -107,16 +119,15 @@ workflow ASSEMBLE {
                 params.genome_size = genomescope_out
             }
             FLYE(flye_inputs, params.flye_mode)
-
             FLYE.out.fasta
                 .join(
-                    GFA_2_FA.out
+                    GFA_2_FA.out.contigs_fasta
                 )
                 .set { ragtag_in }
-
             RAGTAG_SCAFFOLD(ragtag_in)
             // takes: meta, assembly (flye), reference (hifi)
             RAGTAG_SCAFFOLD.out.corrected_assembly.set { ch_assembly }
+            ch_versions = ch_versions.mix(FLYE.out.versions).mix(RAGTAG_SCAFFOLD.out.versions)
         }
     }
     /*
@@ -167,7 +178,7 @@ workflow ASSEMBLE {
             if (params.use_ref) {
                 MAP_TO_REF(longreads, ch_refs)
 
-                MAP_TO_REF.out.set { ch_ref_bam }
+                MAP_TO_REF.out.ch_aln_to_ref.set { ch_ref_bam }
             }
 
             MAP_TO_ASSEMBLY(longreads, ch_assembly)
@@ -176,6 +187,9 @@ workflow ASSEMBLE {
             MAP_TO_ASSEMBLY.out.aln_to_assembly_bam_bai.set { ch_assembly_bam_bai }
             RUN_QUAST(ch_assembly, ch_input, ch_ref_bam, ch_assembly_bam)
             RUN_QUAST.out.quast_tsv.set { assembly_quast_reports }
+
+            ch_versions = ch_versions.mix(MAP_TO_ASSEMBLY.out.versions).mix(RUN_QUAST.out.versions)
+
         }
     }
     /*
@@ -184,6 +198,7 @@ workflow ASSEMBLE {
     if (params.busco) {
         RUN_BUSCO(ch_assembly)
         RUN_BUSCO.out.batch_summary.set { assembly_busco_reports }
+        ch_versions = ch_versions.mix(RUN_BUSCO.out.versions)
     }
 
     if (params.short_reads) {
@@ -199,15 +214,18 @@ workflow ASSEMBLE {
                 MERQURY_QC.out.assembly_qv
             )
             .set { assembly_merqury_reports }
+
+        ch_versions = ch_versions.mix(MERQURY_QC.out.versions)
     }
 
     if (params.lift_annotations) {
         RUN_LIFTOFF(ch_assembly, ch_input)
+        ch_versions = ch_versions.mix(RUN_LIFTOFF.out.versions)
     }
 
     assembly = ch_assembly
     ref_bam = ch_ref_bam
-
+    versions = ch_versions
     emit:
     assembly
     ref_bam
@@ -215,4 +233,5 @@ workflow ASSEMBLE {
     assembly_quast_reports
     assembly_busco_reports
     assembly_merqury_reports
+    versions
 }

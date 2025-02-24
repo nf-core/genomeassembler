@@ -7,11 +7,13 @@ workflow PREPARE_ONT {
     inputs
 
     main:
+    Channel.empty().set { ch_versions }
+
     COLLECT(inputs)
 
-    CHOP(COLLECT.out)
+    CHOP(COLLECT.out.reads)
 
-    CHOP.out.set { trimmed }
+    CHOP.out.chopped_reads.set { trimmed }
 
     RUN_NANOQ(trimmed)
 
@@ -21,9 +23,12 @@ workflow PREPARE_ONT {
 
     RUN_NANOQ.out.stats.set { nanoq_stats }
 
+    versions = ch_versions.mix(COLLECT.out.versions).mix(CHOP.out.versions).mix(RUN_NANOQ.out.versions)
+
     emit:
     trimmed
     med_len
     nanoq_report
     nanoq_stats
+    versions
 }
