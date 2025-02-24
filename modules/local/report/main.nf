@@ -66,8 +66,6 @@ process REPORT {
         ${report_params} \\
         --to dashboard
 
-    ## Version needs to be bumped manually
-
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
         R: \$(R --version | head -n1 | sed 's/R version //; s/ .*//')
