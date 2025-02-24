@@ -5,6 +5,7 @@ workflow RUN_NANOQ {
     in_reads
 
     main:
+    Channel.empty().set { versions }
 
     NANOQ(in_reads)
 
