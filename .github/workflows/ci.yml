@@ -44,7 +44,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Install Nextflow
+      - name: Set up Nextflow
         uses: nf-core/setup-nextflow@v2
         with:
           version: "${{ matrix.NXF_VER }}"
