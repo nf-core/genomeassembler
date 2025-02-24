@@ -47,10 +47,9 @@ process RAGTAG_SCAFFOLD {
     stub:
     def prefix = task.ext.prefix ?: "${meta.id}"
     """
-    mkdir ${prefix}
-    touch ${prefix}/${prefix}.fasta
-    touch ${prefix}/${prefix}.agp
-    touch ${prefix}/${prefix}.stats
+    ${prefix}.fasta
+    ${prefix}.agp
+    ${prefix}.stats
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
         RagTag: \$(echo \$(ragtag.py -v | sed 's/v//'))
