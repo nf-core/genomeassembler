@@ -15,17 +15,17 @@ workflow JELLYFISH {
     COUNT.out.set { kmers }
 
     if (params.dump) {
-    DUMP(kmers)
+        DUMP(kmers)
     }
 
     HISTO(kmers)
 
     if (!params.read_length == null) {
-    HISTO.out.map { it -> [it[0], it[1], params.kmer_length, params.read_length] }.set { genomescope_in }
+        HISTO.out.map { it -> [it[0], it[1], params.kmer_length, params.read_length] }.set { genomescope_in }
     }
 
     if (params.read_length == null) {
-    HISTO.out.map { it -> [it[0], it[1], params.kmer_length] }.join(nanoq_out).set { genomescope_in }
+        HISTO.out.map { it -> [it[0], it[1], params.kmer_length] }.join(nanoq_out).set { genomescope_in }
     }
 
     GENOMESCOPE(genomescope_in)
