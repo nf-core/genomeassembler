@@ -32,4 +32,5 @@ workflow MAP_TO_ASSEMBLY {
 
     emit:
     aln_to_assembly_bam
+    versions
 }
