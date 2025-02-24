@@ -36,7 +36,7 @@ jobs:
           - "ont_hifiasm"
           - "hifiont_hifiasm"
           - "hifiont_flyehifiasm"
-        profile: ["conda", "docker"]
+        profile: ["conda", "docker", "singularity"]
 
     steps:
       - name: Check out pipeline code
