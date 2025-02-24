@@ -10,10 +10,11 @@ process GENOMESCOPE {
         tuple val(meta), path(histo), val(kmer_length), val(read_length)
 
     output:
-        tuple val(meta), path("*_genomescope.txt"), emit: summary
-        tuple val(meta), path("*_plot.log.png"), emit: plot_log
-        tuple val(meta), path("*_plot.png"), emit: plot
-        tuple val(meta), env(est_hap_len), emit: estimated_hap_len
+        tuple val(meta), path("*_genomescope.txt")  , emit: summary
+        tuple val(meta), path("*_plot.log.png")     , emit: plot_log
+        tuple val(meta), path("*_plot.png")         , emit: plot
+        tuple val(meta), env(est_hap_len)           , emit: estimated_hap_len
+        path "versions.yml"                         , emit: versions
 
     script:
     def prefix = task.ext.prefix ?: "${meta.id}"
@@ -27,6 +28,11 @@ process GENOMESCOPE {
         | sed 's@ bp@@g' \\
         | sed 's@,@@g' \\
         | awk '{printf "%i", (\$4+\$5)/2 }')
+
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+        genomescope2: \$(echo \$(genomescope2 -v | sed 's/GenomeScope //'))
+    END_VERSIONS
     """
     stub:
     def prefix = task.ext.prefix ?: "${meta.id}"
@@ -35,5 +41,9 @@ process GENOMESCOPE {
     touch ${prefix}_plot.log.png
     touch ${prefix}_plot.png
     est_hap_len=1
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+        genomescope2: \$(echo \$(genomescope2 -v) | sed 's/GenomeScope //')
+    END_VERSIONS
     """
 }

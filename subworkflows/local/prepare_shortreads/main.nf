@@ -7,6 +7,8 @@ workflow PREPARE_SHORTREADS {
     input_channel
 
     main:
+    Channel.empty().set { ch_versions }
+
     input_channel
         .map { create_shortread_channel(it) }
         .set { shortreads }
@@ -14,14 +16,18 @@ workflow PREPARE_SHORTREADS {
     if (params.trim_short_reads) {
         TRIMGALORE(shortreads)
         TRIMGALORE.out.reads.set { shortreads }
+        ch_versions = ch_versions.mix(TRIMGALORE.out.versions)
     }
     MERYL_COUNT(shortreads.map { it -> [it[0], it[1]] }, params.meryl_k)
     MERYL_UNIONSUM(MERYL_COUNT.out.meryl_db, params.meryl_k)
     MERYL_UNIONSUM.out.meryl_db.set { meryl_kmers }
 
+    versions = ch_versions.mix(MERYL_COUNT.out.versions).mix(MERYL_UNIONSUM.out.versions)
+
     emit:
     shortreads
     meryl_kmers
+    versions
 }
 
 def create_shortread_channel(row) {

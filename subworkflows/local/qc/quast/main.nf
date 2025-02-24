@@ -8,6 +8,7 @@ workflow RUN_QUAST {
     aln_to_assembly
 
     main:
+    Channel.empty().set { versions }
     /* prepare for quast:
      * This makes use of the input channel to obtain the reference and reference annotations
      * See quast module for details
@@ -31,9 +32,11 @@ workflow RUN_QUAST {
         QUAST(quast_in, params.use_ref, false)
         QUAST.out.results.set { quast_results }
         QUAST.out.tsv.set { quast_tsv }
+        QUAST.out.versions.set { versions }
     }
 
     emit:
     quast_results
     quast_tsv
+    versions
 }

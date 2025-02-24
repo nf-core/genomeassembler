@@ -6,6 +6,7 @@ workflow MERQURY_QC {
     meryl_out
 
     main:
+    Channel.empty().set { versions }
     assembly.map { meta, _assembly -> [meta.id, []] }.set { stats }
     assembly.map { meta, _assembly -> [meta.id, []] }.set { spectra_asm_hist }
     assembly.map { meta, _assembly -> [meta.id, []] }.set { spectra_cn_hist }
@@ -20,6 +21,7 @@ workflow MERQURY_QC {
         MERQURY.out.spectra_asm_hist.set { spectra_asm_hist }
         MERQURY.out.spectra_cn_hist.set { spectra_cn_hist }
         MERQURY.out.assembly_qv.set { assembly_qv }
+        MERQURY.out.versions.set { versions }
     }
 
     emit:
@@ -27,4 +29,5 @@ workflow MERQURY_QC {
     spectra_asm_hist
     spectra_cn_hist
     assembly_qv
+    versions
 }

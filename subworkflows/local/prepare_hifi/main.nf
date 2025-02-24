@@ -6,6 +6,7 @@ workflow PREPARE_HIFI {
     inputs
 
     main:
+    Channel.empty().set { ch_versions }
     inputs
         .map { it -> [it.meta, it.hifireads] }
         .set { hifireads }
@@ -16,8 +17,11 @@ workflow PREPARE_HIFI {
         LIMA(hifireads, params.pacbio_primers)
         TO_FASTQ(LIMA.out.bam, false)
         TO_FASTQ.out.set { hifireads }
+        ch_versions.mix(LIMA.out.versions).mix(TO_FASTQ.out.versions)
     }
+    versions = ch_versions
 
     emit:
     hifireads
+    versions
 }
