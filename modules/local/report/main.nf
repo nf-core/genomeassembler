@@ -14,7 +14,7 @@ process REPORT {
     path quast_files, stageAs: "data/quast/*"
     path busco_files, stageAs: "data/busco/*"
     path meryl_files, stageAs: "data/merqury/*"
-    path versions, stageAs: "versions.yml"
+    path versions, stageAs: "software_versions.yml"
 
     output:
     tuple path("report.html"), path("report_files/*"), emit: report_html
@@ -65,6 +65,9 @@ process REPORT {
         ${report_profile} \\
         ${report_params} \\
         --to dashboard
+
+    ## Version needs to be bumped manually
+
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
         report: 1.0.0
@@ -77,6 +80,7 @@ process REPORT {
     mkdir busco_files && touch busco_files/reports.csv
     mkdir quast_files && touch quast_files/reports.csv
     mkdir genomescope_files && touch genomescope_files/file.txt
+
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
         report: 1.0.0

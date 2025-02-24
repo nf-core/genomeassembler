@@ -802,7 +802,7 @@ unlink("merqury_files")
 The pipeline was run using the following software versions:
 
 ```{r}
-versions <- yaml::read_yaml("versions.yml")
+versions <- yaml::read_yaml("software_versions.yml")
 lapply(1:length(versions), \(process) {
     proc = versions[[process]]
     proc_name = names(versions[process])
