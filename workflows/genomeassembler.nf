@@ -27,6 +27,7 @@ workflow GENOMEASSEMBLER {
     FASTQC (
         ch_samplesheet
     )
+
     ch_versions = ch_versions.mix(FASTQC.out.versions.first())
 
     //
