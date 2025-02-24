@@ -16,6 +16,8 @@ workflow MAP_SR {
 
     ALIGN_SHORT(map_assembly, true, 'bai', false, false)
 
+    versions = ch_versions.mix(ALIGN_SHORT.out.versions)
+
     ALIGN_SHORT.out.bam.set { aln_to_assembly_bam }
 
     map_assembly
@@ -24,13 +26,13 @@ workflow MAP_SR {
 
     BAM_STATS(aln_to_assembly_bam, ch_fasta)
 
+    versions = ch_versions.mix(BAM_STATS.out.versions)
+
     BAM_STATS.out.bai.set { aln_to_assembly_bai }
 
     aln_to_assembly_bam
         .join(aln_to_assembly_bai)
         .set { aln_to_assembly_bam_bai }
-
-    versions = ch_versions.mix(ALIGN_SHORT.out.versions).mix(BAM_STATS.out.versions)
 
     emit:
     aln_to_assembly_bam
