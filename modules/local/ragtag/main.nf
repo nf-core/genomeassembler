@@ -10,9 +10,9 @@ process RAGTAG_SCAFFOLD {
     tuple val(meta), path(assembly), path(reference)
 
     output:
-    tuple val(meta), path("${assembly}_ragtag_${reference}/*.fasta"), emit: corrected_assembly
-    tuple val(meta), path("${assembly}_ragtag_${reference}/*.agp"), emit: corrected_agp
-    tuple val(meta), path("${assembly}_ragtag_${reference}/*.stats"), emit: corrected_stats
+    tuple val(meta), path("*.fasta"), emit: corrected_assembly
+    tuple val(meta), path("*.agp"),   emit: corrected_agp
+    tuple val(meta), path("*.stats"), emit: corrected_stats
     path "versions.yml", emit: versions
 
     script:
@@ -20,13 +20,13 @@ process RAGTAG_SCAFFOLD {
     """
     if [[ ${assembly} == *.gz ]]
     then
-        zcat ${assembly} > ${prefix}.fa
+        zcat ${assembly} > assembly.fa
     else
-        mv ${assembly} ${prefix}.fa
+        mv ${assembly} assembly.fa
     fi
 
-    ragtag.py scaffold ${reference} ${prefix}.fa \\
-        -o "${assembly}_ragtag_${reference}" \\
+    ragtag.py scaffold ${reference} assembly.fa \\
+        -o "${prefix}" \\
         -t ${task.cpus} \\
         -f 5000 \\
         -w \\
@@ -34,9 +34,9 @@ process RAGTAG_SCAFFOLD {
         -u \\
         -r
 
-    mv ${assembly}_ragtag_${reference}/ragtag.scaffold.fasta ${assembly}_ragtag_${reference}/${assembly}_ragtag_${reference}.fasta
-    mv ${assembly}_ragtag_${reference}/ragtag.scaffold.agp ${assembly}_ragtag_${reference}/${assembly}_ragtag_${reference}.agp
-    mv ${assembly}_ragtag_${reference}/ragtag.scaffold.stats ${assembly}_ragtag_${reference}/${assembly}_ragtag_${reference}.stats
+    mv ${prefix}/ragtag.scaffold.fasta ${prefix}.fasta
+    mv ${prefix}/ragtag.scaffold.agp ${prefix}.agp
+    mv ${prefix}/ragtag.scaffold.stats ${prefix}.stats
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
@@ -45,11 +45,12 @@ process RAGTAG_SCAFFOLD {
     """
 
     stub:
+    def prefix = task.ext.prefix ?: "${meta.id}"
     """
-    mkdir ${assembly}_ragtag_${reference}
-    touch ${assembly}_ragtag_${reference}/${assembly}_ragtag_${reference}.fasta
-    touch ${assembly}_ragtag_${reference}/${assembly}_ragtag_${reference}.agp
-    touch ${assembly}_ragtag_${reference}/${assembly}_ragtag_${reference}.stats
+    mkdir ${prefix}
+    touch ${prefix}/${prefix}.fasta
+    touch ${prefix}/${prefix}.agp
+    touch ${prefix}/${prefix}.stats
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
         RagTag: \$(echo \$(ragtag.py -v | sed 's/v//'))
