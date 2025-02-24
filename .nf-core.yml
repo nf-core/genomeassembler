@@ -5,8 +5,8 @@ lint:
     - assets/multiqc_config.yml
     - assets/sendmail_template.txt
   files_unchanged:
-    - ".github/CONTRIBUTING.md"
-  multiqc_config: False
+    - .github/CONTRIBUTING.md
+  multiqc_config: false
 nf_core_version: 3.2.0
 repository_type: pipeline
 template:
@@ -17,7 +17,7 @@ template:
   name: genomeassembler
   org: nf-core
   outdir: .
-  version: 1.0.0
   skip_features:
     - multiqc
     - igenomes
+  version: 1.0.0
