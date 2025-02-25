@@ -36,7 +36,18 @@ jobs:
           - "ont_hifiasm"
           - "hifiont_hifiasm"
           - "hifiont_flyehifiasm"
-        profile: ["conda", "docker", "singularity"]
+        profile:
+          - "conda"
+          - "docker"
+          - "singularity"
+        isMaster:
+          - ${{ github.base_ref == 'master' }}
+        # Exclude conda and singularity on dev
+        exclude:
+          - isMaster: false
+            profile: "conda"
+          - isMaster: false
+            profile: "singularity"
 
     steps:
       - name: Check out pipeline code
@@ -44,11 +55,39 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Install Nextflow
+      - name: Set up Nextflow
         uses: nf-core/setup-nextflow@v2
         with:
           version: "${{ matrix.NXF_VER }}"
 
+      - name: Set up Apptainer
+        if: matrix.profile == 'singularity'
+        uses: eWaterCycle/setup-apptainer@main
+
+      - name: Set up Singularity
+        if: matrix.profile == 'singularity'
+        run: |
+          mkdir -p $NXF_SINGULARITY_CACHEDIR
+          mkdir -p $NXF_SINGULARITY_LIBRARYDIR
+
+      - name: Set up Miniconda
+        if: matrix.profile == 'conda'
+        uses: conda-incubator/setup-miniconda@a4260408e20b96e80095f42ff7f1a15b27dd94ca # v3
+        with:
+          miniconda-version: "latest"
+          auto-update-conda: true
+          conda-solver: libmamba
+          channels: conda-forge,bioconda
+
+      - name: Set up Conda
+        if: matrix.profile == 'conda'
+        run: |
+          echo $(realpath $CONDA)/condabin >> $GITHUB_PATH
+          echo $(realpath python) >> $GITHUB_PATH
+
       - name: "Run pipeline with test data ${{ matrix.ASSEMBLER }}"
         run: |
           nextflow run ${GITHUB_WORKSPACE} -profile ${{ matrix.ASSEMBLER }},test,${{matrix.profile}}  --outdir ./results_${{matrix.profile}}_${{ matrix.ASSEMBLER }}
+
+      - name: Clean up Disk space
+        uses: jlumbroso/free-disk-space@54081f138730dfa15788a46383842cd2f914a1be # v1.3.1
