@@ -28,7 +28,7 @@ process GFA_2_FA {
     stub:
     """
     outfile=\$(basename $gfa_file .gfa).fa.gz
-    touch outfile
+    touch \$outfile
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
         awk:  \$(echo \$(awk --version | head -n1 | sed 's/mawk //; s/ .*//'))
