@@ -174,7 +174,7 @@ workflow ASSEMBLE {
             if (params.use_ref) {
                 MAP_TO_REF(longreads, ch_refs)
 
-                MAP_TO_REF.out.ch_aln_to_ref.set { ch_ref_bam }
+                MAP_TO_REF.out.ch_aln_to_ref_bam.set { ch_ref_bam }
             }
 
             MAP_TO_ASSEMBLY(longreads, ch_assembly)
