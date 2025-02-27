@@ -6,8 +6,6 @@ workflow HIFI {
     inputs
 
     main:
-    Channel.empty().set { hifi_kmers }
-    Channel.empty().set { hifi_qv }
     Channel.empty().set { ch_versions }
 
     PREPARE_HIFI(inputs)
@@ -20,7 +18,5 @@ workflow HIFI {
 
     emit:
     hifi_reads
-    hifi_kmers
-    hifi_qv
     versions
 }
