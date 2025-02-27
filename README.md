@@ -67,10 +67,12 @@ For more details about the output files and reports, please refer to the
 
 nf-core/genomeassembler was originally written by [Niklas Schandry](https://github.com/nschan), of the Faculty of Biology of the Ludwig-Maximilians University (LMU) in Munich, Germany.
 
-We thank the following people for their extensive assistance in the development of this pipeline:
+I thank the following people for their extensive assistance and constructive reviews during the development of this pipeline:
 
 - [Mahesh Binzer-Panchal](https://github.com/mahesh-panchal)
 - [Matthias Hörtenhuber](https://github.com/mashehu)
+- [Louis Le Nézet](https://github.com/LouisLeNezet)
+- [Júlia Mir Pedrol](https://github.com/mirpedrol)
 - [Daniel Straub](https://github.com/d4straub)
 
 ## Contributions and Support
