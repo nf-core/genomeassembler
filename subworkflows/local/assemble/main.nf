@@ -218,15 +218,12 @@ workflow ASSEMBLE {
         ch_versions = ch_versions.mix(RUN_LIFTOFF.out.versions)
     }
 
+    emit:
     assembly = ch_assembly
     ref_bam = ch_ref_bam
-    versions = ch_versions
-    emit:
-    assembly
-    ref_bam
     longreads
     assembly_quast_reports
     assembly_busco_reports
     assembly_merqury_reports
-    versions
+    versions = ch_versions
 }
