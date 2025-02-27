@@ -209,16 +209,6 @@ workflow GENOMEASSEMBLER {
         merqury_files = Channel.of([])
     }
 
-    /* Debug
-    report_files.view { f -> "Report Files: $f"}
-    report_functions.view { f -> "Report Functions: $f"}
-    nanoq_files.view { f -> "Nanoq Files: $f"}
-    genomescope_files.view { f -> "Genomescope Files: $f"}
-    quast_files.view { f -> "QUAST Files: $f"}
-    busco_files.view { f -> "BUSCO Files: $f"}
-    merqury_files.view { f -> "merqury Files: $f"}
-    */
-
     REPORT(report_files, report_functions, nanoq_files, genomescope_files, quast_files, busco_files, merqury_files, Channel.fromPath("${params.outdir}/pipeline_info/nf_core_pipeline_software_versions.yml"))
 
     //
