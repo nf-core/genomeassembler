@@ -39,7 +39,8 @@
                     "merqury/merqury": {
                         "branch": "master",
                         "git_sha": "42140b76b12c18dbde34bfa7f2ef09afae8b054f",
-                        "installed_by": ["modules"]
+                        "installed_by": ["modules"],
+                        "patch": "modules/nf-core/merqury/merqury/merqury-merqury.diff"
                     },
                     "meryl/count": {
                         "branch": "master",

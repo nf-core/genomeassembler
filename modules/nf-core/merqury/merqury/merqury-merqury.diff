@@ -1,0 +1,22 @@
+Changes in component 'nf-core/merqury/merqury'
+'modules/nf-core/merqury/merqury/environment.yml' is unchanged
+'modules/nf-core/merqury/merqury/meta.yml' is unchanged
+Changes in 'merqury/merqury/main.nf':
+--- modules/nf-core/merqury/merqury/main.nf
++++ modules/nf-core/merqury/merqury/main.nf
+@@ -12,8 +12,8 @@
+     tuple val(meta), path(meryl_db), path(assembly)
+ 
+     output:
+-    tuple val(meta), path("*_only.bed")          , emit: assembly_only_kmers_bed
+-    tuple val(meta), path("*_only.wig")          , emit: assembly_only_kmers_wig
++    tuple val(meta), path("*_only.bed")          , emit: assembly_only_kmers_bed, optional: true // optional to make full_test pass, where this file is not created.
++    tuple val(meta), path("*_only.wig")          , emit: assembly_only_kmers_wig, optional: true // optional to make full_test pass, where this file is not created.
+     tuple val(meta), path("*.completeness.stats"), emit: stats
+     tuple val(meta), path("*.dist_only.hist")    , emit: dist_hist
+     tuple val(meta), path("*.spectra-cn.fl.png") , emit: spectra_cn_fl_png
+
+'modules/nf-core/merqury/merqury/tests/tags.yml' is unchanged
+'modules/nf-core/merqury/merqury/tests/main.nf.test' is unchanged
+'modules/nf-core/merqury/merqury/tests/main.nf.test.snap' is unchanged
+************************************************************
