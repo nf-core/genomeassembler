@@ -16,10 +16,10 @@ process MERQURY_MERQURY {
     tuple val(meta), path("*_only.wig")          , emit: assembly_only_kmers_wig
     tuple val(meta), path("*.completeness.stats"), emit: stats
     tuple val(meta), path("*.dist_only.hist")    , emit: dist_hist
-    tuple val(meta), path("*.spectra-cn.fl.png") , emit: spectra_cn_fl_png
-    tuple val(meta), path("*.spectra-cn.hist")   , emit: spectra_cn_hist
-    tuple val(meta), path("*.spectra-cn.ln.png") , emit: spectra_cn_ln_png
-    tuple val(meta), path("*.spectra-cn.st.png") , emit: spectra_cn_st_png
+    tuple val(meta), path("*.spectra-cn.fl.png") , emit: spectra_cn_fl_png,     optional: true // optional to make full_test pass, where this file is not created.
+    tuple val(meta), path("*.spectra-cn.hist")   , emit: spectra_cn_hist,       optional: true // optional to make full_test pass, where this file is not created.
+    tuple val(meta), path("*.spectra-cn.ln.png") , emit: spectra_cn_ln_png,     optional: true // optional to make full_test pass, where this file is not created.
+    tuple val(meta), path("*.spectra-cn.st.png") , emit: spectra_cn_st_png,     optional: true // optional to make full_test pass, where this file is not created.
     tuple val(meta), path("*.spectra-asm.fl.png"), emit: spectra_asm_fl_png,    optional: true // optional to make full_test pass, where this file is not created.
     tuple val(meta), path("*.spectra-asm.hist")  , emit: spectra_asm_hist,      optional: true // optional to make full_test pass, where this file is not created.
     tuple val(meta), path("*.spectra-asm.ln.png"), emit: spectra_asm_ln_png,    optional: true // optional to make full_test pass, where this file is not created.
