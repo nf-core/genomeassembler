@@ -19,6 +19,7 @@ To ease configuration, there are a couple of pre-defined profiles for various co
 | --- | ----- | -------------------------------------------------- | --------------------- |
 | Yes | No    | flye                                               | `ont_flye`            |
 | No  | Yes   | flye                                               | `hifi_flye`           |
+| Yes | No    | hifiasm                                            | `ont_hifiasm`         |
 | No  | Yes   | hifiasm                                            | `hifi_hifiasm`        |
 | Yes | Yes   | hifiasm --ul                                       | `hifiont_hifiasm`     |
 | Yes | Yes   | Scaffolding of ONT assemblies onto HiFi assemblies | `hifiont_flyehifiasm` |
