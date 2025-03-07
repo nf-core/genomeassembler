@@ -37,7 +37,7 @@ You will need to create a samplesheet with information about the samples you wou
 The largest samplesheet format is:
 
 ```csv title="samplesheet.csv"
-sample,ontreads,hifireads,ref_fasta,ref_gff,shortreads_F,shortreads_R,paired
+sample,ontreads,hifireads,ref_fasta,ref_gff,shortread_F,shortread_R,paired
 Sample1,sample1ont.fq.gz,sample1hifi.fq.gz,ref.fa,ref.gff,sample1_r1.fq.gz,sample1_r2,fq.gz
 ```
 
@@ -50,8 +50,8 @@ Further columns _can_ be:
   - `ref_fasta` [path] fasta file of a reference genome
   - `ref_gff` [path] annotations of the reference genome in gff format
 - Short reads
-  - `shortreads_F` : shortread forward file
-  - `shortreads_R`: shortread reverse file (paired end)
+  - `shortread_F` : shortread forward file
+  - `shortread_R`: shortread reverse file (paired end)
   - `paired`: [true/false] true if the reads are paired end, false if they are single-end. The `shortreads_R` column should exist if `paired` is `false` but can be empty.
 
 ### Multiple runs of the same sample
