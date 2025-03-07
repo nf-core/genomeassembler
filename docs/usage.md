@@ -49,8 +49,8 @@ Further columns _can_ be:
   - `ref_fasta` [path] fasta file of a reference genome
   - `ref_gff` [path] annotations of the reference genome in gff format
 - Short reads
-  - `shortreads_F` : shortread forward file
-  - `shortreads_R`: shortread reverse file (paired end)
+  - `shortread_F` : shortread forward file
+  - `shortread_R`: shortread reverse file (paired end)
   - `paired`: [true/false] true if the reads are paired end, false if they are single-end. The `shortreads_R` column should exist if `paired` is `false` but can be empty.
 
 ### Multiple runs of the same sample
