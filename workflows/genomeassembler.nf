@@ -1,54 +1,32 @@
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    VALIDATE INPUTS
+    IMPORT MODULES / SUBWORKFLOWS / FUNCTIONS
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
+include { paramsSummaryMap } from 'plugin/nf-schema'
+include { paramsSummaryMultiqc } from '../subworkflows/nf-core/utils_nfcore_pipeline'
+include { softwareVersionsToYAML } from '../subworkflows/nf-core/utils_nfcore_pipeline'
+include { methodsDescriptionText } from '../subworkflows/local/utils_nfcore_genomeassembler_pipeline'
+// Read preparation
+include { PREPARE_ONT } from '../subworkflows/local/prepare_ont/main'
+include { PREPARE_HIFI } from '../subworkflows/local/prepare_hifi/main'
+include { PREPARE_SHORTREADS } from '../subworkflows/local/prepare_shortreads/main'
 
-def summary_params = NfcoreSchema.paramsSummaryMap(workflow, params)
+// Read checks
+include { ONT } from '../subworkflows/local/ont/main'
+include { HIFI } from '../subworkflows/local/hifi/main'
 
-// Validate input parameters
-WorkflowGenomeassembler.initialise(params, log)
+// Assembly
+include { ASSEMBLE } from '../subworkflows/local/assemble/main'
 
-// TODO nf-core: Add all file path parameters for the pipeline to the list below
-// Check input path parameters to see if they exist
-def checkPathParamList = [ params.input, params.multiqc_config, params.fasta ]
-for (param in checkPathParamList) { if (param) { file(param, checkIfExists: true) } }
+// Polishing
+include { POLISH } from '../subworkflows/local/polishing/main'
 
-// Check mandatory parameters
-if (params.input) { ch_input = file(params.input) } else { exit 1, 'Input samplesheet not specified!' }
 
-/*
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    CONFIG FILES
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-*/
-
-ch_multiqc_config        = file("$projectDir/assets/multiqc_config.yml", checkIfExists: true)
-ch_multiqc_custom_config = params.multiqc_config ? Channel.fromPath(params.multiqc_config) : Channel.empty()
-
-/*
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    IMPORT LOCAL MODULES/SUBWORKFLOWS
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-*/
-
-//
-// SUBWORKFLOW: Consisting of a mix of local and nf-core/modules
-//
-include { INPUT_CHECK } from '../subworkflows/local/input_check'
-
-/*
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    IMPORT NF-CORE MODULES/SUBWORKFLOWS
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-*/
-
-//
-// MODULE: Installed directly from nf-core/modules
-//
-include { FASTQC                      } from '../modules/nf-core/modules/fastqc/main'
-include { MULTIQC                     } from '../modules/nf-core/modules/multiqc/main'
-include { CUSTOM_DUMPSOFTWAREVERSIONS } from '../modules/nf-core/modules/custom/dumpsoftwareversions/main'
+// Scaffolding
+include { SCAFFOLD } from '../subworkflows/local/scaffolding/main'
+// reporting
+include { REPORT } from '../modules/local/report/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -56,68 +34,197 @@ include { CUSTOM_DUMPSOFTWAREVERSIONS } from '../modules/nf-core/modules/custom/
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-// Info required for completion email and summary
-def multiqc_report = []
-
 workflow GENOMEASSEMBLER {
+    take:
+    ch_input
+    ch_refs
 
-    ch_versions = Channel.empty()
-
-    //
-    // SUBWORKFLOW: Read in samplesheet, validate and stage input files
-    //
-    INPUT_CHECK (
-        ch_input
-    )
-    ch_versions = ch_versions.mix(INPUT_CHECK.out.versions)
-
-    //
-    // MODULE: Run FastQC
-    //
-    FASTQC (
-        INPUT_CHECK.out.reads
-    )
-    ch_versions = ch_versions.mix(FASTQC.out.versions.first())
-
-    CUSTOM_DUMPSOFTWAREVERSIONS (
-        ch_versions.unique().collectFile(name: 'collated_versions.yml')
-    )
-
-    //
-    // MODULE: MultiQC
-    //
-    workflow_summary    = WorkflowGenomeassembler.paramsSummaryMultiqc(workflow, summary_params)
-    ch_workflow_summary = Channel.value(workflow_summary)
-
-    ch_multiqc_files = Channel.empty()
-    ch_multiqc_files = ch_multiqc_files.mix(Channel.from(ch_multiqc_config))
-    ch_multiqc_files = ch_multiqc_files.mix(ch_multiqc_custom_config.collect().ifEmpty([]))
-    ch_multiqc_files = ch_multiqc_files.mix(ch_workflow_summary.collectFile(name: 'workflow_summary_mqc.yaml'))
-    ch_multiqc_files = ch_multiqc_files.mix(CUSTOM_DUMPSOFTWAREVERSIONS.out.mqc_yml.collect())
-    ch_multiqc_files = ch_multiqc_files.mix(FASTQC.out.zip.collect{it[1]}.ifEmpty([]))
-
-    MULTIQC (
-        ch_multiqc_files.collect()
-    )
-    multiqc_report = MULTIQC.out.report.toList()
-    ch_versions    = ch_versions.mix(MULTIQC.out.versions)
-}
-
-/*
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    COMPLETION EMAIL AND SUMMARY
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-*/
-
-workflow.onComplete {
-    if (params.email || params.email_on_fail) {
-        NfcoreTemplate.email(workflow, params, summary_params, projectDir, log, multiqc_report)
+    main:
+    // Initialize empty channels
+    Channel.empty().set { ch_ref_bam }
+    Channel.empty().set { ch_polished_genome }
+    Channel.empty().set { ch_ont_reads }
+    Channel.empty().set { ch_hifi_reads }
+    Channel.empty().set { ch_shortreads }
+    Channel.empty().set { meryl_kmers }
+    Channel.empty().set { genome_size }
+    Channel.empty().set { ch_versions }
+    // Initialize channels for QC report collection
+    Channel
+        .of([])
+        .tap { quast_files }
+        .tap { nanoq_files }
+        .tap { genomescope_files }
+        .map { it -> ["dummy", it] }
+        .tap { busco_files }
+        .map { it -> [it[0], it[1], it[1], it[1], it[1]] }
+        .tap { merqury_files }
+    /*
+    =============
+    Some checks
+    =============
+    */
+    if (!params.ont && !params.hifi) {
+        error('At least one of params.ont, params.hifi needs to be true.')
     }
-    NfcoreTemplate.summary(workflow, params, log)
-}
+    /*
+    =============
+    Prepare reads
+    =============
+    */
+    /*
+    Short reads
+    */
+    if (params.short_reads) {
+        PREPARE_SHORTREADS(ch_input)
+        PREPARE_SHORTREADS.out.shortreads.set { ch_shortreads }
+        PREPARE_SHORTREADS.out.meryl_kmers.set { meryl_kmers }
+        ch_versions = ch_versions.mix(PREPARE_SHORTREADS.out.versions)
+    }
 
-/*
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    THE END
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-*/
+
+    /*
+    ONT reads
+    */
+    if (params.ont) {
+        ONT(ch_input)
+        ONT.out.genome_size.set { genome_size }
+        ONT.out.ont_reads.set { ch_ont_reads }
+
+        ONT.out.nanoq_report
+            .concat(
+                ONT.out.nanoq_stats
+            )
+            .collect { it -> it[1] }
+            .set { nanoq_files }
+        ONT.out.genomescope_summary
+            .concat(
+                ONT.out.genomescope_plot
+            )
+            .unique()
+            .collect { it -> it[1] }
+            .set { genomescope_files }
+
+        ch_versions = ch_versions.mix(ONT.out.versions)
+    }
+
+
+    /*
+    HIFI reads
+    */
+    if (params.hifi) {
+        HIFI(ch_input)
+        HIFI.out.hifi_reads.set { ch_hifi_reads }
+
+        ch_versions = ch_versions.mix(HIFI.out.versions)
+    }
+
+    /*
+    Assembly
+    */
+
+    ASSEMBLE(ch_ont_reads, ch_hifi_reads, ch_input, genome_size, meryl_kmers)
+    ASSEMBLE.out.assembly.set { ch_polished_genome }
+    ASSEMBLE.out.ref_bam.set { ch_ref_bam }
+    ASSEMBLE.out.longreads.set { ch_longreads }
+
+    ch_versions = ch_versions.mix(ASSEMBLE.out.versions)
+    /*
+    Polishing
+    */
+
+    POLISH(ch_input, ch_ont_reads, ch_longreads, ch_shortreads, ch_polished_genome, ch_ref_bam, meryl_kmers)
+    POLISH.out.ch_polished_genome.set { ch_polished_genome }
+
+    ch_versions = ch_versions.mix(POLISH.out.versions)
+
+    /*
+    Scaffolding
+    */
+
+    SCAFFOLD(ch_input, ch_longreads, ch_polished_genome, ch_refs, ch_ref_bam, meryl_kmers)
+
+    ch_versions = ch_versions.mix(SCAFFOLD.out.versions)
+
+    /*
+    Report
+    */
+    softwareVersionsToYAML(ch_versions)
+        .collectFile(
+            storeDir: "${params.outdir}/pipeline_info",
+            name: 'nf_core_' + 'pipeline_software_' + 'versions.yml',
+            sort: true,
+            newLine: true
+        )
+
+    quast_files
+        .concat(
+            ASSEMBLE.out.assembly_quast_reports.concat(
+                POLISH.out.polish_quast_reports
+            ).concat(
+                SCAFFOLD.out.scaffold_quast_reports
+            )
+        )
+        .unique()
+        .collect()
+        .set { quast_files }
+
+    busco_files
+        .concat(
+            ASSEMBLE.out.assembly_busco_reports.concat(
+                POLISH.out.polish_busco_reports
+            ).concat(
+                SCAFFOLD.out.scaffold_busco_reports
+            )
+        )
+        .unique()
+        .collect { it -> it[1] }
+        .set { busco_files }
+
+    merqury_files
+        .concat(
+            ASSEMBLE.out.assembly_merqury_reports.concat(
+                POLISH.out.polish_merqury_reports
+            ).concat(
+                SCAFFOLD.out.scaffold_merqury_reports
+            )
+        )
+        .collect { it -> [it[1], it[2], it[3], it[4]] }
+        .toSet()
+        .flatten()
+        .collect()
+        .set { merqury_files }
+
+    Channel
+        .fromPath("${projectDir}/assets/report/*")
+        .collect()
+        .set { report_files }
+    // Report files
+    Channel
+        .fromPath("${projectDir}/assets/report/functions/*")
+        .collect()
+        .set { report_functions }
+
+    if(!params.merqury) {
+        merqury_files = Channel.of([])
+    }
+
+    REPORT(report_files, report_functions, nanoq_files, genomescope_files, quast_files, busco_files, merqury_files, Channel.fromPath("${params.outdir}/pipeline_info/nf_core_pipeline_software_versions.yml"))
+
+    //
+    // Collate and save software versions
+    //
+    softwareVersionsToYAML(ch_versions)
+        .collectFile(
+            storeDir: "${params.outdir}/pipeline_info",
+            name: 'nf_core_'  +  'genomeassembler_software_'  + 'versions.yml',
+            sort: true,
+            newLine: true
+        )
+
+    _report = REPORT.out.report_html.toList()
+
+    emit:
+    _report
+    versions = ch_versions // channel: [ path(versions.yml) ]
+}

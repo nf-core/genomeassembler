@@ -1,0 +1,21 @@
+Changes in component 'nf-core/minimap2/align'
+'modules/nf-core/minimap2/align/environment.yml' is unchanged
+'modules/nf-core/minimap2/align/meta.yml' is unchanged
+Changes in 'minimap2/align/main.nf':
+--- modules/nf-core/minimap2/align/main.nf
++++ modules/nf-core/minimap2/align/main.nf
+@@ -9,8 +9,7 @@
+         'biocontainers/mulled-v2-66534bcbb7031a148b13e2ad42583020b9cd25c4:3161f532a5ea6f1dec9be5667c9efc2afdac6104-0' }"
+ 
+     input:
+-    tuple val(meta), path(reads)
+-    tuple val(meta2), path(reference)
++    tuple val(meta), path(reads), path(reference)
+     val bam_format
+     val bam_index_extension
+     val cigar_paf_format
+
+'modules/nf-core/minimap2/align/tests/tags.yml' is unchanged
+'modules/nf-core/minimap2/align/tests/main.nf.test' is unchanged
+'modules/nf-core/minimap2/align/tests/main.nf.test.snap' is unchanged
+************************************************************

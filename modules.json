@@ -2,15 +2,137 @@
     "name": "nf-core/genomeassembler",
     "homePage": "https://github.com/nf-core/genomeassembler",
     "repos": {
-        "nf-core/modules": {
-            "custom/dumpsoftwareversions": {
-                "git_sha": "e745e167c1020928ef20ea1397b6b4d230681b4d"
+        "https://github.com/nf-core/modules.git": {
+            "modules": {
+                "nf-core": {
+                    "busco/busco": {
+                        "branch": "master",
+                        "git_sha": "d34caf3c0d3cf5b9bae0fae6107bab0933c96f37",
+                        "installed_by": ["modules"]
+                    },
+                    "fastqc": {
+                        "branch": "master",
+                        "git_sha": "08108058ea36a63f141c25c4e75f9f872a5b2296",
+                        "installed_by": ["modules"]
+                    },
+                    "flye": {
+                        "branch": "master",
+                        "git_sha": "ce1a66562156776bb0dd1c1bb5640d368dadd4e6",
+                        "installed_by": ["modules"]
+                    },
+                    "hifiasm": {
+                        "branch": "master",
+                        "git_sha": "ea8610177512dff284c7d3dc0c8dcbcc12fb4cf0",
+                        "installed_by": ["modules"]
+                    },
+                    "liftoff": {
+                        "branch": "master",
+                        "git_sha": "32b1f7f4e3d5c6e68af8f1d732f61c3d2aa6e67e",
+                        "installed_by": ["modules"],
+                        "patch": "modules/nf-core/liftoff/liftoff.diff"
+                    },
+                    "lima": {
+                        "branch": "master",
+                        "git_sha": "1c4249137bdcd4392317e34123c00b5049c58d45",
+                        "installed_by": ["modules"]
+                    },
+                    "merqury/merqury": {
+                        "branch": "master",
+                        "git_sha": "42140b76b12c18dbde34bfa7f2ef09afae8b054f",
+                        "installed_by": ["modules"],
+                        "patch": "modules/nf-core/merqury/merqury/merqury-merqury.diff"
+                    },
+                    "meryl/count": {
+                        "branch": "master",
+                        "git_sha": "42140b76b12c18dbde34bfa7f2ef09afae8b054f",
+                        "installed_by": ["modules"]
+                    },
+                    "meryl/unionsum": {
+                        "branch": "master",
+                        "git_sha": "42140b76b12c18dbde34bfa7f2ef09afae8b054f",
+                        "installed_by": ["modules"]
+                    },
+                    "minimap2/align": {
+                        "branch": "master",
+                        "git_sha": "81880787133db07d9b4c1febd152c090eb8325dc",
+                        "installed_by": ["modules"],
+                        "patch": "modules/nf-core/minimap2/align/minimap2-align.diff"
+                    },
+                    "pilon": {
+                        "branch": "master",
+                        "git_sha": "2816479e1de5c04f0907f74a53a2096ceaff558e",
+                        "installed_by": ["modules"]
+                    },
+                    "porechop/porechop": {
+                        "branch": "master",
+                        "git_sha": "666652151335353eef2fcd58880bcef5bc2928e1",
+                        "installed_by": ["modules"]
+                    },
+                    "samtools/fastq": {
+                        "branch": "master",
+                        "git_sha": "b13f07be4c508d6ff6312d354d09f2493243e208",
+                        "installed_by": ["modules"]
+                    },
+                    "samtools/flagstat": {
+                        "branch": "master",
+                        "git_sha": "2d20463181b1c38981a02e90d3084b5f9fa8d540",
+                        "installed_by": ["bam_stats_samtools", "modules"]
+                    },
+                    "samtools/idxstats": {
+                        "branch": "master",
+                        "git_sha": "2d20463181b1c38981a02e90d3084b5f9fa8d540",
+                        "installed_by": ["bam_stats_samtools", "modules"]
+                    },
+                    "samtools/index": {
+                        "branch": "master",
+                        "git_sha": "b13f07be4c508d6ff6312d354d09f2493243e208",
+                        "installed_by": ["bam_sort_stats_samtools", "modules"]
+                    },
+                    "samtools/sort": {
+                        "branch": "master",
+                        "git_sha": "b7800db9b069ed505db3f9d91b8c72faea9be17b",
+                        "installed_by": ["bam_sort_stats_samtools", "modules"]
+                    },
+                    "samtools/stats": {
+                        "branch": "master",
+                        "git_sha": "2d20463181b1c38981a02e90d3084b5f9fa8d540",
+                        "installed_by": ["bam_stats_samtools", "modules"]
+                    },
+                    "trimgalore": {
+                        "branch": "master",
+                        "git_sha": "8d3e71002c5008e3f68a691ad8cd32c346356258",
+                        "installed_by": ["modules"]
+                    }
+                }
             },
-            "fastqc": {
-                "git_sha": "e745e167c1020928ef20ea1397b6b4d230681b4d"
-            },
-            "multiqc": {
-                "git_sha": "e745e167c1020928ef20ea1397b6b4d230681b4d"
+            "subworkflows": {
+                "nf-core": {
+                    "bam_sort_stats_samtools": {
+                        "branch": "master",
+                        "git_sha": "763d4b5c05ffda3ac1ac969dc67f7458cfb2eb1d",
+                        "installed_by": ["subworkflows"]
+                    },
+                    "bam_stats_samtools": {
+                        "branch": "master",
+                        "git_sha": "763d4b5c05ffda3ac1ac969dc67f7458cfb2eb1d",
+                        "installed_by": ["bam_sort_stats_samtools", "subworkflows"]
+                    },
+                    "utils_nextflow_pipeline": {
+                        "branch": "master",
+                        "git_sha": "c2b22d85f30a706a3073387f30380704fcae013b",
+                        "installed_by": ["subworkflows"]
+                    },
+                    "utils_nfcore_pipeline": {
+                        "branch": "master",
+                        "git_sha": "51ae5406a030d4da1e49e4dab49756844fdd6c7a",
+                        "installed_by": ["subworkflows"]
+                    },
+                    "utils_nfschema_plugin": {
+                        "branch": "master",
+                        "git_sha": "2fd2cd6d0e7b273747f32e465fdc6bcc3ae0814e",
+                        "installed_by": ["subworkflows"]
+                    }
+                }
             }
         }
     }

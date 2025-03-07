@@ -4,9 +4,8 @@
   |\\ | |__  __ /  ` /  \\ |__) |__         }  {
   | \\| |       \\__, \\__/ |  \\ |___     \\`-._,-`-,
                                         `._,._,'
-  nf-core/genomeassembler v${version}
+  nf-core/genomeassembler ${version}
 ----------------------------------------------------
-
 Run Name: $runName
 
 <% if (success){

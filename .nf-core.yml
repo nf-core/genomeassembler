@@ -1,1 +1,23 @@
+lint:
+  files_exist:
+    - conf/igenomes.config
+    - conf/igenomes_ignored.config
+    - assets/multiqc_config.yml
+    - assets/sendmail_template.txt
+  files_unchanged:
+    - .github/CONTRIBUTING.md
+  multiqc_config: false
+nf_core_version: 3.2.0
 repository_type: pipeline
+template:
+  author: Niklas Schandry
+  description: Assemble genomes from long ONT or pacbio HiFi reads
+  force: false
+  is_nfcore: true
+  name: genomeassembler
+  org: nf-core
+  outdir: .
+  skip_features:
+    - multiqc
+    - igenomes
+  version: 1.0.0
