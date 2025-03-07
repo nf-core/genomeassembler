@@ -36,7 +36,7 @@ You will need to create a samplesheet with information about the samples you wou
 The largest samplesheet format is:
 
 ```csv title="samplesheet.csv"
-sample,ontreads,hifireads,ref_fasta,ref_gff,shortreads_F,shortreads_R,paired
+sample,ontreads,hifireads,ref_fasta,ref_gff,shortread_F,shortread_R,paired
 Sample1,sample1ont.fq.gz,sample1hifi.fq.gz,ref.fa,ref.gff,sample1_r1.fq.gz,sample1_r2,fq.gz
 ```
 
