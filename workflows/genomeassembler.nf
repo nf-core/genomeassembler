@@ -142,7 +142,6 @@ workflow GENOMEASSEMBLER {
     /*
     Scaffolding
     */
-    genome_size.view()
     SCAFFOLD(ch_input, ch_longreads, ch_polished_genome, ch_refs, ch_ref_bam, meryl_kmers, genome_size)
 
     ch_versions = ch_versions.mix(SCAFFOLD.out.versions)
