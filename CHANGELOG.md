@@ -11,6 +11,8 @@ Bugfix release
 
 ### `Fixed`
 
+[#125](https://github.com/nf-core/genomeassembler/pull/125) - use correct genome-size for flye and longstitch
+
 ### `Dependencies`
 
 ### `Deprecated`
