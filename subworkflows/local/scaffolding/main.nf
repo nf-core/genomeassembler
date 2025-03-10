@@ -10,6 +10,7 @@ workflow SCAFFOLD {
     references
     ch_aln_to_ref
     meryl_kmers
+    genome_size
 
     main:
     Channel.empty().set { ch_versions }
@@ -33,7 +34,7 @@ workflow SCAFFOLD {
     }
 
     if (params.scaffold_longstitch) {
-        RUN_LONGSTITCH(inputs, in_reads, assembly, references, ch_aln_to_ref, meryl_kmers)
+        RUN_LONGSTITCH(inputs, in_reads, assembly, references, ch_aln_to_ref, meryl_kmers, genome_size)
         RUN_LONGSTITCH.out.busco_out.set { longstitch_busco }
         RUN_LONGSTITCH.out.quast_out.set { longstitch_quast }
         RUN_LONGSTITCH.out.merqury_report_files.set { longstitch_merqury }

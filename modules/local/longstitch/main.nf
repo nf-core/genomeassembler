@@ -7,7 +7,7 @@ process LONGSTITCH {
         : 'biocontainers/longstitch:1.0.5--hdfd78af_0'}"
 
     input:
-    tuple val(meta), path(assembly), path(reads)
+    tuple val(meta), path(assembly), path(reads), val(genome_size)
 
     output:
     tuple val(meta), path("*.tigmint-ntLink-arks.fa"), emit: ntlLinks_arks_scaffolds
@@ -35,7 +35,7 @@ process LONGSTITCH {
         cp ${reads} reads.fq.gz
     fi
 
-    longstitch tigmint-ntLink-arks draft=assembly reads=reads t=${task.cpus} G=135e6 out_prefix=${prefix}
+    longstitch tigmint-ntLink-arks draft=assembly reads=reads t=${task.cpus} G=${genome_size} out_prefix=${prefix}
 
     mv *.tigmint-ntLink-arks.longstitch-scaffolds.fa ${prefix}.tigmint-ntLink-arks.fa
     sed -i 's/\\(scaffold[0-9]*\\),.*/\\1/' ${prefix}.tigmint-ntLink-arks.fa

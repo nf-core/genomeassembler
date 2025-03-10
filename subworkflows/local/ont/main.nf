@@ -4,10 +4,10 @@ include { JELLYFISH } from '../jellyfish/main'
 workflow ONT {
     take:
     input_channel
+    genome_size
 
     main:
     Channel.empty().set { ch_versions }
-    Channel.empty().set { genome_size }
     Channel.of([[],[]])
         .tap { genomescope_summary }
         .tap { genomescope_plot }

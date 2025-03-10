@@ -13,17 +13,17 @@ workflow RUN_LONGSTITCH {
     _references
     ch_aln_to_ref
     meryl_kmers
+    genome_size
 
     main:
     Channel.empty().set { ch_versions }
     Channel.empty().set { quast_out }
     Channel.empty().set { busco_out }
     Channel.empty().set { merqury_report_files }
-
     assembly
         .join(in_reads)
+        .join(genome_size)
         .set { longstitch_in }
-
     LONGSTITCH(longstitch_in)
 
     LONGSTITCH.out.ntlLinks_arks_scaffolds.set { scaffolds }
