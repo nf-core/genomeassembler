@@ -16,7 +16,7 @@ workflow ASSEMBLE {
     ont_reads // meta, reads
     hifi_reads // meta, reads
     ch_input
-    genomescope_out
+    genome_size
     meryl_kmers
 
     main:
@@ -57,13 +57,14 @@ workflow ASSEMBLE {
             }
             if (params.ont) {
                 ont_reads.set { flye_inputs }
-                if (params.genome_size == null && params.jellyfish) {
-                    params.genome_size = genomescope_out
-                }
             }
             // Run flye
+            flye_inputs
+                .join(genome_size)
+                .map { meta, reads, genomesize -> [[id: meta.id, genome_size: genomesize], reads] }
+                .set { flye_inputs }
             FLYE(flye_inputs, params.flye_mode)
-            FLYE.out.fasta.set { ch_assembly }
+            FLYE.out.fasta.map { meta, assembly -> [[id: meta.id], assembly] }.set { ch_assembly }
             ch_versions = ch_versions.mix(FLYE.out.versions)
         }
         if (params.assembler == "hifiasm") {
@@ -114,12 +115,14 @@ workflow ASSEMBLE {
             ch_versions = ch_versions.mix(HIFIASM.out.versions).mix(GFA_2_FA.out.versions)
 
             // Run flye
-            ont_reads.set { flye_inputs }
-            if (params.genome_size == null && params.jellyfish) {
-                params.genome_size = genomescope_out
-            }
+            ont_reads
+                .join(genome_size)
+                .map { meta, reads, genomesize -> [[id: meta.id, genome_size: genomesize], reads]}
+                .set { flye_inputs }
+
             FLYE(flye_inputs, params.flye_mode)
             FLYE.out.fasta
+                .map { meta, assembly -> [[id: meta.id], assembly] }
                 .join(
                     GFA_2_FA.out.contigs_fasta
                 )
@@ -148,7 +151,7 @@ workflow ASSEMBLE {
         Channel.empty().set { ch_ref_bam }
         if (params.assembler == "flye") {
             flye_inputs
-                .map { it -> [it[0], it[1]] }
+                .map { meta, reads -> [[id: meta.id], reads] }
                 .set { longreads }
         }
         if (params.assembler == "hifiasm" || params.assembler == "flye_on_hifiasm") {
