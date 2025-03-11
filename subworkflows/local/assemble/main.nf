@@ -61,10 +61,10 @@ workflow ASSEMBLE {
             // Run flye
             flye_inputs
                 .join(genome_size)
-                .map { meta, reads, genomesize -> [[id: meta.id, genome_size: genomesize], reads] }
+                .map { meta, reads, genomesize -> [meta +[ genome_size: genomesize ], reads] }
                 .set { flye_inputs }
             FLYE(flye_inputs, params.flye_mode)
-            FLYE.out.fasta.map { meta, assembly -> [[id: meta.id], assembly] }.set { ch_assembly }
+            FLYE.out.fasta.map { meta, assembly -> [meta - meta.subMap('genome_size'), assembly] }.set { ch_assembly }
             ch_versions = ch_versions.mix(FLYE.out.versions)
         }
         if (params.assembler == "hifiasm") {
