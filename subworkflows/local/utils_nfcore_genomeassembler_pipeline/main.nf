@@ -92,7 +92,14 @@ workflow PIPELINE_INITIALISATION {
             error("Please specify which reads should be used for qc: 'ONT' or 'HIFI'")
         }
     }
-
+    // Make sure that genome_size is provided or estimated when using scaffold_longstitch
+    if (params.scaffold_longstitch) {
+        // If genomesize is not provided, and if ONT is not used in combination with jellyfish
+        // Throw an error
+        if ( !params.genome_size && (!params.ont && !params.jellyfish) ) {
+            error("Scaffolding with longstitch requires genome size.\n Either provide a genome size with --genome_size or estimate from ONT reads using jellyfish and genomescope")
+        }
+    }
     emit:
     samplesheet = ch_samplesheet
     refs = ch_refs
