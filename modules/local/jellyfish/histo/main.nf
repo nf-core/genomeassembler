@@ -2,7 +2,7 @@ process HISTO {
     tag "${meta.id}"
     label 'process_medium'
     container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
-        ? 'https://depot.galaxyproject.org/singularity/mer-jellyfish:2.3.1--h4ac6f70_0'
+        ? 'https://depot.galaxyproject.org/singularity/kmer-jellyfish:2.3.1--h4ac6f70_0'
         : 'biocontainers/kmer-jellyfish:2.3.1--h4ac6f70_0'}"
 
     input:
