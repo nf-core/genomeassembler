@@ -11,7 +11,9 @@ Bugfix release
 
 ### `Fixed`
 
-[#125](https://github.com/nf-core/genomeassembler/pull/125) - use correct genome-size for flye and longstitch
+[#125](https://github.com/nf-core/genomeassembler/pull/125) - use correct genome-size for flye and longstitch.
+
+[#126](https://github.com/nf-core/genomeassembler/pull/126) fixed wrong url for jellyfish singularity image.
 
 ### `Dependencies`
 
