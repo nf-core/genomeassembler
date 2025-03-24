@@ -2,13 +2,10 @@ include { FLYE } from '../../../modules/nf-core/flye/main'
 include { HIFIASM } from '../../../modules/nf-core/hifiasm/main'
 include { HIFIASM as HIFIASM_ONT } from '../../../modules/nf-core/hifiasm/main'
 include { GFA_2_FA } from '../../../modules/local/gfa2fa/main'
-include { MAP_TO_ASSEMBLY } from '../mapping/map_to_assembly/main'
 include { MAP_TO_REF } from '../mapping/map_to_ref/main'
-include { RUN_QUAST } from '../qc/quast/main'
-include { RUN_BUSCO } from '../qc/busco/main'
-include { MERQURY_QC } from '../qc/merqury/main'
 include { RUN_LIFTOFF } from '../liftoff/main'
 include { RAGTAG_SCAFFOLD } from '../../../modules/local/ragtag/main'
+include { QC } from '../qc/main'
 
 
 workflow ASSEMBLE {
@@ -25,9 +22,6 @@ workflow ASSEMBLE {
     Channel.empty().set { ch_ref_bam }
     Channel.empty().set { ch_assembly_bam }
     Channel.empty().set { ch_assembly }
-    Channel.empty().set { assembly_quast_reports }
-    Channel.empty().set { assembly_busco_reports }
-    Channel.empty().set { assembly_merqury_reports }
     Channel.empty().set { flye_inputs }
     Channel.empty().set { hifiasm_inputs }
     Channel.empty().set { longreads }
@@ -172,49 +166,20 @@ workflow ASSEMBLE {
                 }
             }
         }
-        if (params.quast) {
 
+        if (params.quast) {
             if (params.use_ref) {
                 MAP_TO_REF(longreads, ch_refs)
 
                 MAP_TO_REF.out.ch_aln_to_ref_bam.set { ch_ref_bam }
             }
-
-            MAP_TO_ASSEMBLY(longreads, ch_assembly)
-            MAP_TO_ASSEMBLY.out.aln_to_assembly_bam.set { ch_assembly_bam }
-
-            RUN_QUAST(ch_assembly, ch_input, ch_ref_bam, ch_assembly_bam)
-            RUN_QUAST.out.quast_tsv.set { assembly_quast_reports }
-
-            ch_versions = ch_versions.mix(MAP_TO_ASSEMBLY.out.versions).mix(RUN_QUAST.out.versions)
-
         }
     }
     /*
     QC on initial assembly
     */
-    if (params.busco) {
-        RUN_BUSCO(ch_assembly)
-        RUN_BUSCO.out.batch_summary.set { assembly_busco_reports }
-        ch_versions = ch_versions.mix(RUN_BUSCO.out.versions)
-    }
-
-    if (params.short_reads) {
-        MERQURY_QC(ch_assembly, meryl_kmers)
-        MERQURY_QC.out.stats
-            .join(
-                MERQURY_QC.out.spectra_asm_hist
-            )
-            .join(
-                MERQURY_QC.out.spectra_cn_hist
-            )
-            .join(
-                MERQURY_QC.out.assembly_qv
-            )
-            .set { assembly_merqury_reports }
-
-        ch_versions = ch_versions.mix(MERQURY_QC.out.versions)
-    }
+    QC(ch_input, longreads, ch_assembly, ch_ref_bam, meryl_kmers)
+    ch_versions = ch_versions.mix(QC.out.versions)
 
     if (params.lift_annotations) {
         RUN_LIFTOFF(ch_assembly, ch_input)
@@ -225,8 +190,8 @@ workflow ASSEMBLE {
     assembly = ch_assembly
     ref_bam = ch_ref_bam
     longreads
-    assembly_quast_reports
-    assembly_busco_reports
-    assembly_merqury_reports
+    assembly_quast_reports = QC.out.quast_out
+    assembly_busco_reports = QC.out.busco_out
+    assembly_merqury_reports = QC.out.merqury_report_files
     versions = ch_versions
 }
