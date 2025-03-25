@@ -187,11 +187,11 @@ workflow ASSEMBLE {
     }
 
     emit:
-    assembly = ch_assembly
-    ref_bam = ch_ref_bam
+    assembly                    = ch_assembly
+    ref_bam                     = ch_ref_bam
     longreads
-    assembly_quast_reports = QC.out.quast_out
-    assembly_busco_reports = QC.out.busco_out
-    assembly_merqury_reports = QC.out.merqury_report_files
-    versions = ch_versions
+    assembly_quast_reports      = QC.out.quast_out
+    assembly_busco_reports      = QC.out.busco_out
+    assembly_merqury_reports    = QC.out.merqury_report_files
+    versions                    = ch_versions
 }
