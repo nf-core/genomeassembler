@@ -27,8 +27,7 @@
                     "type": "string",
                     "format": "directory-path",
                     "description": "The output directory where the results will be saved. You have to use absolute paths to storage on Cloud infrastructure.",
-                    "fa_icon": "fas fa-folder-open",
-                    "default": "null"
+                    "fa_icon": "fas fa-folder-open"
                 },
                 "email": {
                     "type": "string",
@@ -231,6 +230,9 @@
                 },
                 "pacbio_primers": {
                     "type": "string",
+                    "format": "file-path",
+                    "exists": true,
+                    "pattern": "^\\S+\\.fn?a(sta)?$",
                     "description": "file containing pacbio primers for trimming with lima"
                 }
             }
@@ -359,6 +361,7 @@
                 },
                 "busco_db": {
                     "type": "string",
+                    "format": "directory-path",
                     "description": "Path to busco db (optional)"
                 },
                 "busco_lineage": {
