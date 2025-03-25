@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### `Fixed`
 
+[]() - Updated the input validation to be more strict. This should prevent some down the line errors in the pipeline
+
 ### `Dependencies`
 
 ### `Deprecated`
