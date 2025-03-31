@@ -4,7 +4,7 @@ include { HIFIASM as HIFIASM_ONT } from '../../../modules/nf-core/hifiasm/main'
 include { GFA_2_FA } from '../../../modules/local/gfa2fa/main'
 include { MAP_TO_REF } from '../mapping/map_to_ref/main'
 include { RUN_LIFTOFF } from '../liftoff/main'
-include { RAGTAG_SCAFFOLD } from '../../../modules/local/ragtag/main'
+include { RAGTAG_PATCH } from '../../../modules/local/ragtag/patch/main'
 include { QC } from '../qc/main'
 
 
@@ -121,9 +121,9 @@ workflow ASSEMBLE {
                     GFA_2_FA.out.contigs_fasta
                 )
                 .set { ragtag_in }
-            RAGTAG_SCAFFOLD(ragtag_in)
+            RAGTAG_PATCH(ragtag_in)
             // takes: meta, assembly (flye), reference (hifi)
-            RAGTAG_SCAFFOLD.out.corrected_assembly.set { ch_assembly }
+            RAGTAG_PATCH.out.patched_fasta.set { ch_assembly }
             ch_versions = ch_versions.mix(FLYE.out.versions).mix(RAGTAG_SCAFFOLD.out.versions)
         }
     }
