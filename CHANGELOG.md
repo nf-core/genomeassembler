@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### `Fixed`
 
-[#134](https://github.com/nf-core/genomeassembler/pull/131) - Switched to using ragtag `patch` instead of `scaffold` for `flye_on_hifiasm`
+[#136](https://github.com/nf-core/genomeassembler/pull/136) - Switched to using ragtag `patch` instead of `scaffold` for `flye_on_hifiasm`
 
 [#131](https://github.com/nf-core/genomeassembler/pull/131) - Refactored QC steps into subworkflow.
 
