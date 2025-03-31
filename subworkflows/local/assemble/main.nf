@@ -124,7 +124,7 @@ workflow ASSEMBLE {
             RAGTAG_PATCH(ragtag_in)
             // takes: meta, assembly (flye), reference (hifi)
             RAGTAG_PATCH.out.patched_fasta.set { ch_assembly }
-            ch_versions = ch_versions.mix(FLYE.out.versions).mix(RAGTAG_SCAFFOLD.out.versions)
+            ch_versions = ch_versions.mix(FLYE.out.versions).mix(RAGTAG_PATCH.out.versions)
         }
     }
     /*
