@@ -1,0 +1,113 @@
+name: ragtag_patch
+description: Patches a target assembly using a query assembly
+keywords:
+  - assembly
+  - consensus
+  - ragtag
+tools:
+  - RagTag:
+      description: |
+        RagTag is a collection of software tools for scaffolding and improving modern genome assemblies. Tasks include:
+        Homology-based misassembly correction
+        Homology-based assembly scaffolding and patching
+        Scaffold merging
+      homepage: https://github.com/malonge/RagTag
+      documentation: https://github.com/malonge/RagTag/wiki
+      doi: 10.1186/s13059-022-02823-7
+      licence: ["MIT"]
+      identifier: biotools:ragtag
+input:
+  - - meta:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. [ id:'test' ]
+    - target:
+        type: file
+        description: Target assembly
+        pattern: "*.{fastq,fastq.gz}"
+    - query:
+        type: file
+        description: Query assembly
+        pattern: "*.{fastq,fastq.gz}"
+output:
+  - patched_fasta:
+      - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. [ id:'test' ]
+      - "*.patched.fasta":
+          type: file
+          description: FASTA file containing the patched assembly
+          pattern: "*.patched.fasta"
+  - patched_agp:
+      - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. [ id:'test' ]
+      - "*.patched.agp":
+          type: file
+          description: AGP file defining how ragtag.patch.fasta is built
+          pattern: "*.patched.agp"
+  - patch_components_fasta:
+      - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. [ id:'test' ]
+      - "*.comps.fasta":
+          type: file
+          description: The split target assembly and the renamed query assembly combined into one FASTA file. This file contains all components in ragtag.patch.agp
+          pattern: "*.comps.fasta"
+  - target_splits_agp:
+      - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. [ id:'test' ]
+      - "*.ctg.agp":
+          type: file
+          description: An AGP file defining how the target assembly was split at gaps
+          pattern: "*.ctg.agp"
+  - target_splits_fasta:
+      - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. [ id:'test' ]
+      - "*.ctg.fasta":
+          type: file
+          description: FASTA file containing the target assembly split at gaps
+          pattern: "*.ctg.fasta"
+  - qry_rename_agp:
+      - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. [ id:'test' ]
+      - "*.rename.agp":
+          type: file
+          description: An AGP file defining the new names for query sequences
+          pattern: "*.rename.agp"
+  - qry_rename_fasta:
+      - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. [ id:'test' ]
+      - "*.rename.fasta":
+          type: file
+          description: A FASTA file with the original query sequence, but with new names
+          pattern: "*.rename.fasta"
+
+  - versions:
+      - versions.yml:
+          type: file
+          description: File containing software versions
+          pattern: "versions.yml"
+authors:
+  - "@nschan"
+maintainers:
+  - "@nschan"
