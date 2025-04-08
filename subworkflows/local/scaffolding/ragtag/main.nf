@@ -23,7 +23,7 @@ workflow RUN_RAGTAG {
                     }
         .set { ragtag_in }
 
-    RAGTAG_SCAFFOLD(ragtag_in.assembly, ragtag_in.reference, [], [])
+    RAGTAG_SCAFFOLD(ragtag_in.assembly, ragtag_in.reference, [[], []], [[], [], []])
 
     RAGTAG_SCAFFOLD.out.corrected_assembly.set { ragtag_scaffold_fasta }
 
