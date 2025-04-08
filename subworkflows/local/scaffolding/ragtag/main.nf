@@ -1,4 +1,4 @@
-include { RAGTAG_SCAFFOLD } from '../../../../modules/local/ragtag/scaffold/main'
+include { RAGTAG_SCAFFOLD } from '../../../../modules/nf-core/ragtag/scaffold/main'
 include { QC } from '../../qc/main'
 include { RUN_LIFTOFF } from '../../liftoff/main'
 
@@ -17,9 +17,13 @@ workflow RUN_RAGTAG {
 
     assembly
         .join(references)
+        .multiMap { meta, assembly_fasta, reference_fasta ->
+                    assembly: [meta, assembly_fasta]
+                    reference: [meta, reference_fasta]
+                    }
         .set { ragtag_in }
 
-    RAGTAG_SCAFFOLD(ragtag_in)
+    RAGTAG_SCAFFOLD(ragtag_in.assembly, ragtag_in.reference, [], [])
 
     RAGTAG_SCAFFOLD.out.corrected_assembly.set { ragtag_scaffold_fasta }
 

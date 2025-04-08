@@ -68,6 +68,16 @@
                         "git_sha": "666652151335353eef2fcd58880bcef5bc2928e1",
                         "installed_by": ["modules"]
                     },
+                    "ragtag/patch": {
+                        "branch": "master",
+                        "git_sha": "7d163aded9221aef68d8c11cb7a04354a232d89c",
+                        "installed_by": ["modules"]
+                    },
+                    "ragtag/scaffold": {
+                        "branch": "master",
+                        "git_sha": "7d163aded9221aef68d8c11cb7a04354a232d89c",
+                        "installed_by": ["modules"]
+                    },
                     "samtools/fastq": {
                         "branch": "master",
                         "git_sha": "b13f07be4c508d6ff6312d354d09f2493243e208",

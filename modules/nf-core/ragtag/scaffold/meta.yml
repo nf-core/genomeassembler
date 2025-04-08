@@ -1,3 +1,4 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/modules/meta-schema.json
 name: ragtag_scaffold
 description: |
   Scaffolding is the process of ordering and orienting draft assembly (query)
@@ -8,18 +9,18 @@ description: |
 keywords:
   - scaffolding
   - ragtag
+  - assembly
+  - genome
 tools:
-  - RagTag:
-      description: |
-        RagTag is a collection of software tools for scaffolding and improving modern genome assemblies. Tasks include:
-        Homology-based misassembly correction
-        Homology-based assembly scaffolding and patching
-        Scaffold merging
-      homepage: https://github.com/malonge/RagTag
-      documentation: https://github.com/malonge/RagTag/wiki
-      doi: 10.1186/s13059-022-02823-7
+  - "ragtag":
+      description: "Fast reference-guided genome assembly scaffolding"
+      homepage: "https://github.com/malonge/RagTag/wiki"
+      documentation: "https://github.com/malonge/RagTag/wiki"
+      tool_dev_url: "https://github.com/malonge/RagTag"
+      doi: "10.1186/s13059-022-02823-7"
       licence: ["MIT"]
       identifier: biotools:ragtag
+
 input:
   - - meta:
         type: map
@@ -29,11 +30,39 @@ input:
     - assembly:
         type: file
         description: Assembly to be scaffolded
-        pattern: "*.{fastq,fastq.gz}"
+        pattern: "*.{fasta,fasta.gz,fa,fa.gz}"
+  - - meta2:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. [ id:'test' ]
     - reference:
         type: file
         description: Reference assembly
-        pattern: "*.fastq"
+        pattern: "*.{fasta,fasta.gz,fa,fa.gz}"
+  - - meta3:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. [ id:'test' ]
+    - exclude:
+        type: file
+        description: list of target sequences to ignore
+        pattern: "*.txt"
+  - - meta4:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. [ id:'test' ]
+    - skip:
+        type: file
+        description: list of query sequences to leave unplaced
+        pattern: "*.txt"
+    - hard_skip:
+        type: file
+        description: list of query headers to leave unplaced and exclude from 'chr0'
+          ('-C')
+        pattern: "*.txt"
 output:
   - corrected_assembly:
       - meta:
