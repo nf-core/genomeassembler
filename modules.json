@@ -70,7 +70,7 @@
                     },
                     "ragtag/patch": {
                         "branch": "master",
-                        "git_sha": "7d163aded9221aef68d8c11cb7a04354a232d89c",
+                        "git_sha": "62775d90df7565c82bd4ceedca70149529820cff",
                         "installed_by": ["modules"]
                     },
                     "ragtag/scaffold": {
