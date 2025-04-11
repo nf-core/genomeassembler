@@ -56,7 +56,7 @@ Further columns _can_ be:
 
 ### Multiple runs of the same sample
 
-For ONT reads, a folder containing several fastq files can be provided, which will be concatenated into a single file if `--collect` is used. Generally we recommend to provide all reads in a single file.
+For ONT reads, a glob pattern can be provided, matching files will be concatenated into a single file if `--collect` is used. Generally we recommend to provide all reads in a single file.
 
 ## Running the pipeline
 
