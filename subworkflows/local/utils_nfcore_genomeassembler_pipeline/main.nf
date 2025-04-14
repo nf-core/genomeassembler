@@ -43,7 +43,7 @@ workflow PIPELINE_INITIALISATION {
         version,
         true,
         outdir,
-        workflow.profile.tokenize(',').intersect(['conda', 'mamba']).size() >= 1
+        workflow.profile.tokenize(',').intersect(['conda', 'mamba']).size() >= 1,
     )
 
     //
@@ -52,7 +52,7 @@ workflow PIPELINE_INITIALISATION {
     UTILS_NFSCHEMA_PLUGIN(
         workflow,
         validate_params,
-        null
+        null,
     )
 
     //
@@ -67,8 +67,7 @@ workflow PIPELINE_INITIALISATION {
     //
 
     Channel.empty().set { ch_refs }
-    Channel
-        .fromPath(params.input)
+    Channel.fromPath(params.input)
         .splitCsv(header: true)
         .map { it -> [meta: [id: it.sample], ontreads: it.ontreads, hifireads: it.hifireads, ref_fasta: it.ref_fasta, ref_gff: it.ref_gff, shortread_F: it.shortread_F, shortread_R: it.shortread_R, paired: it.paired] }
         .set { ch_samplesheet }
@@ -79,10 +78,12 @@ workflow PIPELINE_INITIALISATION {
     }
     // check for assembler / read combination
     def hifi_only = params.hifi && !params.ont ? true : false
-    if (params.assembler == "flye") {
-        if (params.hifi) {
-            if (!hifi_only) {
-                error('Cannot combine hifi and ont reads with flye')
+    if (!params.skip_assembly) {
+        if (params.assembler == "flye") {
+            if (params.hifi) {
+                if (!hifi_only) {
+                    error('Cannot combine hifi and ont reads with flye')
+                }
             }
         }
     }
@@ -96,10 +97,11 @@ workflow PIPELINE_INITIALISATION {
     if (params.scaffold_longstitch) {
         // If genomesize is not provided, and if ONT is not used in combination with jellyfish
         // Throw an error
-        if ( !params.genome_size && (!params.ont && !params.jellyfish) ) {
+        if (!params.genome_size && (!params.ont && !params.jellyfish)) {
             error("Scaffolding with longstitch requires genome size.\n Either provide a genome size with --genome_size or estimate from ONT reads using jellyfish and genomescope")
         }
     }
+
     emit:
     samplesheet = ch_samplesheet
     refs = ch_refs
@@ -119,7 +121,7 @@ workflow PIPELINE_COMPLETION {
     plaintext_email // boolean: Send plain-text email instead of HTML
     outdir //    path: Path to output directory where results will be published
     monochrome_logs // boolean: Disable ANSI colour codes in log output
-    hook_url        //  string: hook URL for notifications
+    hook_url //  string: hook URL for notifications
 
     main:
     summary_params = paramsSummaryMap(workflow, parameters_schema: "nextflow_schema.json")
@@ -136,7 +138,7 @@ workflow PIPELINE_COMPLETION {
                 plaintext_email,
                 outdir,
                 monochrome_logs,
-                []
+                [],
             )
         }
 
@@ -179,10 +181,10 @@ def toolCitationText() {
     // Can use ternary operators to dynamically construct based conditions, e.g. params["run_xyz"] ? "Tool (Foo et al. 2023)" : "",
     // Uncomment function in methodsDescriptionText to render in MultiQC report
     def citation_text = [
-            "Tools used in the workflow included:",
-            "FastQC (Andrews 2010),",
-            "."
-        ].join(' ').trim()
+        "Tools used in the workflow included:",
+        "FastQC (Andrews 2010),",
+        ".",
+    ].join(' ').trim()
 
     return citation_text
 }
@@ -192,8 +194,8 @@ def toolBibliographyText() {
     // Can use ternary operators to dynamically construct based conditions, e.g. params["run_xyz"] ? "<li>Author (2023) Pub name, Journal, DOI</li>" : "",
     // Uncomment function in methodsDescriptionText to render in MultiQC report
     def reference_text = [
-            "<li>Andrews S, (2010) FastQC, URL: https://www.bioinformatics.babraham.ac.uk/projects/fastqc/).</li>",
-        ].join(' ').trim()
+        "<li>Andrews S, (2010) FastQC, URL: https://www.bioinformatics.babraham.ac.uk/projects/fastqc/).</li>"
+    ].join(' ').trim()
 
     return reference_text
 }
