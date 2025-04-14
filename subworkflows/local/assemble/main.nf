@@ -3,6 +3,8 @@ include { HIFIASM } from '../../../modules/nf-core/hifiasm/main'
 include { HIFIASM as HIFIASM_ONT } from '../../../modules/nf-core/hifiasm/main'
 include { GFA_2_FA as GFA_2_FA_HIFI } from '../../../modules/local/gfa2fa/main'
 include { GFA_2_FA as GFA_2_FA_ONT} from '../../../modules/local/gfa2fa/main'
+include { GFA_2_FA as GFA_2_FA_HIFI } from '../../../modules/local/gfa2fa/main'
+include { GFA_2_FA as GFA_2_FA_ONT} from '../../../modules/local/gfa2fa/main'
 include { MAP_TO_REF } from '../mapping/map_to_ref/main'
 include { RUN_LIFTOFF } from '../liftoff/main'
 include { RAGTAG_PATCH } from '../../../modules/nf-core/ragtag/patch/main'
@@ -71,7 +73,10 @@ workflow ASSEMBLE {
                 HIFIASM(hifiasm_inputs, [[], [], []], [[], [], []])
                 GFA_2_FA_HIFI(HIFIASM.out.processed_contigs)
                 GFA_2_FA_HIFI.out.contigs_fasta.set { ch_assembly }
+                GFA_2_FA_HIFI(HIFIASM.out.processed_contigs)
+                GFA_2_FA_HIFI.out.contigs_fasta.set { ch_assembly }
 
+                ch_versions = ch_versions.mix(HIFIASM.out.versions).mix(GFA_2_FA_HIFI.out.versions)
                 ch_versions = ch_versions.mix(HIFIASM.out.versions).mix(GFA_2_FA_HIFI.out.versions)
             }
             // ONT reads only
@@ -82,7 +87,10 @@ workflow ASSEMBLE {
                 HIFIASM_ONT(hifiasm_inputs, [[], [], []], [[], [], []])
                 GFA_2_FA_ONT(HIFIASM_ONT.out.processed_contigs)
                 GFA_2_FA_ONT.out.contigs_fasta.set { ch_assembly }
+                GFA_2_FA_ONT(HIFIASM_ONT.out.processed_contigs)
+                GFA_2_FA_ONT.out.contigs_fasta.set { ch_assembly }
 
+                ch_versions = ch_versions.mix(HIFIASM_ONT.out.versions).mix(GFA_2_FA_ONT.out.versions)
                 ch_versions = ch_versions.mix(HIFIASM_ONT.out.versions).mix(GFA_2_FA_ONT.out.versions)
             }
             // HiFI reads only
@@ -94,10 +102,15 @@ workflow ASSEMBLE {
 
                 GFA_2_FA_HIFI(HIFIASM.out.processed_contigs)
                 GFA_2_FA_HIFI.out.contigs_fasta.set { ch_assembly }
+                GFA_2_FA_HIFI(HIFIASM.out.processed_contigs)
+                GFA_2_FA_HIFI.out.contigs_fasta.set { ch_assembly }
 
+                ch_versions = ch_versions.mix(HIFIASM.out.versions).mix(GFA_2_FA_HIFI.out.versions)
                 ch_versions = ch_versions.mix(HIFIASM.out.versions).mix(GFA_2_FA_HIFI.out.versions)
             }
         }
+        if (params.assembler == "flye_on_hifiasm" | params.assembler == "hifiasm_on_hifiasm") {
+
         if (params.assembler == "flye_on_hifiasm" | params.assembler == "hifiasm_on_hifiasm") {
 
             // Run hifiasm
