@@ -163,7 +163,7 @@ workflow ASSEMBLE {
             }
 
             RAGTAG_PATCH(ragtag_in.target, ragtag_in.query, [[], []], [[], []] )
-            // takes: meta, assembly (flye), reference (hifi)
+            // takes: meta, assembly (ont), reference (hifi)
             RAGTAG_PATCH.out.patch_fasta.set { ch_assembly }
             ch_versions = ch_versions.mix(RAGTAG_PATCH.out.versions)
         }
