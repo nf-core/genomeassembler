@@ -245,8 +245,8 @@
             "properties": {
                 "assembler": {
                     "type": "string",
-                    "description": "Assembler to use. Valid choices are: `'hifiasm'`, `'flye'`, or `'flye_on_hifiasm'`. `flye_on_hifiasm` will scaffold flye assembly (ont) on hifiasm (hifi) assembly using ragtag",
-                    "enum": ["flye", "hifiasm", "flye_on_hifiasm"],
+                    "description": "Assembler to use. Valid choices are: `'hifiasm'`, `'flye'`,  `'flye_on_hifiasm'` or `hifiasm_on_hifiasm`. `flye_on_hifiasm` will scaffold flye assembly (ont) on hifiasm (hifi) assembly using ragtag. `hifiasm_on_hifiasm` will scaffold hifiasm (ont) onto hifiasm (HiFi) using ragtag",
+                    "enum": ["flye", "hifiasm", "flye_on_hifiasm", "hifiasm_on_hifiasm"],
                     "default": "flye"
                 },
                 "genome_size": {
