@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### `Added`
 
+[#144](https://github.com/nf-core/genomeassembler/issues/144) - Added hifiasm_on_hifiasm assembly strategy
+
 ### `Fixed`
 
 [#138](https://github.com/nf-core/genomeassembler/pull/138) - Switched to RagTag nf-core module

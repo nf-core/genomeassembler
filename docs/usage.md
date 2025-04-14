@@ -15,14 +15,15 @@ This pipeline can perform assembly, polishing, scaffolding and annotation lift-o
 
 To ease configuration, there are a couple of pre-defined profiles for various combinations of read sources and assemblers (named readtype_assembler)
 
-| ONT | HiFI  | Assembly-strategy                                  | Profile name          |
-| --- | ----- | -------------------------------------------------- | --------------------- |
-| Yes | No    | flye                                               | `ont_flye`            |
-| No  | Yes   | flye                                               | `hifi_flye`           |
-| Yes | No    | hifiasm                                            | `ont_hifiasm`         |
-| No  | Yes   | hifiasm                                            | `hifi_hifiasm`        |
-| Yes | Yes   | hifiasm --ul                                       | `hifiont_hifiasm`     |
-| Yes | Yes   | Scaffolding of ONT assemblies onto HiFi assemblies | `hifiont_flyehifiasm` |
+| ONT | HiFI  | Assembly-strategy                                                      | Profile name                 |
+| --- | ----- | ---------------------------------------------------------------------- | ---------------------------- |
+| Yes | No    | flye                                                                   | `ont_flye`                   |
+| No  | Yes   | flye                                                                   | `hifi_flye`                  |
+| Yes | No    | hifiasm                                                                | `ont_hifiasm`                |
+| No  | Yes   | hifiasm                                                                | `hifi_hifiasm`               |
+| Yes | Yes   | hifiasm --ul                                                           | `hifiont_hifiasm`            |
+| Yes | Yes   | Scaffolding of ONT assemblies (flye) onto HiFi assemblies (hifiasm)    | `hifiont_flye_on_hifiasm`    |
+| Yes | Yes   | Scaffolding of ONT assemblies (hifiasm) onto HiFi assemblies (hifiasm) | `hifiont_hifiasm_on_hifiasm` |
 
 ## Samplesheet input
 
@@ -38,7 +39,7 @@ The largest samplesheet format is:
 
 ```csv title="samplesheet.csv"
 sample,ontreads,hifireads,ref_fasta,ref_gff,shortread_F,shortread_R,paired
-Sample1,sample1ont.fq.gz,sample1hifi.fq.gz,ref.fa,ref.gff,sample1_r1.fq.gz,sample1_r2,fq.gz
+Sample1,sample1ont.fq.gz,sample1hifi.fq.gz,ref.fa,ref.gff,sample1_r1.fq.gz,sample1_r2.fq.gz,true
 ```
 
 The samplesheet _must_ contain a column name `sample` [string].

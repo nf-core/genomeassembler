@@ -35,7 +35,8 @@ jobs:
           - "ont_flye"
           - "ont_hifiasm"
           - "hifiont_hifiasm"
-          - "hifiont_flyehifiasm"
+          - "hifiont_flye_on_hifiasm"
+          - "hifiont_hifiasm_on_hifiasm"
         profile:
           - "conda"
           - "docker"

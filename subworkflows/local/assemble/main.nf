@@ -1,7 +1,8 @@
 include { FLYE } from '../../../modules/nf-core/flye/main'
 include { HIFIASM } from '../../../modules/nf-core/hifiasm/main'
 include { HIFIASM as HIFIASM_ONT } from '../../../modules/nf-core/hifiasm/main'
-include { GFA_2_FA } from '../../../modules/local/gfa2fa/main'
+include { GFA_2_FA as GFA_2_FA_HIFI } from '../../../modules/local/gfa2fa/main'
+include { GFA_2_FA as GFA_2_FA_ONT} from '../../../modules/local/gfa2fa/main'
 include { MAP_TO_REF } from '../mapping/map_to_ref/main'
 include { RUN_LIFTOFF } from '../liftoff/main'
 include { RAGTAG_PATCH } from '../../../modules/nf-core/ragtag/patch/main'
@@ -68,10 +69,10 @@ workflow ASSEMBLE {
                     .join(ont_reads)
                     .set { hifiasm_inputs }
                 HIFIASM(hifiasm_inputs, [[], [], []], [[], [], []])
-                GFA_2_FA(HIFIASM.out.processed_contigs)
-                GFA_2_FA.out.contigs_fasta.set { ch_assembly }
+                GFA_2_FA_HIFI(HIFIASM.out.processed_contigs)
+                GFA_2_FA_HIFI.out.contigs_fasta.set { ch_assembly }
 
-                ch_versions = ch_versions.mix(HIFIASM.out.versions).mix(GFA_2_FA.out.versions)
+                ch_versions = ch_versions.mix(HIFIASM.out.versions).mix(GFA_2_FA_HIFI.out.versions)
             }
             // ONT reads only
             if (!params.hifi && params.ont) {
@@ -79,10 +80,9 @@ workflow ASSEMBLE {
                     .map { meta, ontreads -> [meta, ontreads, []] }
                     .set { hifiasm_inputs }
                 HIFIASM_ONT(hifiasm_inputs, [[], [], []], [[], [], []])
-                GFA_2_FA(HIFIASM_ONT.out.processed_contigs)
-                GFA_2_FA.out.contigs_fasta.set { ch_assembly }
-
-                ch_versions = ch_versions.mix(HIFIASM_ONT.out.versions).mix(GFA_2_FA.out.versions)
+                GFA_2_FA_ONT(HIFIASM_ONT.out.processed_contigs)
+                GFA_2_FA_ONT.out.contigs_fasta.set { ch_assembly }
+                ch_versions = ch_versions.mix(HIFIASM_ONT.out.versions).mix(GFA_2_FA_ONT.out.versions)
             }
             // HiFI reads only
             if (params.hifi && !params.ont) {
@@ -91,45 +91,66 @@ workflow ASSEMBLE {
                     .set { hifiasm_inputs }
                 HIFIASM(hifiasm_inputs, [[], [], []], [[], [], []])
 
-                GFA_2_FA(HIFIASM.out.processed_contigs)
-                GFA_2_FA.out.contigs_fasta.set { ch_assembly }
+                GFA_2_FA_HIFI(HIFIASM.out.processed_contigs)
+                GFA_2_FA_HIFI.out.contigs_fasta.set { ch_assembly }
 
-                ch_versions = ch_versions.mix(HIFIASM.out.versions).mix(GFA_2_FA.out.versions)
+                ch_versions = ch_versions.mix(HIFIASM.out.versions).mix(GFA_2_FA_HIFI.out.versions)
             }
         }
-        if (params.assembler == "flye_on_hifiasm") {
+        if (params.assembler == "flye_on_hifiasm" | params.assembler == "hifiasm_on_hifiasm") {
             // Run hifiasm
             hifi_reads
                 .map { meta, hifireads -> [meta, hifireads, []] }
                 .set { hifiasm_inputs }
             HIFIASM(hifiasm_inputs, [[], [], []], [[], [], []])
 
-            GFA_2_FA(HIFIASM.out.processed_contigs)
+            GFA_2_FA_HIFI(HIFIASM.out.processed_contigs)
 
-            ch_versions = ch_versions.mix(HIFIASM.out.versions).mix(GFA_2_FA.out.versions)
+            ch_versions = ch_versions.mix(HIFIASM.out.versions).mix(GFA_2_FA_HIFI.out.versions)
 
+            if(params.assembler == "flye_on_hifiasm") {
             // Run flye
-            ont_reads
-                .join(genome_size)
-                .map { meta, reads, genomesize -> [[id: meta.id, genome_size: genomesize], reads]}
-                .set { flye_inputs }
+                ont_reads
+                    .join(genome_size)
+                    .map { meta, reads, genomesize -> [[id: meta.id, genome_size: genomesize], reads]}
+                    .set { flye_inputs }
 
-            FLYE(flye_inputs, params.flye_mode)
-            FLYE.out.fasta
-                .map { meta, assembly -> [[id: meta.id], assembly] }
-                .join(
-                    GFA_2_FA.out.contigs_fasta
-                )
-                .multiMap { meta, flye_fasta, hifiasm_fasta ->
-                    target: [meta, flye_fasta]
-                    query:  [meta, hifiasm_fasta]
-                }
-                .set { ragtag_in }
+                FLYE(flye_inputs, params.flye_mode)
+                FLYE.out.fasta
+                    .map { meta, assembly -> [[id: meta.id], assembly] }
+                    .join(
+                        GFA_2_FA_HIFI.out.contigs_fasta
+                    )
+                    .multiMap { meta, flye_fasta, hifiasm_fasta ->
+                        target: [meta, flye_fasta]
+                        query:  [meta, hifiasm_fasta]
+                    }
+                    .set { ragtag_in }
+                ch_versions = ch_versions.mix(FLYE.out.versions)
+            }
+            if(params.assembler == "hifiasm_on_hifiasm") {
+            // Run hifiasm --ont
+                ont_reads
+                    .map { meta, ontreads -> [meta, ontreads, []] }
+                    .set { hifiasm_inputs }
+                HIFIASM_ONT(hifiasm_inputs,[[], [], []], [[], [], []])
+                GFA_2_FA_ONT(HIFIASM_ONT.out.processed_contigs)
+                GFA_2_FA_ONT.out.contigs_fasta
+                    .join(
+                        GFA_2_FA_HIFI.out.contigs_fasta
+                    )
+                    .multiMap { meta, ont_assembly, hifi_assembly ->
+                        target: [meta, ont_assembly]
+                        query:  [meta, hifi_assembly]
+                    }
+                    .set { ragtag_in }
+                ch_versions = ch_versions.mix(HIFIASM_ONT.out.versions).mix(GFA_2_FA_ONT.out.versions)
+            }
 
             RAGTAG_PATCH(ragtag_in.target, ragtag_in.query, [[], []], [[], []] )
-            // takes: meta, assembly (flye), reference (hifi)
+            // takes: meta, assembly (ont), reference (hifi)
             RAGTAG_PATCH.out.patch_fasta.set { ch_assembly }
-            ch_versions = ch_versions.mix(FLYE.out.versions).mix(RAGTAG_PATCH.out.versions).mix(HIFIASM.out.versions)
+            ch_versions = ch_versions.mix(RAGTAG_PATCH.out.versions)
         }
     }
     /*
