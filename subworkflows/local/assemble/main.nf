@@ -132,7 +132,10 @@ workflow ASSEMBLE {
             }
             if(params.assembler == "hifiasm_on_hifiasm") {
             // Run hifiasm --ont
-                HIFIASM_ONT(ont_reads,[[], [], []], [[], [], []])
+                ont_reads
+                    .map { meta, ontreads -> [meta, ontreads, []] }
+                    .set { hifiasm_inputs }
+                HIFIASM_ONT(hifiasm_inputs,[[], [], []], [[], [], []])
                 GFA_2_FA_ONT(HIFIASM_ONT.out.processed_contigs)
                 GFA_2_FA_ONT.out.contigs_fasta
                     .join(
