@@ -1,4 +1,4 @@
-include { LINKS } from '../../../../modules/local/links/main'
+include { LINKS } from '../../../../modules/nf-core/links/main'
 include { QC } from '../../qc/main'
 include { RUN_LIFTOFF } from '../../liftoff/main'
 
@@ -16,10 +16,14 @@ workflow RUN_LINKS {
 
     assembly
         .join(in_reads)
+        .multiMap { meta, assembly_fa, reads ->
+            assembly: [meta, assembly_fa]
+            reads: [meta, reads]
+            }
         .set { links_in }
 
-    LINKS(links_in)
-    LINKS.out.scaffolds.set { scaffolds }
+    LINKS(links_in.assembly, links_in.reads)
+    LINKS.out.scaffolds_fasta.set { scaffolds }
 
     ch_versions = ch_versions.mix(LINKS.out.versions)
 

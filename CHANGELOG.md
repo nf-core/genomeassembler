@@ -23,6 +23,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 [#145](https://github.com/nf-core/genomeassembler/pull/145) - Fixed `--skip_assembly` input validation bug.
 
+[#148](https://github.com/nf-core/genomeassembler/pull/148) - Switched to LINKS nf-core module
+
 ### `Dependencies`
 
 ### `Deprecated`
