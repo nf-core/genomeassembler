@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 [#138](https://github.com/nf-core/genomeassembler/pull/138) - Switched to RagTag nf-core module
 
+[#142](https://github.com/nf-core/genomeassembler/pull/142) - Switch `--collect` to accept a glob pattern instead of a folder, consistent with input validation.
+
 [#131](https://github.com/nf-core/genomeassembler/pull/131) - Refactored QC steps into subworkflow.
 
 [#133](https://github.com/nf-core/genomeassembler/pull/133) - Updated the input validation to be more strict. This should prevent some down the line errors in the pipeline
