@@ -128,6 +128,7 @@ workflow ASSEMBLE {
                         query:  [meta, hifiasm_fasta]
                     }
                     .set { ragtag_in }
+                ch_versions = ch_versions.mix(FLYE.out.versions)
             }
             if(params.assembler == "hifiasm_on_hifiasm") {
             // Run hifiasm --ont
@@ -142,12 +143,13 @@ workflow ASSEMBLE {
                         query:  [meta, hifi_assembly]
                     }
                     .set { ragtag_in }
+                ch_versions = ch_versions.mix(HIFIASM_ONT.out.versions).mix(GFA_2_FA_ONT.out.versions)
             }
 
             RAGTAG_PATCH(ragtag_in.target, ragtag_in.query, [[], []], [[], []] )
             // takes: meta, assembly (flye), reference (hifi)
             RAGTAG_PATCH.out.patch_fasta.set { ch_assembly }
-            ch_versions = ch_versions.mix(FLYE.out.versions).mix(RAGTAG_PATCH.out.versions).mix(HIFIASM.out.versions)
+            ch_versions = ch_versions.mix(RAGTAG_PATCH.out.versions)
         }
     }
     /*
