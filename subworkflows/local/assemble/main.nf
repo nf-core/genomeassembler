@@ -174,7 +174,7 @@ workflow ASSEMBLE {
                 .map { meta, reads -> [[id: meta.id], reads] }
                 .set { longreads }
         }
-        if (params.assembler == "hifiasm" || params.assembler == "flye_on_hifiasm") {
+        if (params.assembler == "hifiasm" || params.assembler == "flye_on_hifiasm" || params.assembler == "hifiasm_on_hifiasm") {
             hifiasm_inputs
                 .map { meta, long_reads, _ultralong -> [meta, long_reads] }
                 .set { longreads }
