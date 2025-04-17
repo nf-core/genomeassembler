@@ -15,7 +15,6 @@ Changes in 'minimap2/align/main.nf':
      val bam_index_extension
      val cigar_paf_format
 
-'modules/nf-core/minimap2/align/tests/tags.yml' is unchanged
 'modules/nf-core/minimap2/align/tests/main.nf.test' is unchanged
 'modules/nf-core/minimap2/align/tests/main.nf.test.snap' is unchanged
 ************************************************************
