@@ -2,8 +2,12 @@ lint:
   files_exist:
     - conf/igenomes.config
     - conf/igenomes_ignored.config
-    - ro-crate-metadata.json
-nf_core_version: 3.2.0
+    - assets/multiqc_config.yml
+    - assets/sendmail_template.txt
+  files_unchanged:
+    - .github/CONTRIBUTING.md
+  multiqc_config: false
+nf_core_version: 3.2.1
 repository_type: pipeline
 template:
   author: Niklas Schandry
@@ -13,4 +17,7 @@ template:
   name: genomeassembler
   org: nf-core
   outdir: .
-  version: 1.0.0
+  skip_features:
+    - multiqc
+    - igenomes
+  version: 1.1.0dev
