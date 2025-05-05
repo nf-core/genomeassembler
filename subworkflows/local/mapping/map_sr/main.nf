@@ -14,7 +14,7 @@ workflow MAP_SR {
         .join(genome_assembly)
         .set { map_assembly }
 
-    ALIGN_SHORT(map_assembly, true, 'bai', false, false)
+    ALIGN_SHORT(map_assembly, true, [], false, false)
 
     versions = ch_versions.mix(ALIGN_SHORT.out.versions)
 

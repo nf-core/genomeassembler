@@ -22,7 +22,7 @@
                     },
                     "hifiasm": {
                         "branch": "master",
-                        "git_sha": "971d801da83f2e50ab5935f93e40375adaa79b51",
+                        "git_sha": "c457b50bf9187031f65b0fb090dc022e8814c729",
                         "installed_by": ["modules"]
                     },
                     "liftoff": {
@@ -38,7 +38,7 @@
                     },
                     "links": {
                         "branch": "master",
-                        "git_sha": "e29af567bb2a1095fd23f284f777d31eba92310e",
+                        "git_sha": "d0fcd22f005a2508bc3dc9ee32c206acadc11b28",
                         "installed_by": ["modules"]
                     },
                     "merqury/merqury": {
@@ -59,7 +59,7 @@
                     },
                     "minimap2/align": {
                         "branch": "master",
-                        "git_sha": "05954dab2ff481bcb999f24455da29a5828af08d",
+                        "git_sha": "a532706a19b3d83f14b1d48a6a815ed33eb48b0c",
                         "installed_by": ["modules"],
                         "patch": "modules/nf-core/minimap2/align/minimap2-align.diff"
                     },
