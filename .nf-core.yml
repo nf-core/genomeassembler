@@ -6,8 +6,7 @@ lint:
     - assets/sendmail_template.txt
   files_unchanged:
     - .github/CONTRIBUTING.md
-  multiqc_config: false
-nf_core_version: 3.2.1
+nf_core_version: 3.2.q
 repository_type: pipeline
 template:
   author: Niklas Schandry

@@ -20,7 +20,7 @@ concurrency:
 
 jobs:
   test:
-    name: "Run pipeline with test data (${{ matrix.NXF_VER }} | ${{ matrix.test_name }} | ${{ matrix.profile }})"
+    name: "Run pipeline with test data (${{ matrix.NXF_VER }} | ${{ matrix.ASSEMBLER }} | ${{ matrix.profile }})"
     # Only run on push if this is the nf-core dev branch (merged PRs)
     if: "${{ github.event_name != 'push' || (github.event_name == 'push' && github.repository == 'nf-core/genomeassembler') }}"
     runs-on: ubuntu-latest
@@ -29,12 +29,18 @@ jobs:
         NXF_VER:
           - "24.04.2"
           - "latest-everything"
+        ASSEMBLER:
+          - "hifi_flye"
+          - "hifi_hifiasm"
+          - "ont_flye"
+          - "ont_hifiasm"
+          - "hifiont_hifiasm"
+          - "hifiont_flye_on_hifiasm"
+          - "hifiont_hifiasm_on_hifiasm"
         profile:
           - "conda"
           - "docker"
           - "singularity"
-        test_name:
-          - "test"
         isMaster:
           - ${{ github.base_ref == 'master' }}
         # Exclude conda and singularity on dev
@@ -43,6 +49,7 @@ jobs:
             profile: "conda"
           - isMaster: false
             profile: "singularity"
+
     steps:
       - name: Check out pipeline code
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
@@ -78,6 +85,10 @@ jobs:
         run: |
           echo $(realpath $CONDA)/condabin >> $GITHUB_PATH
           echo $(realpath python) >> $GITHUB_PATH
+
+      - name: "Run pipeline with test data ${{ matrix.ASSEMBLER }}"
+        run: |
+          nextflow run ${GITHUB_WORKSPACE} -profile ${{ matrix.ASSEMBLER }},test,${{matrix.profile}}  --outdir ./results_${{matrix.profile}}_${{ matrix.ASSEMBLER }}
 
       - name: Clean up Disk space
         uses: jlumbroso/free-disk-space@54081f138730dfa15788a46383842cd2f914a1be # v1.3.1
