@@ -171,8 +171,6 @@ def validateInputSamplesheet(input) {
         error("Please check input samplesheet -> Multiple runs of a sample must be of the same datatype i.e. single-end or paired-end: ${metas[0].id}")
     }
 
-    return [metas[0], fastqs]
-}
     return [ metas[0], fastqs ]
 }
 //
