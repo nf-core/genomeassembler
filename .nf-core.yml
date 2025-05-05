@@ -1,8 +1,10 @@
 lint:
+  multiqc_config: false
   files_exist:
     - conf/igenomes.config
     - conf/igenomes_ignored.config
     - assets/sendmail_template.txt
+    - assets/multiqc_config.yml
   files_unchanged:
     - .github/CONTRIBUTING.md
 nf_core_version: 3.2.1
