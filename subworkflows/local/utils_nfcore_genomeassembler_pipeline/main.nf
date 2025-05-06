@@ -121,7 +121,7 @@ workflow PIPELINE_COMPLETION {
     plaintext_email // boolean: Send plain-text email instead of HTML
     outdir //    path: Path to output directory where results will be published
     monochrome_logs // boolean: Disable ANSI colour codes in log output
-    hook_url //  string: hook URL for notifications
+    hook_url        //  string: hook URL for notifications
 
     main:
     summary_params = paramsSummaryMap(workflow, parameters_schema: "nextflow_schema.json")
@@ -138,7 +138,7 @@ workflow PIPELINE_COMPLETION {
                 plaintext_email,
                 outdir,
                 monochrome_logs,
-                [],
+                []
             )
         }
 
@@ -171,7 +171,7 @@ def validateInputSamplesheet(input) {
         error("Please check input samplesheet -> Multiple runs of a sample must be of the same datatype i.e. single-end or paired-end: ${metas[0].id}")
     }
 
-    return [metas[0], fastqs]
+    return [ metas[0], fastqs ]
 }
 //
 // Generate methods description for MultiQC
@@ -181,10 +181,10 @@ def toolCitationText() {
     // Can use ternary operators to dynamically construct based conditions, e.g. params["run_xyz"] ? "Tool (Foo et al. 2023)" : "",
     // Uncomment function in methodsDescriptionText to render in MultiQC report
     def citation_text = [
-        "Tools used in the workflow included:",
-        "FastQC (Andrews 2010),",
-        ".",
-    ].join(' ').trim()
+            "Tools used in the workflow included:",
+            "FastQC (Andrews 2010),",
+            "."
+        ].join(' ').trim()
 
     return citation_text
 }
@@ -194,8 +194,8 @@ def toolBibliographyText() {
     // Can use ternary operators to dynamically construct based conditions, e.g. params["run_xyz"] ? "<li>Author (2023) Pub name, Journal, DOI</li>" : "",
     // Uncomment function in methodsDescriptionText to render in MultiQC report
     def reference_text = [
-        "<li>Andrews S, (2010) FastQC, URL: https://www.bioinformatics.babraham.ac.uk/projects/fastqc/).</li>"
-    ].join(' ').trim()
+            "<li>Andrews S, (2010) FastQC, URL: https://www.bioinformatics.babraham.ac.uk/projects/fastqc/).</li>",
+        ].join(' ').trim()
 
     return reference_text
 }
