@@ -13,7 +13,7 @@ workflow MAP_TO_REF {
         .join(ch_refs)
         .set { ch_map_ref_in }
 
-    ALIGN(ch_map_ref_in, true, [], false, false)
+    ALIGN(ch_map_ref_in, true, 'bai', false, false)
 
     ALIGN.out.bam.set { ch_aln_to_ref_bam }
 
