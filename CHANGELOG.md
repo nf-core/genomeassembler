@@ -9,9 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 [#153](https://github.com/nf-core/genomeassembler/issues/153) - Switched to nf-core template 3.2.1
 
-[#144](https://github.com/nf-core/genomeassembler/issues/144) - Added hifiasm_on_hifiasm assembly strategy
+[#144](https://github.com/nf-core/genomeassembler/issues/144) - Added `hifiasm_on_hifiasm` assembly strategy
 
 ### `Fixed`
+
+[#154](https://github.com/nf-core/genomeassembler/pull/154) - Module maintainance:
+
+- updated `hifiasm`, `minimap2`, `links` nf-core modules
+- updated container in local `quast` module
+- separated `modules.config` into several files for easier navigation and maintainance
 
 [#138](https://github.com/nf-core/genomeassembler/pull/138) - Switched to RagTag nf-core module
 
