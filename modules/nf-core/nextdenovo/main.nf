@@ -28,9 +28,9 @@ process NEXTDENOVO {
         $config \\
         input.fofn \\
 
-    gzip -c nd.asm.fasta > ${prefix}.assembly.fasta.gz
+    gzip -c ./03.ctg_graph/nd.asm.fasta > ${prefix}.assembly.fasta.gz
   
-    mv nd.asm.fasta.stat ${prefix}.assembly_info.stat
+    mv ./03.ctg_graph/nd.asm.fasta.stat ${prefix}.assembly_info.stat
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
