@@ -39,7 +39,7 @@ The largest samplesheet format is:
 
 ```csv title="samplesheet.csv"
 sample,ontreads,hifireads,ref_fasta,ref_gff,shortread_F,shortread_R,paired
-Sample1,sample1ont.fq.gz,sample1hifi.fq.gz,ref.fa,ref.gff,sample1_r1.fq.gz,sample1_r2.fq.gz,true
+Sample1,/path/reads/sample1ont.fq.gz,/path/reads/sample1hifi.fq.gz,/path/references/ref.fa,/path/references/ref.gff,/path/reads/sample1_r1.fq.gz,/path/reads/sample1_r2.fq.gz,true
 ```
 
 The samplesheet _must_ contain a column name `sample` [string].
