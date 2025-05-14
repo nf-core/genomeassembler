@@ -55,6 +55,9 @@ Further columns _can_ be:
   - `shortread_R`: shortread reverse file (paired end)
   - `paired`: [true/false] true if the reads are paired end, false if they are single-end. The `shortreads_R` column should exist if `paired` is `false` but can be empty.
 
+> [!INFO]
+> It is strongly recommended to provide all paths as absolute paths
+
 ### Multiple runs of the same sample
 
 For ONT reads, a glob pattern can be provided, matching files will be concatenated into a single file if `--collect` is used. Generally we recommend to provide all reads in a single file.
