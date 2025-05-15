@@ -1,9 +1,8 @@
----
-# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/modules/meta-schema.json
 name: "nextdenovo"
-description: NextDenovo is a string graph-based de novo assembler for long reads (CLR, HiFi and ONT).
- It uses a “correct-then-assemble” strategy similar to canu (no correction step for PacBio HiFi reads),
-  but requires significantly less computing resources and storages
+description: NextDenovo is a string graph-based de novo assembler for long reads (CLR,
+  HiFi and ONT). It uses a “correct-then-assemble” strategy similar to canu (no correction
+  step for PacBio HiFi reads), but requires significantly less computing resources
+  and storages
 keywords:
   - assembly
   - genome
@@ -12,16 +11,16 @@ keywords:
   - single molecule
 tools:
   - "nextdenovo":
-      description: "NextDenovo is a string graph-based de novo assembler for long reads (CLR, HiFi and ONT).
-        It uses a “correct-then-assemble” strategy similar to canu (no correction step for PacBio HiFi reads),
-         but requires significantly less computing resources and storages"
-   
+      description: "NextDenovo is a string graph-based de novo assembler for long reads
+        (CLR, HiFi and ONT). It uses a “correct-then-assemble” strategy similar to canu
+        (no correction step for PacBio HiFi reads), but requires significantly less
+        computing resources and storages"
+      homepage: "https://github.com/fenderglass/Flye"
       documentation: "https://nextdenovo.readthedocs.io/en/latest/"
       tool_dev_url: "https://github.com/Nextomics/NextDenovo"
       doi: "10.1186/s13059-024-03252-4"
       licence: ["GPL-3.0-license"]
       identifier: biotools:nextdenovo
-
 input:
   - - meta:
         type: map
@@ -36,8 +35,7 @@ input:
   - - config:
         type: file
         description: Input config file for nextDenovo
-          
-
+        pattern: "*"
 output:
   - fasta:
       - meta:
@@ -64,7 +62,6 @@ output:
           type: file
           description: File containing software versions
           pattern: "versions.yml"
-
 authors:
   - "@elmedjadjirayane"
 maintainers:
