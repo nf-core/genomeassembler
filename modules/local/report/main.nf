@@ -3,8 +3,8 @@ process REPORT {
     label 'process_low'
     conda "${moduleDir}/environment.yml"
     container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
-        ? 'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/90/90fef3481ee574cada2330e149cebab7290724e6b9869d84af66d0fc3d04168e/data'
-        : 'community.wave.seqera.io/library/quarto_r-plotly_r-quarto_r-tidyjson_pruned:2712f84a83ca0d9a'}"
+        ? 'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/76/76fb9a394fb9f3cb587f6dc7f3b3b3830e0dad350ea198dd244dff63cf1f88e2/data'
+        : 'community.wave.seqera.io/library/quarto_r-gt_r-plotly_r-quarto_pruned:10c4e357d0099e14'}"
 
     input:
     path qmdir_files, stageAs: "*"
