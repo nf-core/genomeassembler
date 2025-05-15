@@ -58,6 +58,11 @@
                         "installed_by": ["modules"],
                         "patch": "modules/nf-core/minimap2/align/minimap2-align.diff"
                     },
+                    "nextdenovo": {
+                        "branch": "master",
+                        "git_sha": "1636843f0c67253f8bae15284a8fc0bb5c5849e7",
+                        "installed_by": ["modules"]
+                    },
                     "pilon": {
                         "branch": "master",
                         "git_sha": "2816479e1de5c04f0907f74a53a2096ceaff558e",
