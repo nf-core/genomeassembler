@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 [#144](https://github.com/nf-core/genomeassembler/issues/144) - Added `hifiasm_on_hifiasm` assembly strategy
 
+[#158](https://github.com/nf-core/genomeassembler/pull/158) - Added tables for QUAST and BUSCO to report, (using `gt`, added `gt` to container and env)
+
 ### `Fixed`
 
 [#154](https://github.com/nf-core/genomeassembler/pull/154) - Module maintainance:
