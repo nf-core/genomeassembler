@@ -488,7 +488,15 @@ for (i in 1:length(unique(busco_reports$sample))) {
         paste0('\n'),
         paste0(':::'),
         paste0('\n\n'),
-        paste('### { .flow }'),
+        paste('###'),
+        paste0('\n\n'),
+        busco_reports %>%
+            filter(sample == cur_sample) %>%
+            dplyr::select(sample, stage, Var, value) %>%
+            mutate(Var = str_replace_all(Var, "_", " ")) %>%
+            pivot_wider(names_from = "Var", values_from = "value") %>%
+            gt::gt() %>%
+            gt::as_raw_html(),
         paste0('\n\n'),
         knitr::knit_child(glue::glue('busco_files/orthologs/_{ unique(busco_reports$sample)[i] }_orthologs.Rmd'),
                             envir = globalenv(),
