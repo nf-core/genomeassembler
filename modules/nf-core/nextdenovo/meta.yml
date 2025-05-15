@@ -28,7 +28,7 @@ input:
         description: |
           Groovy Map containing sample information
           e.g. [ id:'test' ]
-  - - reads:
+    - reads:
         type: file
         description: Input reads from Oxford Nanopore or PacBio data in FASTA/FASTQ
           format.
