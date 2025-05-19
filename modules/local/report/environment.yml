@@ -6,9 +6,9 @@ dependencies:
   - conda-forge::r-gt=1.0.0
   - conda-forge::r-plotly=4.10.4
   - conda-forge::r-quarto=1.4.4
+  - conda-forge::r-tidyjson=0.3.2
   - conda-forge::r-tidyverse=2.0.0
   - pip
   - pip:
-      - pip==25.1.1
       - quarto-cli==1.7.31
       - quarto==0.1.0
