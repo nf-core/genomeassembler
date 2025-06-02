@@ -3,7 +3,7 @@ process REPORT {
     label 'process_low'
     conda "${moduleDir}/environment.yml"
     container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
-        ? 'oras://community.wave.seqera.io/library/quarto_r-gt_r-plotly_r-quarto_pruned:6e20dd9b9b77f359'
+        ? 'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/89/8967e1cb830fdc77ec5b84541a50c74a0a05eaaae557314490809de2fc91e4af/data'
         : 'community.wave.seqera.io/library/quarto_r-gt_r-plotly_r-quarto_pruned:be4a8863b7b76cf7'}"
     /* wave builds:
     https://wave.seqera.io/view/builds/bd-6e20dd9b9b77f359_1 singularity
