@@ -16,6 +16,7 @@ repos:
               modules/nf-core/.*|
               subworkflows/nf-core/.*|
               .*\.snap$
+              .*\.svg$
           )$
       - id: end-of-file-fixer
         exclude: |
@@ -24,4 +25,5 @@ repos:
               modules/nf-core/.*|
               subworkflows/nf-core/.*|
               .*\.snap$
+              .*\.svg$
           )$
