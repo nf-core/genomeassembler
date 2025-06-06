@@ -8,14 +8,14 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-include { UTILS_NFSCHEMA_PLUGIN     } from '../../nf-core/utils_nfschema_plugin'
-include { paramsSummaryMap          } from 'plugin/nf-schema'
-include { samplesheetToList         } from 'plugin/nf-schema'
-include { completionEmail           } from '../../nf-core/utils_nfcore_pipeline'
-include { completionSummary         } from '../../nf-core/utils_nfcore_pipeline'
-include { imNotification            } from '../../nf-core/utils_nfcore_pipeline'
-include { UTILS_NFCORE_PIPELINE     } from '../../nf-core/utils_nfcore_pipeline'
-include { UTILS_NEXTFLOW_PIPELINE   } from '../../nf-core/utils_nextflow_pipeline'
+include { UTILS_NFSCHEMA_PLUGIN } from '../../nf-core/utils_nfschema_plugin'
+include { paramsSummaryMap } from 'plugin/nf-schema'
+include { samplesheetToList } from 'plugin/nf-schema'
+include { completionEmail } from '../../nf-core/utils_nfcore_pipeline'
+include { completionSummary } from '../../nf-core/utils_nfcore_pipeline'
+include { imNotification } from '../../nf-core/utils_nfcore_pipeline'
+include { UTILS_NFCORE_PIPELINE } from '../../nf-core/utils_nfcore_pipeline'
+include { UTILS_NEXTFLOW_PIPELINE } from '../../nf-core/utils_nextflow_pipeline'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -24,14 +24,13 @@ include { UTILS_NEXTFLOW_PIPELINE   } from '../../nf-core/utils_nextflow_pipelin
 */
 
 workflow PIPELINE_INITIALISATION {
-
     take:
-    version           // boolean: Display version and exit
-    validate_params   // boolean: Boolean whether to validate parameters against the schema at runtime
-    monochrome_logs   // boolean: Do not use coloured log outputs
+    version // boolean: Display version and exit
+    validate_params // boolean: Boolean whether to validate parameters against the schema at runtime
+    monochrome_logs // boolean: Do not use coloured log outputs
     nextflow_cli_args //   array: List of positional nextflow CLI args
-    outdir            //  string: The output directory where the results will be saved
-    input             //  string: Path to input samplesheet
+    outdir //  string: The output directory where the results will be saved
+    input //  string: Path to input samplesheet
 
     main:
 
@@ -40,26 +39,26 @@ workflow PIPELINE_INITIALISATION {
     //
     // Print version and exit if required and dump pipeline parameters to JSON file
     //
-    UTILS_NEXTFLOW_PIPELINE (
+    UTILS_NEXTFLOW_PIPELINE(
         version,
         true,
         outdir,
-        workflow.profile.tokenize(',').intersect(['conda', 'mamba']).size() >= 1
+        workflow.profile.tokenize(',').intersect(['conda', 'mamba']).size() >= 1,
     )
 
     //
     // Validate parameters and generate parameter summary to stdout
     //
-    UTILS_NFSCHEMA_PLUGIN (
+    UTILS_NFSCHEMA_PLUGIN(
         workflow,
         validate_params,
-        null
+        null,
     )
 
     //
     // Check config provided to the pipeline
     //
-    UTILS_NFCORE_PIPELINE (
+    UTILS_NFCORE_PIPELINE(
         nextflow_cli_args
     )
 
@@ -67,29 +66,46 @@ workflow PIPELINE_INITIALISATION {
     // Create channel from input file provided through params.input
     //
 
-    Channel
-        .fromList(samplesheetToList(params.input, "${projectDir}/assets/schema_input.json"))
-        .map {
-            meta, fastq_1, fastq_2 ->
-                if (!fastq_2) {
-                    return [ meta.id, meta + [ single_end:true ], [ fastq_1 ] ]
-                } else {
-                    return [ meta.id, meta + [ single_end:false ], [ fastq_1, fastq_2 ] ]
-                }
-        }
-        .groupTuple()
-        .map { samplesheet ->
-            validateInputSamplesheet(samplesheet)
-        }
-        .map {
-            meta, fastqs ->
-                return [ meta, fastqs.flatten() ]
-        }
+    Channel.empty().set { ch_refs }
+    Channel.fromPath(params.input)
+        .splitCsv(header: true)
+        .map { it -> [meta: [id: it.sample], ontreads: it.ontreads, hifireads: it.hifireads, ref_fasta: it.ref_fasta, ref_gff: it.ref_gff, shortread_F: it.shortread_F, shortread_R: it.shortread_R, paired: it.paired] }
         .set { ch_samplesheet }
+    if (params.use_ref) {
+        ch_samplesheet
+            .map { it -> [it.meta, it.ref_fasta] }
+            .set { ch_refs }
+    }
+    // check for assembler / read combination
+    def hifi_only = params.hifi && !params.ont ? true : false
+    if (!params.skip_assembly) {
+        if (params.assembler == "flye") {
+            if (params.hifi) {
+                if (!hifi_only) {
+                    error('Cannot combine hifi and ont reads with flye')
+                }
+            }
+        }
+    }
+    // check for QC reads
+    if (params.hifi && params.ont) {
+        if (!params.qc_reads) {
+            error("Please specify which reads should be used for qc: 'ONT' or 'HIFI'")
+        }
+    }
+    // Make sure that genome_size is provided or estimated when using scaffold_longstitch
+    if (params.scaffold_longstitch) {
+        // If genomesize is not provided, and if ONT is not used in combination with jellyfish
+        // Throw an error
+        if (!params.genome_size && (!params.ont && !params.jellyfish)) {
+            error("Scaffolding with longstitch requires genome size.\n Either provide a genome size with --genome_size or estimate from ONT reads using jellyfish and genomescope")
+        }
+    }
 
     emit:
     samplesheet = ch_samplesheet
-    versions    = ch_versions
+    refs = ch_refs
+    versions = ch_versions
 }
 
 /*
@@ -99,12 +115,11 @@ workflow PIPELINE_INITIALISATION {
 */
 
 workflow PIPELINE_COMPLETION {
-
     take:
-    email           //  string: email address
-    email_on_fail   //  string: email address sent on pipeline failure
+    email //  string: email address
+    email_on_fail //  string: email address sent on pipeline failure
     plaintext_email // boolean: Send plain-text email instead of HTML
-    outdir          //    path: Path to output directory where results will be published
+    outdir //    path: Path to output directory where results will be published
     monochrome_logs // boolean: Disable ANSI colour codes in log output
     hook_url        //  string: hook URL for notifications
 
@@ -134,7 +149,7 @@ workflow PIPELINE_COMPLETION {
     }
 
     workflow.onError {
-        log.error "Pipeline failed. Please refer to troubleshooting docs: https://nf-co.re/docs/usage/troubleshooting"
+        log.error("Pipeline failed. Please refer to troubleshooting docs: https://nf-co.re/docs/usage/troubleshooting")
     }
 }
 
@@ -151,7 +166,7 @@ def validateInputSamplesheet(input) {
     def (metas, fastqs) = input[1..2]
 
     // Check that multiple runs of the same sample are of the same datatype i.e. single-end / paired-end
-    def endedness_ok = metas.collect{ meta -> meta.single_end }.unique().size == 1
+    def endedness_ok = metas.collect { meta -> meta.single_end }.unique().size == 1
     if (!endedness_ok) {
         error("Please check input samplesheet -> Multiple runs of a sample must be of the same datatype i.e. single-end or paired-end: ${metas[0].id}")
     }
@@ -186,7 +201,7 @@ def toolBibliographyText() {
 }
 
 def methodsDescriptionText(mqc_methods_yaml) {
-    // Convert  to a named map so can be used as with familiar NXF ${workflow} variable syntax in the MultiQC YML file
+    // Convert  to a named map so can be used as with familar NXF ${workflow} variable syntax in the MultiQC YML file
     def meta = [:]
     meta.workflow = workflow.toMap()
     meta["manifest_map"] = workflow.manifest.toMap()
@@ -202,7 +217,10 @@ def methodsDescriptionText(mqc_methods_yaml) {
             temp_doi_ref += "(doi: <a href=\'https://doi.org/${doi_ref.replace("https://doi.org/", "").replace(" ", "")}\'>${doi_ref.replace("https://doi.org/", "").replace(" ", "")}</a>), "
         }
         meta["doi_text"] = temp_doi_ref.substring(0, temp_doi_ref.length() - 2)
-    } else meta["doi_text"] = ""
+    }
+    else {
+        meta["doi_text"] = ""
+    }
     meta["nodoi_text"] = meta.manifest_map.doi ? "" : "<li>If available, make sure to update the text to include the Zenodo DOI of version of the pipeline used. </li>"
 
     // Tool references
@@ -216,7 +234,7 @@ def methodsDescriptionText(mqc_methods_yaml) {
 
     def methods_text = mqc_methods_yaml.text
 
-    def engine =  new groovy.text.SimpleTemplateEngine()
+    def engine = new groovy.text.SimpleTemplateEngine()
     def description_html = engine.createTemplate(methods_text).make(meta)
 
     return description_html.toString()
