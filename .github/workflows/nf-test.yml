@@ -36,7 +36,7 @@ jobs:
     name: nf-test-changes
     runs-on: # use self-hosted runners
       - runs-on=$-nf-test-changes
-      - runner=4cpu-linux-x64
+      - runner=8cpu-linux-x64
     outputs:
       shard: ${{ steps.set-shards.outputs.shard }}
       total_shards: ${{ steps.set-shards.outputs.total_shards }}
