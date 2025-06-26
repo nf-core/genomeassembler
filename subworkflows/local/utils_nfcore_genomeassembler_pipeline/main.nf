@@ -104,7 +104,7 @@ workflow PIPELINE_INITIALISATION {
         .set { ch_samplesheet }
     if (params.use_ref) {
         ch_samplesheet
-            .map { it -> [it.meta, it.ref_fasta] }
+            .map { it -> [it.meta, file(it.ref_fasta, checkIfExists: true)] }
             .set { ch_refs }
     }
 
