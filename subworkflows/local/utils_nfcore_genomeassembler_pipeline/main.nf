@@ -233,6 +233,7 @@ workflow PIPELINE_INITIALISATION {
                 : null
         }
 
+
     emit:
     samplesheet = ch_samplesheet
     versions = ch_versions
