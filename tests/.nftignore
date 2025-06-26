@@ -1,3 +1,4 @@
 .DS_Store
 fastqc/*_fastqc.{html,zip}
 pipeline_info/*.{html,json,txt,yml}
+*.log

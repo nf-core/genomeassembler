@@ -70,30 +70,30 @@
             [
                 "Col-0_2MB_report.json:md5,25d7ae5780b2f565cb46df7c9e09388a",
                 "Col-0_2MB_stats.json:md5,d41d8cd98f00b204e9800998ecf8427e",
-                "Col-0_2MB_assembly.gff3:md5,b2cd3ffcd6881fc98490ee9bfd93c19c",
+                "Col-0_2MB_assembly.gff3:md5,b00792e10e922e02d08268787cb9e8a4",
                 "Col-0_2MB_assembly.unmapped.txt:md5,9d076ee5ea1adf386e9ce6b42f60062a",
-                "Col-0_2MB.assembly.fasta.gz:md5,ec7e59c2da382f5126309998f7835e8f",
-                "Col-0_2MB.assembly_graph.gfa.gz:md5,8ddb6688a6f467861b468c4297c16c26",
-                "Col-0_2MB.assembly_graph.gv.gz:md5,6c9d566bfc0a4370a0a4e14c261d9bc2",
-                "Col-0_2MB.assembly_info.txt:md5,b7adfe7e463547e2b3d02639214f93a0",
-                "Col-0_2MB.flye.log:md5,8e232f63a22de2c2b652298484f906d8",
+                "Col-0_2MB.assembly.fasta.gz:md5,f3e5f9eec6fcdc48950cf00843c59dea",
+                "Col-0_2MB.assembly_graph.gfa.gz:md5,24bcaf40e4f24a4a9630ba2594ad26c4",
+                "Col-0_2MB.assembly_graph.gv.gz:md5,d0a4372f71cc11c39097a95c6e699f74",
+                "Col-0_2MB.assembly_info.txt:md5,59169ad6edd1eb804a8f7c9091027801",
+                "Col-0_2MB.flye.log:md5,ba82823ddcd9e57693ab77378f11cc50",
                 "Col-0_2MB.params.json:md5,afa91c041bce5e190f4a699d11b69db6",
                 "Col-0_2MB.bp.hap1.p_ctg.gfa:md5,46ee70869884ad585165bd48081414e9",
                 "Col-0_2MB.bp.hap2.p_ctg.gfa:md5,7792865547989d6d284f640425c4e36c",
                 "Col-0_2MB.bp.p_ctg.gfa:md5,8fe65466d76815ffe1663ff6d8f2e8d1",
                 "Col-0_2MB.bp.p_utg.gfa:md5,ba2c77ebdb2ad3e6060f5574e890c6eb",
                 "Col-0_2MB.bp.r_utg.gfa:md5,ba2c77ebdb2ad3e6060f5574e890c6eb",
-                "Col-0_2MB.ec.bin:md5,89a0ba647abf444e76e4deb2a8d3674c",
+                "Col-0_2MB.ec.bin:md5,7b4e1cbbdc392e1984c90655a347e238",
                 "Col-0_2MB.ovlp.reverse.bin:md5,b8219e26d82a4dca3e402f48484802ad",
                 "Col-0_2MB.ovlp.source.bin:md5,569ac457701691dddb0ee8465904d87a",
-                "Col-0_2MB.stderr.log:md5,0c9cd52a5103e0cc1114fdce31b4dca6",
+                "Col-0_2MB.stderr.log:md5,69b15341c0ac7afb5c4a6b1a61d2d88a",
                 "Col-0_2MB.bp.p_utg.fa.gz:md5,812a3a16dc68bb409deb69f0aef7e6a8",
-                "Col-0_2MB_assembly_patch.comps.fasta:md5,16dff800563c1f2788f443ae8c9579aa",
-                "Col-0_2MB_assembly_patch.ctg.agp:md5,e304fa69faa5006d0ade7315bcc1fd57",
-                "Col-0_2MB_assembly_patch.ctg.fasta:md5,b2a6cb43c10715dd956235f469ee8d2e",
-                "Col-0_2MB_assembly_patch.patch.agp:md5,80bf81b6d61edadf05948da91aedab22",
+                "Col-0_2MB_assembly_patch.comps.fasta:md5,b55d9eeb5f60c7f2aea8d3c931ea04a6",
+                "Col-0_2MB_assembly_patch.ctg.agp:md5,e108aa9d312d2c9864d64216e4cffeb8",
+                "Col-0_2MB_assembly_patch.ctg.fasta:md5,2fb846edf1e09ec9e2886f52398c94b7",
+                "Col-0_2MB_assembly_patch.patch.agp:md5,c4463c42657d62a8ed2b070ab1eba6ed",
                 "Col-0_2MB_assembly_patch.patch.err:md5,d41d8cd98f00b204e9800998ecf8427e",
-                "Col-0_2MB_assembly_patch.patch.fasta:md5,b2a6cb43c10715dd956235f469ee8d2e",
+                "Col-0_2MB_assembly_patch.patch.fasta:md5,2fb846edf1e09ec9e2886f52398c94b7",
                 "Col-0_2MB_assembly_patch.rename.agp:md5,dadb25c5c5091c5004361c25a9b60940",
                 "Col-0_2MB_assembly_patch.rename.fasta:md5,0515edc4c23258ef17d6ba085a6e4d31"
             ]
@@ -102,6 +102,6 @@
             "nf-test": "0.9.2",
             "nextflow": "24.10.3"
         },
-        "timestamp": "2025-06-26T14:48:00.614468891"
+        "timestamp": "2025-06-26T15:06:04.330362532"
     }
 }
