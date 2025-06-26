@@ -1,0 +1,305 @@
+Jun-26 14:43:29.682 [main] DEBUG nextflow.cli.Launcher - $> nextflow -quiet -log /dss/dsshome1/lxc0A/ra34bin/genomeassembler/.nf-test/tests/c85cb7f49a452491a8e3035571eb5492/meta/nextflow.log run /dss/dsshome1/lxc0A/ra34bin/genomeassembler/tests/../main.nf -c /dss/dsshome1/lxc0A/ra34bin/genomeassembler/nextflow.config -c /dss/dsshome1/lxc0A/ra34bin/genomeassembler/tests/nextflow.config -params-file /dss/dsshome1/lxc0A/ra34bin/genomeassembler/.nf-test/tests/c85cb7f49a452491a8e3035571eb5492/meta/params.json -ansi-log false -profile test,conda -with-trace /dss/dsshome1/lxc0A/ra34bin/genomeassembler/.nf-test/tests/c85cb7f49a452491a8e3035571eb5492/meta/trace.csv -w /dss/dsshome1/lxc0A/ra34bin/genomeassembler/.nf-test/tests/c85cb7f49a452491a8e3035571eb5492/work
+Jun-26 14:43:29.756 [main] INFO  nextflow.cli.CmdRun - N E X T F L O W  ~  version 24.10.3
+Jun-26 14:43:29.778 [main] DEBUG nextflow.plugin.PluginsFacade - Setting up plugin manager > mode=prod; embedded=false; plugins-dir=/dss/dsshome1/lxc0A/ra34bin/.nextflow/plugins; core-plugins: nf-amazon@2.9.2,nf-azure@1.10.2,nf-cloudcache@0.4.2,nf-codecommit@0.2.2,nf-console@1.1.4,nf-google@1.15.3,nf-tower@1.9.3,nf-wave@1.7.4
+Jun-26 14:43:29.805 [main] INFO  o.pf4j.DefaultPluginStatusProvider - Enabled plugins: []
+Jun-26 14:43:29.806 [main] INFO  o.pf4j.DefaultPluginStatusProvider - Disabled plugins: []
+Jun-26 14:43:29.810 [main] INFO  org.pf4j.DefaultPluginManager - PF4J version 3.12.0 in 'deployment' mode
+Jun-26 14:43:29.823 [main] INFO  org.pf4j.AbstractPluginManager - No plugins
+Jun-26 14:43:29.850 [main] DEBUG nextflow.config.ConfigBuilder - Found config base: /dss/dsshome1/lxc0A/ra34bin/genomeassembler/nextflow.config
+Jun-26 14:43:29.854 [main] DEBUG nextflow.config.ConfigBuilder - User config file: /dss/dsshome1/lxc0A/ra34bin/genomeassembler/nextflow.config
+Jun-26 14:43:29.855 [main] DEBUG nextflow.config.ConfigBuilder - User config file: /dss/dsshome1/lxc0A/ra34bin/genomeassembler/tests/nextflow.config
+Jun-26 14:43:29.856 [main] DEBUG nextflow.config.ConfigBuilder - Parsing config file: /dss/dsshome1/lxc0A/ra34bin/genomeassembler/nextflow.config
+Jun-26 14:43:29.857 [main] DEBUG nextflow.config.ConfigBuilder - Parsing config file: /dss/dsshome1/lxc0A/ra34bin/genomeassembler/nextflow.config
+Jun-26 14:43:29.857 [main] DEBUG nextflow.config.ConfigBuilder - Parsing config file: /dss/dsshome1/lxc0A/ra34bin/genomeassembler/tests/nextflow.config
+Jun-26 14:43:29.888 [main] DEBUG n.secret.LocalSecretsProvider - Secrets store: /dss/dsshome1/lxc0A/ra34bin/.nextflow/secrets/store.json
+Jun-26 14:43:29.891 [main] DEBUG nextflow.secret.SecretsLoader - Discovered secrets providers: [nextflow.secret.LocalSecretsProvider@70d8de] - activable => nextflow.secret.LocalSecretsProvider@70d8de
+Jun-26 14:43:29.915 [main] DEBUG nextflow.config.ConfigBuilder - Applying config profile: `test,conda`
+Jun-26 14:43:32.617 [main] DEBUG nextflow.config.ConfigBuilder - Applying config profile: `test,conda`
+Jun-26 14:43:33.328 [main] DEBUG nextflow.config.ConfigBuilder - Applying config profile: `test,conda`
+Jun-26 14:43:33.342 [main] DEBUG nextflow.config.ConfigBuilder - Available config profiles: [bih, cfc_dev, uzl_omics, ifb_core, embl_hd, denbi_qbic, alice, mjolnir_globe, uppmax, giga, incliva, ilifu, ki_luria, uge, icr_alma, rosalind_uge, lugh, mccleary, unibe_ibu, vai, czbiohub_aws, jax, roslin, tes, scw, unc_longleaf, tigem, tubingen_apg, google, apollo, ipop_up, vsc_calcua, ont_flye, pdc_kth, googlels, ceci_nic5, ccga_cau, humantechnopole, stjude, daisybio, eddie, medair, biowulf, apptainer, bi, bigpurple, adcra, cedars, pawsey_setonix, vsc_kul_uhasselt, hifiont_hifiasm, pawsey_nimbus, ucl_myriad, utd_ganymede, charliecloud, hifi_flye, fred_hutch, seattlechildrens, icr_davros, ceres, arm, munin, rosalind, ont_hifiasm, hasta, cfc, uzh, shu_bmrc, ebi_codon_slurm, ebc, ccga_dx, crick, ku_sund_danhead, marvin, shifter, biohpc_gen, mana, mamba, hifiont_hifiasm_on_hifiasm, york_viking, hifiont_flye_on_hifiasm, unc_lccc, wehi, awsbatch, wustl_htcf, arcc, ceci_dragon2, imperial, maestro, software_license, cannon, genotoul, nci_gadi, abims, janelia, nu_genomics, googlebatch, oist, sahmri, kaust, alliance_canada, mpcdf, leicester, vsc_ugent, create, sage, cambridge, jex, podman, ebi_codon, cheaha, xanadu, nyu_hpc, test, marjorie, computerome, ucd_sonic, gpu, seg_globe, mssm, sanger, dkfz, bluebear, pasteur, einstein, ethz_euler, m3c, test_full, imb, ucl_cscluster, tuos_stanage, azurebatch, hki, seadragon, crukmi, csiro_petrichor, qmul_apocrita, wave, docker, engaging, gis, hypatia, psmn, eva, unity, cropdiversityhpc, nygc, fgcz, conda, crg, singularity, mpcdf_viper, hifi_hifiasm, pe2, self_hosted_runner, tufts, uw_hyak_pedslabs, binac2, debug, genouest, cbe, unsw_katana, utd_juno, gitpod, phoenix, seawulf, uod_hpc, fub_curta, uct_hpc, aws_tower, binac, fsu_draco]
+Jun-26 14:43:33.397 [main] DEBUG nextflow.cli.CmdRun - Applied DSL=2 by global default
+Jun-26 14:43:33.419 [main] INFO  nextflow.cli.CmdRun - Launching `/dss/dsshome1/lxc0A/ra34bin/genomeassembler/tests/../main.nf` [cheeky_torvalds] DSL2 - revision: f1a61cd9ea
+Jun-26 14:43:33.420 [main] DEBUG nextflow.plugin.PluginsFacade - Plugins declared=[nf-schema@2.2.0]
+Jun-26 14:43:33.420 [main] DEBUG nextflow.plugin.PluginsFacade - Plugins default=[]
+Jun-26 14:43:33.421 [main] DEBUG nextflow.plugin.PluginsFacade - Plugins resolved requirement=[nf-schema@2.2.0]
+Jun-26 14:43:33.421 [main] DEBUG nextflow.plugin.PluginUpdater - Installing plugin nf-schema version: 2.2.0
+Jun-26 14:43:33.486 [main] INFO  org.pf4j.AbstractPluginManager - Plugin 'nf-schema@2.2.0' resolved
+Jun-26 14:43:33.487 [main] INFO  org.pf4j.AbstractPluginManager - Start plugin 'nf-schema@2.2.0'
+Jun-26 14:43:33.498 [main] DEBUG nextflow.plugin.BasePlugin - Plugin started nf-schema@2.2.0
+Jun-26 14:43:33.570 [main] DEBUG nextflow.Session - Session UUID: b068e33d-7d5a-41ae-93ae-aa32977e3304
+Jun-26 14:43:33.571 [main] DEBUG nextflow.Session - Run name: cheeky_torvalds
+Jun-26 14:43:33.571 [main] DEBUG nextflow.Session - Executor pool size: 160
+Jun-26 14:43:33.590 [main] DEBUG nextflow.file.FilePorter - File porter settings maxRetries=3; maxTransfers=50; pollTimeout=null
+Jun-26 14:43:33.596 [main] DEBUG nextflow.util.ThreadPoolBuilder - Creating thread pool 'FileTransfer' minSize=10; maxSize=480; workQueue=LinkedBlockingQueue[10000]; allowCoreThreadTimeout=false
+Jun-26 14:43:33.640 [main] DEBUG nextflow.cli.CmdRun -
+  Version: 24.10.3 build 5933
+  Created: 16-12-2024 15:34 UTC (16:34 CEST)
+  System: Linux 6.4.0-150600.23.25-default
+  Runtime: Groovy 4.0.23 on OpenJDK 64-Bit Server VM 17.0.14-internal+0-adhoc..src
+  Encoding: UTF-8 (UTF-8)
+  Process: 18253@cm4login1 [10.156.159.1]
+  CPUs: 160 - Mem: 1007.5 GB (921.5 GB) - Swap: 8 GB (8 GB)
+Jun-26 14:43:33.688 [main] DEBUG nextflow.Session - Work-dir: /dss/dsshome1/lxc0A/ra34bin/genomeassembler/.nf-test/tests/c85cb7f49a452491a8e3035571eb5492/work [gpfs]
+Jun-26 14:43:33.743 [main] DEBUG nextflow.executor.ExecutorFactory - Extension executors providers=[]
+Jun-26 14:43:33.761 [main] DEBUG nextflow.Session - Observer factory: DefaultObserverFactory
+Jun-26 14:43:33.803 [main] DEBUG nextflow.cache.CacheFactory - Using Nextflow cache factory: nextflow.cache.DefaultCacheFactory
+Jun-26 14:43:33.812 [main] DEBUG nextflow.util.CustomThreadPool - Creating default thread pool > poolSize: 161; maxThreads: 1000
+Jun-26 14:43:33.947 [main] DEBUG nextflow.Session - Session start
+Jun-26 14:43:33.952 [main] DEBUG nextflow.trace.TraceFileObserver - Workflow started -- trace file: /dss/dsshome1/lxc0A/ra34bin/genomeassembler/.nf-test/tests/c85cb7f49a452491a8e3035571eb5492/meta/trace.csv
+Jun-26 14:43:34.107 [main] DEBUG nextflow.script.ScriptRunner - > Launching execution
+Jun-26 14:43:34.365 [main] DEBUG nextflow.script.IncludeDef - Loading included plugin extensions with names: [paramsSummaryMap:paramsSummaryMap]; plugin Id: nf-schema
+Jun-26 14:43:34.808 [main] DEBUG nextflow.script.IncludeDef - Loading included plugin extensions with names: [paramsSummaryLog:paramsSummaryLog]; plugin Id: nf-schema
+Jun-26 14:43:34.809 [main] DEBUG nextflow.script.IncludeDef - Loading included plugin extensions with names: [validateParameters:validateParameters]; plugin Id: nf-schema
+Jun-26 14:43:34.812 [main] DEBUG nextflow.script.IncludeDef - Loading included plugin extensions with names: [paramsSummaryMap:paramsSummaryMap]; plugin Id: nf-schema
+Jun-26 14:43:34.813 [main] DEBUG nextflow.script.IncludeDef - Loading included plugin extensions with names: [samplesheetToList:samplesheetToList]; plugin Id: nf-schema
+Jun-26 14:43:42.984 [main] DEBUG nextflow.script.IncludeDef - Loading included plugin extensions with names: [paramsSummaryLog:paramsSummaryLog]; plugin Id: nf-schema
+Jun-26 14:43:42.985 [main] DEBUG nextflow.script.IncludeDef - Loading included plugin extensions with names: [validateParameters:validateParameters]; plugin Id: nf-schema
+Jun-26 14:43:42.987 [main] DEBUG nextflow.script.IncludeDef - Loading included plugin extensions with names: [paramsSummaryMap:paramsSummaryMap]; plugin Id: nf-schema
+Jun-26 14:43:42.987 [main] DEBUG nextflow.script.IncludeDef - Loading included plugin extensions with names: [samplesheetToList:samplesheetToList]; plugin Id: nf-schema
+Jun-26 14:43:45.364 [main] WARN  nextflow.Nextflow - ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    There is a problem with your Conda configuration!
+    You will need to set-up the conda-forge and bioconda channels correctly.
+    Please refer to https://bioconda.github.io/
+    The observed channel order is
+    [bioconda, defaults, conda-forge, nodefaults, https://repo.anaconda.com/pkgs/main, https://repo.anaconda.com/pkgs/r]
+    but the following channel order is required:
+    [conda-forge, bioconda]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+
+Jun-26 14:43:45.414 [main] INFO  nextflow.Nextflow -
+-[2m----------------------------------------------------[0m-
+                                        [0;32m,--.[0;30m/[0;32m,-.[0m
+[0;34m        ___     __   __   __   ___     [0;32m/,-._.--~'[0m
+[0;34m  |\ | |__  __ /  ` /  \ |__) |__         [0;33m}  {[0m
+[0;34m  | \| |       \__, \__/ |  \ |___     [0;32m\`-._,-`-,[0m
+                                        [0;32m`._,._,'[0m
+[0;35m  nf-core/genomeassembler 1.1.0[0m
+-[2m----------------------------------------------------[0m-
+[1mInput/output options[0m
+  [0;34minput                       : [0;32mhttps://raw.githubusercontent.com/nf-core/test-datasets/genomeassembler/samplesheet/test_samplesheet.csv[0m
+  [0;34moutdir                      : [0;32m/dss/dsshome1/lxc0A/ra34bin/genomeassembler/.nf-test/tests/c85cb7f49a452491a8e3035571eb5492/output[0m
+
+[1mInstitutional config options[0m
+  [0;34mconfig_profile_name         : [0;32mTest profile[0m
+  [0;34mconfig_profile_description  : [0;32mMinimal test dataset to check pipeline function[0m
+
+[1mGeneric options[0m
+  [0;34mpipelines_testdata_base_path: [0;32mhttps://raw.githubusercontent.com/nf-core/test-datasets/refs/heads/genomeassembler[0m
+
+[1mONT options[0m
+  [0;34mont                         : [0;32mtrue[0m
+  [0;34mjellyfish                   : [0;32mfalse[0m
+
+[1mHiFi options[0m
+  [0;34mhifi                        : [0;32mtrue[0m
+
+[1mAssembly options[0m
+  [0;34massembler                   : [0;32mflye_on_hifiasm[0m
+  [0;34mgenome_size                 : [0;32m2000000[0m
+  [0;34mhifiasm_args                : [0;32m-f 0[0m
+
+[1mQC options[0m
+  [0;34mbusco                       : [0;32mfalse[0m
+  [0;34mquast                       : [0;32mfalse[0m
+
+[1mCore Nextflow options[0m
+  [0;34mrunName                     : [0;32mcheeky_torvalds[0m
+  [0;34mlaunchDir                   : [0;32m/dss/dsshome1/lxc0A/ra34bin/genomeassembler/.nf-test/tests/c85cb7f49a452491a8e3035571eb5492[0m
+  [0;34mworkDir                     : [0;32m/dss/dsshome1/lxc0A/ra34bin/genomeassembler/.nf-test/tests/c85cb7f49a452491a8e3035571eb5492/work[0m
+  [0;34mprojectDir                  : [0;32m/dss/dsshome1/lxc0A/ra34bin/genomeassembler[0m
+  [0;34muserName                    : [0;32mra34bin[0m
+  [0;34mprofile                     : [0;32mtest,conda[0m
+  [0;34mconfigFiles                 : [0;32m[0m
+
+!! Only displaying parameters that differ from the pipeline defaults !!
+-[2m----------------------------------------------------[0m-* The pipeline
+  https://doi.org/10.5281/zenodo.14986998
+
+* The nf-core framework
+    https://doi.org/10.1038/s41587-020-0439-x
+
+* Software dependencies
+    https://github.com/nf-core/genomeassembler/blob/master/CITATIONS.md
+
+Jun-26 14:43:45.415 [main] DEBUG nextflow.validation.SchemaValidator - Starting parameters validation
+Jun-26 14:43:45.455 [main] WARN  nextflow.validation.SchemaValidator - The following invalid input values have been detected:
+
+* --modules_testdata_base_path: https://raw.githubusercontent.com/nf-core/test-datasets/modules/data/
+
+
+Jun-26 14:43:45.877 [main] DEBUG nextflow.validation.SchemaEvaluator - Started validating /nf-core/test-datasets/genomeassembler/samplesheet/test_samplesheet.csv
+Jun-26 14:43:46.984 [main] DEBUG nextflow.validation.SchemaEvaluator - Validation of file 'https://raw.githubusercontent.com/nf-core/test-datasets/genomeassembler/samplesheet/test_samplesheet.csv' passed!
+Jun-26 14:43:47.161 [main] DEBUG nextflow.validation.SchemaValidator - Finishing parameters validation
+Jun-26 14:43:47.316 [main] DEBUG nextflow.script.ProcessConfig - Config settings `withLabel:process_low` matches labels `process_low` for process with name NFCORE_GENOMEASSEMBLER:GENOMEASSEMBLER:ONT:PREPARE_ONT:RUN_NANOQ:NANOQ
+Jun-26 14:43:47.318 [main] DEBUG nextflow.script.ProcessConfig - Config settings `withName:NANOQ` matches process NFCORE_GENOMEASSEMBLER:GENOMEASSEMBLER:ONT:PREPARE_ONT:RUN_NANOQ:NANOQ
+Jun-26 14:43:47.330 [main] DEBUG nextflow.executor.ExecutorFactory - << taskConfig executor: null
+Jun-26 14:43:47.331 [main] DEBUG nextflow.executor.ExecutorFactory - >> processorType: 'local'
+Jun-26 14:43:47.337 [main] DEBUG nextflow.executor.Executor - [warm up] executor > local
+Jun-26 14:43:47.343 [main] DEBUG n.processor.LocalPollingMonitor - Creating local task monitor for executor 'local' > cpus=160; memory=1007.5 GB; capacity=160; pollInterval=100ms; dumpInterval=5m
+Jun-26 14:43:47.345 [main] DEBUG n.processor.TaskPollingMonitor - >>> barrier register (monitor: local)
+Jun-26 14:43:47.476 [main] DEBUG nextflow.script.ProcessConfig - Config settings `withLabel:process_high` matches labels `process_high` for process with name NFCORE_GENOMEASSEMBLER:GENOMEASSEMBLER:ASSEMBLE:HIFIASM
+Jun-26 14:43:47.477 [main] DEBUG nextflow.script.ProcessConfig - Config settings `withName:HIFIASM` matches process NFCORE_GENOMEASSEMBLER:GENOMEASSEMBLER:ASSEMBLE:HIFIASM
+Jun-26 14:43:47.487 [main] DEBUG nextflow.executor.ExecutorFactory - << taskConfig executor: null
+Jun-26 14:43:47.487 [main] DEBUG nextflow.executor.ExecutorFactory - >> processorType: 'local'
+Jun-26 14:43:47.500 [main] DEBUG nextflow.script.ProcessConfig - Config settings `withLabel:process_low` matches labels `process_low` for process with name NFCORE_GENOMEASSEMBLER:GENOMEASSEMBLER:ASSEMBLE:GFA_2_FA_HIFI
+Jun-26 14:43:47.501 [main] DEBUG nextflow.script.ProcessConfig - Config settings `withName:GFA_2_FA` matches process NFCORE_GENOMEASSEMBLER:GENOMEASSEMBLER:ASSEMBLE:GFA_2_FA_HIFI
+Jun-26 14:43:47.503 [main] DEBUG nextflow.script.ProcessConfig - Config settings `withName:GFA_2_FA_HIFI` matches process NFCORE_GENOMEASSEMBLER:GENOMEASSEMBLER:ASSEMBLE:GFA_2_FA_HIFI
+Jun-26 14:43:47.507 [main] DEBUG nextflow.executor.ExecutorFactory - << taskConfig executor: null
+Jun-26 14:43:47.507 [main] DEBUG nextflow.executor.ExecutorFactory - >> processorType: 'local'
+Jun-26 14:43:47.532 [main] DEBUG nextflow.script.ProcessConfig - Config settings `withLabel:process_high` matches labels `process_high` for process with name NFCORE_GENOMEASSEMBLER:GENOMEASSEMBLER:ASSEMBLE:FLYE
+Jun-26 14:43:47.533 [main] DEBUG nextflow.script.ProcessConfig - Config settings `withName:FLYE` matches process NFCORE_GENOMEASSEMBLER:GENOMEASSEMBLER:ASSEMBLE:FLYE
+Jun-26 14:43:47.538 [main] DEBUG nextflow.executor.ExecutorFactory - << taskConfig executor: null
+Jun-26 14:43:47.538 [main] DEBUG nextflow.executor.ExecutorFactory - >> processorType: 'local'
+Jun-26 14:43:47.566 [main] DEBUG nextflow.script.ProcessConfig - Config settings `withLabel:process_medium` matches labels `process_medium` for process with name NFCORE_GENOMEASSEMBLER:GENOMEASSEMBLER:ASSEMBLE:RAGTAG_PATCH
+Jun-26 14:43:47.568 [main] DEBUG nextflow.script.ProcessConfig - Config settings `withName:.*ASSEMBLE:.*RAGTAG_PATCH` matches process NFCORE_GENOMEASSEMBLER:GENOMEASSEMBLER:ASSEMBLE:RAGTAG_PATCH
+Jun-26 14:43:47.574 [main] DEBUG nextflow.executor.ExecutorFactory - << taskConfig executor: null
+Jun-26 14:43:47.574 [main] DEBUG nextflow.executor.ExecutorFactory - >> processorType: 'local'
+Jun-26 14:43:47.634 [main] DEBUG nextflow.script.ProcessConfig - Config settings `withLabel:process_high` matches labels `process_high` for process with name NFCORE_GENOMEASSEMBLER:GENOMEASSEMBLER:ASSEMBLE:RUN_LIFTOFF:LIFTOFF
+Jun-26 14:43:47.636 [main] DEBUG nextflow.script.ProcessConfig - Config settings `withName:.*ASSEMBLE:.*LIFTOFF` matches process NFCORE_GENOMEASSEMBLER:GENOMEASSEMBLER:ASSEMBLE:RUN_LIFTOFF:LIFTOFF
+Jun-26 14:43:47.639 [main] DEBUG nextflow.executor.ExecutorFactory - << taskConfig executor: null
+Jun-26 14:43:47.640 [main] DEBUG nextflow.executor.ExecutorFactory - >> processorType: 'local'
+Jun-26 14:43:47.765 [main] DEBUG nextflow.script.ProcessConfig - Config settings `withLabel:process_low` matches labels `process_low` for process with name NFCORE_GENOMEASSEMBLER:GENOMEASSEMBLER:REPORT
+Jun-26 14:43:47.768 [main] DEBUG nextflow.script.ProcessConfig - Config settings `withName:REPORT` matches process NFCORE_GENOMEASSEMBLER:GENOMEASSEMBLER:REPORT
+Jun-26 14:43:47.771 [main] DEBUG nextflow.executor.ExecutorFactory - << taskConfig executor: null
+Jun-26 14:43:47.771 [main] DEBUG nextflow.executor.ExecutorFactory - >> processorType: 'local'
+Jun-26 14:43:47.802 [main] DEBUG nextflow.Session - Config process names validation disabled as requested
+Jun-26 14:43:47.808 [main] DEBUG nextflow.Session - Igniting dataflow network (69)
+Jun-26 14:43:47.817 [main] DEBUG nextflow.processor.TaskProcessor - Starting process > NFCORE_GENOMEASSEMBLER:GENOMEASSEMBLER:ONT:PREPARE_ONT:RUN_NANOQ:NANOQ
+Jun-26 14:43:47.818 [main] DEBUG nextflow.processor.TaskProcessor - Starting process > NFCORE_GENOMEASSEMBLER:GENOMEASSEMBLER:ASSEMBLE:HIFIASM
+Jun-26 14:43:47.818 [main] DEBUG nextflow.processor.TaskProcessor - Starting process > NFCORE_GENOMEASSEMBLER:GENOMEASSEMBLER:ASSEMBLE:GFA_2_FA_HIFI
+Jun-26 14:43:47.818 [main] DEBUG nextflow.processor.TaskProcessor - Starting process > NFCORE_GENOMEASSEMBLER:GENOMEASSEMBLER:ASSEMBLE:FLYE
+Jun-26 14:43:47.818 [main] DEBUG nextflow.processor.TaskProcessor - Starting process > NFCORE_GENOMEASSEMBLER:GENOMEASSEMBLER:ASSEMBLE:RAGTAG_PATCH
+Jun-26 14:43:47.818 [main] DEBUG nextflow.processor.TaskProcessor - Starting process > NFCORE_GENOMEASSEMBLER:GENOMEASSEMBLER:ASSEMBLE:RUN_LIFTOFF:LIFTOFF
+Jun-26 14:43:47.819 [main] DEBUG nextflow.processor.TaskProcessor - Starting process > NFCORE_GENOMEASSEMBLER:GENOMEASSEMBLER:REPORT
+Jun-26 14:43:47.819 [PathVisitor-1] DEBUG nextflow.file.PathVisitor - files for syntax: glob; folder: /dss/dsshome1/lxc0A/ra34bin/genomeassembler/assets/report/; pattern: *; options: [:]
+Jun-26 14:43:47.820 [PathVisitor-2] DEBUG nextflow.file.PathVisitor - files for syntax: glob; folder: /dss/dsshome1/lxc0A/ra34bin/genomeassembler/assets/report/functions/; pattern: *; options: [:]
+Jun-26 14:43:47.821 [main] DEBUG nextflow.script.ScriptRunner - Parsed script files:
+  Script_d3865926248d0c08: /dss/dsshome1/lxc0A/ra34bin/genomeassembler/./workflows/../subworkflows/local/assemble/../qc/../mapping/map_to_assembly/../../../nf-core/bam_stats_samtools/../../../modules/nf-core/samtools/stats/main.nf
+  Script_cdbce3e23a8f89e8: /dss/dsshome1/lxc0A/ra34bin/genomeassembler/./workflows/../subworkflows/local/scaffolding/./ragtag/../../qc/../mapping/map_to_assembly/../../../nf-core/bam_stats_samtools/main.nf
+  Script_dc587cbb297ff2f7: /dss/dsshome1/lxc0A/ra34bin/genomeassembler/./workflows/../subworkflows/local/assemble/../liftoff/../../../modules/nf-core/liftoff/main.nf
+  Script_0b9baf9a48ffd4dc: /dss/dsshome1/lxc0A/ra34bin/genomeassembler/./workflows/../subworkflows/local/ont/../jellyfish/../../../modules/local/genomescope/main.nf
+  Script_d89f6cf9a588f2b5: /dss/dsshome1/lxc0A/ra34bin/genomeassembler/./workflows/../subworkflows/local/prepare_shortreads/../../../modules/nf-core/meryl/unionsum/main.nf
+  Script_72b8e42fd5962702: /dss/dsshome1/lxc0A/ra34bin/genomeassembler/./workflows/../subworkflows/local/ont/main.nf
+  Script_1f8e6adaaac193a9: /dss/dsshome1/lxc0A/ra34bin/genomeassembler/./workflows/../subworkflows/local/ont/../prepare_ont/./collect/main.nf
+  Script_c99fb8d23b0f5c3c: /dss/dsshome1/lxc0A/ra34bin/genomeassembler/./workflows/../subworkflows/local/scaffolding/./longstitch/../../qc/./quast/main.nf
+  Script_6cbfa4b804188787: /dss/dsshome1/lxc0A/ra34bin/genomeassembler/./workflows/../subworkflows/local/assemble/../qc/../mapping/map_to_assembly/main.nf
+  Script_ded1bf289cf270b2: /dss/dsshome1/lxc0A/ra34bin/genomeassembler/./workflows/../subworkflows/local/assemble/../../../modules/nf-core/ragtag/patch/main.nf
+  Script_069fe2d454291be7: /dss/dsshome1/lxc0A/ra34bin/genomeassembler/./workflows/../subworkflows/local/hifi/../prepare_hifi/main.nf
+  Script_8835ee781e034b08: /dss/dsshome1/lxc0A/ra34bin/genomeassembler/./workflows/../subworkflows/local/assemble/../qc/main.nf
+  Script_2a1b96fed65ca3cf: /dss/dsshome1/lxc0A/ra34bin/genomeassembler/./workflows/../subworkflows/local/scaffolding/./longstitch/../../qc/./busco/main.nf
+  Script_6235797e14c7d341: /dss/dsshome1/lxc0A/ra34bin/genomeassembler/./workflows/../subworkflows/local/assemble/main.nf
+  Script_d781977b4aba9b3b: /dss/dsshome1/lxc0A/ra34bin/genomeassembler/./workflows/../subworkflows/local/polishing/./pilon/polish_pilon/../run_pilon/../../../../../modules/nf-core/pilon/main.nf
+  Script_a099e1266cce5262: /dss/dsshome1/lxc0A/ra34bin/genomeassembler/./workflows/../subworkflows/local/assemble/../../../modules/local/gfa2fa/main.nf
+  Script_e378dafa83fbca38: /dss/dsshome1/lxc0A/ra34bin/genomeassembler/./workflows/../subworkflows/local/ont/../jellyfish/../../../modules/local/jellyfish/stats/main.nf
+  Script_5bfbdeef4caa6750: /dss/dsshome1/lxc0A/ra34bin/genomeassembler/./workflows/../subworkflows/local/polishing/./pilon/polish_pilon/main.nf
+  Script_44862164aed1f5e4: /dss/dsshome1/lxc0A/ra34bin/genomeassembler/./workflows/../subworkflows/local/polishing/./pilon/polish_pilon/../../../qc/./merqury/main.nf
+  Script_76fbd7a8a8f2a8d0: /dss/dsshome1/lxc0A/ra34bin/genomeassembler/./workflows/../subworkflows/local/ont/../prepare_ont/./run_nanoq/../../../../modules/local/nanoq/main.nf
+  Script_eac13433aff11242: /dss/dsshome1/lxc0A/ra34bin/genomeassembler/./workflows/../subworkflows/local/hifi/main.nf
+  Script_836bb502106a273e: /dss/dsshome1/lxc0A/ra34bin/genomeassembler/./workflows/../subworkflows/local/assemble/../mapping/map_to_ref/main.nf
+  Script_189a5a1f6e5adcc0: /dss/dsshome1/lxc0A/ra34bin/genomeassembler/./workflows/../subworkflows/local/scaffolding/./links/../../../../modules/nf-core/links/main.nf
+  Script_6947611d053f7dbd: /dss/dsshome1/lxc0A/ra34bin/genomeassembler/./workflows/../subworkflows/local/scaffolding/./links/main.nf
+  Script_d42146e66be10713: /dss/dsshome1/lxc0A/ra34bin/genomeassembler/./workflows/../subworkflows/local/polishing/main.nf
+  Script_abe05e0450d773a7: /dss/dsshome1/lxc0A/ra34bin/genomeassembler/./workflows/../subworkflows/local/scaffolding/./ragtag/../../../../modules/nf-core/ragtag/scaffold/main.nf
+  Script_9ff771c50ca038f6: /dss/dsshome1/lxc0A/ra34bin/genomeassembler/./workflows/../subworkflows/local/scaffolding/./longstitch/main.nf
+  Script_ee103b949d5b51bd: /dss/dsshome1/lxc0A/ra34bin/genomeassembler/./workflows/../subworkflows/local/scaffolding/./ragtag/main.nf
+  Script_5678830b7f8726cb: /dss/dsshome1/lxc0A/ra34bin/genomeassembler/./workflows/../subworkflows/local/polishing/./medaka/polish_medaka/main.nf
+  Script_cdf13b3a568cd08d: /dss/dsshome1/lxc0A/ra34bin/genomeassembler/./workflows/../subworkflows/local/polishing/./pilon/polish_pilon/../../../qc/../mapping/map_to_assembly/../../../../modules/nf-core/minimap2/align/main.nf
+  Script_5c5e6babfb5fb619: /dss/dsshome1/lxc0A/ra34bin/genomeassembler/./workflows/../subworkflows/local/prepare_shortreads/../../../modules/nf-core/trimgalore/main.nf
+  Script_3417c89c846c5a6b: /dss/dsshome1/lxc0A/ra34bin/genomeassembler/./workflows/../subworkflows/local/assemble/../qc/./merqury/../../../../modules/nf-core/merqury/merqury/main.nf
+  Script_54d2b1ddcacbf8d7: /dss/dsshome1/lxc0A/ra34bin/genomeassembler/./workflows/../subworkflows/local/polishing/./medaka/polish_medaka/../run_medaka/main.nf
+  Script_aa3074a3e5b8506c: /dss/dsshome1/lxc0A/ra34bin/genomeassembler/./workflows/../subworkflows/local/assemble/../qc/./busco/../../../../modules/nf-core/busco/busco/main.nf
+  Script_4aa89a5b5403b010: /dss/dsshome1/lxc0A/ra34bin/genomeassembler/./workflows/../subworkflows/local/hifi/../prepare_hifi/../../../modules/nf-core/lima/main.nf
+  Script_226d935f84c30b71: /dss/dsshome1/lxc0A/ra34bin/genomeassembler/./workflows/../subworkflows/local/ont/../jellyfish/../../../modules/local/jellyfish/count/main.nf
+  Script_a68b84dfe5e5ad71: /dss/dsshome1/lxc0A/ra34bin/genomeassembler/./workflows/genomeassembler.nf
+  Script_a7c5d2197663df66: /dss/dsshome1/lxc0A/ra34bin/genomeassembler/./workflows/../subworkflows/local/polishing/./pilon/polish_pilon/../../../mapping/map_sr/main.nf
+  Script_82893aa2121ebfa8: /dss/dsshome1/lxc0A/ra34bin/genomeassembler/./workflows/../subworkflows/local/polishing/./medaka/polish_medaka/../../../qc/./quast/../../../../modules/local/quast/main.nf
+  Script_a64f3fb82b3cc8a2: /dss/dsshome1/lxc0A/ra34bin/genomeassembler/./workflows/../subworkflows/local/ont/../prepare_ont/main.nf
+  Script_2cd3960e599fb6c8: /dss/dsshome1/lxc0A/ra34bin/genomeassembler/./workflows/../subworkflows/local/polishing/./pilon/polish_pilon/../../../qc/../mapping/map_to_assembly/../../../nf-core/bam_stats_samtools/../../../modules/nf-core/samtools/idxstats/main.nf
+  Script_95fe363da2edd2e4: /dss/dsshome1/lxc0A/ra34bin/genomeassembler/./workflows/../modules/local/report/main.nf
+  Script_c6a009b0fae4c6f6: /dss/dsshome1/lxc0A/ra34bin/genomeassembler/./workflows/../subworkflows/local/ont/../jellyfish/../../../modules/local/jellyfish/histo/main.nf
+  Script_1a3a5d0dc750348b: /dss/dsshome1/lxc0A/ra34bin/genomeassembler/./workflows/../subworkflows/local/polishing/./medaka/polish_medaka/../run_medaka/../../../../../modules/local/medaka/medaka_consensus/main.nf
+  Script_19c6259b80cfb94b: /dss/dsshome1/lxc0A/ra34bin/genomeassembler/./workflows/../subworkflows/local/prepare_ont/./collect/../../../../modules/local/collect_reads/main.nf
+  Script_9756479f9e1de2f9: /dss/dsshome1/lxc0A/ra34bin/genomeassembler/./workflows/../subworkflows/local/utils_nfcore_genomeassembler_pipeline/main.nf
+  Script_215a636da7ab24a2: /dss/dsshome1/lxc0A/ra34bin/genomeassembler/./subworkflows/local/utils_nfcore_genomeassembler_pipeline/../../nf-core/utils_nfschema_plugin/main.nf
+  Script_31964fd05bd93f98: /dss/dsshome1/lxc0A/ra34bin/genomeassembler/./workflows/../subworkflows/local/ont/../jellyfish/main.nf
+  Script_5c4e8d4051efa81e: /dss/dsshome1/lxc0A/ra34bin/genomeassembler/./subworkflows/local/utils_nfcore_genomeassembler_pipeline/../../nf-core/utils_nfcore_pipeline/main.nf
+  Script_1b093814a97fb7cb: /dss/dsshome1/lxc0A/ra34bin/genomeassembler/main.nf
+  Script_5971423798702b70: /dss/dsshome1/lxc0A/ra34bin/genomeassembler/./workflows/../subworkflows/local/polishing/./medaka/polish_medaka/../../../liftoff/main.nf
+  Script_2bf3b4f1f616f713: /dss/dsshome1/lxc0A/ra34bin/genomeassembler/./workflows/../subworkflows/local/scaffolding/./longstitch/../../../../modules/local/longstitch/main.nf
+  Script_498db87a6d4f03d8: /dss/dsshome1/lxc0A/ra34bin/genomeassembler/./workflows/../subworkflows/local/assemble/../qc/../mapping/map_to_assembly/../../../nf-core/bam_stats_samtools/../../../modules/nf-core/samtools/flagstat/main.nf
+  Script_e2f34eaff30324bf: /dss/dsshome1/lxc0A/ra34bin/genomeassembler/./workflows/../subworkflows/local/prepare_ont/./run_nanoq/main.nf
+  Script_24b33865a51048e5: /dss/dsshome1/lxc0A/ra34bin/genomeassembler/./workflows/../subworkflows/local/prepare_shortreads/../../../modules/nf-core/meryl/count/main.nf
+  Script_bd1727aaa439551d: /dss/dsshome1/lxc0A/ra34bin/genomeassembler/./workflows/../subworkflows/local/polishing/./pilon/polish_pilon/../run_pilon/main.nf
+  Script_db69602f7b4d7564: /dss/dsshome1/lxc0A/ra34bin/genomeassembler/./workflows/../subworkflows/local/assemble/../../../modules/nf-core/flye/main.nf
+  Script_4f612cfd8c52e8cd: /dss/dsshome1/lxc0A/ra34bin/genomeassembler/./subworkflows/local/utils_nfcore_genomeassembler_pipeline/../../nf-core/utils_nextflow_pipeline/main.nf
+  Script_0410ea4cca70c480: /dss/dsshome1/lxc0A/ra34bin/genomeassembler/./workflows/../subworkflows/local/prepare_shortreads/main.nf
+  Script_c4c2cae5d1d5e9cd: /dss/dsshome1/lxc0A/ra34bin/genomeassembler/./workflows/../subworkflows/local/prepare_ont/./chop/main.nf
+  Script_5a1d21305f9a3540: /dss/dsshome1/lxc0A/ra34bin/genomeassembler/./workflows/../subworkflows/local/scaffolding/main.nf
+  Script_498691a057590305: /dss/dsshome1/lxc0A/ra34bin/genomeassembler/./workflows/../subworkflows/local/ont/../jellyfish/../../../modules/local/jellyfish/dump/main.nf
+  Script_92cb26cdd0e91da1: /dss/dsshome1/lxc0A/ra34bin/genomeassembler/./workflows/../subworkflows/local/hifi/../prepare_hifi/../../../modules/nf-core/samtools/fastq/main.nf
+  Script_78ebdf7517875797: /dss/dsshome1/lxc0A/ra34bin/genomeassembler/./workflows/../subworkflows/local/ont/../prepare_ont/./chop/../../../../modules/nf-core/porechop/porechop/main.nf
+  Script_962ba00c29e23f14: /dss/dsshome1/lxc0A/ra34bin/genomeassembler/./workflows/../subworkflows/local/assemble/../../../modules/nf-core/hifiasm/main.nf
+Jun-26 14:43:47.822 [main] DEBUG nextflow.script.ScriptRunner - > Awaiting termination
+Jun-26 14:43:47.822 [main] DEBUG nextflow.Session - Session await
+Jun-26 14:43:48.018 [FileTransfer-1] DEBUG nextflow.file.FilePorter - Copying foreign file https://raw.githubusercontent.com/nf-core/test-datasets/genomeassembler/A_thaliana_Col-0_2mb/ONT-Col-0_test_data.fastq.gz to work dir: /dss/dsshome1/lxc0A/ra34bin/genomeassembler/.nf-test/tests/c85cb7f49a452491a8e3035571eb5492/work/stage-b068e33d-7d5a-41ae-93ae-aa32977e3304/0d/465a79b0a79f68dd292cbcf99b853a/ONT-Col-0_test_data.fastq.gz
+Jun-26 14:43:48.019 [FileTransfer-2] DEBUG nextflow.file.FilePorter - Copying foreign file https://raw.githubusercontent.com/nf-core/test-datasets/genomeassembler/A_thaliana_Col-0_2mb/HiFi-Col-0_test_data.fastq.gz to work dir: /dss/dsshome1/lxc0A/ra34bin/genomeassembler/.nf-test/tests/c85cb7f49a452491a8e3035571eb5492/work/stage-b068e33d-7d5a-41ae-93ae-aa32977e3304/a0/a42e76476da6f4f41253bf319b7729/HiFi-Col-0_test_data.fastq.gz
+Jun-26 14:43:48.555 [Actor Thread 156] INFO  nextflow.conda.CondaCache - Creating env using conda: /dss/dsshome1/lxc0A/ra34bin/genomeassembler/./workflows/../subworkflows/local/ont/../prepare_ont/./run_nanoq/../../../../modules/local/nanoq/environment.yml [cache /dss/dsshome1/lxc0A/ra34bin/genomeassembler/.nf-test/tests/c85cb7f49a452491a8e3035571eb5492/work/conda/env-75192d7450649fcb-88d936fb3ff93f6fd86e6da3e5f9d62d]
+Jun-26 14:43:48.555 [Actor Thread 158] INFO  nextflow.conda.CondaCache - Creating env using conda: /dss/dsshome1/lxc0A/ra34bin/genomeassembler/./workflows/../subworkflows/local/assemble/../../../modules/nf-core/flye/environment.yml [cache /dss/dsshome1/lxc0A/ra34bin/genomeassembler/.nf-test/tests/c85cb7f49a452491a8e3035571eb5492/work/conda/env-a1e4742926bad282-cb1ab29783a5429ada4235b6e1010079]
+Jun-26 14:43:48.614 [Actor Thread 157] INFO  nextflow.conda.CondaCache - Creating env using conda: /dss/dsshome1/lxc0A/ra34bin/genomeassembler/./workflows/../subworkflows/local/assemble/../../../modules/nf-core/hifiasm/environment.yml [cache /dss/dsshome1/lxc0A/ra34bin/genomeassembler/.nf-test/tests/c85cb7f49a452491a8e3035571eb5492/work/conda/env-894ead7395bfa5f3-78835959e1d3b32796ece96dc07c4836]
+Jun-26 14:44:05.667 [Actor Thread 156] DEBUG nextflow.conda.CondaCache - 'conda' create complete env=/dss/dsshome1/lxc0A/ra34bin/genomeassembler/./workflows/../subworkflows/local/ont/../prepare_ont/./run_nanoq/../../../../modules/local/nanoq/environment.yml path=/dss/dsshome1/lxc0A/ra34bin/genomeassembler/.nf-test/tests/c85cb7f49a452491a8e3035571eb5492/work/conda/env-75192d7450649fcb-88d936fb3ff93f6fd86e6da3e5f9d62d
+Jun-26 14:44:05.744 [Task submitter] DEBUG n.executor.local.LocalTaskHandler - Launch cmd line: /bin/bash -ue .command.run
+Jun-26 14:44:05.746 [Task submitter] INFO  nextflow.Session - [80/94422d] Submitted process > NFCORE_GENOMEASSEMBLER:GENOMEASSEMBLER:ONT:PREPARE_ONT:RUN_NANOQ:NANOQ (Col-0_2MB)
+Jun-26 14:44:09.070 [Task monitor] DEBUG n.processor.TaskPollingMonitor - Task completed > TaskHandler[id: 1; name: NFCORE_GENOMEASSEMBLER:GENOMEASSEMBLER:ONT:PREPARE_ONT:RUN_NANOQ:NANOQ (Col-0_2MB); status: COMPLETED; exit: 0; error: -; workDir: /dss/dsshome1/lxc0A/ra34bin/genomeassembler/.nf-test/tests/c85cb7f49a452491a8e3035571eb5492/work/80/94422da01e258110bda795e8bbde2b]
+Jun-26 14:44:09.072 [Task monitor] DEBUG nextflow.util.ThreadPoolBuilder - Creating thread pool 'TaskFinalizer' minSize=10; maxSize=480; workQueue=LinkedBlockingQueue[10000]; allowCoreThreadTimeout=false
+Jun-26 14:44:09.154 [TaskFinalizer-1] DEBUG nextflow.util.ThreadPoolBuilder - Creating thread pool 'PublishDir' minSize=10; maxSize=480; workQueue=LinkedBlockingQueue[10000]; allowCoreThreadTimeout=false
+Jun-26 14:44:15.432 [Actor Thread 157] DEBUG nextflow.conda.CondaCache - 'conda' create complete env=/dss/dsshome1/lxc0A/ra34bin/genomeassembler/./workflows/../subworkflows/local/assemble/../../../modules/nf-core/hifiasm/environment.yml path=/dss/dsshome1/lxc0A/ra34bin/genomeassembler/.nf-test/tests/c85cb7f49a452491a8e3035571eb5492/work/conda/env-894ead7395bfa5f3-78835959e1d3b32796ece96dc07c4836
+Jun-26 14:44:15.454 [Task submitter] DEBUG n.executor.local.LocalTaskHandler - Launch cmd line: /bin/bash -ue .command.run
+Jun-26 14:44:15.455 [Task submitter] INFO  nextflow.Session - [72/df8a06] Submitted process > NFCORE_GENOMEASSEMBLER:GENOMEASSEMBLER:ASSEMBLE:HIFIASM (Col-0_2MB)
+Jun-26 14:44:41.167 [Task monitor] DEBUG n.processor.TaskPollingMonitor - Task completed > TaskHandler[id: 2; name: NFCORE_GENOMEASSEMBLER:GENOMEASSEMBLER:ASSEMBLE:HIFIASM (Col-0_2MB); status: COMPLETED; exit: 0; error: -; workDir: /dss/dsshome1/lxc0A/ra34bin/genomeassembler/.nf-test/tests/c85cb7f49a452491a8e3035571eb5492/work/72/df8a0638e098157d7dffbcdbde3cf9]
+Jun-26 14:44:41.319 [TaskFinalizer-2] DEBUG nextflow.processor.TaskProcessor - Process NFCORE_GENOMEASSEMBLER:GENOMEASSEMBLER:ASSEMBLE:HIFIASM > Skipping output binding because one or more optional files are missing: fileoutparam<4:1>
+Jun-26 14:44:41.319 [TaskFinalizer-2] DEBUG nextflow.processor.TaskProcessor - Process NFCORE_GENOMEASSEMBLER:GENOMEASSEMBLER:ASSEMBLE:HIFIASM > Skipping output binding because one or more optional files are missing: fileoutparam<7:1>
+Jun-26 14:44:41.319 [TaskFinalizer-2] DEBUG nextflow.processor.TaskProcessor - Process NFCORE_GENOMEASSEMBLER:GENOMEASSEMBLER:ASSEMBLE:HIFIASM > Skipping output binding because one or more optional files are missing: fileoutparam<8:1>
+Jun-26 14:44:41.333 [Actor Thread 148] INFO  nextflow.conda.CondaCache - Creating env using conda: /dss/dsshome1/lxc0A/ra34bin/genomeassembler/./workflows/../subworkflows/local/assemble/../../../modules/local/gfa2fa/environment.yml [cache /dss/dsshome1/lxc0A/ra34bin/genomeassembler/.nf-test/tests/c85cb7f49a452491a8e3035571eb5492/work/conda/env-4685aff930362a2b-629b9798a574f7ffaddc00cf262ffd40]
+Jun-26 14:44:41.843 [Actor Thread 158] DEBUG nextflow.conda.CondaCache - 'conda' create complete env=/dss/dsshome1/lxc0A/ra34bin/genomeassembler/./workflows/../subworkflows/local/assemble/../../../modules/nf-core/flye/environment.yml path=/dss/dsshome1/lxc0A/ra34bin/genomeassembler/.nf-test/tests/c85cb7f49a452491a8e3035571eb5492/work/conda/env-a1e4742926bad282-cb1ab29783a5429ada4235b6e1010079
+Jun-26 14:44:41.867 [Task submitter] DEBUG n.executor.local.LocalTaskHandler - Launch cmd line: /bin/bash -ue .command.run
+Jun-26 14:44:41.868 [Task submitter] INFO  nextflow.Session - [11/0214e4] Submitted process > NFCORE_GENOMEASSEMBLER:GENOMEASSEMBLER:ASSEMBLE:FLYE (Col-0_2MB)
+Jun-26 14:44:56.559 [Actor Thread 148] DEBUG nextflow.conda.CondaCache - 'conda' create complete env=/dss/dsshome1/lxc0A/ra34bin/genomeassembler/./workflows/../subworkflows/local/assemble/../../../modules/local/gfa2fa/environment.yml path=/dss/dsshome1/lxc0A/ra34bin/genomeassembler/.nf-test/tests/c85cb7f49a452491a8e3035571eb5492/work/conda/env-4685aff930362a2b-629b9798a574f7ffaddc00cf262ffd40
+Jun-26 14:44:56.577 [Task submitter] DEBUG n.executor.local.LocalTaskHandler - Launch cmd line: /bin/bash -ue .command.run
+Jun-26 14:44:56.577 [Task submitter] INFO  nextflow.Session - [be/fdb57a] Submitted process > NFCORE_GENOMEASSEMBLER:GENOMEASSEMBLER:ASSEMBLE:GFA_2_FA_HIFI (Col-0_2MB)
+Jun-26 14:45:00.609 [Task monitor] DEBUG n.processor.TaskPollingMonitor - Task completed > TaskHandler[id: 4; name: NFCORE_GENOMEASSEMBLER:GENOMEASSEMBLER:ASSEMBLE:GFA_2_FA_HIFI (Col-0_2MB); status: COMPLETED; exit: 0; error: -; workDir: /dss/dsshome1/lxc0A/ra34bin/genomeassembler/.nf-test/tests/c85cb7f49a452491a8e3035571eb5492/work/be/fdb57a5ab9a0132898a92dadf102cf]
+Jun-26 14:45:52.804 [Task monitor] DEBUG n.processor.TaskPollingMonitor - Task completed > TaskHandler[id: 3; name: NFCORE_GENOMEASSEMBLER:GENOMEASSEMBLER:ASSEMBLE:FLYE (Col-0_2MB); status: COMPLETED; exit: 0; error: -; workDir: /dss/dsshome1/lxc0A/ra34bin/genomeassembler/.nf-test/tests/c85cb7f49a452491a8e3035571eb5492/work/11/0214e47b5a326ca6e5b3f1eb2e7467]
+Jun-26 14:45:52.853 [Actor Thread 151] INFO  nextflow.conda.CondaCache - Creating env using conda: /dss/dsshome1/lxc0A/ra34bin/genomeassembler/./workflows/../subworkflows/local/assemble/../../../modules/nf-core/ragtag/patch/environment.yml [cache /dss/dsshome1/lxc0A/ra34bin/genomeassembler/.nf-test/tests/c85cb7f49a452491a8e3035571eb5492/work/conda/env-97db44efb4248e1c-5e49cb0cab08311a3a18fe78c2f2fe7f]
+Jun-26 14:46:49.330 [Actor Thread 151] DEBUG nextflow.conda.CondaCache - 'conda' create complete env=/dss/dsshome1/lxc0A/ra34bin/genomeassembler/./workflows/../subworkflows/local/assemble/../../../modules/nf-core/ragtag/patch/environment.yml path=/dss/dsshome1/lxc0A/ra34bin/genomeassembler/.nf-test/tests/c85cb7f49a452491a8e3035571eb5492/work/conda/env-97db44efb4248e1c-5e49cb0cab08311a3a18fe78c2f2fe7f
+Jun-26 14:46:49.356 [Task submitter] DEBUG n.executor.local.LocalTaskHandler - Launch cmd line: /bin/bash -ue .command.run
+Jun-26 14:46:49.356 [Task submitter] INFO  nextflow.Session - [99/8b3d2c] Submitted process > NFCORE_GENOMEASSEMBLER:GENOMEASSEMBLER:ASSEMBLE:RAGTAG_PATCH (Col-0_2MB)
+Jun-26 14:46:59.508 [Task monitor] DEBUG n.processor.TaskPollingMonitor - Task completed > TaskHandler[id: 5; name: NFCORE_GENOMEASSEMBLER:GENOMEASSEMBLER:ASSEMBLE:RAGTAG_PATCH (Col-0_2MB); status: COMPLETED; exit: 0; error: -; workDir: /dss/dsshome1/lxc0A/ra34bin/genomeassembler/.nf-test/tests/c85cb7f49a452491a8e3035571eb5492/work/99/8b3d2cac4e17b6169ceead65757ed8]
+Jun-26 14:46:59.537 [TaskFinalizer-5] DEBUG nextflow.processor.TaskProcessor - Process NFCORE_GENOMEASSEMBLER:GENOMEASSEMBLER:ASSEMBLE:RAGTAG_PATCH > Skipping output binding because one or more optional files are missing: fileoutparam<3:1>
+Jun-26 14:46:59.953 [FileTransfer-3] DEBUG nextflow.file.FilePorter - Copying foreign file https://raw.githubusercontent.com/nf-core/test-datasets/genomeassembler/A_thaliana_Col-0_2mb/Col-CEN_v1.2.Chr1_5MB-7MB.fasta.gz to work dir: /dss/dsshome1/lxc0A/ra34bin/genomeassembler/.nf-test/tests/c85cb7f49a452491a8e3035571eb5492/work/stage-b068e33d-7d5a-41ae-93ae-aa32977e3304/27/0c5f3bf42e82cc1dfeef2df7e4e357/Col-CEN_v1.2.Chr1_5MB-7MB.fasta.gz
+Jun-26 14:46:59.953 [FileTransfer-4] DEBUG nextflow.file.FilePorter - Copying foreign file https://raw.githubusercontent.com/nf-core/test-datasets/genomeassembler/A_thaliana_Col-0_2mb/Col-CEN_v1.2_genes_araport11.Chr1_5MB-7MB.gff3.gz to work dir: /dss/dsshome1/lxc0A/ra34bin/genomeassembler/.nf-test/tests/c85cb7f49a452491a8e3035571eb5492/work/stage-b068e33d-7d5a-41ae-93ae-aa32977e3304/b9/99546d1775a49dc1fa8aade6f3cc8e/Col-CEN_v1.2_genes_araport11.Chr1_5MB-7MB.gff3.gz
+Jun-26 14:47:00.106 [Actor Thread 140] INFO  nextflow.conda.CondaCache - Creating env using conda: /dss/dsshome1/lxc0A/ra34bin/genomeassembler/./workflows/../subworkflows/local/assemble/../liftoff/../../../modules/nf-core/liftoff/environment.yml [cache /dss/dsshome1/lxc0A/ra34bin/genomeassembler/.nf-test/tests/c85cb7f49a452491a8e3035571eb5492/work/conda/env-dc2164710e979ecf-a037bb5911330d5e7c2545f3be95682c]
+Jun-26 14:47:48.463 [Actor Thread 140] DEBUG nextflow.conda.CondaCache - 'conda' create complete env=/dss/dsshome1/lxc0A/ra34bin/genomeassembler/./workflows/../subworkflows/local/assemble/../liftoff/../../../modules/nf-core/liftoff/environment.yml path=/dss/dsshome1/lxc0A/ra34bin/genomeassembler/.nf-test/tests/c85cb7f49a452491a8e3035571eb5492/work/conda/env-dc2164710e979ecf-a037bb5911330d5e7c2545f3be95682c
+Jun-26 14:47:48.489 [Task submitter] DEBUG n.executor.local.LocalTaskHandler - Launch cmd line: /bin/bash -ue .command.run
+Jun-26 14:47:48.489 [Task submitter] INFO  nextflow.Session - [b7/407457] Submitted process > NFCORE_GENOMEASSEMBLER:GENOMEASSEMBLER:ASSEMBLE:RUN_LIFTOFF:LIFTOFF (Col-0_2MB)
+Jun-26 14:47:58.513 [Task monitor] DEBUG n.processor.TaskPollingMonitor - Task completed > TaskHandler[id: 6; name: NFCORE_GENOMEASSEMBLER:GENOMEASSEMBLER:ASSEMBLE:RUN_LIFTOFF:LIFTOFF (Col-0_2MB); status: COMPLETED; exit: 0; error: -; workDir: /dss/dsshome1/lxc0A/ra34bin/genomeassembler/.nf-test/tests/c85cb7f49a452491a8e3035571eb5492/work/b7/407457d565c29af56517a0e4cbf8d5]
+Jun-26 14:47:58.528 [TaskFinalizer-6] DEBUG nextflow.processor.TaskProcessor - Process NFCORE_GENOMEASSEMBLER:GENOMEASSEMBLER:ASSEMBLE:RUN_LIFTOFF:LIFTOFF > Skipping output binding because one or more optional files are missing: fileoutparam<1:1>
+Jun-26 14:47:58.536 [main] DEBUG nextflow.Session - Session await > all processes finished
+Jun-26 14:47:58.585 [Actor Thread 157] DEBUG nextflow.sort.BigSort - Sort completed -- entries: 7; slices: 1; internal sort time: 0.033 s; external sort time: 0.005 s; total time: 0.038 s
+Jun-26 14:47:58.591 [Actor Thread 157] DEBUG nextflow.file.FileCollector - Saved collect-files list to: /dss/dsshome1/lxc0A/ra34bin/genomeassembler/.nf-test/tests/c85cb7f49a452491a8e3035571eb5492/work/collect-file/469dd5a362f76433b6230dc88075570d
+Jun-26 14:47:58.591 [Actor Thread 156] DEBUG nextflow.sort.BigSort - Sort completed -- entries: 7; slices: 1; internal sort time: 0.037 s; external sort time: 0.002 s; total time: 0.039 s
+Jun-26 14:47:58.600 [Actor Thread 156] DEBUG nextflow.file.FileCollector - Saved collect-files list to: /dss/dsshome1/lxc0A/ra34bin/genomeassembler/.nf-test/tests/c85cb7f49a452491a8e3035571eb5492/work/collect-file/2db35101e555dded00e94bfb8cad7695
+Jun-26 14:47:58.613 [Task monitor] DEBUG n.processor.TaskPollingMonitor - <<< barrier arrives (monitor: local) - terminating tasks monitor poll loop
+Jun-26 14:47:58.613 [main] DEBUG nextflow.Session - Session await > all barriers passed
+Jun-26 14:47:58.614 [Actor Thread 156] DEBUG nextflow.file.FileCollector - Deleting file collector temp dir: /dss/lxclscratch/0A/ra34bin/tmp/nxf-16419302822192477939
+Jun-26 14:47:58.630 [Actor Thread 157] DEBUG nextflow.file.FileCollector - Deleting file collector temp dir: /dss/lxclscratch/0A/ra34bin/tmp/nxf-3292833679913972570
+Jun-26 14:47:58.667 [main] DEBUG nextflow.util.ThreadPoolManager - Thread pool 'TaskFinalizer' shutdown completed (hard=false)
+Jun-26 14:47:58.667 [main] DEBUG nextflow.util.ThreadPoolManager - Thread pool 'PublishDir' shutdown completed (hard=false)
+Jun-26 14:47:58.675 [main] INFO  nextflow.Nextflow - -[0;35m[nf-core/genomeassembler][0;32m Pipeline completed successfully[0m-
+Jun-26 14:47:58.679 [main] DEBUG n.trace.WorkflowStatsObserver - Workflow completed > WorkflowStats[succeededCount=6; failedCount=0; ignoredCount=0; cachedCount=0; pendingCount=0; submittedCount=0; runningCount=0; retriesCount=0; abortedCount=0; succeedDuration=7m 14s; failedDuration=0ms; cachedDuration=0ms;loadCpus=0; loadMemory=0; peakRunning=2; peakCpus=8; peakMemory=27 GB; ]
+Jun-26 14:47:58.679 [main] DEBUG nextflow.trace.TraceFileObserver - Workflow completed -- saving trace file
+Jun-26 14:47:58.680 [main] DEBUG nextflow.trace.ReportObserver - Workflow completed -- rendering execution report
+Jun-26 14:47:59.278 [main] DEBUG nextflow.trace.TimelineObserver - Workflow completed -- rendering execution timeline
+Jun-26 14:47:59.404 [main] DEBUG nextflow.cache.CacheDB - Closing CacheDB done
+Jun-26 14:47:59.762 [main] INFO  org.pf4j.AbstractPluginManager - Stop plugin 'nf-schema@2.2.0'
+Jun-26 14:47:59.762 [main] DEBUG nextflow.plugin.BasePlugin - Plugin stopped nf-schema
+Jun-26 14:47:59.763 [main] DEBUG nextflow.util.ThreadPoolManager - Thread pool 'FileTransfer' shutdown completed (hard=false)
+Jun-26 14:47:59.764 [main] DEBUG nextflow.script.ScriptRunner - > Execution complete -- Goodbye

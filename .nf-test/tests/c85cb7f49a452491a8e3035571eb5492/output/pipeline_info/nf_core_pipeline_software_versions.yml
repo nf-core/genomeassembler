@@ -1,0 +1,16 @@
+FLYE:
+  flye: 2.9.5-b1801
+GFA_2_FA_HIFI:
+  awk: GNU
+  gzip: 1.13
+HIFIASM:
+  hifiasm: 0.25.0-r726
+LIFTOFF:
+  liftoff: v1.6.3
+NANOQ:
+  nanoq: 0.10.0
+RAGTAG_PATCH:
+  ragtag: 2.1.0
+Workflow:
+  nf-core/genomeassembler: v1.1.0
+  Nextflow: 24.10.3
