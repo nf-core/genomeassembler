@@ -70,8 +70,6 @@
             [
                 "Col-0_2MB_report.json:md5,25d7ae5780b2f565cb46df7c9e09388a",
                 "Col-0_2MB_stats.json:md5,d41d8cd98f00b204e9800998ecf8427e",
-                "Col-0_2MB_assembly.gff3:md5,9819b05ccbc61792665a6a4258f2a36e",
-                "Col-0_2MB_assembly.unmapped.txt:md5,9d076ee5ea1adf386e9ce6b42f60062a",
                 "Col-0_2MB.params.json:md5,afa91c041bce5e190f4a699d11b69db6",
                 "Col-0_2MB.bp.hap1.p_ctg.gfa:md5,46ee70869884ad585165bd48081414e9",
                 "Col-0_2MB.bp.hap2.p_ctg.gfa:md5,7792865547989d6d284f640425c4e36c",
@@ -86,6 +84,6 @@
             "nf-test": "0.9.2",
             "nextflow": "24.10.3"
         },
-        "timestamp": "2025-06-26T16:17:23.887741874"
+        "timestamp": "2025-06-26T16:28:52.273158206"
     }
 }
