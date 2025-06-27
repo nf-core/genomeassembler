@@ -69,38 +69,60 @@ workflow PIPELINE_INITIALISATION {
     Channel.empty().set { ch_refs }
     Channel.fromPath(params.input)
         .splitCsv(header: true)
-        .map { it -> [meta: [id: it.sample], ontreads: it.ontreads, hifireads: it.hifireads, ref_fasta: it.ref_fasta, ref_gff: it.ref_gff, shortread_F: it.shortread_F, shortread_R: it.shortread_R, paired: it.paired] }
+        .map { it ->
+            [
+                meta: [id: it.sample],
+                ontreads: it.ontreads,
+                hifireads: it.hifireads,
+                // new in refactor-assemblers
+                strategy: it.strategy,
+                assembler1: it.assembler1,
+                assembler2: it.assembler2,
+                scaffolding: it.scaffolding_order,
+                genome_size: it.genome_size,
+                // old
+                ref_fasta: it.ref_fasta,
+                ref_gff: it.ref_gff,
+                shortread_F: it.shortread_F,
+                shortread_R: it.shortread_R,
+                paired: it.paired
+            ] }
         .set { ch_samplesheet }
     if (params.use_ref) {
         ch_samplesheet
             .map { it -> [it.meta, it.ref_fasta] }
             .set { ch_refs }
     }
-    // check for assembler / read combination
-    def hifi_only = params.hifi && !params.ont ? true : false
-    if (!params.skip_assembly) {
-        if (params.assembler == "flye") {
-            if (params.hifi) {
-                if (!hifi_only) {
-                    error('Cannot combine hifi and ont reads with flye')
-                }
-            }
+
+    // Define valid hybrid assemblers
+
+    def hybrid_assemblers = ["hifiasm"]
+
+    // sample-level checks
+
+    ch_samplesheet
+        .map {
+            it ->
+            // Check if assembler can do hybrid
+            (it.strategy == "hybrid" && !hybrid_assemblers.contains(it.assembler1))
+                ? [ println("Please confirm samplesheet: [sample: $it.meta.id]: Hybrid assembly can only be performed with $hybrid_assemblers"), "invalid" ]
+                : null
+            // Check if qc reads are specified for hybrid assemblies
+            (it.strategy == "hybrid" && !params.qc_reads)
+                ? [ println("Please confirm samplesheet: [sample: $it.meta.id]: Please specify which reads should be used for qc: '--qc_reads': 'ONT' or 'HIFI'") , "invalid" ]
+                : null
+            // Check if genome_size is given with --scaffold_longstitch
+            (params.scaffold_longstitch && !it.genome_size && !(it.ont_reads && params.jellyfish))
+                ? [ println("Please confirm samplesheet: [sample: $it.meta.id]: --scaffold_longstitch requires genome-size. Either provide genome-size estimate, or estimate from ONT reads with --jellyfish"), "invalid" ]
+                : null
         }
-    }
-    // check for QC reads
-    if (params.hifi && params.ont) {
-        if (!params.qc_reads) {
-            error("Please specify which reads should be used for qc: 'ONT' or 'HIFI'")
+        .collect()
+        // error if >0 samples failed a check above
+        .subscribe {
+            it -> it.contains("invalid")
+                ? error("Invalid combination in samplesheet")
+                : null
         }
-    }
-    // Make sure that genome_size is provided or estimated when using scaffold_longstitch
-    if (params.scaffold_longstitch) {
-        // If genomesize is not provided, and if ONT is not used in combination with jellyfish
-        // Throw an error
-        if (!params.genome_size && (!params.ont && !params.jellyfish)) {
-            error("Scaffolding with longstitch requires genome size.\n Either provide a genome size with --genome_size or estimate from ONT reads using jellyfish and genomescope")
-        }
-    }
 
     emit:
     samplesheet = ch_samplesheet
