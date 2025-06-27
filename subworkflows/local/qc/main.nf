@@ -5,9 +5,8 @@ include { MERQURY_QC } from './merqury/main.nf'
 
 workflow QC {
     take:
-    ch_main // pipeline main
-    scaffolds // scaffolds to run qc on
-    meryl_kmers // short-read kmers
+    ch_main
+    meryl_kmers
 
     main:
     Channel.empty().set { ch_versions }
