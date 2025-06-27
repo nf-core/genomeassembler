@@ -233,6 +233,35 @@ workflow PIPELINE_INITIALISATION {
                 : null
         }
 
+    // Define valid hybrid assemblers
+
+    def hybrid_assemblers = ["hifiasm"]
+
+    // sample-level checks
+
+    ch_samplesheet
+        .map {
+            it ->
+            // Check if assembler can do hybrid
+            (it.strategy == "hybrid" && !hybrid_assemblers.contains(it.assembler1))
+                ? [ println("Please confirm samplesheet: [sample: $it.meta.id]: Hybrid assembly can only be performed with $hybrid_assemblers"), "invalid" ]
+                : null
+            // Check if qc reads are specified for hybrid assemblies
+            (it.strategy == "hybrid" && !params.qc_reads)
+                ? [ println("Please confirm samplesheet: [sample: $it.meta.id]: Please specify which reads should be used for qc: '--qc_reads': 'ONT' or 'HIFI'") , "invalid" ]
+                : null
+            // Check if genome_size is given with --scaffold_longstitch
+            (params.scaffold_longstitch && !it.genome_size && !(it.ont_reads && params.jellyfish))
+                ? [ println("Please confirm samplesheet: [sample: $it.meta.id]: --scaffold_longstitch requires genome-size. Either provide genome-size estimate, or estimate from ONT reads with --jellyfish"), "invalid" ]
+                : null
+        }
+        .collect()
+        // error if >0 samples failed a check above
+        .subscribe {
+            it -> it.contains("invalid")
+                ? error("Invalid combination in samplesheet")
+                : null
+        }
 
     emit:
     samplesheet = ch_samplesheet
