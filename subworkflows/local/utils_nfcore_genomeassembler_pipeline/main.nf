@@ -182,6 +182,14 @@ workflow PIPELINE_INITIALISATION {
                 ]
                 : null,
             // Check if assembler can do hybrid
+            (it.strategy == "single" && it.ont_reads && it.hifi_reads)
+                ?
+                [
+                    println("Please confirm samplesheet: [sample: $it.meta.id]: Stragety is $it.strategy, but both types of reads are provided."),
+                    "invalid"
+                ]
+                : null,
+            // Check if assembler can do hybrid
             (it.strategy == "hybrid" && !hybrid_assemblers.contains(it.assembler1))
                 ?
                 [

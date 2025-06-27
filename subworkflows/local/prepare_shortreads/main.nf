@@ -73,10 +73,19 @@ workflow PREPARE_SHORTREADS {
     MERYL_UNIONSUM(MERYL_COUNT.out.meryl_db, params.meryl_k)
     MERYL_UNIONSUM.out.meryl_db.set { meryl_kmers }
 
+    shortreads_in
+        .map {
+            it -> it.subMap('shortread_F', 'shortread_R', 'paired')
+        }
+        .join(
+            shortreads.map { it -> [meta: [id: it[0].id], shortreads: it[1]]}
+        )
+        .set { main_out }
+
     versions = ch_versions.mix(MERYL_COUNT.out.versions).mix(MERYL_UNIONSUM.out.versions)
 
     emit:
-    shortreads
+    main_out
     meryl_kmers
     versions
 }
