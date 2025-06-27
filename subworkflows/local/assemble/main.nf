@@ -12,6 +12,7 @@ include { QC } from '../qc/main'
 workflow ASSEMBLE {
     take:
     ch_main
+    ch_main
     meryl_kmers
 
     main:
@@ -27,6 +28,7 @@ workflow ASSEMBLE {
 
     if (params.use_ref) {
         ch_main
+        ch_main
             .map { row -> [row.meta, row.ref_fasta] }
             .set { ch_refs }
     }
@@ -35,10 +37,40 @@ workflow ASSEMBLE {
         // Sample sheet layout when skipping assembly
         // sample,ontreads,assembly,ref_fasta,ref_gff
         ch_main
+        ch_main
             .map { row -> [row.meta, row.assembly] }
             .set { ch_assembly }
     }
     if (!params.skip_assembly) {
+
+        ch_main
+            .branch { it ->
+                hifiasm: (it.strategy == "single" && it.assembler1 == "hifiasm")
+                        || (it.strategy == "scaffold" && (it.assembler1 == "hifiasm" || it.assembler2 == "hifiasm"))
+                        || (it.strategy == "hybrid" && it.assembler1 == "hifiasm")
+                hifiasm_ont: (it.strategy == "single" && it.assembler1 == "hifiasm" && it.ontreads)
+                flye: (it.strategy == "single" && it.assembler1 == "flye") || (it.strategy == "scaffold" && (it.assembler1 == "flye"))
+            }
+        .set { ch_main_branched }
+
+        // Assembly flye branch
+
+        ch_main_branched.flye
+            .multiMap {
+                it ->
+                reads: [
+                    [
+                        meta: it.meta,
+                        genome_size: it.genome_size
+                    ],
+                    it.ontreads ?: it.hifireads,
+                ]
+                mode: it.ontreads ? "nano-hq" : "--pacbio-hifi"
+            }
+            .set { flye_inputs }
+
+            FLYE(flye_inputs.reads, flye_inputs.mode)
+
 
         ch_main
             .branch { it ->
@@ -76,6 +108,7 @@ workflow ASSEMBLE {
                 .map { it -> [ it.meta, it.hifireads, it.ontreads ?: [] ] }
                 .set { hifiasm_inputs }
 
+
             HIFIASM(hifiasm_inputs, [[], [], []], [[], [], []], [[], []])
 
             GFA_2_FA_HIFI(HIFIASM.out.processed_unitigs)
@@ -109,7 +142,7 @@ workflow ASSEMBLE {
                 .join { ch_assemblies }
                 // The extra columns are joined and removed via submap
                 .map {
-                    it ->
+                    it ->å
                     it
                         .subMap('flye_assembly')
                         .subMap('hifiasm_hifi_assembly')
