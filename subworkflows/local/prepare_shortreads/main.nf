@@ -4,12 +4,12 @@ include { MERYL_UNIONSUM } from '../../../modules/nf-core/meryl/unionsum/main'
 
 workflow PREPARE_SHORTREADS {
     take:
-    input_channel
+    main_in
 
     main:
     Channel.empty().set { ch_versions }
 
-    input_channel
+    main_in
         .map { create_shortread_channel(it) }
         .set { shortreads }
 
@@ -18,14 +18,24 @@ workflow PREPARE_SHORTREADS {
         TRIMGALORE.out.reads.set { shortreads }
         ch_versions = ch_versions.mix(TRIMGALORE.out.versions)
     }
+
     MERYL_COUNT(shortreads.map { it -> [it[0], it[1]] }, params.meryl_k)
     MERYL_UNIONSUM(MERYL_COUNT.out.meryl_db, params.meryl_k)
     MERYL_UNIONSUM.out.meryl_db.set { meryl_kmers }
 
+    main_in
+        .map {
+            it -> it.subMap('shortread_F', 'shortread_R', 'paired')
+        }
+        .join(
+            shortreads.map { it -> [meta: [id: it[0].id], shortreads: it[1]]}
+        )
+        .set { main_out }
+
     versions = ch_versions.mix(MERYL_COUNT.out.versions).mix(MERYL_UNIONSUM.out.versions)
 
     emit:
-    shortreads
+    main_out
     meryl_kmers
     versions
 }

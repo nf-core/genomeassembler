@@ -2,15 +2,19 @@ include { LIFTOFF } from '../../../modules/nf-core/liftoff/main'
 
 workflow RUN_LIFTOFF {
     take:
-    assembly
-    inputs
+    ch_main
 
     main:
     Channel.empty().set { ch_versions }
-    assembly
-        .join(
-            inputs.map { row -> [row.meta, row.ref_fasta, row.ref_gff] }
-        )
+    ch_main
+        .map { it ->
+            [
+                it.meta,
+                it.assembly,
+                it.ref_fasta,
+                it.ref_gff
+            ]
+        }
         .set { liftoff_in }
 
     LIFTOFF(liftoff_in, [])

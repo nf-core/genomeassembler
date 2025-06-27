@@ -5,10 +5,7 @@ include { MERQURY_QC } from './merqury/main.nf'
 
 workflow QC {
     take:
-    inputs
-    in_reads
-    scaffolds
-    aln_to_ref
+    ch_main
     meryl_kmers
 
     main:
@@ -16,15 +13,33 @@ workflow QC {
     Channel.empty().set { quast_out }
     Channel.empty().set { busco_out }
     Channel.empty().set { merqury_report_files }
-    Channel.empty().set { map_to_assembly }
+
+    ch_main
+        .map { it -> [meta: it.meta, scaffolds: it.assembly] }
+        .set { scaffolds }
+
+
+    ch_main
+        .map { it ->
+            [
+                meta: it.meta,
+                longreads: params.qc_reads == "ont" ? (it.ontreads) : (it.hifireads)
+            ]
+        }
+        .set { reads }
 
     if (params.quast) {
-        MAP_TO_ASSEMBLY(in_reads, scaffolds)
-        MAP_TO_ASSEMBLY.out.aln_to_assembly_bam.set { map_to_assembly }
+        MAP_TO_ASSEMBLY(reads, scaffolds)
+        ch_main
+            .join(
+                MAP_TO_ASSEMBLY.out.aln_to_assembly_bam
+                    .map { it -> [meta: it[0], assembly_map_bam: it[1]] }
+            )
+            .set { ch_main }
         ch_versions = ch_versions.mix(MAP_TO_ASSEMBLY.out.versions)
     }
 
-    RUN_QUAST(scaffolds, inputs, aln_to_ref, map_to_assembly)
+    RUN_QUAST(ch_main)
     RUN_QUAST.out.quast_tsv.set { quast_out }
 
     ch_versions = ch_versions.mix(RUN_QUAST.out.versions)

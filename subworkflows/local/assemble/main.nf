@@ -11,10 +11,7 @@ include { QC } from '../qc/main'
 
 workflow ASSEMBLE {
     take:
-    ont_reads // meta, reads
-    hifi_reads // meta, reads
-    ch_input
-    genome_size
+    ch_main
     meryl_kmers
 
     main:
@@ -29,7 +26,7 @@ workflow ASSEMBLE {
     Channel.empty().set { ch_versions }
 
     if (params.use_ref) {
-        ch_input
+        ch_main
             .map { row -> [row.meta, row.ref_fasta] }
             .set { ch_refs }
     }
@@ -37,121 +34,144 @@ workflow ASSEMBLE {
     if (params.skip_assembly) {
         // Sample sheet layout when skipping assembly
         // sample,ontreads,assembly,ref_fasta,ref_gff
-        ch_input
+        ch_main
             .map { row -> [row.meta, row.assembly] }
             .set { ch_assembly }
     }
     if (!params.skip_assembly) {
-        def hifi_only = params.hifi && !params.ont ? true : false
-        // Define inputs for flye
-        if (params.assembler == "flye") {
-            if (params.hifi) {
-                hifi_reads
-                    .map { it -> [it[0], it[1]] }
-                    .set { flye_inputs }
+
+        ch_main
+            .branch { it ->
+                hifiasm: (it.strategy == "single" && it.assembler1 == "hifiasm")
+                        || (it.strategy == "scaffold" && (it.assembler1 == "hifiasm" || it.assembler2 == "hifiasm"))
+                        || (it.strategy == "hybrid" && it.assembler1 == "hifiasm")
+                hifiasm_ont: (it.strategy == "single" && it.assembler1 == "hifiasm" && it.ontreads)
+                flye: (it.strategy == "single" && it.assembler1 == "flye") || (it.strategy == "scaffold" && (it.assembler1 == "flye"))
             }
-            if (params.ont) {
-                ont_reads.set { flye_inputs }
+        .set { ch_main_branched }
+
+        // Assembly flye branch
+
+        ch_main_branched.flye
+            .multiMap {
+                it ->
+                reads: [
+                    [
+                        meta: it.meta,
+                        genome_size: it.genome_size
+                    ],
+                    it.ontreads ?: it.hifireads,
+                ]
+                mode: it.ontreads ? "nano-hq" : "--pacbio-hifi"
             }
-            // Run flye
-            flye_inputs
-                .join(genome_size)
-                .map { meta, reads, genomesize -> [meta +[ genome_size: genomesize ], reads] }
-                .set { flye_inputs }
-            FLYE(flye_inputs, params.flye_mode)
-            FLYE.out.fasta.map { meta, assembly -> [meta - meta.subMap('genome_size'), assembly] }.set { ch_assembly }
+            .set { flye_inputs }
+
+            FLYE(flye_inputs.reads, flye_inputs.mode)
+
             ch_versions = ch_versions.mix(FLYE.out.versions)
-        }
-        if (params.assembler == "hifiasm") {
-            // HiFi and ONT reads in ultralong mode
-            if (params.hifi && params.ont) {
-                hifi_reads
-                    .join(ont_reads)
-                    .set { hifiasm_inputs }
-                HIFIASM(hifiasm_inputs, [[], [], []], [[], [], []], [[], []])
-                GFA_2_FA_HIFI(HIFIASM.out.processed_unitigs)
-                GFA_2_FA_HIFI.out.contigs_fasta.set { ch_assembly }
 
-                ch_versions = ch_versions.mix(HIFIASM.out.versions).mix(GFA_2_FA_HIFI.out.versions)
-            }
-            // ONT reads only
-            if (!params.hifi && params.ont) {
-                ont_reads
-                    .map { meta, ontreads -> [meta, ontreads, []] }
-                    .set { hifiasm_inputs }
-                HIFIASM_ONT(hifiasm_inputs, [[], [], []], [[], [], []], [[], []])
-                GFA_2_FA_ONT(HIFIASM_ONT.out.processed_unitigs)
-                GFA_2_FA_ONT.out.contigs_fasta.set { ch_assembly }
-                ch_versions = ch_versions.mix(HIFIASM_ONT.out.versions).mix(GFA_2_FA_ONT.out.versions)
-            }
-            // HiFI reads only
-            if (params.hifi && !params.ont) {
-                hifi_reads
-                    .map { meta, ontreads -> [meta, ontreads, []] }
-                    .set { hifiasm_inputs }
-                HIFIASM(hifiasm_inputs, [[], [], []], [[], [], []], [[], []])
+            // Assembly hifiasm branch
 
-                GFA_2_FA_HIFI(HIFIASM.out.processed_unitigs)
-                GFA_2_FA_HIFI.out.contigs_fasta.set { ch_assembly }
-
-                ch_versions = ch_versions.mix(HIFIASM.out.versions).mix(GFA_2_FA_HIFI.out.versions)
-            }
-        }
-        if (params.assembler == "flye_on_hifiasm" | params.assembler == "hifiasm_on_hifiasm") {
-            // Run hifiasm
-            hifi_reads
-                .map { meta, hifireads -> [meta, hifireads, []] }
+            ch_main_branched.hifiasm
+                .map { it -> [ it.meta, it.hifireads, it.ontreads ?: [] ] }
                 .set { hifiasm_inputs }
+
             HIFIASM(hifiasm_inputs, [[], [], []], [[], [], []], [[], []])
 
             GFA_2_FA_HIFI(HIFIASM.out.processed_unitigs)
 
             ch_versions = ch_versions.mix(HIFIASM.out.versions).mix(GFA_2_FA_HIFI.out.versions)
 
-            if(params.assembler == "flye_on_hifiasm") {
-            // Run flye
-                ont_reads
-                    .join(genome_size)
-                    .map { meta, reads, genomesize -> [[id: meta.id, genome_size: genomesize], reads]}
-                    .set { flye_inputs }
+            // Assemble hifiasm_ont branch
+            ch_main_branched.hifiasm_ont
+                    .map { it -> [it.meta, it.ontreads, []] }
+                    .set { hifiasm_ont_inputs }
 
-                FLYE(flye_inputs, params.flye_mode)
-                FLYE.out.fasta
-                    .map { meta, assembly -> [[id: meta.id], assembly] }
-                    .join(
-                        GFA_2_FA_HIFI.out.contigs_fasta
-                    )
-                    .multiMap { meta, flye_fasta, hifiasm_fasta ->
-                        target: [meta, flye_fasta]
-                        query:  [meta, hifiasm_fasta]
-                    }
-                    .set { ragtag_in }
-                ch_versions = ch_versions.mix(FLYE.out.versions)
-            }
-            if(params.assembler == "hifiasm_on_hifiasm") {
-            // Run hifiasm --ont
-                ont_reads
-                    .map { meta, ontreads -> [meta, ontreads, []] }
-                    .set { hifiasm_inputs }
-                HIFIASM_ONT(hifiasm_inputs,[[], [], []], [[], [], []], [[], []])
-                GFA_2_FA_ONT(HIFIASM_ONT.out.processed_unitigs)
-                GFA_2_FA_ONT.out.contigs_fasta
-                    .join(
-                        GFA_2_FA_HIFI.out.contigs_fasta
-                    )
-                    .multiMap { meta, ont_assembly, hifi_assembly ->
-                        target: [meta, ont_assembly]
-                        query:  [meta, hifi_assembly]
-                    }
-                    .set { ragtag_in }
-                ch_versions = ch_versions.mix(HIFIASM_ONT.out.versions).mix(GFA_2_FA_ONT.out.versions)
-            }
+            HIFIASM_ONT(hifiasm_ont_inputs, [[], [], []], [[], [], []], [[], []])
+
+            GFA_2_FA_ONT(HIFIASM_ONT.out.processed_unitigs)
+
+            ch_versions = ch_versions.mix(HIFIASM_ONT.out.versions).mix(GFA_2_FA_ONT.out.versions)
+
+            // Create a channel containing all assemblies in a "wide" format
+            ch_main
+                .map { it -> [meta: it.meta] }
+                .join(FLYE.out.fasta
+                    .map { it -> [meta: it[0], flye_assembly: it[1]] })
+                .join(GFA_2_FA_HIFI.out.contigs_fasta
+                    .map { it -> [meta: it[0], hifiasm_hifi_assembly: it[1]]})
+                .join(GFA_2_FA_ONT.out.contigs_fasta
+                    .map { it -> [meta: it[0], hifiasm_ont_assembly: it[1]]})
+                .set { ch_assemblies }
+
+            // Now figure out which of the wide assemblies goes into which generic assembly slot
+            ch_main
+                .join { ch_assemblies }
+                // The extra columns are joined and removed via submap
+                .map {
+                    it ->å
+                    it
+                        .subMap('flye_assembly')
+                        .subMap('hifiasm_hifi_assembly')
+                        .subMap('hifiasm_ont_assembly') +
+                        [
+                            assembly:  it.strategy == "single" || it.strategy == "hybrid" ?
+                                            (it.flye_assembly ?:
+                                            it.hifiasm_hifi_assembly ?:
+                                            it.hifiasm_ont_assembly) :
+                                            null,
+                                        // remaining case is "scaffold"
+                                        // by definition assembly1 == ONT in "scaffold"
+                            assembly1:  it.strategy != "scaffold" ?
+                                            null :
+                                            it.assembler1 == "flye" ?
+                                            (it.flye_assembly) :
+                                            (it.hifiasm_ont_assembly),
+                            // assembly2 only exists if the strategy is "scaffold"
+                            assembly2:  it.strategy != "scaffold" ?
+                                            null :
+                                            // by definition assembly2 == hifi in "scaffold"
+                                            it.assembler2 == "flye" ?
+                                                (it.flye_assembly) :
+                                                (it.hifiasm_hifi_assembly)
+                        ]
+                }
+                // This should return the unbranched main channel
+                .set { ch_main }
+
+            ch_main
+                .filter { it ->
+                    it.strategy == "scaffold"
+                }
+                .multiMap {
+                    it ->
+                    target: [
+                        it.meta,
+                        it.assembly_scaffolding == "ont_on_hifi" ? (it.assembly1) : (it.assembly2)
+                        ]
+                    query: [
+                        it.meta,
+                        it.assembly_scaffolding == "ont_on_hifi" ? (it.assembly2) : (it.assembly1)
+                        ]
+                }
+                .set { ragtag_in }
 
             RAGTAG_PATCH(ragtag_in.target, ragtag_in.query, [[], []], [[], []] )
-            // takes: meta, assembly (ont), reference (hifi)
-            RAGTAG_PATCH.out.patch_fasta.set { ch_assembly }
+
             ch_versions = ch_versions.mix(RAGTAG_PATCH.out.versions)
-        }
+
+            ch_main
+                .join(
+                    RAGTAG_PATCH.out.patch_fasta
+                        .map { it -> [meta: it[0], assembly_patched: it[1]] }
+                )
+                .map { it ->
+                    it.subMap("assembly_patched") +
+                    [
+                        assembly: it.strategy == "scaffold" ?
+                                    (it.assembly_patched) :
+                                    (it.assembly)
+                    ]}
     }
     /*
     Prepare alignments
@@ -159,56 +179,54 @@ workflow ASSEMBLE {
     if (params.skip_alignments) {
         // Sample sheet layout when skipping assembly and mapping
         // sample,ontreads,assembly,ref_fasta,ref_gff,assembly_bam,assembly_bai,ref_bam
-        ch_input
+        ch_main
             .map { row -> [row.meta, row.ref_bam] }
             .set { ch_ref_bam }
 
-        ch_input
+        ch_main
             .map { row -> [row.meta, row.assembly_bam] }
             .set { ch_assembly_bam }
     }
     else {
         Channel.empty().set { ch_ref_bam }
-        if (params.assembler == "flye") {
-            flye_inputs
-                .map { meta, reads -> [[id: meta.id], reads] }
-                .set { longreads }
-        }
-        if (params.assembler == "hifiasm" || params.assembler == "flye_on_hifiasm" || params.assembler == "hifiasm_on_hifiasm") {
-            hifiasm_inputs
-                .map { meta, long_reads, _ultralong -> [meta, long_reads] }
-                .set { longreads }
-            // When using either hifiasm_ont or flye_on_hifiasm, both reads are available, which should be used for qc?
-            if (params.hifi && params.ont) {
-                if (params.qc_reads == 'ONT') {
-                    ont_reads
-                        .map { it -> [it[0], it[1]] }
-                        .set { longreads }
-                }
-                if (params.qc_reads == 'HIFI') {
-                    hifi_reads
-                        .map { it -> [it[0], it[1]] }
-                        .set { longreads }
-                }
+
+        ch_main
+            .map { it ->
+                [
+                    meta: it.meta,
+                    longreads: params.qc_reads == "ont" ? (it.ontreads) : (it.hifireads)
+                ]
             }
-        }
+
 
         if (params.quast) {
             if (params.use_ref) {
                 MAP_TO_REF(longreads, ch_refs)
-
-                MAP_TO_REF.out.ch_aln_to_ref_bam.set { ch_ref_bam }
+                ch_main
+                    .join(
+                        MAP_TO_REF.out.ch_aln_to_ref_bam
+                            .map { it -> [meta: it[0], ref_map_bam: it[1]] }
+                    )
+                    .set { ch_main }
+            } else {
+                ch_main
+                    .join(
+                        ch_main
+                            .map { it -> [meta: it.meta, ref_map_bam: []] }
+                    )
+                    .set { ch_main }
             }
         }
     }
     /*
     QC on initial assembly
     */
-    QC(ch_input, longreads, ch_assembly, ch_ref_bam, meryl_kmers)
+    QC( ch_main,
+        meryl_kmers)
     ch_versions = ch_versions.mix(QC.out.versions)
 
     if (params.lift_annotations) {
-        RUN_LIFTOFF(ch_assembly, ch_input)
+        RUN_LIFTOFF(ch_main)
         ch_versions = ch_versions.mix(RUN_LIFTOFF.out.versions)
     }
 

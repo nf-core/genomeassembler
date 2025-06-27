@@ -2,10 +2,7 @@ include { QUAST } from '../../../../modules/local/quast/main'
 
 workflow RUN_QUAST {
     take:
-    assembly
-    inputs
-    aln_to_ref
-    aln_to_assembly
+    ch_main
 
     main:
     Channel.empty().set { versions }
@@ -17,14 +14,18 @@ workflow RUN_QUAST {
     Channel.empty().set { quast_tsv }
 
     if (params.quast) {
-        inputs
-            .map { row -> [row.meta, row.ref_fasta, row.ref_gff] }
-            .set { inputs_references }
+        ch_main
+            .map { it ->
+                [
+                    it.meta,
+                    it.assembly,
+                    it.ref_fasta,
+                    [],
+                    it.reference_map_bam,
+                    it.assembly_map_bam
+                ]
 
-        assembly
-            .join(inputs_references)
-            .join(aln_to_ref)
-            .join(aln_to_assembly)
+            }
             .set { quast_in }
         /*
         * Run QUAST

@@ -2,11 +2,18 @@ include { NANOQ } from '../../../../modules/local/nanoq/main'
 
 workflow RUN_NANOQ {
     take:
-    in_reads
+    inputs
 
     main:
     Channel.empty().set { versions }
-
+    inputs.map {
+        it ->
+        [
+            meta: it.meta,
+            ontreads: it.ontreads
+        ]
+    }
+    .set { in_reads }
     NANOQ(in_reads)
 
     NANOQ.out.report.set { report }

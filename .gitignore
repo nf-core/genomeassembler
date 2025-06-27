@@ -7,3 +7,5 @@ testing/
 testing*
 *.pyc
 null/
+NOTE.md
+.nf-test/

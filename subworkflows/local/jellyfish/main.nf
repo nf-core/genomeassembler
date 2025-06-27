@@ -6,12 +6,20 @@ include { GENOMESCOPE } from '../../../modules/local/genomescope/main'
 
 workflow JELLYFISH {
     take:
-    samples // id, fasta
+    inputs
     nanoq_out
 
     main:
     Channel.empty().set { genomescope_in }
     Channel.empty().set { ch_versions }
+    inputs.map {
+        it ->
+            [
+                meta: it.meta,
+                reads: it.ontreads
+            ]
+        }
+    .set { samples }
     COUNT(samples)
     COUNT.out.kmers.set { kmers }
 
@@ -26,11 +34,31 @@ workflow JELLYFISH {
     ch_versions = ch_versions.mix(HISTO.out.versions)
 
     if (!params.read_length == null) {
-        HISTO.out.histo.map { it -> [it[0], it[1], params.kmer_length, params.read_length] }.set { genomescope_in }
+        HISTO.out.histo
+        .map {
+            it ->
+                [
+                    it[0],
+                    it[1],
+                    params.kmer_length,
+                    params.read_length
+                ]
+            }
+            .set { genomescope_in }
     }
 
     if (params.read_length == null) {
-        HISTO.out.histo.map { it -> [it[0], it[1], params.kmer_length] }.join(nanoq_out).set { genomescope_in }
+        HISTO.out.histo
+        .map {
+            it ->
+                [
+                    it[0],
+                    it[1],
+                    params.kmer_length
+                ]
+        }
+        .join(nanoq_out)
+        .set { genomescope_in }
     }
 
     GENOMESCOPE(genomescope_in)
@@ -41,7 +69,21 @@ workflow JELLYFISH {
 
     ch_versions = ch_versions.mix(STATS.out.versions)
 
-    GENOMESCOPE.out.estimated_hap_len.set { hap_len }
+    inputs
+        .map {
+            it -> it.subMap('genome_size')
+        }
+        .join(
+            GENOMESCOPE.out.estimated_hap_len
+                .map {
+                    it ->
+                    [
+                        meta: it[0],
+                        genome_size: it[1]
+                    ]
+                }
+        )
+        .set { outputs }
 
     GENOMESCOPE.out.summary.set { genomescope_summary }
 
@@ -50,7 +92,7 @@ workflow JELLYFISH {
     versions = ch_versions
 
     emit:
-    hap_len
+    outputs
     genomescope_summary
     genomescope_plot
     versions

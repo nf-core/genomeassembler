@@ -41,10 +41,33 @@ workflow GENOMEASSEMBLER {
 
     main:
     // Initialize empty channels
+    ch_input.set { ch_main }
+    /*
+    This is the "main" channel, it contains all sample-wise information.
+    This channel should be the main input of all subworkflows,
+    and the subworkflows should make relevant changes / updates to the map.
+    This channel should stay a map to allow key-based modifications in subworkflows.
+    The keys are defined in subworkflows/local/utils_nfcore_genomeassembler/main.nf :
+
+                meta: [id: string],
+                ontreads: path,
+                hifireads: path,
+                strategy: string,
+                assembler1: string,
+                assembler2: string,
+                scaffolding: string,
+                genome_size: integer,
+                assembler1_args: string,
+                assembler2_args: string,
+                ref_fasta: path,
+                ref_gff: path,
+                shortread_F: path,
+                shortread_R: path,
+                paired: bool
+
+    */
     Channel.empty().set { ch_ref_bam }
     Channel.empty().set { ch_polished_genome }
-    Channel.empty().set { ch_ont_reads }
-    Channel.empty().set { ch_hifi_reads }
     Channel.empty().set { ch_shortreads }
     Channel.empty().set { meryl_kmers }
     Channel.empty().set { genome_size }
@@ -59,14 +82,7 @@ workflow GENOMEASSEMBLER {
         .tap { busco_files }
         .map { it -> [it[0], it[1], it[1], it[1], it[1]] }
         .tap { merqury_files }
-    /*
-    =============
-    Some checks
-    =============
-    */
-    if (!params.ont && !params.hifi) {
-        error('At least one of params.ont, params.hifi needs to be true.')
-    }
+
     /*
     =============
     Prepare reads
@@ -76,22 +92,20 @@ workflow GENOMEASSEMBLER {
     Short reads
     */
     if (params.short_reads) {
-        PREPARE_SHORTREADS(ch_input)
-        PREPARE_SHORTREADS.out.shortreads.set { ch_shortreads }
+        PREPARE_SHORTREADS(ch_main)
+        PREPARE_SHORTREADS.out.main_out.set { ch_main }
+        // This changes ch_main shortreads_F and _R become one tuple, paired is gone.
         PREPARE_SHORTREADS.out.meryl_kmers.set { meryl_kmers }
         ch_versions = ch_versions.mix(PREPARE_SHORTREADS.out.versions)
     }
-
-    ch_input.map { it -> [it.meta, params.genome_size] }
-            .set { genome_size }
 
     /*
     ONT reads
     */
     if (params.ont) {
-        ONT(ch_input, genome_size)
-        ONT.out.genome_size.set { genome_size }
-        ONT.out.ont_reads.set { ch_ont_reads }
+        ONT(ch_main)
+
+        ONT.out.main_out.set { ch_main }
 
         ONT.out.nanoq_report
             .concat(
@@ -115,8 +129,8 @@ workflow GENOMEASSEMBLER {
     HIFI reads
     */
     if (params.hifi) {
-        HIFI(ch_input)
-        HIFI.out.hifi_reads.set { ch_hifi_reads }
+        HIFI(ch_main)
+        HIFI.out.main_out.set { ch_main }
 
         ch_versions = ch_versions.mix(HIFI.out.versions)
     }
@@ -125,7 +139,7 @@ workflow GENOMEASSEMBLER {
     Assembly
     */
 
-    ASSEMBLE(ch_ont_reads, ch_hifi_reads, ch_input, genome_size, meryl_kmers)
+    ASSEMBLE( ch_main, meryl_kmers)
     ASSEMBLE.out.assembly.set { ch_polished_genome }
     ASSEMBLE.out.ref_bam.set { ch_ref_bam }
     ASSEMBLE.out.longreads.set { ch_longreads }
