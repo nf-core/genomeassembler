@@ -9,3 +9,4 @@ testing*
 null/
 NOTE.md
 .nf-test/
+.nf-test.log
