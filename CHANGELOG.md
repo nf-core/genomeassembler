@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### `Added`
 
+[#164](https://github.com/nf-core/genomeassembler/issues/164) - Switched to nf-core template 3.3.1
+
 [#153](https://github.com/nf-core/genomeassembler/issues/153) - Switched to nf-core template 3.2.1
 
 [#144](https://github.com/nf-core/genomeassembler/issues/144) - Added `hifiasm_on_hifiasm` assembly strategy
