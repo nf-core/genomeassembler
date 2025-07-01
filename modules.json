@@ -38,7 +38,7 @@
                     },
                     "links": {
                         "branch": "master",
-                        "git_sha": "d0fcd22f005a2508bc3dc9ee32c206acadc11b28",
+                        "git_sha": "bd049fd0244ed914f2d10bed580b49fb44eba914",
                         "installed_by": ["modules"]
                     },
                     "merqury/merqury": {
