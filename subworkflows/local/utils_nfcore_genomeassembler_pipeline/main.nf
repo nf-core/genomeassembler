@@ -76,8 +76,14 @@ workflow PIPELINE_INITIALISATION {
                 hifireads: it.hifireads,
                 // new in refactor-assemblers
                 strategy: it.strategy,
-                assembler1: it.assembler1,
-                assembler2: it.assembler2,
+                assembler1: it.assembler1 ?:
+                    ["hifiasm","flye"].contains(params.assembler) ? params.assembler :
+                    params.assembler == "flye_on_hifiasm" ? "flye" :
+                    params.assembler == "hifiasm_on_hifiasm" ? "hifiasm"
+                    : null,
+                assembler2: it.assembler2 ?:
+                    ["hifiasm_on_hifiasm","flye_on_hifiasm"].contains(params.assembler) ? "hifiasm" :
+                    null,
                 scaffolding: it.scaffolding_order,
                 genome_size: it.genome_size ?: params.genome_size,
                 assembler1_args: it.assembler1_args ?:
@@ -89,11 +95,11 @@ workflow PIPELINE_INITIALISATION {
                     (it.assembler2 == "flye") ? params.flye_args :
                     null,
                 // not new
-                ref_fasta: it.ref_fasta,
-                ref_gff: it.ref_gff,
-                shortread_F: it.shortread_F,
-                shortread_R: it.shortread_R,
-                paired: it.paired
+                ref_fasta: it.ref_fasta ?: params.ref_fasta,
+                ref_gff: it.ref_gff ?: params.ref_gff,
+                shortread_F: it.shortread_F ?: params.shortread_F,
+                shortread_R: it.shortread_R ?: params.shortread_R,
+                paired: it.paired ?: params.paired
             ] }
         .set { ch_samplesheet }
     if (params.use_ref) {

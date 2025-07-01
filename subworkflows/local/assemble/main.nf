@@ -109,7 +109,7 @@ workflow ASSEMBLE {
                 .join { ch_assemblies }
                 // The extra columns are joined and removed via submap
                 .map {
-                    it ->å
+                    it ->
                     it
                         .subMap('flye_assembly')
                         .subMap('hifiasm_hifi_assembly')
