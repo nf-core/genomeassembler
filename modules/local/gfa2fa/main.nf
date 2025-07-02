@@ -31,7 +31,7 @@ process GFA_2_FA {
     touch \$outfile
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        awk:  \$(mawk -Wversion | sed '1!d; s/.*Awk //; s/,.*//')
+        awk:  \$(mawk -Wversion | sed '1!d; s/.*Awk //; s/,.*//; s/ [0-9]*\$//')
         gzip: \$(echo \$(gzip --version | head -n1 | sed 's/gzip //'))
     END_VERSIONS
     """
