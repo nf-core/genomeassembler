@@ -17,11 +17,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### `Fixed`
 
-[#154](https://github.com/nf-core/genomeassembler/pull/154) - Module maintainance:
+[#169](https://github.com/nf-core/genomeassembler/pull/169) - Module mainencance: gfa2fa container and conda env now report the same version of `mawk`.
+
+[#154](https://github.com/nf-core/genomeassembler/pull/154) - Module maintenance:
 
 - updated `hifiasm`, `minimap2`, `links` nf-core modules
 - updated container in local `quast` module
-- separated `modules.config` into several files for easier navigation and maintainance
+- separated `modules.config` into several files for easier navigation and maintenance
 
 [#138](https://github.com/nf-core/genomeassembler/pull/138) - Switched to RagTag nf-core module
 
