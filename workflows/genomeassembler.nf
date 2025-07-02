@@ -46,7 +46,7 @@ workflow GENOMEASSEMBLER {
     This is the "main" channel, it contains all sample-wise information.
     This channel should be the main input of all subworkflows,
     and the subworkflows should make relevant changes / updates to the map.
-    This channel should stay a map to allow key-based modifications in subworkflows.
+    This channel should stay a map (!!) to allow key-based modifications in subworkflows.
     The keys are defined in subworkflows/local/utils_nfcore_genomeassembler/main.nf :
 
                 meta: [id: string],
@@ -139,7 +139,7 @@ workflow GENOMEASSEMBLER {
     Assembly
     */
 
-    ASSEMBLE( ch_main, meryl_kmers)
+    ASSEMBLE(ch_main, meryl_kmers)
     ASSEMBLE.out.assembly.set { ch_polished_genome }
     ASSEMBLE.out.ref_bam.set { ch_ref_bam }
     ASSEMBLE.out.longreads.set { ch_longreads }

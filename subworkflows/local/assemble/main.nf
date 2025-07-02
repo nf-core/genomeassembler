@@ -12,15 +12,11 @@ include { QC } from '../qc/main'
 workflow ASSEMBLE {
     take:
     ch_main
-    ch_main
     meryl_kmers
 
     main:
     // Empty channels
     Channel.empty().set { ch_refs }
-    Channel.empty().set { ch_ref_bam }
-    Channel.empty().set { ch_assembly_bam }
-    Channel.empty().set { ch_assembly }
     Channel.empty().set { flye_inputs }
     Channel.empty().set { hifiasm_inputs }
     Channel.empty().set { longreads }
@@ -45,11 +41,11 @@ workflow ASSEMBLE {
 
         ch_main
             .branch { it ->
-                hifiasm: (it.strategy == "single" && it.assembler1 == "hifiasm")
+                hifiasm: ((it.strategy == "single" && it.assembler1 == "hifiasm")
                         || (it.strategy == "scaffold" && (it.assembler1 == "hifiasm" || it.assembler2 == "hifiasm"))
-                        || (it.strategy == "hybrid" && it.assembler1 == "hifiasm")
-                hifiasm_ont: (it.strategy == "single" && it.assembler1 == "hifiasm" && it.ontreads)
-                flye: (it.strategy == "single" && it.assembler1 == "flye") || (it.strategy == "scaffold" && (it.assembler1 == "flye"))
+                        || (it.strategy == "hybrid" && it.assembler1 == "hifiasm")) ? it : null
+                hifiasm_ont: (it.strategy == "single" && it.assembler1 == "hifiasm" && it.ontreads) ? it : null
+                flye: ((it.strategy == "single" && it.assembler1 == "flye") || (it.strategy == "scaffold" && (it.assembler1 == "flye"))) ? it : null
             }
         .set { ch_main_branched }
 
@@ -60,37 +56,8 @@ workflow ASSEMBLE {
                 it ->
                 reads: [
                     [
-                        meta: it.meta,
-                        genome_size: it.genome_size
-                    ],
-                    it.ontreads ?: it.hifireads,
-                ]
-                mode: it.ontreads ? "nano-hq" : "--pacbio-hifi"
-            }
-            .set { flye_inputs }
-
-            FLYE(flye_inputs.reads, flye_inputs.mode)
-
-
-        ch_main
-            .branch { it ->
-                hifiasm: (it.strategy == "single" && it.assembler1 == "hifiasm")
-                        || (it.strategy == "scaffold" && (it.assembler1 == "hifiasm" || it.assembler2 == "hifiasm"))
-                        || (it.strategy == "hybrid" && it.assembler1 == "hifiasm")
-                hifiasm_ont: (it.strategy == "single" && it.assembler1 == "hifiasm" && it.ontreads)
-                flye: (it.strategy == "single" && it.assembler1 == "flye") || (it.strategy == "scaffold" && (it.assembler1 == "flye"))
-            }
-        .set { ch_main_branched }
-
-        // Assembly flye branch
-
-        ch_main_branched.flye
-            .multiMap {
-                it ->
-                reads: [
-                    [
-                        meta: it.meta,
-                        genome_size: it.genome_size
+                        it.meta,
+                        it.genome_size
                     ],
                     it.ontreads ?: it.hifireads,
                 ]
@@ -116,6 +83,7 @@ workflow ASSEMBLE {
             ch_versions = ch_versions.mix(HIFIASM.out.versions).mix(GFA_2_FA_HIFI.out.versions)
 
             // Assemble hifiasm_ont branch
+
             ch_main_branched.hifiasm_ont
                     .map { it -> [it.meta, it.ontreads, []] }
                     .set { hifiasm_ont_inputs }
@@ -128,21 +96,27 @@ workflow ASSEMBLE {
 
             // Create a channel containing all assemblies in a "wide" format
             ch_main
-                .map { it -> [meta: it.meta] }
+                .map { it -> [it.meta] }
                 .join(FLYE.out.fasta
-                    .map { it -> [meta: it[0], flye_assembly: it[1]] })
+                    .map { it -> [it[0], it[1]] })
                 .join(GFA_2_FA_HIFI.out.contigs_fasta
-                    .map { it -> [meta: it[0], hifiasm_hifi_assembly: it[1]]})
+                    .map { it -> [it[0], it[1]]})
                 .join(GFA_2_FA_ONT.out.contigs_fasta
-                    .map { it -> [meta: it[0], hifiasm_ont_assembly: it[1]]})
+                    .map { it -> [it[0], it[1]]})
+                .map { it -> [meta: it[0], flye_assembly: it[1], hifiasm_hifi_assembly: it[2], hifiasm_ont_assembly: it[3]] }
                 .set { ch_assemblies }
 
             // Now figure out which of the wide assemblies goes into which generic assembly slot
             ch_main
-                .join { ch_assemblies }
+                // Turn map into list for joining
+                .map { it -> it.collect { entry -> [ entry.value, entry ] } }
+                .join { ch_assemblies
+                        .map { it -> it.collect {  entry -> [ entry.value, entry ] } }
+                //TODO: figure out how to go back to a map
+                .map { it -> it.eachWithIndex()}
                 // The extra columns are joined and removed via submap
                 .map {
-                    it ->å
+                    it ->
                     it
                         .subMap('flye_assembly')
                         .subMap('hifiasm_hifi_assembly')
@@ -209,18 +183,11 @@ workflow ASSEMBLE {
     /*
     Prepare alignments
     */
-    if (params.skip_alignments) {
-        // Sample sheet layout when skipping assembly and mapping
-        // sample,ontreads,assembly,ref_fasta,ref_gff,assembly_bam,assembly_bai,ref_bam
-        ch_main
-            .map { row -> [row.meta, row.ref_bam] }
-            .set { ch_ref_bam }
 
-        ch_main
-            .map { row -> [row.meta, row.assembly_bam] }
-            .set { ch_assembly_bam }
-    }
-    else {
+    // Sample sheet layout when skipping assembly and mapping
+    // sample,ontreads,assembly,ref_fasta,ref_gff,assembly_map_bam,ref_map_bam
+
+    if (!params.skip_alignments) {
         Channel.empty().set { ch_ref_bam }
 
         ch_main
@@ -230,6 +197,7 @@ workflow ASSEMBLE {
                     longreads: params.qc_reads == "ont" ? (it.ontreads) : (it.hifireads)
                 ]
             }
+            .set { longreads }
 
 
         if (params.quast) {
@@ -238,7 +206,7 @@ workflow ASSEMBLE {
                 ch_main
                     .join(
                         MAP_TO_REF.out.ch_aln_to_ref_bam
-                            .map { it -> [meta: it[0], ref_map_bam: it[1]] }
+                            .map { it -> [meta: it.meta, ref_map_bam: it[1]] }
                     )
                     .set { ch_main }
             } else {
@@ -254,8 +222,15 @@ workflow ASSEMBLE {
     /*
     QC on initial assembly
     */
-    QC( ch_main,
-        meryl_kmers)
+
+    // scaffolds to QC need to be defined here
+    ch_main
+        .map { it -> [meta: it.meta, scaffolds: it.assembly] }
+        .set { scaffolds }
+
+
+    QC(ch_main, scaffolds, meryl_kmers)
+
     ch_versions = ch_versions.mix(QC.out.versions)
 
     if (params.lift_annotations) {
@@ -264,9 +239,10 @@ workflow ASSEMBLE {
     }
 
     emit:
+    ch_main
+    qc_reads                    = longreads
     assembly                    = ch_assembly
     ref_bam                     = ch_ref_bam
-    longreads
     assembly_quast_reports      = QC.out.quast_out
     assembly_busco_reports      = QC.out.busco_out
     assembly_merqury_reports    = QC.out.merqury_report_files

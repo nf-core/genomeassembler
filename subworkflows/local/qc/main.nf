@@ -5,19 +5,15 @@ include { MERQURY_QC } from './merqury/main.nf'
 
 workflow QC {
     take:
-    ch_main
-    meryl_kmers
+    ch_main // pipeline main
+    scaffolds // scaffolds to run qc on
+    meryl_kmers // short-read kmers
 
     main:
     Channel.empty().set { ch_versions }
     Channel.empty().set { quast_out }
     Channel.empty().set { busco_out }
     Channel.empty().set { merqury_report_files }
-
-    ch_main
-        .map { it -> [meta: it.meta, scaffolds: it.assembly] }
-        .set { scaffolds }
-
 
     ch_main
         .map { it ->
@@ -28,18 +24,18 @@ workflow QC {
         }
         .set { reads }
 
-    if (params.quast) {
+    if (params.quast && !params.skip_alignments) {
         MAP_TO_ASSEMBLY(reads, scaffolds)
         ch_main
             .join(
                 MAP_TO_ASSEMBLY.out.aln_to_assembly_bam
                     .map { it -> [meta: it[0], assembly_map_bam: it[1]] }
             )
-            .set { ch_main }
+            .set { ch_main_assembly_mapped }
         ch_versions = ch_versions.mix(MAP_TO_ASSEMBLY.out.versions)
     }
 
-    RUN_QUAST(ch_main)
+    RUN_QUAST(ch_main_assembly_mapped)
     RUN_QUAST.out.quast_tsv.set { quast_out }
 
     ch_versions = ch_versions.mix(RUN_QUAST.out.versions)
@@ -50,7 +46,14 @@ workflow QC {
     ch_versions = ch_versions.mix(RUN_BUSCO.out.versions)
 
     if (params.short_reads) {
-        MERQURY_QC(scaffolds, meryl_kmers)
+        scaffolds
+            .join(meryl_kmers)
+            .multiMap { it ->
+                scaffolds: [it[0], it[1]]
+                kmers: [it[0], it[2]]
+            }
+            .set { merqury_in }
+        MERQURY_QC(merqury_in.scaffolds, merqury_in._kmers)
         MERQURY_QC.out.stats
             .join(
                 MERQURY_QC.out.spectra_asm_hist
@@ -69,6 +72,7 @@ workflow QC {
     versions = ch_versions
 
     emit:
+    ch_main     // QC does not (and should not) modify ch_main but returns the input.
     quast_out
     busco_out
     merqury_report_files
