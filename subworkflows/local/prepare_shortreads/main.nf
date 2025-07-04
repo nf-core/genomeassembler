@@ -10,26 +10,74 @@ workflow PREPARE_SHORTREADS {
     Channel.empty().set { ch_versions }
 
     main_in
+        .branch {
+            it ->
+            shortreads: it.shortreads_F
+            no_shortreads: !it.shortread_F
+        }
+        .set { main_branched }
+
+
+    main_branched
+        .shortreads
         .map { create_shortread_channel(it) }
         .set { shortreads }
 
-    if (params.trim_short_reads) {
-        TRIMGALORE(shortreads)
-        TRIMGALORE.out.reads.set { shortreads }
-        ch_versions = ch_versions.mix(TRIMGALORE.out.versions)
-    }
+    // use modified shortread channel
 
-    MERYL_COUNT(shortreads.map { it -> [it[0], it[1]] }, params.meryl_k)
+    main_branched
+        .shortreads
+        .map {
+            it -> it - it.subMap('shortread_F', 'shortread_R', 'paired')
+        }
+        .map {
+            it -> it.collect { entry -> [ entry.value, entry ] }
+        }
+        .join(
+            shortreads
+                .map { it -> [meta: [id: it[0].id], shortreads: it[1]]}
+                .map { it -> it.collect { entry -> [ entry.value, entry ] } }
+        )
+        .map { it -> it.collect { _entry, map -> [ (map.key): map.value ] }.collectEntries() }
+        .set { shortreads }
+
+    // shortread trimming
+
+    shortreads
+        .branch {
+            it ->
+            trim: it.shortreads_trim
+            no_trim: !it.shortreads_trim
+        }
+        .set { shortreads }
+
+    TRIMGALORE(shortreads.trim)
+
+    // unite branched:
+    // add trimmed reads to trim channel, then mix with shortreads.no_trim
+
+    shortreads.trim
+        .map { it -> it - it.subMap["shortreads"] }
+        .map { it -> it.collect { entry -> [ entry.value, entry ] } }
+        .join(
+            TRIMGALORE.out.reads
+                .map { it -> [meta: [id: it[0].id], shortreads: it[1]]}
+                .map { it -> it.collect { entry -> [ entry.value, entry ] } }
+        )
+        .map { it -> it.collect { _entry, map -> [ (map.key): map.value ] }.collectEntries() }
+        .mix( shortreads.no_trim )
+        .set { shortreads }
+
+    ch_versions = ch_versions.mix(TRIMGALORE.out.versions)
+
+    MERYL_COUNT(shortreads.map { it -> [ it.meta, it.shortreads ] }, params.meryl_k)
     MERYL_UNIONSUM(MERYL_COUNT.out.meryl_db, params.meryl_k)
     MERYL_UNIONSUM.out.meryl_db.set { meryl_kmers }
 
-    main_in
-        .map {
-            it -> it.subMap('shortread_F', 'shortread_R', 'paired')
-        }
-        .join(
-            shortreads.map { it -> [meta: [id: it[0].id], shortreads: it[1]]}
-        )
+    // put shortreads back together with samples without shortreads
+    main_branched.no_shortreads
+        .map { it -> it - it.subMap["shortread_F","shortread_R", "paired"] + [shorteads: null] }
+        .mix(shortreads)
         .set { main_out }
 
     versions = ch_versions.mix(MERYL_COUNT.out.versions).mix(MERYL_UNIONSUM.out.versions)

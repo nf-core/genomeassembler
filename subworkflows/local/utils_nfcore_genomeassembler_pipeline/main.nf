@@ -72,10 +72,10 @@ workflow PIPELINE_INITIALISATION {
         .map { it ->
             [
                 meta: [id: it.sample],
-                ontreads: it.ontreads,
-                hifireads: it.hifireads,
+                ontreads: it.ontreads ?: null,
+                hifireads: it.hifireads ?: null,
                 // new in refactor-assemblers
-                strategy: it.strategy,
+                strategy: it.strategy ?: params.strategy,
                 assembler1: it.assembler1 ?:
                     ["hifiasm","flye"].contains(params.assembler) ? params.assembler :
                     params.assembler == "flye_on_hifiasm" ? "flye" :
@@ -94,12 +94,48 @@ workflow PIPELINE_INITIALISATION {
                     (it.assembler2 == "hifiasm") ? params.hifiasm_args :
                     (it.assembler2 == "flye") ? params.flye_args :
                     null,
+                polish: it.polish ?:
+                    (params.polish_medaka && params.polish_pilon) ? "medaka+pilon" :
+                    (params.polish_medaka) ? "medaka" :
+                    (params.polish_pilon) ? "pilon" :
+                    null,
+                ont_collect: it.ont_collect ?: params.collect_reads,
+                ont_trim: it.ont_trim ?: params.porechop,
+                ont_jellyfish: it.ont_jellyfish ?: params.jellyfish,
+                hifi_trim: it.hifi_trim ?: params.lima,
+                hifi_primers: it.hifi_primers ?: params.pacbio_primers,
+                polish_medaka: it.polish_medaka ?: params.polish_medaka,
+                medaka_model: it.medaka_model ?: params.medaka_model,
+                polish_pilon: it.polish_pilon ?: params.polish_pilon,
+                scaffold_longstitch: it.scaffold_longstitch ?: params.scaffold_longstitch,
+                scaffold_links: it.scaffold_longstitch ?: params.scaffold_links,
+                scaffold_ragtag: it.scaffold_longstitch ?: params.scaffold_ragtag,
+                use_ref: it.use_ref ?: params.use_ref ?: it.ref_fasta ? true : false,
+                flye_mode: it.flye_mode ?: params.flye_mode,
+                // assembly already provided?
+                assembly: it.assembly ?: null,
+                // ref mapping provided?
+                ref_map_bam: it.ref_map_bam ?: null,
+                // assembly mapping provided
+                assembly_map_bam: it.assembly_map_bam ?: null,
+
+                // reads for qc
+                qc_reads: it.qc_reads ?: params.qc_reads ?: "ont",
+                qc_reads_path: it.qc_reads == "ont" ? (it.ontreads) : (it.hifireads),
+                quast: it.quast ?: params.quast,
+                busco: it.busco ?: params.busco,
+                busco_lineage: it.busco_lineage ?: params.busco_lineage,
+                busco_db: it.busco_db ?: params.busco_db,
+                lift_annotations: it.lift_annotations ?: params.lift_annotations,
                 // not new
                 ref_fasta: it.ref_fasta ?: params.ref_fasta,
                 ref_gff: it.ref_gff ?: params.ref_gff,
                 shortread_F: it.shortread_F ?: params.shortread_F,
                 shortread_R: it.shortread_R ?: params.shortread_R,
-                paired: it.paired ?: params.paired
+                paired: it.paired ?: params.paired,
+                // new:
+                use_short_reads: it.use_short_reads ?: params.short_reads ?: it.shortread_F ? true : false,
+                shortread_trim: it.shortread_trim ?: params.trim_short_reads
             ] }
         .set { ch_samplesheet }
     if (params.use_ref) {
@@ -118,7 +154,15 @@ workflow PIPELINE_INITIALISATION {
     ch_samplesheet
         .map {
             it ->
-            // Check if assembler can do hybrid
+            // Check if primers for lima are provided
+            (it.hifi_trim && !it.hifi_primers)
+                ?
+                [
+                    println("Please confirm samplesheet: [sample: $it.meta.id]: Please provide the primers used for pacbio sequencing to trim with lima."),
+                    "invalid"
+                ]
+                : null
+            // Check if reads and strategy match
             (it.strategy == "single" && it.ont_reads && it.hifi_reads)
                 ?
                 [
@@ -143,10 +187,10 @@ workflow PIPELINE_INITIALISATION {
                 ]
                 : null
             // Check if genome_size is given with --scaffold_longstitch
-            (params.scaffold_longstitch && !it.genome_size && !(it.ont_reads && params.jellyfish))
+            (it.scaffold_longstitch && !it.genome_size && !(it.ont_reads && params.jellyfish))
                 ?
                 [
-                    println("Please confirm samplesheet: [sample: $it.meta.id]: --scaffold_longstitch requires genome-size. Either provide genome-size estimate, or estimate from ONT reads with --jellyfish"),
+                    println("Please confirm samplesheet: [sample: $it.meta.id]: scaffolding with longstitch requires genome-size. Either provide genome-size estimate, or estimate from ONT reads with --jellyfish"),
                     "invalid"
                 ]
                 : null

@@ -4,13 +4,8 @@ include { RUN_RAGTAG } from './ragtag/main'
 
 workflow SCAFFOLD {
     take:
-    inputs
-    in_reads
-    assembly
-    references
-    ch_aln_to_ref
+    ch_main
     meryl_kmers
-    genome_size
 
     main:
     Channel.empty().set { ch_versions }

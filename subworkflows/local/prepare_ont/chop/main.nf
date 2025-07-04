@@ -20,7 +20,7 @@ workflow CHOP {
         PORECHOP(in_reads)
         input.map {
             it ->
-            it.subMap('ontreads')
+            it - it.subMap('ontreads')
         }
         .join(
             PORECHOP.out.reads

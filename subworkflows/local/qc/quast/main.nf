@@ -13,28 +13,29 @@ workflow RUN_QUAST {
     Channel.empty().set { quast_results }
     Channel.empty().set { quast_tsv }
 
-    if (params.quast) {
-        ch_main
-            .map { it ->
-                [
+    ch_main
+        .filter {
+            it -> it.quast
+        }
+        .multiMap { it ->
+                quast_in: [
                     it.meta,
-                    it.assembly,
+                    it.qc_target,
                     it.ref_fasta,
                     [],
                     it.reference_map_bam,
                     it.assembly_map_bam
                 ]
-
+                use_ref: it.use_ref
             }
-            .set { quast_in }
+        .set { quast_in }
         /*
         * Run QUAST
         */
-        QUAST(quast_in, params.use_ref, false)
-        QUAST.out.results.set { quast_results }
-        QUAST.out.tsv.set { quast_tsv }
-        QUAST.out.versions.set { versions }
-    }
+    QUAST(quast_in.quast_in, quast_in.use_ref, false)
+    QUAST.out.results.set { quast_results }
+    QUAST.out.tsv.set { quast_tsv }
+    QUAST.out.versions.set { versions }
 
     emit:
     quast_results

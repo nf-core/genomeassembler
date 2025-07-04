@@ -15,8 +15,8 @@ workflow JELLYFISH {
     inputs.map {
         it ->
             [
-                meta: it.meta,
-                reads: it.ontreads
+                it.meta,
+                it.ontreads
             ]
         }
     .set { samples }
@@ -71,7 +71,10 @@ workflow JELLYFISH {
 
     inputs
         .map {
-            it -> it.subMap('genome_size')
+            it -> it - it.subMap('genome_size')
+        }
+        .map {
+            it -> it.collect { entry -> [ entry.value, entry ] }
         }
         .join(
             GENOMESCOPE.out.estimated_hap_len
@@ -82,7 +85,11 @@ workflow JELLYFISH {
                         genome_size: it[1]
                     ]
                 }
+                .map {
+                    it -> it.collect { entry -> [ entry.value, entry ] }
+                }
         )
+        .map { it -> it.collect { _entry, map -> [ (map.key): map.value ] }.collectEntries() }
         .set { outputs }
 
     GENOMESCOPE.out.summary.set { genomescope_summary }
@@ -92,7 +99,7 @@ workflow JELLYFISH {
     versions = ch_versions
 
     emit:
-    outputs
+    main_out = outputs
     genomescope_summary
     genomescope_plot
     versions

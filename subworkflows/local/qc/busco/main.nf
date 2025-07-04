@@ -2,7 +2,7 @@ include { BUSCO_BUSCO as BUSCO } from '../../../../modules/nf-core/busco/busco/m
 
 workflow RUN_BUSCO {
     take:
-    assembly
+    ch_main
 
     main:
     Channel.empty().set { versions }
@@ -10,13 +10,25 @@ workflow RUN_BUSCO {
     Channel.empty().set { short_summary_txt }
     Channel.empty().set { short_summary_json }
 
-    if (params.busco) {
-        BUSCO(assembly, 'genome', params.busco_lineage, params.busco_db ? file(params.busco_db, checkIfExists: true) : [], [], true)
-        BUSCO.out.batch_summary.set { batch_summary }
-        BUSCO.out.short_summaries_txt.set { short_summary_txt }
-        BUSCO.out.short_summaries_json.set { short_summary_json }
-        BUSCO.out.versions.set { versions }
-    }
+    ch_main
+        .filter {
+            it -> it.busco
+        }
+        .multiMap { it ->
+                fasta: [
+                    it.meta,
+                    it.qc_target
+                ]
+                busco_lineage: it.busco_lineage
+                busco_db: it.busco_db ? file(it.busco_db, checkIfExists: true) : []
+            }
+        .set { busco_in }
+
+    BUSCO(busco_in.fasta, 'genome', busco_in.busco_lineage, busco_in.busco_db , [], true)
+    BUSCO.out.batch_summary.set { batch_summary }
+    BUSCO.out.short_summaries_txt.set { short_summary_txt }
+    BUSCO.out.short_summaries_json.set { short_summary_json }
+    BUSCO.out.versions.set { versions }
 
     emit:
     batch_summary

@@ -19,8 +19,13 @@ workflow COLLECT {
     versions = ch_versions
 
     ch_input
-        .map { it -> it.submap('ontreads') }
-        .join(reads.map { it -> [meta: it[0], ontreads:it[1]] } )
+        .map { it -> it - it.submap('ontreads') }
+        .map { it -> it.collect { entry -> [ entry.value, entry ] } }
+        .join(reads
+            .map { it -> [meta: it[0], ontreads:it[1]] }
+            .map { it -> it.collect { entry -> [ entry.value, entry ] } }
+        )
+        .map { it -> it.collect { _entry, map -> [ (map.key): map.value ] }.collectEntries() }
         .set { reads }
 
     emit:

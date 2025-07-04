@@ -13,7 +13,7 @@ workflow ONT {
 
     PREPARE_ONT(main_in)
 
-    PREPARE_ONT.out.trimmed.set { main_out }
+    PREPARE_ONT.out.main_out.set { ch_main }
 
     PREPARE_ONT.out.nanoq_report.set { nanoq_report }
 
@@ -21,13 +21,23 @@ workflow ONT {
 
     ch_versions = ch_versions.mix(PREPARE_ONT.out.versions)
 
-    if (params.jellyfish) {
-        JELLYFISH(PREPARE_ONT.out.trimmed, PREPARE_ONT.out.med_len)
-        JELLYFISH.out.outputs.set { output_channel }
-        JELLYFISH.out.genomescope_summary.set { genomescope_summary }
-        JELLYFISH.out.genomescope_plot.set { genomescope_plot }
-        ch_versions = ch_versions.mix(JELLYFISH.out.versions)
-    }
+    ch_main
+        .branch {
+            it ->
+            jellyfish: it.ont_jellyfish
+            no_jelly: !it.ont_jellyfish
+        }
+    .set { ch_main_jellyfish_branched }
+
+    JELLYFISH(ch_main_jellyfish_branched.jellyfish, PREPARE_ONT.out.med_len)
+
+    ch_main_jellyfish_branched.no_jelly
+        .mix( JELLYFISH.out.outputs )
+        .set { main_out }
+
+    JELLYFISH.out.genomescope_summary.set { genomescope_summary }
+    JELLYFISH.out.genomescope_plot.set { genomescope_plot }
+    ch_versions = ch_versions.mix(JELLYFISH.out.versions)
 
     versions = ch_versions
 

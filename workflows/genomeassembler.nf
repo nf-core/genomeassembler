@@ -91,65 +91,76 @@ workflow GENOMEASSEMBLER {
     /*
     Short reads
     */
-    if (params.short_reads) {
-        PREPARE_SHORTREADS(ch_main)
-        PREPARE_SHORTREADS.out.main_out.set { ch_main }
-        // This changes ch_main shortreads_F and _R become one tuple, paired is gone.
-        PREPARE_SHORTREADS.out.meryl_kmers.set { meryl_kmers }
-        ch_versions = ch_versions.mix(PREPARE_SHORTREADS.out.versions)
-    }
+
+    // adapted to sample-logic
+    PREPARE_SHORTREADS(ch_main)
+    // This changes ch_main shortreads_F and _R become one tuple, paired is gone.
+    PREPARE_SHORTREADS.out.main_out.set { ch_main }
+    PREPARE_SHORTREADS.out.meryl_kmers.set { meryl_kmers }
+
+    ch_versions = ch_versions.mix(PREPARE_SHORTREADS.out.versions)
 
     /*
     ONT reads
     */
-    if (params.ont) {
-        ONT(ch_main)
 
-        ONT.out.main_out.set { ch_main }
+    // adapted to sample-logic
+    ONT(ch_main)
 
-        ONT.out.nanoq_report
-            .concat(
-                ONT.out.nanoq_stats
-            )
-            .collect { it -> it[1] }
-            .set { nanoq_files }
-        ONT.out.genomescope_summary
-            .concat(
-                ONT.out.genomescope_plot
-            )
-            .unique()
-            .collect { it -> it[1] }
-            .set { genomescope_files }
+    ONT.out.main_out.set { ch_main }
 
-        ch_versions = ch_versions.mix(ONT.out.versions)
-    }
+    ONT.out.nanoq_report
+        .concat(
+            ONT.out.nanoq_stats
+        )
+        .collect { it -> it[1] }
+        .set { nanoq_files }
+
+    ONT.out.genomescope_summary
+        .concat(
+            ONT.out.genomescope_plot
+        )
+        .unique()
+        .collect { it -> it[1] }
+        .set { genomescope_files }
+
+    ch_versions = ch_versions.mix(ONT.out.versions)
 
 
     /*
     HIFI reads
     */
-    if (params.hifi) {
-        HIFI(ch_main)
-        HIFI.out.main_out.set { ch_main }
 
-        ch_versions = ch_versions.mix(HIFI.out.versions)
-    }
+    // adapted to sample-logic
 
+    HIFI(ch_main)
+
+    HIFI.out.main_out.set { ch_main }
+
+    ch_versions = ch_versions.mix(HIFI.out.versions)
     /*
     Assembly
     */
-
+    // This pipeline is named genomeassembler, so everything goes into assemble
+    // even it might not actually be assembled.
     ASSEMBLE(ch_main, meryl_kmers)
-    ASSEMBLE.out.assembly.set { ch_polished_genome }
-    ASSEMBLE.out.ref_bam.set { ch_ref_bam }
-    ASSEMBLE.out.longreads.set { ch_longreads }
+
+    ASSEMBLE.out.ch_main.set { ch_main }
+
     ch_versions = ch_versions.mix(ASSEMBLE.out.versions)
     /*
     Polishing
     */
-
-    POLISH(ch_input, ch_ont_reads, ch_longreads, ch_shortreads, ch_polished_genome, ch_ref_bam, meryl_kmers)
-    POLISH.out.ch_polished_genome.set { ch_polished_genome }
+    ch_main
+        .branch {
+            it ->
+            polish: it.polish_medaka || it.polish_pilon
+            no_polish: !it.polish_medaka && !it.polish_pilon
+        }
+    POLISH(ch_main.polish, meryl_kmers)
+    ch_main.no_polish
+        .mix(POLISH.out.ch_main)
+        .set { ch_main }
 
     ch_versions = ch_versions.mix(POLISH.out.versions)
 
