@@ -22,7 +22,6 @@ include { ASSEMBLE } from '../subworkflows/local/assemble/main'
 // Polishing
 include { POLISH } from '../subworkflows/local/polishing/main'
 
-
 // Scaffolding
 include { SCAFFOLD } from '../subworkflows/local/scaffolding/main'
 // reporting
@@ -37,41 +36,73 @@ include { REPORT } from '../modules/local/report/main'
 workflow GENOMEASSEMBLER {
     take:
     ch_input
-    ch_refs
 
     main:
     // Initialize empty channels
     ch_input.set { ch_main }
+
     /*
     This is the "main" channel, it contains all sample-wise information.
     This channel should be the main input of all subworkflows,
     and the subworkflows should make relevant changes / updates to the map.
     This channel should stay a map (!!) to allow key-based modifications in subworkflows.
-    The keys are defined in subworkflows/local/utils_nfcore_genomeassembler/main.nf :
+    The keys are defined in subworkflows/local/utils_nfcore_genomeassembler/main.nf
+    Here is a list of keys and their types that come in :
 
-                meta: [id: string],
-                ontreads: path,
-                hifireads: path,
-                strategy: string,
-                assembler1: string,
-                assembler2: string,
-                scaffolding: string,
-                genome_size: integer,
-                assembler1_args: string,
-                assembler2_args: string,
-                ref_fasta: path,
-                ref_gff: path,
-                shortread_F: path,
-                shortread_R: path,
-                paired: bool
+        meta: [id: string],
+        ontreads: path,
+        hifireads: path,
+        strategy: string,
+        assembler1: string,
+        assembler2: string,
+        scaffolding: string,
+        genome_size: integer,
+        assembler1_args: string,
+        assembler2_args: string,
+        ref_fasta: path,
+        ref_gff: path,
+        shortread_F: path,
+        shortread_R: path,
+        paired: bool
+        ont_collect: bool,
+        ont_trim: bool,
+        ont_jellyfish: bool,
+        hifi_trim: bool,
+        hifi_primers: path,
+        polish_medaka: bool,
+        medaka_model: string,
+        polish_pilon: bool,
+        scaffold_longstitch: bool,
+        scaffold_links: bool,
+        scaffold_ragtag: bool,
+        use_ref: bool,
+        flye_mode: string,
+        // assembly already provided?
+        assembly: path,
+        // ref mapping provided?
+        ref_map_bam: path,
+        // assembly mapping provided
+        assembly_map_bam: path,
+        // reads for qc
+        qc_reads: string ["ont","hifi"],
+        qc_reads_path: path,
+        quast: bool,
+        busco: bool,
+        busco_lineage: string,
+        busco_db: path,
+        lift_annotations: bool,
+        // short read options
+        shortread_F: path,
+        shortread_R: path,
+        paired: bool,
+        use_short_reads: bool,
+        shortread_trim: bool
 
     */
-    Channel.empty().set { ch_ref_bam }
-    Channel.empty().set { ch_polished_genome }
-    Channel.empty().set { ch_shortreads }
+
     Channel.empty().set { meryl_kmers }
-    Channel.empty().set { genome_size }
     Channel.empty().set { ch_versions }
+
     // Initialize channels for QC report collection
     Channel
         .of([])
@@ -157,17 +188,35 @@ workflow GENOMEASSEMBLER {
             polish: it.polish_medaka || it.polish_pilon
             no_polish: !it.polish_medaka && !it.polish_pilon
         }
+        .set { ch_main }
     POLISH(ch_main.polish, meryl_kmers)
+
     ch_main.no_polish
         .mix(POLISH.out.ch_main)
         .set { ch_main }
 
     ch_versions = ch_versions.mix(POLISH.out.versions)
 
+    ch_main
+        .branch {
+            scaffold: it.scaffold_links || it.scaffold_longstitch || it.scaffold_ragtag
+            no_scaffold: !it.scaffold_links && !it.scaffold_longstitch && !it.scaffold_ragtag
+        }
+    .set {
+        ch_main
+    }
     /*
     Scaffolding
     */
-    SCAFFOLD(ch_input, ch_longreads, ch_polished_genome, ch_refs, ch_ref_bam, meryl_kmers, genome_size)
+    SCAFFOLD(ch_main.scaffold, meryl_kmers)
+
+    // Recreate ch_main, even though it is not used since there are no later steps._report
+
+    ch_main
+        .no_scaffold
+        .mix(SCAFFOLD.out.ch_main)
+        .set { ch_main }
+
 
     ch_versions = ch_versions.mix(SCAFFOLD.out.versions)
 

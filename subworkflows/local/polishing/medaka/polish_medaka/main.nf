@@ -15,10 +15,10 @@ workflow POLISH_MEDAKA {
             it -> it.polish.medaka
         }
         .multiMap {
-        it ->
-        reads: [it.meta, it.ontreads]
-        reference: [it.meta, it.assembly]
-    }
+            it ->
+            reads: [it.meta, it.ontreads]
+            reference: [it.meta, it.assembly]
+        }
         .set { ch_medaka_in }
 
     RUN_MEDAKA(ch_medaka_in.reads, ch_medaka_in.reference)
@@ -31,7 +31,8 @@ workflow POLISH_MEDAKA {
     ch_main
         .map { it -> it.collect { entry -> [ entry.value, entry ] } }
         .join { polished_assembly
-                .map { it -> it.collect {  entry -> [ entry.value, entry ] } } }
+                .map { it -> it.collect {  entry -> [ entry.value, entry ] } }
+        }
         // After joining re-create the maps from the stored map
         .map { it -> it.collect { _entry, map -> [ (map.key): map.value ] }.collectEntries() }
         .map { it -> it - it.subMap["polished_medaka"] + [polished: [medaka: it.polished.medaka ]]}
