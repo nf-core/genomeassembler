@@ -20,7 +20,6 @@ workflow JELLYFISH {
         }
     .set { samples }
 
-    samples.view { it -> "JELLYFISH SAMPLES: $it"}
     COUNT(samples)
     COUNT.out.kmers.set { kmers }
 
@@ -46,7 +45,6 @@ workflow JELLYFISH {
                 }
         )
         .set { genomescope_in }
-
 
     GENOMESCOPE(genomescope_in)
 

@@ -33,11 +33,11 @@ workflow ASSEMBLE {
     ch_main_branched
         .to_assemble
         .branch { it ->
-            hifiasm: ((it.strategy == "single" && it.assembler1 == "hifiasm")
+            hifiasm: (it.strategy == "single" && it.assembler1 == "hifiasm" && !it.ontreads)
                     || (it.strategy == "scaffold" && (it.assembler1 == "hifiasm" || it.assembler2 == "hifiasm"))
-                    || (it.strategy == "hybrid" && it.assembler1 == "hifiasm"))
+                    || (it.strategy == "hybrid" && it.assembler1 == "hifiasm")
             hifiasm_ont: (it.strategy == "single" && it.assembler1 == "hifiasm" && it.ontreads)
-            flye: ((it.strategy == "single" && it.assembler1 == "flye") || (it.strategy == "scaffold" && (it.assembler1 == "flye")))
+            flye: (it.strategy == "single" && it.assembler1 == "flye") || (it.strategy == "scaffold" && it.assembler1 == "flye")
         }
         .set { ch_main_assemble }
 
@@ -49,8 +49,8 @@ workflow ASSEMBLE {
             it ->
             reads: [
                 [
-                    it.meta,
-                    it.genome_size
+                    id: it.meta.id,
+                    genome_size: it.genome_size
                 ],
                 it.ontreads ?: it.hifireads,
             ]
@@ -67,6 +67,7 @@ workflow ASSEMBLE {
             .map { it -> [ it.meta, it.hifireads, it.ontreads ?: [] ] }
             .set { hifiasm_inputs }
 
+        hifiasm_inputs.view { it -> "HIFIASM: $it"}
         HIFIASM(hifiasm_inputs, [[], [], []], [[], [], []], [[], []])
 
         GFA_2_FA_HIFI(HIFIASM.out.processed_unitigs)
@@ -78,6 +79,8 @@ workflow ASSEMBLE {
                 .map { it -> [it.meta, it.ontreads, []] }
                 .set { hifiasm_ont_inputs }
 
+        hifiasm_ont_inputs.view { it -> "HIFIASM_ONT: $it"}
+
         HIFIASM_ONT(hifiasm_ont_inputs, [[], [], []], [[], [], []], [[], []])
 
         GFA_2_FA_ONT(HIFIASM_ONT.out.processed_unitigs)
@@ -88,7 +91,8 @@ workflow ASSEMBLE {
         ch_main_branched
             .to_assemble
             .map { it -> [it.meta] }
-            .join(FLYE.out.fasta)
+            //FLYE meta map contains id and genomesize
+            .join(FLYE.out.fasta.map { meta, assembly -> [[meta.id], assembly ] })
             .join(GFA_2_FA_HIFI.out.contigs_fasta)
             .join(GFA_2_FA_ONT.out.contigs_fasta)
             .map { it -> [meta: it[0], flye_assembly: it[1], hifiasm_hifi_assembly: it[2], hifiasm_ont_assembly: it[3]] }
