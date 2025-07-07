@@ -8,36 +8,17 @@ workflow CHOP {
     Channel.empty().set { chopped_reads }
     Channel.empty().set { ch_versions }
 
-    if (params.porechop) {
-        input.map {
-            it ->
-            [
-                meta: it.meta,
-                reads: it.ontreads
-            ]
+    PORECHOP(input)
+
+    input.map {
+            it -> [ it[0] ]
+
         }
-        .set { in_reads }
-        PORECHOP(in_reads)
-        input.map {
-            it ->
-            it - it.subMap('ontreads')
-        }
-        .join(
-            PORECHOP.out.reads
-                .map { it ->
-                    [
-                        meta: it[0],
-                        ont_reads: it[1]
-                    ]
-                }
-            )
+        .join(PORECHOP.out.reads)
         .set { chopped_reads }
 
-        ch_versions.mix(PORECHOP.out.versions)
-    }
-    else {
-        input.set { chopped_reads }
-    }
+    ch_versions.mix(PORECHOP.out.versions)
+
     versions = ch_versions
 
     emit:

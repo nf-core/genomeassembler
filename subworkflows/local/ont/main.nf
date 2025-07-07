@@ -13,7 +13,7 @@ workflow ONT {
 
     PREPARE_ONT(main_in)
 
-    PREPARE_ONT.out.main_out.set { ch_main }
+    PREPARE_ONT.out.main_out.set { ch_main_prepared }
 
     PREPARE_ONT.out.nanoq_report.set { nanoq_report }
 
@@ -21,7 +21,7 @@ workflow ONT {
 
     ch_versions = ch_versions.mix(PREPARE_ONT.out.versions)
 
-    ch_main
+    ch_main_prepared
         .branch {
             it ->
             jellyfish: it.ont_jellyfish
@@ -29,10 +29,10 @@ workflow ONT {
         }
     .set { ch_main_jellyfish_branched }
 
-    JELLYFISH(ch_main_jellyfish_branched.jellyfish, PREPARE_ONT.out.med_len)
+    JELLYFISH(ch_main_jellyfish_branched.jellyfish)
 
     ch_main_jellyfish_branched.no_jelly
-        .mix( JELLYFISH.out.outputs )
+        .mix( JELLYFISH.out.main_out )
         .set { main_out }
 
     JELLYFISH.out.genomescope_summary.set { genomescope_summary }

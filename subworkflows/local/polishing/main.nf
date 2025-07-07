@@ -23,7 +23,7 @@ workflow POLISH {
     POLISH_MEDAKA(ch_main.medaka, meryl_kmers)
 
     POLISH_MEDAKA.out.ch_main
-        .mix { ch_main.no_medaka }
+        .mix(ch_main.no_medaka)
         .set { ch_main }
 
     POLISH_MEDAKA.out.busco_out.set { polish_busco_reports }
@@ -46,7 +46,7 @@ workflow POLISH {
         }
         .set { ch_main }
 
-    POLISH_PILON(ch_main.polish_pilon, meryl_kmers)
+    POLISH_PILON(ch_main.pilon, meryl_kmers)
 
     ch_main.no_pilon.mix(POLISH_PILON.out.ch_main)
         .set { ch_main }

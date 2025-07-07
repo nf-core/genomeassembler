@@ -18,6 +18,7 @@ workflow PREPARE_ONT {
     .set { ch_ont }
 
     ch_ont
+        .ont
         .branch {
             it ->
             to_collect: it.ont_collect
@@ -60,41 +61,37 @@ workflow PREPARE_ONT {
 
     CHOP(chop_in)
 
+    ch_ont_chop_branched.no_chop.view { it -> "UNCHOPPED: $it"}
+
     CHOP.out.chopped_reads
-        .map { it -> [meta: it[0], ontreads: it[1]] }
-        .map { it -> it.collect { entry -> [ entry.value, entry ] } }
-        .set { ch_chopped_reads }
-
-    ch_ont_chop_branched
-        .chop
-        .map { it -> it - it.subMap("ontreads") }
-        .map { it -> it.collect { entry -> [ entry.value, entry ] } }
-        .join( ch_chopped_reads )
-        .map { it -> it.collect { _entry, map -> [ (map.key): map.value ] }.collectEntries() }
-        .mix(ch_ont_chop_branched.no_chop)
-        .set { ch_chopped }
-
-    ch_chopped
-        .map { it -> [it.meta, it.ontreads] }
+        .mix(ch_ont_chop_branched
+            .no_chop
+            .map { it -> [meta: it.meta, ontreads: it.ontreads] } )
         .set {ch_nanoq_in}
-
-    ch_chopped
-        .mix(ch_ont.no_ont)
-        .set { main_out }
 
     RUN_NANOQ(ch_nanoq_in)
 
-    RUN_NANOQ.out.median_length.set { med_len }
+    RUN_NANOQ.out.median_length
+        .map { it -> [meta: it[0], ont_read_length: it[1]] }
+        .map { it -> it.collect { entry -> [ entry.value, entry ] } }.set { med_len }
 
     RUN_NANOQ.out.report.set { nanoq_report }
 
     RUN_NANOQ.out.stats.set { nanoq_stats }
 
+    ch_ont
+        .ont
+        .map { it -> it - it.subMap("ontreads", "ont_read_length") }
+        .map { it -> it.collect { entry -> [ entry.value, entry ] } }
+        .join( med_len )
+        .map { it -> it.collect { _entry, map -> [ (map.key): map.value ] }.collectEntries() }
+        .mix(ch_ont.no_ont)
+        .set { main_out }
+
     versions = ch_versions.mix(COLLECT.out.versions).mix(CHOP.out.versions).mix(RUN_NANOQ.out.versions)
 
     emit:
     main_out
-    med_len
     nanoq_report
     nanoq_stats
     versions

@@ -4,29 +4,21 @@ include { MERYL_UNIONSUM } from '../../../modules/nf-core/meryl/unionsum/main'
 
 workflow PREPARE_SHORTREADS {
     take:
-    main_in
+    shortreads_in
 
     main:
     Channel.empty().set { ch_versions }
 
-    main_in
-        .branch {
-            it ->
-            shortreads: it.shortreads_F
-            no_shortreads: !it.shortread_F
-        }
-        .set { main_branched }
+    //shortreads_in.view { it -> "Shortread input: $it"}
 
-
-    main_branched
-        .shortreads
+    shortreads_in
         .map { create_shortread_channel(it) }
         .set { shortreads }
 
+
     // use modified shortread channel
 
-    main_branched
-        .shortreads
+    shortreads_in
         .map {
             it -> it - it.subMap('shortread_F', 'shortread_R', 'paired')
         }
@@ -42,6 +34,7 @@ workflow PREPARE_SHORTREADS {
         .set { shortreads }
 
     // shortread trimming
+    //shortreads.view { it -> "shortreads: $it" }
 
     shortreads
         .branch {
@@ -74,16 +67,10 @@ workflow PREPARE_SHORTREADS {
     MERYL_UNIONSUM(MERYL_COUNT.out.meryl_db, params.meryl_k)
     MERYL_UNIONSUM.out.meryl_db.set { meryl_kmers }
 
-    // put shortreads back together with samples without shortreads
-    main_branched.no_shortreads
-        .map { it -> it - it.subMap["shortread_F","shortread_R", "paired"] + [shorteads: null] }
-        .mix(shortreads)
-        .set { main_out }
-
     versions = ch_versions.mix(MERYL_COUNT.out.versions).mix(MERYL_UNIONSUM.out.versions)
 
     emit:
-    main_out
+    shortreads
     meryl_kmers
     versions
 }

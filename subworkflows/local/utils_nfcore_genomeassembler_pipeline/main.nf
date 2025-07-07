@@ -66,7 +66,6 @@ workflow PIPELINE_INITIALISATION {
     // Create channel from input file provided through params.input
     //
 
-    Channel.empty().set { ch_refs }
     Channel.fromPath(params.input)
         .splitCsv(header: true)
         .map { it ->
@@ -84,7 +83,7 @@ workflow PIPELINE_INITIALISATION {
                 assembler2: it.assembler2 ?:
                     ["hifiasm_on_hifiasm","flye_on_hifiasm"].contains(params.assembler) ? "hifiasm" :
                     null,
-                scaffolding: it.scaffolding_order,
+                assembly_scaffolding_order: it.assembly_scaffolding_order,
                 genome_size: it.genome_size ?: params.genome_size,
                 assembler1_args: it.assembler1_args ?:
                     (it.assembler1 == "hifiasm") ? params.hifiasm_args :
@@ -101,7 +100,9 @@ workflow PIPELINE_INITIALISATION {
                     null,
                 ont_collect: it.ont_collect ?: params.collect_reads,
                 ont_trim: it.ont_trim ?: params.porechop,
-                ont_jellyfish: it.ont_jellyfish ?: params.jellyfish,
+                ont_jellyfish: it.ont_jellyfish ?: (params.jellyfish && it.ontreads),
+                ont_jellyfish_k: it.ont_jellyfish_k ?: params.kmer_length,
+                ont_read_length: it.ont_read_length ?: params.read_length,
                 hifi_trim: it.hifi_trim ?: params.lima,
                 hifi_primers: it.hifi_primers ?: params.pacbio_primers,
                 polish_medaka: it.polish_medaka ?: params.polish_medaka,
@@ -122,8 +123,8 @@ workflow PIPELINE_INITIALISATION {
                 // reads for qc
                 qc_reads: it.qc_reads ?: params.qc_reads ?: "ont",
                 qc_reads_path: it.qc_reads == "ont" ? (it.ontreads) : (it.hifireads),
-                quast: it.quast ?: params.quast,
-                busco: it.busco ?: params.busco,
+                quast: it.quast ?: params.quast ?: false,
+                busco: it.busco ?: params.busco ?: false,
                 busco_lineage: it.busco_lineage ?: params.busco_lineage,
                 busco_db: it.busco_db ?: params.busco_db,
                 lift_annotations: it.lift_annotations ?: params.lift_annotations,
@@ -138,11 +139,6 @@ workflow PIPELINE_INITIALISATION {
                 shortread_trim: it.shortread_trim ?: params.trim_short_reads
             ] }
         .set { ch_samplesheet }
-    if (params.use_ref) {
-        ch_samplesheet
-            .map { it -> [it.meta, file(it.ref_fasta, checkIfExists: true)] }
-            .set { ch_refs }
-    }
 
     // Define valid hybrid assemblers
 
@@ -163,7 +159,7 @@ workflow PIPELINE_INITIALISATION {
                 ]
                 : null
             // Check if reads and strategy match
-            (it.strategy == "single" && it.ont_reads && it.hifi_reads)
+            (it.strategy == "single" && it.ontreads && it.hifireads)
                 ?
                 [
                     println("Please confirm samplesheet: [sample: $it.meta.id]: Stragety is $it.strategy, but both types of reads are provided."),
@@ -187,7 +183,7 @@ workflow PIPELINE_INITIALISATION {
                 ]
                 : null
             // Check if genome_size is given with --scaffold_longstitch
-            (it.scaffold_longstitch && !it.genome_size && !(it.ont_reads && params.jellyfish))
+            (it.scaffold_longstitch && !it.genome_size && !(it.ontreads && params.jellyfish))
                 ?
                 [
                     println("Please confirm samplesheet: [sample: $it.meta.id]: scaffolding with longstitch requires genome-size. Either provide genome-size estimate, or estimate from ONT reads with --jellyfish"),
@@ -205,7 +201,6 @@ workflow PIPELINE_INITIALISATION {
 
     emit:
     samplesheet = ch_samplesheet
-    refs = ch_refs
     versions = ch_versions
 }
 

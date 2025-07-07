@@ -30,9 +30,9 @@ workflow POLISH_MEDAKA {
 
     ch_main
         .map { it -> it.collect { entry -> [ entry.value, entry ] } }
-        .join { polished_assembly
+        .join( polished_assembly
                 .map { it -> it.collect {  entry -> [ entry.value, entry ] } }
-        }
+        )
         // After joining re-create the maps from the stored map
         .map { it -> it.collect { _entry, map -> [ (map.key): map.value ] }.collectEntries() }
         .map { it -> it - it.subMap["polished_medaka"] + [polished: [medaka: it.polished.medaka ]]}

@@ -13,7 +13,10 @@ workflow RUN_NANOQ {
             ontreads: it.ontreads
         ]
     }
-    .set { in_reads }
+        .set { in_reads }
+
+    in_reads.view {it -> "NANOQ INPUT: $it"}
+
     NANOQ(in_reads)
 
     NANOQ.out.report.set { report }

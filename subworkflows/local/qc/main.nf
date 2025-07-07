@@ -34,7 +34,7 @@ workflow QC {
             }
         .set { merqury_in }
 
-    MERQURY_QC(merqury_in.scaffolds, merqury_in._kmers)
+    MERQURY_QC(merqury_in.scaffolds, merqury_in.kmers)
 
     // Make sure that Polish and Scaffold main channels do not contain assembly_map_bam
 
@@ -72,7 +72,7 @@ workflow QC {
                 .map { it -> it.collect { entry -> [ entry.value, entry ] } }
         )
         .map { it -> it.collect { _entry, map -> [ (map.key): map.value ] }.collectEntries() }
-        .mix { ch_map_branched.no_map_to_assembly }
+        .mix(ch_map_branched.no_map_to_assembly)
         .map { it -> it.collect { entry -> [ entry.value, entry ] } }
         .join(
             scaffolds

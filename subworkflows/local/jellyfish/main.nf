@@ -6,13 +6,12 @@ include { GENOMESCOPE } from '../../../modules/local/genomescope/main'
 
 workflow JELLYFISH {
     take:
-    inputs
-    nanoq_out
+    ch_main
 
     main:
     Channel.empty().set { genomescope_in }
     Channel.empty().set { ch_versions }
-    inputs.map {
+    ch_main.map {
         it ->
             [
                 it.meta,
@@ -20,6 +19,8 @@ workflow JELLYFISH {
             ]
         }
     .set { samples }
+
+    samples.view { it -> "JELLYFISH SAMPLES: $it"}
     COUNT(samples)
     COUNT.out.kmers.set { kmers }
 
@@ -33,33 +34,19 @@ workflow JELLYFISH {
     HISTO(kmers)
     ch_versions = ch_versions.mix(HISTO.out.versions)
 
-    if (!params.read_length == null) {
-        HISTO.out.histo
-        .map {
-            it ->
-                [
-                    it[0],
-                    it[1],
-                    params.kmer_length,
-                    params.read_length
-                ]
-            }
-            .set { genomescope_in }
-    }
-
-    if (params.read_length == null) {
-        HISTO.out.histo
-        .map {
-            it ->
-                [
-                    it[0],
-                    it[1],
-                    params.kmer_length
-                ]
-        }
-        .join(nanoq_out)
+    HISTO.out.histo
+        .join(
+            ch_main
+                .map { it ->
+                    [
+                        it.meta,
+                        it.ont_jellyfish_k,
+                        it.ont_read_length
+                    ]
+                }
+        )
         .set { genomescope_in }
-    }
+
 
     GENOMESCOPE(genomescope_in)
 
@@ -69,7 +56,7 @@ workflow JELLYFISH {
 
     ch_versions = ch_versions.mix(STATS.out.versions)
 
-    inputs
+    ch_main
         .map {
             it -> it - it.subMap('genome_size')
         }

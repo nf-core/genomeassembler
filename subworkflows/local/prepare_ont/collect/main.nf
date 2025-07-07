@@ -8,14 +8,16 @@ workflow COLLECT {
     Channel.empty().set { ch_versions }
 
     ch_input
+        .filter {
+            it -> it.ont_collect
+        }
         .map { row -> [row.meta, row.ontreads] }
         .set { reads }
 
-    if (params.collect) {
-        COLLECT_READS(reads)
-        COLLECT_READS.out.combined_reads.set { reads }
-        ch_versions.mix(COLLECT_READS.out.versions)
-    }
+    COLLECT_READS(reads)
+    COLLECT_READS.out.combined_reads.set { reads }
+    ch_versions.mix(COLLECT_READS.out.versions)
+
     versions = ch_versions
 
     ch_input

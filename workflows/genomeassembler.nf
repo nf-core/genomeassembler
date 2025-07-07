@@ -97,10 +97,10 @@ workflow GENOMEASSEMBLER {
         paired: bool,
         use_short_reads: bool,
         shortread_trim: bool
-
     */
 
     Channel.empty().set { meryl_kmers }
+
     Channel.empty().set { ch_versions }
 
     // Initialize channels for QC report collection
@@ -113,7 +113,6 @@ workflow GENOMEASSEMBLER {
         .tap { busco_files }
         .map { it -> [it[0], it[1], it[1], it[1], it[1]] }
         .tap { merqury_files }
-
     /*
     =============
     Prepare reads
@@ -122,11 +121,26 @@ workflow GENOMEASSEMBLER {
     /*
     Short reads
     */
+    ch_main
+        .filter {
+            it -> it.shortread_F ? true : false
+        }
+        .set { shortreads }
 
+    shortreads.view(it -> "SHORTREADS: $it")
     // adapted to sample-logic
-    PREPARE_SHORTREADS(ch_main)
+    PREPARE_SHORTREADS(shortreads)
     // This changes ch_main shortreads_F and _R become one tuple, paired is gone.
-    PREPARE_SHORTREADS.out.main_out.set { ch_main }
+
+    // put shortreads back together with samples without shortreads
+    ch_main
+        .filter {
+            it -> !it.shortread_F ? true : false
+        }
+        .map { it -> it - it.subMap["shortread_F","shortread_R", "paired"] + [shorteads: null] }
+        .mix(PREPARE_SHORTREADS.out.shortreads)
+        .set { ch_main_shortreaded }
+
     PREPARE_SHORTREADS.out.meryl_kmers.set { meryl_kmers }
 
     ch_versions = ch_versions.mix(PREPARE_SHORTREADS.out.versions)
@@ -136,9 +150,9 @@ workflow GENOMEASSEMBLER {
     */
 
     // adapted to sample-logic
-    ONT(ch_main)
+    ONT(ch_main_shortreaded)
 
-    ONT.out.main_out.set { ch_main }
+    ONT.out.main_out.set { ch_main_onted }
 
     ONT.out.nanoq_report
         .concat(
@@ -164,9 +178,9 @@ workflow GENOMEASSEMBLER {
 
     // adapted to sample-logic
 
-    HIFI(ch_main)
+    HIFI(ch_main_onted)
 
-    HIFI.out.main_out.set { ch_main }
+    HIFI.out.main_out.set { ch_main_prepared }
 
     ch_versions = ch_versions.mix(HIFI.out.versions)
     /*
@@ -174,48 +188,49 @@ workflow GENOMEASSEMBLER {
     */
     // This pipeline is named genomeassembler, so everything goes into assemble
     // even it might not actually be assembled.
-    ASSEMBLE(ch_main, meryl_kmers)
+    ASSEMBLE(ch_main_prepared, meryl_kmers)
 
-    ASSEMBLE.out.ch_main.set { ch_main }
+    ASSEMBLE.out.ch_main.set { ch_main_assembled }
 
     ch_versions = ch_versions.mix(ASSEMBLE.out.versions)
     /*
     Polishing
     */
-    ch_main
+    ch_main_assembled
         .branch {
             it ->
             polish: it.polish_medaka || it.polish_pilon
             no_polish: !it.polish_medaka && !it.polish_pilon
         }
-        .set { ch_main }
-    POLISH(ch_main.polish, meryl_kmers)
+        .set { ch_main_assembled }
 
-    ch_main.no_polish
+    POLISH(ch_main_assembled.polish, meryl_kmers)
+
+    ch_main_assembled.no_polish
         .mix(POLISH.out.ch_main)
-        .set { ch_main }
+        .set { ch_main_polished }
 
     ch_versions = ch_versions.mix(POLISH.out.versions)
 
-    ch_main
+    ch_main_polished
         .branch {
             scaffold: it.scaffold_links || it.scaffold_longstitch || it.scaffold_ragtag
             no_scaffold: !it.scaffold_links && !it.scaffold_longstitch && !it.scaffold_ragtag
         }
     .set {
-        ch_main
+        ch_main_polished
     }
     /*
     Scaffolding
     */
-    SCAFFOLD(ch_main.scaffold, meryl_kmers)
+    SCAFFOLD(ch_main_polished.scaffold, meryl_kmers)
 
     // Recreate ch_main, even though it is not used since there are no later steps._report
 
-    ch_main
+    ch_main_polished
         .no_scaffold
         .mix(SCAFFOLD.out.ch_main)
-        .set { ch_main }
+        .set { ch_main_scaffolded }
 
 
     ch_versions = ch_versions.mix(SCAFFOLD.out.versions)

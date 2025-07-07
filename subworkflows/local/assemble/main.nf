@@ -57,24 +57,36 @@ workflow ASSEMBLE {
             mode: it.flye_mode ?: it.ontreads ? "nano-hq" : "--pacbio-hifi"
         }
         .set { flye_inputs }
+
         FLYE(flye_inputs.reads, flye_inputs.mode)
+
         ch_versions = ch_versions.mix(FLYE.out.versions)
+
         // Assembly hifiasm branch
         ch_main_assemble.hifiasm
             .map { it -> [ it.meta, it.hifireads, it.ontreads ?: [] ] }
             .set { hifiasm_inputs }
+
         HIFIASM(hifiasm_inputs, [[], [], []], [[], [], []], [[], []])
+
         GFA_2_FA_HIFI(HIFIASM.out.processed_unitigs)
+
         ch_versions = ch_versions.mix(HIFIASM.out.versions).mix(GFA_2_FA_HIFI.out.versions)
         // Assemble hifiasm_ont branch
+
         ch_main_assemble.hifiasm_ont
                 .map { it -> [it.meta, it.ontreads, []] }
                 .set { hifiasm_ont_inputs }
+
         HIFIASM_ONT(hifiasm_ont_inputs, [[], [], []], [[], [], []], [[], []])
+
         GFA_2_FA_ONT(HIFIASM_ONT.out.processed_unitigs)
+
         ch_versions = ch_versions.mix(HIFIASM_ONT.out.versions).mix(GFA_2_FA_ONT.out.versions)
+
         // Create a channel containing all assemblies in a "wide" format
-        ch_main_branched.to_assemble
+        ch_main_branched
+            .to_assemble
             .map { it -> [it.meta] }
             .join(FLYE.out.fasta)
             .join(GFA_2_FA_HIFI.out.contigs_fasta)
@@ -88,8 +100,9 @@ workflow ASSEMBLE {
             // I think this should also work without the entry.value, keeping the map in the tuple
             // but it would required a different collect strategy that seems more involved?
             .map { it -> it.collect { entry -> [ entry.value, entry ] } }
-            .join { ch_assemblies
-                    .map { it -> it.collect {  entry -> [ entry.value, entry ] } } }
+            .join(ch_assemblies
+                        .map { it -> it.collect {  entry -> [ entry.value, entry ] } }
+            )
             // After joining re-create the maps from the stored map
             .map { it -> it.collect { _entry, map -> [ (map.key): map.value ] }.collectEntries() }
             // The extra columns are joined and removed via submap
@@ -133,11 +146,11 @@ workflow ASSEMBLE {
                 it ->
                 target: [
                     it.meta,
-                    it.assembly_scaffolding == "ont_on_hifi" ? (it.assembly1) : (it.assembly2)
+                    it.assembly_scaffolding_order == "ont_on_hifi" ? (it.assembly1) : (it.assembly2)
                     ]
                 query: [
                     it.meta,
-                    it.assembly_scaffolding == "ont_on_hifi" ? (it.assembly2) : (it.assembly1)
+                    it.assembly_scaffolding_order == "ont_on_hifi" ? (it.assembly2) : (it.assembly1)
                     ]
             }
             .set { ragtag_in }
@@ -168,27 +181,27 @@ workflow ASSEMBLE {
 
 
     ch_versions = ch_versions.mix(RAGTAG_PATCH.out.versions)
-    /*
-    Prepare alignments
-    */
 
-    ch_main_branched.no_assemble
+    ch_main_branched
+        .no_assemble
         .mix( ch_main_assembled )
-        .set { ch_main }
+        .set { ch_main_to_mapping }
 
-    ch_main
+    ch_main_to_mapping
         .branch {
             it ->
             quast: it.quast
             no_quast: !it.quast
         }
         // Note that this channel is set here but the quast branch is further used
-        .tap { ch_main_quast_branch }
+        .set { ch_main_quast_branch }
+
+    ch_main_quast_branch
         .quast
         .branch {
             it ->
-            use_ref: it.use_ref
-            no_use_ref: !it.use_ref
+                use_ref: it.use_ref
+                no_use_ref: !it.use_ref
         }
         .set {
             ch_quast_branched
@@ -213,8 +226,7 @@ workflow ASSEMBLE {
 
     MAP_TO_REF(map_to_ref_in.reads, map_to_ref_in.ref)
 
-    ch_quast_branched
-        .use_ref
+    ch_ref_mapping_branched
         .to_map
         .map { it -> it - it.subMap["ref_map_bam"] }
         .map { it -> it.collect { entry -> [ entry.value, entry ] } }
@@ -224,27 +236,27 @@ workflow ASSEMBLE {
                 .map { it -> it.collect { entry -> [ entry.value, entry ] } }
         )
         .map { it -> it.collect { _entry, map -> [ (map.key): map.value ] }.collectEntries() }
-        .mix(ch_quast_branched.use_ref.dont_map)
+        .mix(ch_ref_mapping_branched.dont_map)
         .mix(ch_quast_branched.no_use_ref)
         // above recreates ch_main_quast_branch.quast
         .mix(ch_main_quast_branch.no_quast)
-        .set { ch_main }
+        .set { ch_main_to_qc }
 
-    /*
-    QC on initial assembly
-    */
+
+    //QC on initial assembly
+
 
     // scaffolds to QC need to be defined here
-    ch_main
+    ch_main_to_qc
         .map { it -> [it.meta, it.assembly] }
         .set { scaffolds }
 
 
-    QC(ch_main, scaffolds, meryl_kmers)
+    QC(ch_main_to_qc, scaffolds, meryl_kmers)
 
     ch_versions = ch_versions.mix(QC.out.versions)
 
-    ch_main
+    ch_main_to_qc
         .filter {
             it -> it.lift_annotations
         }
@@ -259,12 +271,10 @@ workflow ASSEMBLE {
         .set { liftoff_in }
 
     RUN_LIFTOFF(liftoff_in)
-
     ch_versions = ch_versions.mix(RUN_LIFTOFF.out.versions)
 
-
     emit:
-    ch_main
+    ch_main                     = ch_main_to_qc
     assembly_quast_reports      = QC.out.quast_out
     assembly_busco_reports      = QC.out.busco_out
     assembly_merqury_reports    = QC.out.merqury_report_files

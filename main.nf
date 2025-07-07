@@ -31,7 +31,6 @@ workflow NFCORE_GENOMEASSEMBLER {
 
     take:
         samplesheet // channel: samplesheet read in from --input
-        refs
 
     main:
 
@@ -39,8 +38,7 @@ workflow NFCORE_GENOMEASSEMBLER {
     // WORKFLOW: Run pipeline
     //
     GENOMEASSEMBLER (
-        samplesheet,
-        refs
+        samplesheet
     )
 }
 /*
@@ -67,9 +65,11 @@ workflow {
     //
     // WORKFLOW: Run main workflow
     //
+
     NFCORE_GENOMEASSEMBLER (
-        PIPELINE_INITIALISATION.out.samplesheet, PIPELINE_INITIALISATION.out.refs
+        PIPELINE_INITIALISATION.out.samplesheet
     )
+
     //
     // SUBWORKFLOW: Run completion tasks
     //
