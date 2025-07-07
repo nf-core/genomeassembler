@@ -18,6 +18,7 @@ process REPORT {
     path busco_files, stageAs: "data/busco/*"
     path meryl_files, stageAs: "data/merqury/*"
     path versions, stageAs: "software_versions.yml"
+    val groups
 
     output:
     tuple path("report.html"), path("report_files/*"), emit: report_html
@@ -31,38 +32,36 @@ process REPORT {
 
     script:
     def report_profile = "--profile base"
-    if (params.ont) {
-        report_profile = report_profile << ",nanoq"
-    }
-    if (params.quast) {
-        report_profile = report_profile << ",quast"
-    }
-    if (params.busco) {
-        report_profile = report_profile << ",busco"
-    }
-    if (params.jellyfish) {
-        report_profile = report_profile << ",jellyfish"
-    }
-    if (params.merqury) {
-        report_profile = report_profile << ",merqury"
-    }
     def report_params = ''
-    if (params.ont) {
-        report_params = report_params << ' -P nanoq:true'
+    if (nanoq_files) {
+        report_profile = report_profile << ",nanoq"
+        report_params  = report_params << ' -P nanoq:true'
     }
-    if (params.quast) {
-        report_params = report_params << ' -P quast:true '
+    if (quast_files) {
+        report_profile = report_profile << ",quast"
+        report_params  = report_params << ' -P quast:true '
     }
-    if (params.busco) {
-        report_params = report_params << ' -P busco:true'
+    if (busco_files) {
+        report_profile = report_profile << ",busco"
+        report_params  = report_params << ' -P busco:true'
     }
-    if (params.jellyfish) {
-        report_params = report_params << ' -P jellyfish:true'
+    if (jelly_files) {
+        report_profile = report_profile << ",jellyfish"
+        report_params  = report_params << ' -P jellyfish:true'
     }
-    if (params.merqury) {
-        report_params = report_params << ' -P merqury:true'
+    if (meryl_files) {
+        report_profile = report_profile << ",merqury"
+        report_params  = report_params << ' -P merqury:true'
     }
+
+    def yamlBuilder = new groovy.yaml.YamlBuilder()
+    yamlBuilder(groups)
+    def yaml_content = yamlBuilder.toString().tokenize('\n').join("\n    ")
     """
+    cat <<- END_YAML_GROUPS > groups.yml
+    ${yaml_content}
+    END_YAML_GROUPS
+
     export HOME="\$PWD"
     quarto render report.qmd \\
         ${report_profile} \\

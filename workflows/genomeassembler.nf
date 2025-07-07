@@ -297,7 +297,16 @@ workflow GENOMEASSEMBLER {
         merqury_files = Channel.of([])
     }
 
-    REPORT(report_files, report_functions, nanoq_files, genomescope_files, quast_files, busco_files, merqury_files, Channel.fromPath("${params.outdir}/pipeline_info/nf_core_pipeline_software_versions.yml"))
+    REPORT( report_files,
+            report_functions,
+            nanoq_files,
+            genomescope_files,
+            quast_files,
+            busco_files,
+            merqury_files,
+            Channel.fromPath("${params.outdir}/pipeline_info/nf_core_pipeline_software_versions.yml"),
+            ch_main.map { it -> [sample: [id: it.meta.id, group: it.group]]}.collect()
+    )
 
     //
     // Collate and save software versions

@@ -67,7 +67,6 @@ workflow ASSEMBLE {
             .map { it -> [ it.meta, it.hifireads, it.ontreads ?: [] ] }
             .set { hifiasm_inputs }
 
-        hifiasm_inputs.view { it -> "HIFIASM: $it"}
         HIFIASM(hifiasm_inputs, [[], [], []], [[], [], []], [[], []])
 
         GFA_2_FA_HIFI(HIFIASM.out.processed_unitigs)
@@ -78,8 +77,6 @@ workflow ASSEMBLE {
         ch_main_assemble.hifiasm_ont
                 .map { it -> [it.meta, it.ontreads, []] }
                 .set { hifiasm_ont_inputs }
-
-        hifiasm_ont_inputs.view { it -> "HIFIASM_ONT: $it"}
 
         HIFIASM_ONT(hifiasm_ont_inputs, [[], [], []], [[], [], []], [[], []])
 

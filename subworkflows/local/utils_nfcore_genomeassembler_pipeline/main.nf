@@ -71,6 +71,9 @@ workflow PIPELINE_INITIALISATION {
         .map { it ->
             [
                 meta: [id: it.sample],
+                // new in refactor-assemblies
+                group: it.group ?: "none",
+                // old
                 ontreads: it.ontreads ?: null,
                 hifireads: it.hifireads ?: null,
                 // new in refactor-assemblers
