@@ -21,12 +21,15 @@ workflow ONT {
 
     ch_versions = ch_versions.mix(PREPARE_ONT.out.versions)
 
+    //ch_main_prepared.view { it -> "PREPARED: $it"}
+
     ch_main_prepared
         .branch {
             it ->
             jellyfish: it.ont_jellyfish
             no_jelly: !it.ont_jellyfish
         }
+
     .set { ch_main_jellyfish_branched }
 
     JELLYFISH(ch_main_jellyfish_branched.jellyfish)

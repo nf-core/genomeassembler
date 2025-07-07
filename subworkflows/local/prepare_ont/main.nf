@@ -61,8 +61,6 @@ workflow PREPARE_ONT {
 
     CHOP(chop_in)
 
-    ch_ont_chop_branched.no_chop.view { it -> "UNCHOPPED: $it"}
-
     CHOP.out.chopped_reads
         .mix(ch_ont_chop_branched
             .no_chop
@@ -73,7 +71,8 @@ workflow PREPARE_ONT {
 
     RUN_NANOQ.out.median_length
         .map { it -> [meta: it[0], ont_read_length: it[1]] }
-        .map { it -> it.collect { entry -> [ entry.value, entry ] } }.set { med_len }
+        .map { it -> it.collect { entry -> [ entry.value, entry ] } }
+        .set { med_len }
 
     RUN_NANOQ.out.report.set { nanoq_report }
 
@@ -84,6 +83,9 @@ workflow PREPARE_ONT {
         .map { it -> it - it.subMap("ontreads", "ont_read_length") }
         .map { it -> it.collect { entry -> [ entry.value, entry ] } }
         .join( med_len )
+        .join( ch_nanoq_in
+                .map { it -> it.collect { entry -> [ entry.value, entry ] } }
+            )
         .map { it -> it.collect { _entry, map -> [ (map.key): map.value ] }.collectEntries() }
         .mix(ch_ont.no_ont)
         .set { main_out }

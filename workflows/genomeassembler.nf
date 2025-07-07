@@ -127,7 +127,6 @@ workflow GENOMEASSEMBLER {
         }
         .set { shortreads }
 
-    shortreads.view(it -> "SHORTREADS: $it")
     // adapted to sample-logic
     PREPARE_SHORTREADS(shortreads)
     // This changes ch_main shortreads_F and _R become one tuple, paired is gone.
