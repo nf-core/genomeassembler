@@ -11,19 +11,42 @@ This pipeline can perform assembly, polishing, scaffolding and annotation lift-o
 
 ![Pipeline metromap](images/genomeassembler.light.png)
 
-### Pre-set profiles
+Since it is often difficult to know which tool, or assembly strategy will perform best on a dataset, `nf-core/genomeassembler` can also be used to compare outcomes of different approaches in one run.
+To compare different samples, a column named `group` is required, which should contain the same value for all samples that should be compared to each other.
 
-To ease configuration, there are a couple of pre-defined profiles for various combinations of read sources and assemblers (named readtype_assembler)
+## Parameterization
 
-| ONT | HiFI  | Assembly-strategy                                                      | Profile name                 |
-| --- | ----- | ---------------------------------------------------------------------- | ---------------------------- |
-| Yes | No    | flye                                                                   | `ont_flye`                   |
-| No  | Yes   | flye                                                                   | `hifi_flye`                  |
-| Yes | No    | hifiasm                                                                | `ont_hifiasm`                |
-| No  | Yes   | hifiasm                                                                | `hifi_hifiasm`               |
-| Yes | Yes   | hifiasm --ul                                                           | `hifiont_hifiasm`            |
-| Yes | Yes   | Scaffolding of ONT assemblies (flye) onto HiFi assemblies (hifiasm)    | `hifiont_flye_on_hifiasm`    |
-| Yes | Yes   | Scaffolding of ONT assemblies (hifiasm) onto HiFi assemblies (hifiasm) | `hifiont_hifiasm_on_hifiasm` |
+Parameters for this pipeline can either be supplied **globally**, e.g:
+
+- via `--paramname value`,
+- or in a config with `params { paramname = value }`,
+- or a yaml with:
+
+```yaml
+---
+params:
+  - paramname: "value"
+```
+
+or as **sample parameters**, by adding a _correctly named_ column to the samplesheet. In the above example this would be a column named `paramname`.
+
+Sample parameters take priority over global parameters, if both are provided the sample-specific parameter will be used for that sample.
+
+> [!NOTE]
+> The parameter names will be used in subsequent sections. Since all parameters can be provided per-sample or pipeline wide, no examples will be given.
+
+## Choice of assembly-strategy and assembler
+
+Assembly strategy is controlled via `strategy` (either pipeline parameter or sample-setting), and assembler(s) used are chosen via `assembler` (either pipeline parameter or sample-setting)
+`nf-core/genomeassembler` currently supports the following assembly strategies:
+
+- single: Use a single assembler for a single type of read. The assembler should be provided via `assembler` and can be `hifiasm` or `flye`.
+- hybrid: Use a single assembler for a combined assembly of ONT and HiFi reads. The assembler should be provided via `assembler`. Only `hifiasm` supports hybrid assembly.
+- scaffold: Assemble ONT reads and HiFi indepently and scaffold one assembly onto the other. `assembler` should be: "flye_hifiasm" or "hifiasm_hifiasm" (ONT_HiFi). When running in "scaffold" mode, `assembly_scaffolding_order` can be used to control which assembly gets scaffolded onto which, the default being "ont_on_hifi" where ONT assembly is scaffolded onto HifI assembly.
+
+Assembler specific arguments can be provided, for the assembler via `hifiasm_args` or `flye_args`, or with more fine-grained control via `assembler1_args` and `assembler2_args`.
+`assembler1_args` controls the parameters for the assembler in `single` and `hybrid` strategies, or for the assembler used of ONT reads when using `scaffold`. `assembler2_args` can be used to pass arguments to the assembler used for HiFi reads in `scaffold` mode.
+`assembler[1,2]_args` can only be set via samplesheet.
 
 ## Samplesheet input
 
@@ -38,7 +61,7 @@ You will need to create a samplesheet with information about the samples you wou
 The largest samplesheet format is:
 
 ```csv title="samplesheet.csv"
-sample,ontreads,hifireads,ref_fasta,ref_gff,shortread_F,shortread_R,paired
+sample,ontreads,hifireads
 Sample1,/path/reads/sample1ont.fq.gz,/path/reads/sample1hifi.fq.gz,/path/references/ref.fa,/path/references/ref.gff,/path/reads/sample1_r1.fq.gz,/path/reads/sample1_r2.fq.gz,true
 ```
 

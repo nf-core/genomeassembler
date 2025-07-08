@@ -73,20 +73,20 @@ workflow PIPELINE_INITIALISATION {
                 meta: [id: it.sample],
                 // new in refactor-assemblies
                 group: it.group ?: "none",
-                // old
                 ontreads: it.ontreads ?: null,
                 hifireads: it.hifireads ?: null,
                 // new in refactor-assemblers
                 strategy: it.strategy ?: params.strategy,
                 assembler1: it.assembler1 ?:
+                    ["hifiasm","flye"].contains(it.assembler) ? it.assembler :
                     ["hifiasm","flye"].contains(params.assembler) ? params.assembler :
-                    params.assembler == "flye_on_hifiasm" ? "flye" :
-                    params.assembler == "hifiasm_on_hifiasm" ? "hifiasm"
+                    params.assembler == "flye_hifiasm" ? "flye" :
+                    params.assembler == "hifiasm_hifiasm" ? "hifiasm"
                     : null,
                 assembler2: it.assembler2 ?:
                     ["hifiasm_on_hifiasm","flye_on_hifiasm"].contains(params.assembler) ? "hifiasm" :
                     null,
-                assembly_scaffolding_order: it.assembly_scaffolding_order,
+                assembly_scaffolding_order: it.assembly_scaffolding_order ?: params.assembly_scaffolding_order ?: "ont_on_hifi",
                 genome_size: it.genome_size ?: params.genome_size,
                 assembler1_args: it.assembler1_args ?:
                     (it.assembler1 == "hifiasm") ? params.hifiasm_args :
@@ -101,13 +101,13 @@ workflow PIPELINE_INITIALISATION {
                     (params.polish_medaka) ? "medaka" :
                     (params.polish_pilon) ? "pilon" :
                     null,
-                ont_collect: it.ont_collect ?: params.collect_reads,
-                ont_trim: it.ont_trim ?: params.porechop,
-                ont_jellyfish: it.ont_jellyfish ?: (params.jellyfish && it.ontreads),
+                ont_collect: it.ont_collect ?: params.ont_collect,
+                ont_trim: it.ont_trim ?: params.ont_trim,
+                ont_jellyfish: it.ont_jellyfish ?: (params.ont_jellyfish && it.ontreads),
                 ont_jellyfish_k: it.ont_jellyfish_k ?: params.kmer_length,
                 ont_read_length: it.ont_read_length ?: params.read_length,
-                hifi_trim: it.hifi_trim ?: params.lima,
-                hifi_primers: it.hifi_primers ?: params.pacbio_primers,
+                hifi_trim: it.hifi_trim ?: params.hifi_trim,
+                hifi_primers: it.hifi_primers ?: params.hifi_primers,
                 polish_medaka: it.polish_medaka ?: params.polish_medaka,
                 medaka_model: it.medaka_model ?: params.medaka_model,
                 polish_pilon: it.polish_pilon ?: params.polish_pilon,
@@ -115,6 +115,9 @@ workflow PIPELINE_INITIALISATION {
                 scaffold_links: it.scaffold_longstitch ?: params.scaffold_links,
                 scaffold_ragtag: it.scaffold_longstitch ?: params.scaffold_ragtag,
                 use_ref: it.use_ref ?: params.use_ref ?: it.ref_fasta ? true : false,
+                // not new
+                ref_fasta: it.ref_fasta ?: params.ref_fasta,
+                ref_gff: it.ref_gff ?: params.ref_gff,
                 flye_mode: it.flye_mode ?: params.flye_mode,
                 // assembly already provided?
                 assembly: it.assembly ?: null,
@@ -131,14 +134,12 @@ workflow PIPELINE_INITIALISATION {
                 busco_lineage: it.busco_lineage ?: params.busco_lineage,
                 busco_db: it.busco_db ?: params.busco_db,
                 lift_annotations: it.lift_annotations ?: params.lift_annotations,
-                // not new
-                ref_fasta: it.ref_fasta ?: params.ref_fasta,
-                ref_gff: it.ref_gff ?: params.ref_gff,
+
                 shortread_F: it.shortread_F ?: params.shortread_F,
                 shortread_R: it.shortread_R ?: params.shortread_R,
                 paired: it.paired ?: params.paired,
                 // new:
-                use_short_reads: it.use_short_reads ?: params.short_reads ?: it.shortread_F ? true : false,
+                use_short_reads: it.use_short_reads ?: params.use_short_reads ?: it.shortread_F ? true : false,
                 shortread_trim: it.shortread_trim ?: params.trim_short_reads
             ] }
         .set { ch_samplesheet }

@@ -89,7 +89,7 @@ workflow ASSEMBLE {
             .to_assemble
             .map { it -> [it.meta] }
             //FLYE meta map contains id and genomesize
-            .join(FLYE.out.fasta.map { meta, assembly -> [[meta.id], assembly ] })
+            .join(FLYE.out.fasta.map { meta, assembly -> [[id: meta.id], assembly ] })
             .join(GFA_2_FA_HIFI.out.contigs_fasta)
             .join(GFA_2_FA_ONT.out.contigs_fasta)
             .map { it -> [meta: it[0], flye_assembly: it[1], hifiasm_hifi_assembly: it[2], hifiasm_ont_assembly: it[3]] }
