@@ -77,14 +77,16 @@ workflow PIPELINE_INITIALISATION {
                 hifireads: it.hifireads ?: null,
                 // new in refactor-assemblers
                 strategy: it.strategy ?: params.strategy,
+                assembler: it.assembler ?: params.assembler,
                 assembler1: it.assembler1 ?:
-                    ["hifiasm","flye"].contains(it.assembler) ? it.assembler :
-                    ["hifiasm","flye"].contains(params.assembler) ? params.assembler :
-                    params.assembler == "flye_hifiasm" ? "flye" :
-                    params.assembler == "hifiasm_hifiasm" ? "hifiasm"
-                    : null,
+                    it.assembler == "hifiasm" || it.assembler == "flye" ? it.assembler :
+                    params.assembler == "hifiasm" || params.assembler == "flye" ? params.assembler :
+                    it.assembler.contains("_") ? it.assembler.tokenize("_")[0] :
+                    params.assembler.contains("_") ? it.assembler.tokenize("_")[0] :
+                    null,
                 assembler2: it.assembler2 ?:
-                    ["hifiasm_on_hifiasm","flye_on_hifiasm"].contains(params.assembler) ? "hifiasm" :
+                    it.assembler.contains("_") ? it.assembler.tokenize("_")[1] :
+                    params.assembler.contains("_") ? it.assembler.tokenize("_")[1] :
                     null,
                 assembly_scaffolding_order: it.assembly_scaffolding_order ?: params.assembly_scaffolding_order ?: "ont_on_hifi",
                 genome_size: it.genome_size ?: params.genome_size,
@@ -154,6 +156,14 @@ workflow PIPELINE_INITIALISATION {
     ch_samplesheet
         .map {
             it ->
+            // Check if assembler1 was set
+            (it.assembler1 && !it.assembly)
+                ?
+                [
+                    println("Please confirm samplesheet: [sample: $it.meta.id]: assembler1 could not be set and no assembly was provided."),
+                    "invalid"
+                ]
+                : null
             // Check if primers for lima are provided
             (it.hifi_trim && !it.hifi_primers)
                 ?
