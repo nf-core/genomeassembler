@@ -16,7 +16,7 @@ workflow RUN_LONGSTITCH {
             [
                 it.meta,
                 it.polish.pilon ?: it.polish.medaka ?: it.assembly,
-                it.qc_reads,
+                it.qc_reads_path,
                 it.genome_size
             ]
         }
@@ -35,15 +35,15 @@ workflow RUN_LONGSTITCH {
                 .map { it -> it.collect { entry -> [ entry.value, entry ] } }
         )
         .map { it -> it.collect { _entry, map -> [ (map.key): map.value ] }.collectEntries() }
-        .set { ch_main }
+        .set { ch_main_scaffolded }
 
     ch_versions = ch_versions.mix(LONGSTITCH.out.versions)
 
-    QC(ch_main.map { it -> it - it.submap["assembly_map_bam"]}, scaffolds, meryl_kmers)
+    QC(ch_main_scaffolded.map { it -> it - it.subMap("assembly_map_bam") + [assembly_map_bam: null] }, scaffolds, meryl_kmers)
 
     ch_versions = ch_versions.mix(QC.out.versions)
 
-    ch_main
+    ch_main_scaffolded
         .filter {
             it -> it.lift_annotations
         }

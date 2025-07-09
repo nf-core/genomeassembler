@@ -47,7 +47,7 @@ workflow POLISH_PILON {
 
     ch_versions = ch_versions.mix(RUN_PILON.out.versions)
 
-    QC(ch_main.map { it -> it - it.submap["assembly_map_bam"]}, pilon_polished, meryl_kmers)
+    QC(ch_main.map { it -> it - it.submap("assembly_map_bam") + [assembly_map_bam: null]}, pilon_polished, meryl_kmers)
 
     ch_versions = ch_versions.mix(QC.out.versions)
 

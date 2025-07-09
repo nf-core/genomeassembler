@@ -3,23 +3,24 @@ include { BAM_STATS_SAMTOOLS as BAM_STATS } from '../../../nf-core/bam_stats_sam
 
 workflow MAP_TO_ASSEMBLY {
     take:
-    in_reads
-    genome_assembly
+    map_assembly // meta: [id, qc_reads], reads, refs
 
     main:
     Channel.empty().set { ch_versions }
     // map reads to assembly
-    in_reads
-        .join(genome_assembly)
-        .set { map_assembly }
 
     ALIGN(map_assembly, true, 'bai', false, false)
 
-    ALIGN.out.bam.set { aln_to_assembly_bam }
-    ALIGN.out.index.set { aln_to_assembly_bai }
+    ALIGN.out.bam
+        .map {meta, bam -> [ [id: meta.id], bam ]}
+        .set { aln_to_assembly_bam }
+
+    ALIGN.out.index
+        .map {meta, bai -> [ [id: meta.id], bai ]}
+        .set { aln_to_assembly_bai }
 
     map_assembly
-        .map { meta, _reads, fasta -> [meta, fasta] }
+        .map { meta, _reads, fasta -> [[id: meta.id], fasta] }
         .set { ch_fasta }
 
     aln_to_assembly_bam
@@ -31,6 +32,6 @@ workflow MAP_TO_ASSEMBLY {
     versions = ch_versions.mix(ALIGN.out.versions).mix(BAM_STATS.out.versions)
 
     emit:
-    aln_to_assembly_bam
+    aln_to_assembly_bam //  [id], bam
     versions
 }

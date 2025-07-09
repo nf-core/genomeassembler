@@ -49,17 +49,16 @@ workflow QC {
     ch_map_branched
         .map_to_assembly
         .map {
-            it -> [it.meta, it.qc_reads]
+            it -> [ it.meta, it.qc_reads_path, it.qc_reads ]
         }
         .join(scaffolds)
         .multiMap {
-            meta, reads, target_scaffolds ->
-            reads: [meta, reads]
-            scaffolds: [meta, target_scaffolds]
+            meta, reads, qc_reads, target_scaffolds ->
+            reads: [[id: meta.id, qc_reads:qc_reads], reads, target_scaffolds]
         }
         .set { map_assembly_in }
 
-     MAP_TO_ASSEMBLY(map_assembly_in.reads, map_assembly_in.scaffolds)
+     MAP_TO_ASSEMBLY(map_assembly_in)
 
      // create main channel with mappings
      ch_map_branched

@@ -35,7 +35,7 @@ workflow POLISH_MEDAKA {
         )
         // After joining re-create the maps from the stored map
         .map { it -> it.collect { _entry, map -> [ (map.key): map.value ] }.collectEntries() }
-        .map { it -> it - it.subMap["polished_medaka"] + [polished: [medaka: it.polished.medaka ]]}
+        .map { it -> it - it.subMap("polished_medaka") + [polished: [medaka: it.polished.medaka ]]}
         .set { ch_medaka_out }
 
     ch_main
@@ -46,7 +46,7 @@ workflow POLISH_MEDAKA {
     ch_versions = ch_versions.mix(RUN_MEDAKA.out.versions)
 
     QC(
-        ch_medaka_out.map { it -> it - it.subMap["assembly_map_bam"] },
+        ch_medaka_out.map { it -> it - it.subMap("assembly_map_bam") + [assembly_map_bam: null] },
         polished_assembly,
         meryl_kmers
     )

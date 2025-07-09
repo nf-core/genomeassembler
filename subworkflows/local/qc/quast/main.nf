@@ -21,17 +21,19 @@ workflow RUN_QUAST {
                 quast_in: [
                     it.meta,
                     it.qc_target,
-                    it.ref_fasta,
-                    [],
-                    it.reference_map_bam,
+                    it.ref_fasta ?: [],
+                    it.ref_gff?: [],
+                    it.ref_map_bam ?: [],
                     it.assembly_map_bam
                 ]
                 use_ref: it.use_ref
             }
         .set { quast_in }
+
+    quast_in.quast_in.view { it -> "QUAST_IN: $it"}
         /*
-        * Run QUAST
-        */
+    * Run QUAST
+    */
     QUAST(quast_in.quast_in, quast_in.use_ref, false)
     QUAST.out.results.set { quast_results }
     QUAST.out.tsv.set { quast_tsv }

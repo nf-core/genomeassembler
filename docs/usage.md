@@ -40,11 +40,11 @@ Sample parameters take priority over global parameters, if both are provided the
 Assembly strategy is controlled via `strategy` (either pipeline parameter or sample-setting), and assembler(s) used are chosen via `assembler` (either pipeline parameter or sample-setting)
 `nf-core/genomeassembler` currently supports the following assembly strategies:
 
-- single: Use a single assembler for a single type of read. The assembler should be provided via `assembler` and can be `hifiasm` or `flye`.
-- hybrid: Use a single assembler for a combined assembly of ONT and HiFi reads. The assembler should be provided via `assembler`. Only `hifiasm` supports hybrid assembly.
-- scaffold: Assemble ONT reads and HiFi indepently and scaffold one assembly onto the other. `assembler` should be: "flye_hifiasm" or "hifiasm_hifiasm" (ONT_HiFi). When running in "scaffold" mode, `assembly_scaffolding_order` can be used to control which assembly gets scaffolded onto which, the default being "ont_on_hifi" where ONT assembly is scaffolded onto HifI assembly.
+- single (default): Use a single assembler for a single type of read. The assembler should be provided via `assembler` and can be `hifiasm` (default) or `flye`.
+- hybrid: Use a single assembler for a combined assembly of ONT and HiFi reads. The assembler should be provided via `assembler`. Currently, only `hifiasm` supports hybrid assembly.
+- scaffold: Assemble ONT reads and HiFi indepently and scaffold one assembly onto the other. `assembler` has to be provided as "ont_hifi" and could for example be: "flye_hifiasm" to assemble ont reads with `flye` and hifi reads with `hifiasm` or "hifiasm_hifiasm" to assemble both ont and hifi reads indepently with `hifiasm`. When running in "scaffold" mode, `assembly_scaffolding_order` can be used to control which assembly gets scaffolded onto which, the default being "ont_on_hifi" where ONT assembly is scaffolded onto HifI assembly.
 
-Assembler specific arguments can be provided, for the assembler via `hifiasm_args` or `flye_args`, or with more fine-grained control via `assembler1_args` and `assembler2_args`.
+Assembler specific arguments can be provided for the assembler via `hifiasm_args` or `flye_args`, or with more fine-grained control via `assembler1_args` and `assembler2_args` for scaffolding.
 `assembler1_args` controls the parameters for the assembler in `single` and `hybrid` strategies, or for the assembler used of ONT reads when using `scaffold`. `assembler2_args` can be used to pass arguments to the assembler used for HiFi reads in `scaffold` mode.
 `assembler[1,2]_args` can only be set via samplesheet.
 

@@ -37,8 +37,6 @@ workflow ASSEMBLE {
             }
             .set { ch_main_assemble_branched }
 
-
-    ch_main_assemble_branched.scaffold.view { it -> "BRANCHED SCAFFOLD: $it"}
     // Flye inputs:
     ch_main_assemble_branched
         .single
@@ -46,18 +44,19 @@ workflow ASSEMBLE {
         .mix(
             ch_main_assemble_branched
                 .scaffold
-                .filter { it -> it.assembler1 == "flye" || it.assembler2 == "flye"}
+                .filter { it -> it.assembler1 == "flye" || it.assembler2 == "flye" }
         )
         .set { ch_main_assemble_flye }
-        // Assembly flye branch
-    ch_main_assemble_flye.view { it -> "ASSEMBLE_FLYE: $it"}
+
+    // Assembly flye branch
     ch_main_assemble_flye
         .multiMap {
             it ->
             reads: [
                 [
                     id: it.meta.id,
-                    genome_size: it.genome_size
+                    genome_size: it.genome_size,
+                    flye_args: it.fyle_args
                 ],
                 it.assembler1 == "flye" ? it.ontreads : (it.assembler2 == "flye" ? it.hifireads : null),
             ]
@@ -87,12 +86,12 @@ workflow ASSEMBLE {
             )
             .set { ch_main_assemble_hifi_hifiasm }
 
-        HIFIASM(ch_main_assemble_hifi_hifiasm.map { it -> [ it.meta, it.hifireads, it.ontreads ?: [] ] },
+        HIFIASM(ch_main_assemble_hifi_hifiasm.map { it -> [ [id: it.meta.id, hifiasm_args: it.hifiasm_args], it.hifireads, it.ontreads ?: [] ] },
                  [[], [], []],
                  [[], [], []],
                  [[], []])
 
-        GFA_2_FA_HIFI(HIFIASM.out.processed_unitigs)
+        GFA_2_FA_HIFI( HIFIASM.out.processed_unitigs.map { meta, fasta -> [[id: meta.id], fasta] } )
 
         ch_versions = ch_versions.mix(HIFIASM.out.versions).mix(GFA_2_FA_HIFI.out.versions)
 
@@ -108,9 +107,9 @@ workflow ASSEMBLE {
             .set { ch_main_assemble_ont_hifiasm }
 
 
-        HIFIASM_ONT(ch_main_assemble_ont_hifiasm.map { it -> [ it.meta, it.ontreads, [] ] }, [[], [], []], [[], [], []], [[], []])
+        HIFIASM_ONT(ch_main_assemble_ont_hifiasm.map { it -> [ [id: it.meta.id, hifiasm_args: it.hifiasm_args], it.ontreads, [] ] }, [[], [], []], [[], [], []], [[], []])
 
-        GFA_2_FA_ONT(HIFIASM_ONT.out.processed_unitigs)
+        GFA_2_FA_ONT( HIFIASM_ONT.out.processed_unitigs.map { meta, fasta -> [[id: meta.id], fasta] } )
 
         ch_versions = ch_versions.mix(HIFIASM_ONT.out.versions).mix(GFA_2_FA_ONT.out.versions)
 
@@ -232,10 +231,10 @@ workflow ASSEMBLE {
 
         // hifiasm_hifiasm
         hifiasm_ont_assemblies
-            .filter { it -> it.strategy == "scaffold" && it.assembler1 == "hifiasm" && it.assembler2 == "flye" }
+            .filter { it -> it.strategy == "scaffold" && it.assembler1 == "hifiasm" && it.assembler2 == "hifiasm" }
             .map { it -> it.collect { entry -> [ entry.value, entry ] } }
             .join( hifiasm_hifi_assemblies
-                    .filter{ it -> it.strategy == "scaffold" && it.assembler1 == "hifiasm" && it.assembler2 == "flye" }
+                    .filter{ it -> it.strategy == "scaffold" && it.assembler1 == "hifiasm" && it.assembler2 == "hifiasm" }
                     .map { it -> [ meta: it.meta, hifiasm_assembly: it.assembly2 ] }
                     .map { it -> it.collect { entry -> [ entry.value, entry ] } }
             )
@@ -289,6 +288,8 @@ workflow ASSEMBLE {
         .mix( ch_main_assembled )
         .set { ch_main_to_mapping }
 
+    //ch_main_to_mapping.view { it -> "TO MAPPING: $it"}
+
     ch_main_to_mapping
         .branch {
             it ->
@@ -319,18 +320,17 @@ workflow ASSEMBLE {
 
     ch_ref_mapping_branched
         .to_map
-        .multiMap {
+        .map {
             it ->
-            reads: [it.meta, it.qc_reads]
-            ref: [it.meta, it.ref_fasta]
+            [ [id: it.meta.id, qc_reads: it.qc_reads], it.qc_reads_path, it.ref_fasta ]
         }
-        .set {map_to_ref_in}
+        .set { map_to_ref_in }
 
-    MAP_TO_REF(map_to_ref_in.reads, map_to_ref_in.ref)
+    MAP_TO_REF(map_to_ref_in) // returns meta: [id]
 
     ch_ref_mapping_branched
         .to_map
-        .map { it -> it - it.subMap["ref_map_bam"] }
+        .map { it -> it - it.subMap("ref_map_bam") }
         .map { it -> it.collect { entry -> [ entry.value, entry ] } }
         .join(
             MAP_TO_REF.out.ch_aln_to_ref_bam
@@ -352,7 +352,6 @@ workflow ASSEMBLE {
     ch_main_to_qc
         .map { it -> [it.meta, it.assembly] }
         .set { scaffolds }
-
 
     QC(ch_main_to_qc, scaffolds, meryl_kmers)
 

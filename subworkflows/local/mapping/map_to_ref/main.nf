@@ -3,26 +3,28 @@ include { BAM_STATS_SAMTOOLS as BAM_STATS } from '../../../nf-core/bam_stats_sam
 
 workflow MAP_TO_REF {
     take:
-    in_reads
-    ch_refs
+    ch_map_ref // meta: [id, qc_reads], reads, refs
 
     main:
     Channel.empty().set { ch_versions }
+
     // Map reads to reference
-    in_reads
-        .join(ch_refs)
-        .set { ch_map_ref_in }
+    ALIGN(ch_map_ref, true, 'bai', false, false)
 
-    ALIGN(ch_map_ref_in, true, 'bai', false, false)
+    ALIGN.out.bam
+        .map { meta, bam -> [ [id: meta.id], bam ] }
+        .set { ch_aln_to_ref_bam }
 
-    ALIGN.out.bam.set { ch_aln_to_ref_bam }
+    ALIGN.out.index
+        .map {meta, bai -> [ [id: meta.id], bai ]}
+        .set { aln_to_ref_bai }
 
     ch_aln_to_ref_bam
-        .join(ALIGN.out.index)
+        .join(aln_to_ref_bai)
         .set { ch_aln_to_ref_bam_bai }
 
-    ch_map_ref_in
-        .map { meta, _reads, fasta -> [meta, fasta] }
+    ch_map_ref
+        .map { meta, _reads, fasta -> [[id: meta.id], fasta] }
         .set { ch_fasta }
 
     BAM_STATS(ch_aln_to_ref_bam_bai, ch_fasta)
@@ -30,6 +32,6 @@ workflow MAP_TO_REF {
     versions = ch_versions.mix(ALIGN.out.versions).mix(BAM_STATS.out.versions)
 
     emit:
-    ch_aln_to_ref_bam
+    ch_aln_to_ref_bam //  [id], bam
     versions
 }

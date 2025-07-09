@@ -73,15 +73,15 @@ workflow PIPELINE_INITIALISATION {
                 meta: [id: it.sample],
                 // new in refactor-assemblies
                 group: it.group ?: "none",
-                ontreads: it.ontreads ?: null,
-                hifireads: it.hifireads ?: null,
+                ontreads: it.ontreads ?: params.ontreads,
+                hifireads: it.hifireads ?: params.hifireads,
                 // new in refactor-assemblers
                 strategy: it.strategy ?: params.strategy,
                 assembler: it.assembler ?: params.assembler,
                 assembler1: it.assembler1 ?:
                     it.assembler == "hifiasm" || it.assembler == "flye" ? it.assembler :
-                    params.assembler == "hifiasm" || params.assembler == "flye" ? params.assembler :
                     it.assembler.contains("_") ? it.assembler.tokenize("_")[0] :
+                    params.assembler == "hifiasm" || params.assembler == "flye" ? params.assembler :
                     params.assembler.contains("_") ? it.assembler.tokenize("_")[0] :
                     null,
                 assembler2: it.assembler2 ?:
@@ -106,7 +106,7 @@ workflow PIPELINE_INITIALISATION {
                 ont_collect: it.ont_collect ?: params.ont_collect,
                 ont_trim: it.ont_trim ?: params.ont_trim,
                 ont_jellyfish: it.ont_jellyfish ?: (params.ont_jellyfish && it.ontreads),
-                ont_jellyfish_k: it.ont_jellyfish_k ?: params.kmer_length,
+                ont_jellyfish_k: it.ont_jellyfish_k ?: params.ont_jellyfish_k,
                 ont_read_length: it.ont_read_length ?: params.read_length,
                 hifi_trim: it.hifi_trim ?: params.hifi_trim,
                 hifi_primers: it.hifi_primers ?: params.hifi_primers,
@@ -122,17 +122,17 @@ workflow PIPELINE_INITIALISATION {
                 ref_gff: it.ref_gff ?: params.ref_gff,
                 flye_mode: it.flye_mode ?: params.flye_mode,
                 // assembly already provided?
-                assembly: it.assembly ?: null,
+                assembly: it.assembly ?: "",
                 // ref mapping provided?
-                ref_map_bam: it.ref_map_bam ?: null,
+                ref_map_bam: it.ref_map_bam ?: params.ref_map_bam ?: null,
                 // assembly mapping provided
-                assembly_map_bam: it.assembly_map_bam ?: null,
+                assembly_map_bam: it.assembly_map_bam ?: params.ref_map_bam ?: null,
 
                 // reads for qc
                 qc_reads: ((it.qc_reads == "ont" || params.qc_reads == "ont") && it.ontreads) ? "ont" : "hifi",
-                qc_reads_path: it.qc_reads == "ont" ? (it.ontreads) : (it.hifireads),
-                quast: it.quast ?: params.quast ?: false,
-                busco: it.busco ?: params.busco ?: false,
+                qc_reads_path: ((it.qc_reads == "ont" || params.qc_reads == "ont") && it.ontreads) ? (it.ontreads) : (it.hifireads),
+                quast: it.quast ?: params.quast,
+                busco: it.busco ?: params.busco,
                 busco_lineage: it.busco_lineage ?: params.busco_lineage,
                 busco_db: it.busco_db ?: params.busco_db,
                 lift_annotations: it.lift_annotations ?: params.lift_annotations,
@@ -157,13 +157,13 @@ workflow PIPELINE_INITIALISATION {
         .map {
             it ->
             // Check if assembler1 was set
-            (it.assembler1 && !it.assembly)
+            [(!it.assembler1 && !it.assembly)
                 ?
                 [
                     println("Please confirm samplesheet: [sample: $it.meta.id]: assembler1 could not be set and no assembly was provided."),
                     "invalid"
                 ]
-                : null
+                : null,
             // Check if primers for lima are provided
             (it.hifi_trim && !it.hifi_primers)
                 ?
@@ -171,7 +171,7 @@ workflow PIPELINE_INITIALISATION {
                     println("Please confirm samplesheet: [sample: $it.meta.id]: Please provide the primers used for pacbio sequencing to trim with lima."),
                     "invalid"
                 ]
-                : null
+                : null,
             // Check if reads and strategy match
             (it.strategy == "single" && it.ontreads && it.hifireads)
                 ?
@@ -179,7 +179,7 @@ workflow PIPELINE_INITIALISATION {
                     println("Please confirm samplesheet: [sample: $it.meta.id]: Stragety is $it.strategy, but both types of reads are provided."),
                     "invalid"
                 ]
-                : null
+                : null,
             // Check if assembler can do hybrid
             (it.strategy == "hybrid" && !hybrid_assemblers.contains(it.assembler1))
                 ?
@@ -187,15 +187,15 @@ workflow PIPELINE_INITIALISATION {
                     println("Please confirm samplesheet: [sample: $it.meta.id]: Hybrid assembly can only be performed with $hybrid_assemblers"),
                     "invalid"
                 ]
-                : null
+                : null,
             // Check if qc reads are specified for hybrid assemblies
             (it.strategy == "hybrid" && !params.qc_reads)
                 ?
                 [
-                    println("Please confirm samplesheet: [sample: $it.meta.id]: Please specify which reads should be used for qc: '--qc_reads': 'ONT' or 'HIFI'"),
+                    println("Please confirm samplesheet: [sample: $it.meta.id]: Please specify which reads should be used for qc: '--qc_reads': 'ont' or 'hifi'"),
                     "invalid"
                 ]
-                : null
+                : null,
             // Check if genome_size is given with --scaffold_longstitch
             (it.scaffold_longstitch && !it.genome_size && !(it.ontreads && params.jellyfish))
                 ?
@@ -203,7 +203,8 @@ workflow PIPELINE_INITIALISATION {
                     println("Please confirm samplesheet: [sample: $it.meta.id]: scaffolding with longstitch requires genome-size. Either provide genome-size estimate, or estimate from ONT reads with --jellyfish"),
                     "invalid"
                 ]
-                : null
+                : null,
+            ]
         }
         .collect()
         // error if >0 samples failed a check above
