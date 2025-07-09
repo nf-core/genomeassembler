@@ -12,7 +12,7 @@ workflow POLISH_MEDAKA {
 
     ch_main
         .filter {
-            it -> it.polish.medaka
+            it -> it.polish_medaka
         }
         .multiMap {
             it ->
@@ -25,23 +25,21 @@ workflow POLISH_MEDAKA {
 
     RUN_MEDAKA.out.medaka_out.set { polished_assembly }
 
-    polished_assembly
-        .map { it -> [meta: it[0], polished_medaka: it[1]]}
-
     ch_main
         .map { it -> it.collect { entry -> [ entry.value, entry ] } }
         .join( polished_assembly
+                .map { it -> [meta: it[0], polished_medaka: it[1]]}
                 .map { it -> it.collect {  entry -> [ entry.value, entry ] } }
         )
         // After joining re-create the maps from the stored map
         .map { it -> it.collect { _entry, map -> [ (map.key): map.value ] }.collectEntries() }
-        .map { it -> it - it.subMap("polished_medaka") + [polished: [medaka: it.polished.medaka ]]}
+        .map { it -> it - it.subMap("polished_medaka") + [polished: [medaka: it.polished_medaka ]]}
         .set { ch_medaka_out }
 
     ch_main
         .filter { it -> !it.polish_medaka }
         .mix(ch_medaka_out)
-        .set { ch_main }
+        .set { ch_main_out }
 
     ch_versions = ch_versions.mix(RUN_MEDAKA.out.versions)
 
@@ -75,7 +73,7 @@ workflow POLISH_MEDAKA {
     versions = ch_versions
 
     emit:
-    ch_main
+    ch_main                 = ch_main_out
     quast_out               = QC.out.quast_out
     busco_out               = QC.out.busco_out
     merqury_report_files    = QC.out.merqury_report_files

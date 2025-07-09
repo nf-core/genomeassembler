@@ -31,14 +31,15 @@ workflow POLISH_PILON {
         .set { pilon_polished }
 
     ch_main
-        .map { it -> it - it.subMap("polished") + [polished_medaka: it.polished.medaka ?: null] }
+        .map { it -> it - it.subMap("polished") + [polished_medaka: it.polished ? it.polished.medaka : null] }
         .map { it -> it.collect { entry -> [ entry.value, entry ] } }
         .join(pilon_polished
             .map { it -> [ meta: it[0], polished_pilon: it[1] ] }
             .map { it -> it.collect { entry -> [ entry.value, entry ] } }
         )
         .map { it -> it.collect { _entry, map -> [ (map.key): map.value ] }.collectEntries() }
-        .map { it -> (it.polish_medaka ?
+        .map { it -> (
+                 ["medaka+pilon"].contains(it.polish) ?
                  (it - it.subMap("polished_medaka", "polished_pilon")) :
                  (it - it.subMap("polished_pilon"))) +
                  [polished: [medaka: it.polished_medaka, pilon: it.polished_pilon]]

@@ -29,9 +29,7 @@ workflow RUN_QUAST {
                 use_ref: it.use_ref
             }
         .set { quast_in }
-
-    quast_in.quast_in.view { it -> "QUAST_IN: $it"}
-        /*
+    /*
     * Run QUAST
     */
     QUAST(quast_in.quast_in, quast_in.use_ref, false)

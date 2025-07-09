@@ -15,16 +15,16 @@ workflow POLISH {
 
     ch_main
         .branch { it ->
-            medaka: it.polish_medaka
-            no_medaka: !it.polish_medaka
+            medaka: ["medaka","medaka+pilon"].contains(it.polish)
+            no_medaka: !["medaka","medaka+pilon"].contains(it.polish)
         }
-        .set { ch_main }
+        .set { ch_main_polish }
 
-    POLISH_MEDAKA(ch_main.medaka, meryl_kmers)
+    POLISH_MEDAKA(ch_main_polish.medaka, meryl_kmers)
 
     POLISH_MEDAKA.out.ch_main
-        .mix(ch_main.no_medaka)
-        .set { ch_main }
+        .mix(ch_main_polish.no_medaka)
+        .set { ch_main_polish_pilon }
 
     POLISH_MEDAKA.out.busco_out.set { polish_busco_reports }
 
@@ -38,18 +38,18 @@ workflow POLISH {
     Polishing with short reads using pilon
     */
 
-    ch_main
+    ch_main_polish_pilon
         .branch {
             it ->
-            pilon: it.polish_pilon
-            no_pilon: !it.polish_pilon
+            pilon: ["pilon","medaka+pilon"].contains(it.polish)
+            no_pilon: !["pilon","medaka+pilon"].contains(it.polish)
         }
-        .set { ch_main }
+        .set { ch_main_polish_pilon_in }
 
-    POLISH_PILON(ch_main.pilon, meryl_kmers)
+    POLISH_PILON(ch_main_polish_pilon_in.pilon, meryl_kmers)
 
-    ch_main.no_pilon.mix(POLISH_PILON.out.ch_main)
-        .set { ch_main }
+    ch_main_polish_pilon_in.no_pilon.mix(POLISH_PILON.out.ch_main)
+        .set { ch_out }
 
     polish_busco_reports
         .concat(
@@ -74,7 +74,7 @@ workflow POLISH {
     versions = ch_versions
 
     emit:
-    ch_main
+    ch_main = ch_out
     polish_busco_reports
     polish_quast_reports
     polish_merqury_reports

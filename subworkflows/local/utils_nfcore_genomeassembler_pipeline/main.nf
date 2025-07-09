@@ -99,9 +99,9 @@ workflow PIPELINE_INITIALISATION {
                     (it.assembler2 == "flye") ? params.flye_args :
                     null,
                 polish: it.polish ?:
-                    (params.polish_medaka && params.polish_pilon) ? "medaka+pilon" :
-                    (params.polish_medaka) ? "medaka" :
-                    (params.polish_pilon) ? "pilon" :
+                    (params.polish_medaka && params.polish_pilon && (it.ontreads || params.ontreads)) ? "medaka+pilon" :
+                    (params.polish_medaka && (it.ontreads || params.ontreads)) ? "medaka" :
+                    (params.polish_pilon && (it.shortread_F || params.shortread_F)) ? "pilon" :
                     null,
                 ont_collect: it.ont_collect ?: params.ont_collect,
                 ont_trim: it.ont_trim ?: params.ont_trim,
