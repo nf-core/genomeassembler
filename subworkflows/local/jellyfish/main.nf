@@ -14,14 +14,14 @@ workflow JELLYFISH {
     ch_main.map {
         it ->
             [
-                it.meta,
+                [id: it.meta.id, ont_jellyfish_k: it.ont_jellyfish_k],
                 it.ontreads
             ]
         }
     .set { samples }
 
     COUNT(samples)
-    COUNT.out.kmers.set { kmers }
+    COUNT.out.kmers.map {meta, counts -> [[id: meta.id], counts]}.set { kmers }
 
     ch_versions = ch_versions.mix(COUNT.out.versions)
 

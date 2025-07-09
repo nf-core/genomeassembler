@@ -13,7 +13,11 @@ workflow RUN_RAGTAG {
 
     ch_main
         .multiMap { it ->
-                    assembly: [it.meta, it.polish.pilon ?: it.polish.medaka ?: it.assembly]
+                    assembly:
+                        [
+                            it.meta,
+                            it.polished ? (it.polished.pilon ?: it.polished.medaka) : it.assembly
+                        ]
                     reference: [it.meta, it.ref_fasta]
                     }
         .set { ragtag_in }

@@ -12,7 +12,7 @@ workflow RUN_LINKS {
 
     ch_main
         .multiMap {
-            assembly: [it.meta, it.polish.pilon ?: it.polish.medaka ?: it.assembly]
+            assembly: [it.meta, it.polished ? (it.polished.pilon ?: it.polished.medaka) : it.assembly]
             reads: [it.meta, it.qc_reads_path]
         }
         .set { links_in }

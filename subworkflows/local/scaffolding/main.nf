@@ -31,7 +31,6 @@ workflow SCAFFOLD {
     .set { links_in }
 
     RUN_LINKS(links_in, meryl_kmers)
-
     RUN_LINKS.out.ch_main
         .map { it -> it.subMap("meta", "scaffolds_links")}
         .map { it -> it.collect { entry -> [ entry.value, entry ] } }

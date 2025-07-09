@@ -25,7 +25,7 @@ process COUNT {
         cp ${fasta} ${fasta.baseName}.fasta
     fi
     jellyfish count \\
-        -m ${params.kmer_length} \\
+        -m ${meta.ont_jellyfish_k} \\
         -s 140M \\
         -C \\
         -t ${task.cpus} ${fasta.baseName}.fasta

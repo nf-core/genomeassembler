@@ -15,7 +15,7 @@ workflow RUN_LONGSTITCH {
             it ->
             [
                 it.meta,
-                it.polish.pilon ?: it.polish.medaka ?: it.assembly,
+                it.polished ? (it.polished.pilon ?: it.polished.medaka) : it.assembly,
                 it.qc_reads_path,
                 it.genome_size
             ]
@@ -50,7 +50,7 @@ workflow RUN_LONGSTITCH {
         .map { it ->
                 [
                 it.meta,
-                it.scaffolds_links,
+                it.scaffolds_longstitch,
                 it.ref_fasta,
                 it.ref_gff
                 ]

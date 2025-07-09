@@ -151,91 +151,27 @@
                 }
             }
         },
-        "general_parameters": {
-            "title": "General parameters",
+        "reference_parameters": {
+            "title": "Reference Parameters",
             "type": "object",
             "description": "Options controlling pipeline behavior",
             "default": "",
             "properties": {
+                "ref_fasta": {
+                    "type": "string",
+                    "description": "Path to reference genome seqeunce (fasta)"
+                },
+                "ref_gff": {
+                    "type": "string",
+                    "description": "Path to reference genome annotations (gff)"
+                },
                 "use_ref": {
                     "type": "boolean",
                     "description": "use reference genome",
-                    "default": true
-                },
-                "skip_assembly": {
-                    "type": "boolean",
-                    "description": "skip assembly steps",
-                    "help_text": "Skip assembly and perform only qc. Requires 'assembly' column in the samplesheet"
-                },
-                "skip_alignments": {
-                    "type": "boolean",
-                    "description": "skip alignments during qc"
+                    "hidden": true
                 }
             },
             "fa_icon": "fas fa-bacon"
-        },
-        "ont_options": {
-            "title": "ONT options",
-            "type": "object",
-            "description": "Options for ONT reads",
-            "default": "",
-            "properties": {
-                "ont": {
-                    "type": "boolean",
-                    "description": "ONT reads available?"
-                },
-                "collect": {
-                    "type": "boolean",
-                    "description": "collect ONT reads into a single file"
-                },
-                "porechop": {
-                    "type": "boolean",
-                    "description": "run porechop on ONT reads"
-                },
-                "read_length": {
-                    "type": "integer",
-                    "description": "read length for genomescope (ONT only)",
-                    "minimum": 1
-                },
-                "jellyfish": {
-                    "type": "boolean",
-                    "description": "run jellyfish on ONT reads to compute k-mer distribution and estimate genome size",
-                    "default": true
-                },
-                "dump": {
-                    "type": "boolean",
-                    "description": "dump jellyfish output"
-                },
-                "kmer_length": {
-                    "type": "integer",
-                    "description": "kmer length to be used for jellyfish",
-                    "default": 21,
-                    "minimum": 1
-                }
-            }
-        },
-        "hifi_options": {
-            "title": "HiFi options",
-            "type": "object",
-            "description": "Options for HiFi reads",
-            "default": "",
-            "properties": {
-                "hifi": {
-                    "type": "boolean",
-                    "description": "HiFi reads available?"
-                },
-                "lima": {
-                    "type": "boolean",
-                    "description": "run lima on HiFi reads?"
-                },
-                "pacbio_primers": {
-                    "type": "string",
-                    "format": "file-path",
-                    "exists": true,
-                    "pattern": "^\\S+\\.fn?a(sta)?$",
-                    "description": "file containing pacbio primers for trimming with lima"
-                }
-            }
         },
         "assembly_options": {
             "title": "Assembly options",
@@ -243,11 +179,16 @@
             "description": "Options controlling assembly",
             "default": "",
             "properties": {
+                "strategy": {
+                    "type": "string",
+                    "default": "single",
+                    "description": "Assembly strategy to use. Valid choices are `'single'`, `'hybrid'` and `'scaffold'`"
+                },
                 "assembler": {
                     "type": "string",
                     "description": "Assembler to use. Valid choices are: `'hifiasm'`, `'flye'`,  `'flye_on_hifiasm'` or `hifiasm_on_hifiasm`. `flye_on_hifiasm` will scaffold flye assembly (ont) on hifiasm (hifi) assembly using ragtag. `hifiasm_on_hifiasm` will scaffold hifiasm (ont) onto hifiasm (HiFi) using ragtag",
                     "enum": ["flye", "hifiasm", "flye_on_hifiasm", "hifiasm_on_hifiasm"],
-                    "default": "flye"
+                    "default": "hifiasm"
                 },
                 "genome_size": {
                     "type": "integer",
@@ -264,36 +205,52 @@
                     "type": "string",
                     "description": "additional args for flye"
                 },
-                "hifiasm_ont": {
-                    "type": "boolean",
-                    "description": "Use hifi and ONT reads with `hifiasm --ul`"
-                },
                 "hifiasm_args": {
                     "type": "string",
                     "description": "Extra arguments passed to `hifiasm`"
+                },
+                "assembly_scaffolding_order": {
+                    "type": "string",
+                    "default": "ont_on_hifi",
+                    "description": "When strategy is \"scaffold\", which assembly should be scaffolded onto which?"
                 }
             }
         },
-        "short_read_options": {
-            "title": "Short read options",
+        "ont_read_options": {
+            "title": "ONT read options",
             "type": "object",
-            "description": "Options for short reads",
+            "description": "Options for ONT reads",
             "default": "",
             "properties": {
-                "short_reads": {
-                    "type": "boolean",
-                    "description": "Short reads available?"
+                "ontreads": {
+                    "type": "string",
+                    "description": "Path to ONT reads"
                 },
-                "trim_short_reads": {
+                "ont_trim": {
                     "type": "boolean",
-                    "description": "trim short reads with trimgalore",
-                    "default": true
+                    "description": "Trim ont reads with porechop?"
                 },
-                "meryl_k": {
+                "ont_jellyfish": {
+                    "type": "boolean",
+                    "description": "Run jellyfish on ONT reads (k-mer analysis)"
+                },
+                "ont_jellyfish_k": {
                     "type": "integer",
-                    "description": "kmer length for meryl / merqury",
                     "default": 21,
+                    "description": "k-mer size for jellyfish"
+                },
+                "read_length": {
+                    "type": "integer",
+                    "description": "read length for genomescope (ONT only)",
                     "minimum": 1
+                },
+                "dump": {
+                    "type": "boolean",
+                    "description": "dump jellyfish output"
+                },
+                "ont_collect": {
+                    "type": "boolean",
+                    "description": "Collect ONT reads from several files?"
                 }
             }
         },
@@ -337,6 +294,26 @@
                 }
             }
         },
+        "hifi_read_options": {
+            "title": "HiFi read options",
+            "type": "object",
+            "description": "Options for HiFi reads",
+            "default": "",
+            "properties": {
+                "hifireads": {
+                    "type": "string",
+                    "description": "Path to HiFi reads"
+                },
+                "hifi_trim": {
+                    "type": "boolean",
+                    "description": "Trim HiFi reads with lima"
+                },
+                "hifi_primers": {
+                    "type": "string",
+                    "description": "Primers to use with lima"
+                }
+            }
+        },
         "qc_options": {
             "title": "QC options",
             "type": "object",
@@ -346,7 +323,7 @@
                 "merqury": {
                     "type": "boolean",
                     "default": true,
-                    "description": "Run merqury"
+                    "description": "Run merqury (if short reads are provided)"
                 },
                 "qc_reads": {
                     "type": "string",
@@ -356,8 +333,7 @@
                 },
                 "busco": {
                     "type": "boolean",
-                    "description": "Run BUSCO?",
-                    "default": true
+                    "description": "Run BUSCO?"
                 },
                 "busco_db": {
                     "type": "string",
@@ -371,8 +347,19 @@
                 },
                 "quast": {
                     "type": "boolean",
-                    "description": "Run quast",
-                    "default": true
+                    "description": "Run quast"
+                },
+                "ref_map_bam": {
+                    "type": "string",
+                    "description": "A mapping (bam) of reads mapped to the reference can be provided for QC. If provided alignment to reference fasta will not run"
+                },
+                "assembly": {
+                    "type": "string",
+                    "description": "Can be used to proved existing assembly will skip assembly and perform downstream steps including qc"
+                },
+                "assembly_map_bam": {
+                    "type": "string",
+                    "description": "A mapping (bam) of reads mapped to the provided assembly can be specified for QC. If provided alignment to the provided assembly fasta will not run"
                 }
             }
         },
@@ -388,6 +375,41 @@
                     "default": true
                 }
             }
+        },
+        "short_read_options": {
+            "title": "Short read options",
+            "type": "object",
+            "description": "Options for short reads",
+            "default": "",
+            "properties": {
+                "use_short_reads": {
+                    "type": "boolean",
+                    "description": "Use short reads?",
+                    "hidden": true
+                },
+                "trim_short_reads": {
+                    "type": "boolean",
+                    "description": "trim short reads with trimgalore"
+                },
+                "meryl_k": {
+                    "type": "integer",
+                    "description": "kmer length for meryl / merqury",
+                    "default": 21,
+                    "minimum": 1
+                },
+                "shortread_F": {
+                    "type": "string",
+                    "description": "Path to forward short reads"
+                },
+                "shortread_R": {
+                    "type": "string",
+                    "description": "Path to reverse short reads"
+                },
+                "paired": {
+                    "type": "string",
+                    "description": "Are shortreads paired?"
+                }
+            }
         }
     },
     "allOf": [
@@ -401,19 +423,13 @@
             "$ref": "#/$defs/generic_options"
         },
         {
-            "$ref": "#/$defs/general_parameters"
-        },
-        {
-            "$ref": "#/$defs/ont_options"
-        },
-        {
-            "$ref": "#/$defs/hifi_options"
+            "$ref": "#/$defs/reference_parameters"
         },
         {
             "$ref": "#/$defs/assembly_options"
         },
         {
-            "$ref": "#/$defs/short_read_options"
+            "$ref": "#/$defs/ont_read_options"
         },
         {
             "$ref": "#/$defs/polishing_options"
@@ -422,10 +438,16 @@
             "$ref": "#/$defs/scaffolding_options"
         },
         {
+            "$ref": "#/$defs/hifi_read_options"
+        },
+        {
             "$ref": "#/$defs/qc_options"
         },
         {
             "$ref": "#/$defs/annotations_options"
+        },
+        {
+            "$ref": "#/$defs/short_read_options"
         }
     ]
 }
