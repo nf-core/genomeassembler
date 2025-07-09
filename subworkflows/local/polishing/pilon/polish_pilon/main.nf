@@ -11,17 +11,20 @@ workflow POLISH_PILON {
     main:
     Channel.empty().set { ch_versions }
 
-    ch_main.branch {
-        it ->
-        shortreads: [it.meta, it.shortreads]
-        assembly: [
-            it.meta,
-            it.polish == "medaka+pilon" ? it.polished.medaka : it.assembly
-            ]
-    }
-    .set { map_sr_in }
+    ch_main
+        .multiMap {
+            it ->
+            shortreads: [it.meta, it.shortreads]
+            assembly: [
+                it.meta,
+                it.polish == "medaka+pilon" ? it.polished.medaka : it.assembly
+                ]
+        }
+        .set { map_sr_in }
 
     MAP_SR(map_sr_in.shortreads, map_sr_in.assembly)
+
+    MAP_SR.out.aln_to_assembly_bam_bai.view { it -> "SR MAPPED: $it"}
 
     ch_versions = ch_versions.mix(MAP_SR.out.versions)
 
@@ -31,24 +34,26 @@ workflow POLISH_PILON {
         .set { pilon_polished }
 
     ch_main
-        .map { it -> it - it.subMap("polished") + [polished_medaka: it.polished ? it.polished.medaka : null] }
+        .map { it -> it - it.subMap("polished") + [polished_medaka: it.polish == "medaka+pilon" ? it.polished.medaka : null] }
         .map { it -> it.collect { entry -> [ entry.value, entry ] } }
-        .join(pilon_polished
-            .map { it -> [ meta: it[0], polished_pilon: it[1] ] }
-            .map { it -> it.collect { entry -> [ entry.value, entry ] } }
+        .join(
+            pilon_polished
+                .map { it -> [ meta: it[0], polished_pilon: it[1] ] }
+                .map { it -> it.collect { entry -> [ entry.value, entry ] } }
         )
         .map { it -> it.collect { _entry, map -> [ (map.key): map.value ] }.collectEntries() }
         .map { it -> (
                  ["medaka+pilon"].contains(it.polish) ?
                  (it - it.subMap("polished_medaka", "polished_pilon")) :
-                 (it - it.subMap("polished_pilon"))) +
+                 (it - it.subMap("polished_pilon"))
+                 ) +
                  [polished: [medaka: it.polished_medaka, pilon: it.polished_pilon]]
         }
         .set { ch_main }
 
     ch_versions = ch_versions.mix(RUN_PILON.out.versions)
 
-    QC(ch_main.map { it -> it - it.submap("assembly_map_bam") + [assembly_map_bam: null]}, pilon_polished, meryl_kmers)
+    QC(ch_main.map { it -> it - it.submap("assembly_map_bam") + [assembly_map_bam: null] }, pilon_polished, meryl_kmers)
 
     ch_versions = ch_versions.mix(QC.out.versions)
 
