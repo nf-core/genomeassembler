@@ -31,7 +31,7 @@ workflow PREPARE_HIFI {
         .multiMap {
             it ->
             reads: [it.meta, it.hifireads]
-            primers: [it.meta, it.hifi_primers]
+            primers: it.hifi_primers
         }
         .set { ch_lima_in }
 
