@@ -71,6 +71,7 @@ The samplesheet _must_ contain a column name `sample` [string].
 
 Further commonly used columns _can_ be:
 
+- `group` [string] to group different samples in the report to facilitate comparisons.
 - `ontreads` [path] for long reads produced with oxford nanopore sequencers
 - `hifireads` [path] for long reads produced with pacbio sequencers in "HiFi" mode
 - Reference information:

@@ -62,8 +62,14 @@ workflow PREPARE_SHORTREADS {
         .set { shortreads }
 
     ch_versions = ch_versions.mix(TRIMGALORE.out.versions)
-
-    MERYL_COUNT(shortreads.map { it -> [ it.meta, it.shortreads ] }, params.meryl_k)
+    shortreads
+                .filter { it -> it.merqury }
+                .multiMap { it ->
+                    reads: [ it.meta, it.shortreads ]
+                    kmer_size: it.meryl_k
+                }
+                .set { meryl_in }
+    MERYL_COUNT(meryl_in.reads, meryl_in.kmer_size)
     MERYL_UNIONSUM(MERYL_COUNT.out.meryl_db, params.meryl_k)
     MERYL_UNIONSUM.out.meryl_db.set { meryl_kmers }
 

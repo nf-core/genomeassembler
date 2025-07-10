@@ -62,8 +62,15 @@ workflow PREPARE_ONT {
     CHOP(chop_in)
 
     CHOP.out.chopped_reads
+        .join(ch_ont_chop_branched
+            .chop
+            .map { it -> [it.meta, it.ont_nanoq] }
+        )
+        .filter { it -> it[2] == true }
+        .map { it -> [meta: it[0], ontreads: it[1]]}
         .mix(ch_ont_chop_branched
             .no_chop
+            .filter { it -> it.ont_nanoq }
             .map { it -> [meta: it.meta, ontreads: it.ontreads] } )
         .set {ch_nanoq_in}
 
@@ -80,6 +87,7 @@ workflow PREPARE_ONT {
 
     ch_ont
         .ont
+        .filter { it -> it.ont_nanoq }
         .map { it -> it - it.subMap("ontreads", "ont_read_length") }
         .map { it -> it.collect { entry -> [ entry.value, entry ] } }
         .join( med_len )
@@ -88,6 +96,7 @@ workflow PREPARE_ONT {
             )
         .map { it -> it.collect { _entry, map -> [ (map.key): map.value ] }.collectEntries() }
         .mix(ch_ont.no_ont)
+        .mix(ch_ont.ont.filter { it -> !it.nanoq })
         .set { main_out }
 
     versions = ch_versions.mix(COLLECT.out.versions).mix(CHOP.out.versions).mix(RUN_NANOQ.out.versions)

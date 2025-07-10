@@ -1,17 +1,16 @@
 ---
 title: "nf-core/genomeassembler report"
-author: ""
 format: dashboard
 editor: source
 nav-buttons:
     - icon: github
     - href: https://github.com/nf-core/genomeassembler
 params:
-    nanoq: false
-    busco: false
-    quast: false
-    jellyfish: false
-    merqury: false
+    nanoq: true
+    busco: true
+    quast: true
+    jellyfish: true
+    merqury: true
 ---
 
 ```{r load libraries and functions}
@@ -23,21 +22,43 @@ params:
 library(tidyverse)
 library(magrittr)
 library(plotly)
+#library(gt)
 # Load functions
-list.files("functions", full.names = T, pattern = ".R") %>%
+list.files("functions",
+           full.names = T,
+           pattern = ".R") %>%
     map(\(x) source(x))
 
 # Set default ggplot theme
 theme_set(theme_bw(base_size = 14,
                     base_family = "Arial"))
 theme_update(strip.background = element_blank(),
-                axis.text.x = element_text(angle = 70, hjust = 1))
+             axis.text.x = element_text(angle = 70, hjust = 1))
 ## Colors, these come from the khroma package ("muted")
 ### For <=9 stages:
-color_scale_plots <- scale_color_manual(values = c("#CC6677", "#332288", "#DDCC77", "#117733", "#88CCEE", "#882255", "#44AA99", "#999933", "#AA4499"), na.value = "#DDDDDD")
-fill_scale_plots <- scale_fill_manual(values = c("#CC6677", "#332288", "#DDCC77", "#117733", "#88CCEE", "#882255", "#44AA99", "#999933", "#AA4499"), na.value = "#DDDDDD")
+colors_9 <- c(
+  "#CC6677",
+  "#332288",
+  "#DDCC77",
+  "#117733",
+  "#88CCEE",
+  "#882255",
+  "#44AA99",
+  "#999933",
+  "#AA4499"
+)
+color_scale_plots <- scale_color_manual(values = colors_9, na.value = "#DDDDDD")
+fill_scale_plots <- scale_fill_manual(values = colors_9, na.value = "#DDDDDD")
+
+
 # Base directory containing reports
-data_base = "data/"
+data_base <-  "data/"
+
+# groups
+groups <- yaml::read_yaml("examples/yml/example.yml") %>%
+  map_dfr(\(row)
+          data.frame(sample = pluck(row, 1, "id"), group = pluck(row, 1, "group"))) %>%
+  mutate(group = case_when(group %in% c("","null") ~ sample, TRUE ~ group))
 ```
 
 # About
@@ -60,7 +81,8 @@ nanoq was not included in the pipeline run, no ONT reads were included.
 nanoq_reports <- list.files(paste0(data_base, "nanoq"),
                             pattern = "report.json",
                             full.names = T) %>%
-    map_dfr(\(x) read_nanoq(x))
+    map_dfr(\(x) read_nanoq(x)) %>%
+    left_join(groups, by = join_by(sample))
 ```
 
 ```{r}
@@ -71,12 +93,12 @@ nanoq_reports <- list.files(paste0(data_base, "nanoq"),
 # This is an rmd chunk in plain text.
 
 dir.create("nanoq_files")
-for (i in 1:length(unique(nanoq_reports$sample))) {
+for (i in 1:length(unique(nanoq_reports$group))) {
 paste0('```{r}\n
             #| title: "Nanoq read statistics"
             p <- nanoq_reports %>%
             filter(stat %in% c("Median Length", "Longest", "Median Quality","Bases")) %>%
-            filter(sample == "', unique(nanoq_reports$sample)[i], '") %>%
+            filter(group == "', unique(nanoq_reports$group)[i], '") %>%
             mutate(stat=fct_relevel(stat,c("Bases","Longest","Median Length","Median Quality"))) %>%
             ggplot(aes(x = sample, y = val)) +
             geom_line() +
@@ -90,7 +112,7 @@ paste0('```{r}\n
                     legend.title = element_blank(),
                     panel.grid.minor = element_blank())
         ggplotly(p)\n```') %>%
-    write_lines(glue::glue("nanoq_files/_{ unique(nanoq_reports$sample)[i] }_nanoq.Rmd"))
+    write_lines(glue::glue("nanoq_files/_{ unique(nanoq_reports$group)[i] }_nanoq.Rmd"))
 }
 ```
 
@@ -102,36 +124,36 @@ paste0('```{r}\n
 #| eval: !expr params$nanoq
 #| results: asis
 
-# This loop creates one tab per sample.
+# This loop creates one tab per group
 ## Each tab contains 3 valueboxes
 ## Below the valueboxes, the sample-specific plot code generated above is inserted
 
-for (i in 1:length(unique(nanoq_reports$sample))) {
-    cat(paste0('## ', unique(nanoq_reports$sample)[i], '\n\n'),
+for (i in 1:length(unique(nanoq_reports$group))) {
+    cat(paste0('## ', unique(nanoq_reports$group)[i], '\n\n'),
         paste0('### { width = 30% }', '\n\n'),
         paste0('::: {.valuebox icon="magic" color="primary" title="Total bases sequenced"}','\n'),
         paste0(nanoq_reports %>%
             filter(stat == "Bases") %>%
-            filter(sample == unique(nanoq_reports$sample)[i],) %$%
+            filter(group == unique(nanoq_reports$group)[i],) %$%
             sum(val) %>%
             format(scientific=-1,trim=T, digits = 3, drop0trailing=T),'\n'),
         paste0(':::', '\n\n'),
         paste0('::: {.valuebox icon="collection" color="secondary" title="Number of reads"}', '\n'),
         paste0(nanoq_reports %>%
                 filter(stat == "N Reads") %>%
-                filter(sample == unique(nanoq_reports$sample)[i]) %$%
-                min(val) %>%
+                filter(group == unique(nanoq_reports$group)[i]) %$%
+                sum(val) %>%
                 paste(" bases"), '\n'),
         paste0(':::', '\n\n'),
         paste0('::: {.valuebox icon="chevron-double-up" color="success" title="Longest read"}', '\n'),
         paste0(nanoq_reports %>%
                 filter(stat == "Longest") %>%
-                filter(sample == unique(nanoq_reports$sample)[i]) %$%
+                filter(group == unique(nanoq_reports$group)[i]) %$%
                 max(val) %>%
                 paste0(" bases"),'\n'),
         paste0(':::', '\n\n'),
         paste0('### ', '\n\n'),
-        knitr::knit_child(glue::glue('nanoq_files/_{ unique(nanoq_reports$sample)[i] }_nanoq.Rmd'),
+        knitr::knit_child(glue::glue('nanoq_files/_{ unique(nanoq_reports$group)[i] }_nanoq.Rmd'),
                         envir = globalenv(),
                         quiet = TRUE),
         paste0('\n\n'),
@@ -167,19 +189,18 @@ quast_stats <- list.files(paste0(data_base, "quast"),
                             full.names = T) %>%
     map_dfr(\(x) {
     read_quast_report(x) %>%
-    mutate(sample = str_extract(x %>% basename(),
-                        ".+?(?=_[assembly|links|longstitch|ragtag|medaka|pilon])"),
+    mutate(
+            sample = str_extract(x %>% basename(),
+                                ".+?(?=_[assemble|polish|run])"),
             stage = case_when(
                 str_detect(x, "_ragtag") ~ "RagTag",
                 str_detect(x, "_medaka") ~ "medaka",
                 str_detect(x, "_pilon") ~ "pilon",
                 str_detect(x, "_longstitch") ~ "longstitch",
                 str_detect(x, "_links") ~ "LINKS",
-                str_detect(x, "assembly") ~ "Assembly",
-                TRUE ~ "Unknown")
-            )
-        }
-    )
+                str_detect(x, "assemble") ~ "Assembly",
+                TRUE ~ "Unknown")) }) %>%
+    left_join(groups, by = join_by(sample))
 ```
 
 ```{r quast write length plots}
@@ -188,10 +209,10 @@ quast_stats <- list.files(paste0(data_base, "quast"),
 # This creates code that will generate the length plot based on the contents of the quast report.
 dir.create("quast_files")
 dir.create("quast_files/length")
-for (i in 1:length(unique(quast_stats$sample))) {
+for (i in 1:length(unique(quast_stats$group))) {
 paste0('```{r}\n
     p <- quast_stats %>%
-        filter(sample == "', unique(quast_stats$sample)[i], '") %>%
+        filter(group == "', unique(quast_stats$group)[i], '") %>%
         filter(str_detect(stat, "[L].*[59]0")) %>%
         mutate(stat = fct_relevel(stat, "L50","L90","LG50","LG90")) %>%
         ggplot(aes(x=stat, y=value)) +
@@ -205,7 +226,7 @@ paste0('```{r}\n
         labs(title = "QUAST: L(G) 50 and 90") +
         theme(panel.border = element_rect(fill = NA))
         ggplotly(p) \n```') %>%
-    write_lines(glue::glue("quast_files/length/_{ unique(quast_stats$sample)[i] }_quast.Rmd"))
+    write_lines(glue::glue("quast_files/length/_{ unique(quast_stats$group)[i] }_quast.Rmd"))
 }
 ```
 
@@ -215,10 +236,10 @@ paste0('```{r}\n
 # This creates code that will generate the contig plots based on the contents of the quast report.
 
 dir.create("quast_files/contigs")
-for (i in 1:length(unique(quast_stats$sample))) {
+for (i in 1:length(unique(quast_stats$group))) {
 paste0('```{r}\n
     p <- quast_stats %>%
-    filter(sample == "', unique(quast_stats$sample)[i], '") %>%
+    filter(group == "', unique(quast_stats$group)[i], '") %>%
     filter(str_detect(stat, "# contigs \\\\(")) %>%
     filter(!str_detect(stat, ">= 0")) %>%
     mutate(stat = stat %>% str_remove_all("# contigs ") %>% str_remove_all("[()]") %>% fct_inorder()) %>%
@@ -235,7 +256,7 @@ paste0('```{r}\n
     labs(title = "QUAST: Number of contigs by size")
 ggplotly(p)
     p <- quast_stats %>%
-    filter(sample == "', unique(quast_stats$sample)[i], '") %>%
+    filter(group == "', unique(quast_stats$group)[i], '") %>%
     filter(str_detect(stat, "Total length")) %>%
     filter(!str_detect(stat, ">= 0")) %>%
     mutate(stat = stat %>% str_remove_all("Total length ") %>% str_remove_all("[()]") %>% fct_inorder()) %>%
@@ -266,7 +287,7 @@ ggplotly(p)
     )
 ggplotly(p)
     \n```') %>%
-    write_lines(glue::glue("quast_files/contigs/_{ unique(quast_stats$sample)[i] }_quast.Rmd"))
+    write_lines(glue::glue("quast_files/contigs/_{ unique(quast_stats$group)[i] }_quast.Rmd"))
 }
 ```
 
@@ -278,27 +299,28 @@ ggplotly(p)
 # Per sample there are 3 value boxes
 # Below the value boxes there are two plots, one showing the length and one showing the contig statistics
 
-for (i in 1:length(unique(quast_stats$sample))) {
-    cat(paste0('## ', unique(quast_stats$sample)[i], '\n'),
+for (i in 1:length(unique(quast_stats$group))) {
+    cat(paste0('## ', unique(quast_stats$group)[i], '\n'),
         paste0('### { width=30% }\n\n'),
-        paste0('::: {.valuebox icon="arrow-up-right-circle" color="primary" title="Total length"}\n'),
+        paste0('::: {.valuebox icon="arrow-up-right-circle" color="primary" title="Longest length"}\n'),
         quast_stats %>%
-            filter(sample == unique(quast_stats$sample)[i]) %>%
-            filter(stat == "Total length (>= 0 bp)") %$%
-            max(value) %>%
-            format(
+            filter(group == unique(quast_stats$group)[i]) %>%
+            filter(stat == "Total length (>= 0 bp)") %>%
+            filter(value == max(value)) %$%
+            paste(
+            format(value,
                 scientific = -1,
                 trim = T,
                 digits = 3,
                 drop0trailing = T
-            ) %>%
+            ), "in sample: ",sample, sep = " ") %>%
             paste("bp"),
         paste0('\n'),
         paste0(':::'),
         paste0('\n\n'),
-        paste0('::: {.valuebox icon="percent" color="success" title="GC Content"}\n'),
+        paste0('::: {.valuebox icon="percent" color="success" title="Average GC Content"}\n'),
         quast_stats %>%
-            filter(sample == unique(quast_stats$sample)[i]) %>%
+            filter(group == unique(quast_stats$group)[i]) %>%
             filter(stat == "GC (%)") %$%
             mean(value) %>%
             round(2) %>%
@@ -308,11 +330,11 @@ for (i in 1:length(unique(quast_stats$sample))) {
         paste0('\n\n'),
         paste0('::: {.valuebox icon="emoji-heart-eyes" color="info" title="Lowest L90"}\n'),
         quast_stats %>%
-            filter(sample == unique(quast_stats$sample)[i]) %>%
+            filter(group == unique(quast_stats$group)[i]) %>%
             filter(stat == "L90") %>%
             filter(value == min(value)) %>%
             unique() %$%
-            glue::glue("{unique(value)}, at stage(s): {paste(stage, collapse = ', ')}"),
+            glue::glue("{unique(value)}, in sample(s) {unique(sample)} at stage(s): {paste(stage, collapse = ', ')}"),
         paste0('\n'),
         paste0(':::'),
         paste0('\n\n'),
@@ -320,36 +342,41 @@ for (i in 1:length(unique(quast_stats$sample))) {
         paste0('\n\n'),
         paste0('#### Tables \n\n'),
         quast_stats %>%
-            filter(sample == unique(quast_stats$sample)[i]) %>%
-            dplyr::select(sample, stage, stat, value) %>%
-            pivot_wider(names_from = "stat", values_from = "value") %>%
-            #knitr::kable(format = 'html', caption = glue::glue('QUAST statistics'))
-            gt::gt() %>%
-            gt::cols_nanoplot(columns = starts_with("# contigs ("),
-                    new_col_name = "Contigs_by_size",
-                    new_col_label = gt::md("*# Contigs by size*")) %>%
-            gt::cols_nanoplot(columns = starts_with("Total length ("),
-                    new_col_name = "Total_length",
-                    new_col_label = gt::md("*Total length*")) %>%
-            gt::tab_footnote(
-                    footnote = "Breaks are: contigs >= 0, 1kb, 5kb, 10kb, 25kb, 50kb",
-                    locations = gt::cells_column_labels(columns = c(Contigs_by_size, Total_length))) %>%
-            gt::cols_align(align = "center",
-                    columns = c(Contigs_by_size, Total_length)) %>%
-            gt::cols_move(Contigs_by_size, "Largest contig") %>%
-            gt::cols_move(Total_length, "Total length") %>%
-            gt::as_raw_html(),
+          filter(group == unique(quast_stats$group)[i]) %>%
+          dplyr::select(sample, stage, stat, value) %>%
+          pivot_wider(names_from = "stat", values_from = "value",id_cols = c(sample, stage)) %>%
+          dplyr::arrange(factor(stage, levels = c("Assembly","medaka", "pilon","links","longstitch","ragtag")), sample) %>%
+          gt::gt() %>%
+          gt::cols_nanoplot(columns = starts_with("# contigs ("),
+                            new_col_name = "Contigs_by_size",
+                            new_col_label = gt::md("*# Contigs by size*")) %>%
+          gt::cols_nanoplot(columns = starts_with("Total length ("),
+                            new_col_name = "Total_length",
+                            new_col_label = gt::md("*Total length*")) %>%
+          gt::tab_footnote(
+                  footnote = "Breaks are: contigs >= 0, 1kb, 5kb, 10kb, 25kb, 50kb",
+                  locations = gt::cells_column_labels(columns = c(Contigs_by_size, Total_length))) %>%
+          gt::cols_align(align = "center", columns = c(Contigs_by_size, Total_length)) %>%
+          gt::cols_move(Contigs_by_size, "Largest contig") %>%
+          gt::cols_move(Total_length, "Total length") %>%
+          gt::as_raw_html()
+        ,
         paste0('\n\n'),
-        paste0('#### Plots \n\n'),
-        knitr::knit_child(glue::glue('quast_files/length/_{ unique(quast_stats$sample)[i] }_quast.Rmd'),
+        paste0('#### Plots { orientation="columns" }'),
+        paste0('\n\n'),
+        paste0('#####'),
+        paste0('\n\n'),
+        knitr::knit_child(glue::glue('quast_files/length/_{ unique(quast_stats$group)[i] }_quast.Rmd'),
                             envir = globalenv(),
                             quiet = TRUE),
-        paste0('\n\n\n'),
-        knitr::knit_child(glue::glue('quast_files/contigs/_{ unique(quast_stats$sample)[i] }_quast.Rmd'),
+        paste0('\n\n'),
+        paste0('#####'),
+        paste0('\n\n'),
+        knitr::knit_child(glue::glue('quast_files/contigs/_{ unique(quast_stats$group)[i] }_quast.Rmd'),
                         envir = globalenv(),
                         quiet = TRUE),
         paste0('\n\n\n'),
-    sep = "")
+      sep = "")
 }
 ```
 
@@ -378,7 +405,8 @@ BUSCO was not included in the pipeline run.
 busco_reports <- list.files(paste0(data_base, "busco"),
                             full.names = T,
                             pattern = "batch_summary") %>%
-    map_dfr(\(x) read_busco_batch(x))
+    map_dfr(\(x) read_busco_batch(x)) %>%
+    left_join(groups, by = join_by(sample))
 ```
 
 
@@ -389,10 +417,10 @@ busco_reports <- list.files(paste0(data_base, "busco"),
 
 dir.create("busco_files")
 dir.create("busco_files/orthologs")
-for (i in 1:length(unique(busco_reports$sample))) {
+for (i in 1:length(unique(busco_reports$group))) {
 paste0('```{r}\n
             p <- busco_reports %>%
-                filter(sample == "', unique(busco_reports$sample)[i], '") %>%
+                filter(group == "', unique(busco_reports$group)[i], '") %>%
                 filter(Var %in% c("Complete","Single","Duplicated","Fragmented")) %>%
                 ggplot(aes(y = value, x = Var)) +
                 geom_point(
@@ -416,7 +444,7 @@ paste0('```{r}\n
                 )
                 ggplotly(p)
                 \n```') %>%
-    write_lines(glue::glue("busco_files/orthologs/_{ unique(busco_reports$sample)[i] }_orthologs.Rmd"))
+    write_lines(glue::glue("busco_files/orthologs/_{ unique(busco_reports$group)[i] }_orthologs.Rmd"))
 }
 ```
 
@@ -428,77 +456,67 @@ BUSCO assess assembly quality based on the presence / absence of expected single
 #| eval: !expr params$busco
 #| results: asis
 #
-# This generates the tab-page for each sample
-# Per sample there are 3 value boxes
+# This generates the tab-page for each group
+# Per group there are 3 value boxes
 # Below the value boxes there are one plots, showing the BUSCO statistics
 
-for (i in 1:length(unique(busco_reports$sample))) {
-    cur_sample <-  unique(busco_reports$sample)[i]
+for (i in 1:length(unique(busco_reports$group))) {
+    cur_group <-  unique(busco_reports$group)[i]
     # The BUSCO valueboxes contain information on which stage of the assembly had the highest quality, this requires some variables.
-    completeness_val <-  busco_reports %>%
-        filter(sample == cur_sample) %>%
+    completenes <-  busco_reports %>%
+        filter(group == cur_group) %>%
         filter(Var == "Complete") %>%
-        filter(value == max(value)) %$%
-        value %>%
+        filter(value == max(value)) %>%
+        dplyr::select(sample, stage, value) %>%
         unique()
-    completeness_stage  <-  busco_reports %>%
-        filter(sample == cur_sample) %>%
-        filter(Var == "Complete") %>%
-        filter(value == max(value)) %$%
-        stage
-    frag_val <-  busco_reports %>%
-        filter(sample == cur_sample) %>%
+    fragmented <-  busco_reports %>%
+        filter(group == cur_group) %>%
         filter(Var == "Fragmented") %>%
-        filter(value == max(value)) %$%
-        value %>%
+        filter(value == max(value)) %>%
+        dplyr::select(sample, stage ,value) %>%
         unique()
-    frag_stage  <-  busco_reports %>%
-        filter(sample == cur_sample) %>%
-        filter(Var == "Fragmented") %>%
-        filter(value == max(value)) %$%
-        stage
-    missing_val <-  busco_reports %>%
-        filter(sample == cur_sample) %>%
+    missing <-  busco_reports %>%
+        filter(group == cur_group) %>%
         filter(Var == "Missing") %>%
-        filter(value == max(value)) %$%
-    value %>%
+        filter(value == max(value)) %>%
+        dplyr::select(sample, stage ,value) %>%
         unique()
-    missing_stage  <-  busco_reports %>%
-        filter(sample == cur_sample) %>%
-        filter(Var == "Missing") %>%
-        filter(value == max(value)) %$%
-    stage
-    cat(paste('## ', unique(busco_reports$sample)[i]),
+    cat(paste('## ', unique(busco_reports$group)[i]),
         paste0('\n\n'),
         paste0('### {.fill} \n\n'),
-        paste0('::: {.valuebox icon="percent" color="success" title="Max. BUSCO Completeness" }\n'),
+        paste0('::: {.valuebox icon="percent" color="success" title="Max. BUSCO Completenes" }\n'),
         paste0('\n'),
-        glue::glue("{unique(completeness_val)}%,\nat stage(s): {paste(unique(completeness_stage), collapse = ', ')}"),
+        glue::glue("{unique(completenes$value)}%,\n at: {paste(completenes$sample, completenes$stage, collapse = ', ')}"),
         paste0('\n'),
         paste0(':::'),
         paste0('\n'),
         paste0('::: {.valuebox icon="heartbreak" color="warning" title="Max. BUSCO Fragmented"}\n'),
-        glue::glue("{unique(frag_val)}%,\nat stage(s): {paste(unique(frag_stage), collapse = ', ')}"),
+        glue::glue("{unique(fragmented$value)}%,\n at: {paste(fragmented$sample, fragmented$stage, collapse = ', ')}"),
         paste0('\n'),
         paste0('\n'),
         paste0(':::'),
         paste0('\n'),
         paste0('::: {.valuebox icon="person-walking" color="danger" title="Max. BUSCOs Missing"}\n'),
-        glue::glue("{unique(missing_val)}%, at stage(s): {paste(unique(missing_stage), collapse = ', ')}"),
+        glue::glue("{unique(missing$value)}%,\n at: {paste(missing$sample, missing$stage, collapse = ', ')}"),
         paste0('\n'),
         paste0(':::'),
         paste0('\n\n'),
         paste('###'),
         paste0('\n\n'),
+        # paste('#### Tables'),
+        paste0('\n\n'),
         busco_reports %>%
-            filter(sample == cur_sample) %>%
+            filter(group == cur_group) %>%
             dplyr::select(sample, stage, Var, value) %>%
             mutate(Var = str_replace_all(Var, "_", " ")) %>%
-            pivot_wider(names_from = "Var", values_from = "value") %>%
+            pivot_wider(names_from = "Var", values_from = "value", id_cols = c(sample,stage)) %>%
+            dplyr::arrange(factor(stage, levels = c("Assembly","medaka", "pilon","links","longstitch","ragtag")), sample) %>%
             gt::gt() %>%
             gt::as_raw_html(),
         paste0('\n\n'),
-        knitr::knit_child(glue::glue('busco_files/orthologs/_{ unique(busco_reports$sample)[i] }_orthologs.Rmd'),
+        # paste('#### Plots'),
+        # paste0('\n\n'),
+        knitr::knit_child(glue::glue('busco_files/orthologs/_{ unique(busco_reports$group)[i] }_orthologs.Rmd'),
                             envir = globalenv(),
                             quiet = TRUE),
         paste0('\n\n\n'),
@@ -520,47 +538,6 @@ unlink("busco_files/orthologs", recursive = T)
 write_csv(busco_reports,"busco_files/reports.csv")
 ```
 
-# genomescope
-
-::: {.content-visible unless-profile="jellyfish"}
-jellyfish / genomescope was not included in the pipeline run.
-:::
-
-```{r}
-#| eval: !expr params$jellyfish
-#| message: false
-#| echo: false
-#| output: false
-#| warning: false
-# Parse the genomescope statistics
-genomescope_out <- list.files(paste0(data_base, "genomescope"), full.names = T, pattern = "genomescope.txt") %>%
-    map_dfr(\(x) read_genomescope(x))
-```
-
-::: {.content-visible when-profile="jellyfish"}
-Jellyfish and genomescope are used to infer genome size from the initial ONT reads.
-
-```{r}
-#| eval: !expr params$jellyfish
-#| output: asis
-# Since genomescope produces plots, I am simply including those here instead of recreating them, the proper QC for kmers comes with merqury.
-img_files <- list.files(paste0(data_base,"genomescope"), full.names = T, pattern = "plot.png")
-dir.create("genomescope_files")
-for (file in img_files) {
-    file.copy(from = file,
-            to   = paste0("genomescope_files/", file %>% basename(), sep =""))
-
-}
-img_files <- list.files("genomescope_files", full.names = T, pattern = "plot.png")
-
-cat(":::{.panel-tabset}\n",
-    glue::glue('## <<str_extract(img_files %>% basename(), ".+?(?=_plot.png)")>>\n ![](<<img_files>>){width=50% fig-align="centre"}\n\n\n', .open = "<<", .close = ">>"),
-    ":::\n",
-    sep = ""
-)
-```
-:::
-
 # merqury
 
 ::: {.content-visible unless-profile="merqury"}
@@ -577,97 +554,91 @@ meryl and merqury were not included in the pipeline run.
 merqury_stats <- list.files(paste0(data_base, "merqury"), full.names = T, pattern = "stats") %>%
     lapply(\(x) {
     read_tsv(x, col_names = c("sample_stage","all","assembly","total","percent"), show_col_types = FALSE) %>%
-    mutate(sample = str_extract(x %>% basename(),
-                                ".+?(?=_[assembly|links|longstitch|ragtag|medaka|pilon])"),
+    mutate( sample = str_extract(x %>% basename(),
+                                ".+?(?=_\\.assembly|\\-assemble|links|longstitch|ragtag|medaka|pilon|\\-run|\\-polish)"),
             stage = case_when(
                     str_detect(x, "_ragtag") ~ "RagTag",
                     str_detect(x, "_medaka") ~ "medaka",
                     str_detect(x, "_pilon") ~ "pilon",
                     str_detect(x, "_longstitch") ~ "longstitch",
                     str_detect(x, "_links") ~ "LINKS",
-                    str_detect(x, "assembly") ~ "Assembly",
-                    TRUE ~ "Unknown"
-                    )
-            )
-        }
-    ) %>%
-    bind_rows()
+                    str_detect(x, "assemble") ~ "Assembly",
+                    TRUE ~ "Unknown")) }) %>%
+    bind_rows() %>%
+    left_join(groups, by = join_by(sample))
 # This parses the assembly stats
 merqury_asm_hists <- list.files(paste0(data_base, "/merqury"), full.names = T, pattern = "asm.hist")  %>%
     lapply(\(x) {
             read_tsv(x, col_names = T, show_col_types = FALSE) %>%
             mutate(
                 sample = str_extract(x %>% basename(),
-                                ".+?(?=_[assembly|links|longstitch|ragtag|medaka|pilon])"),
-                stage = case_when(
-                        str_detect(x, "_ragtag") ~ "RagTag",
-                        str_detect(x, "_medaka") ~ "medaka",
-                        str_detect(x, "_pilon") ~ "pilon",
-                        str_detect(x, "_longstitch") ~ "longstitch",
-                        str_detect(x, "_links") ~ "LINKS",
-                        str_detect(x, "assembly") ~ "Assembly",
-                        TRUE ~ "Unknown"),
-                Assembly = as.factor(Assembly),
-                stage = as.factor(stage),
-                sample = as.factor(sample),
-                kmer_multiplicity = as.integer(kmer_multiplicity),
-                Count = as.integer(Count)
-            )
-        }
-    ) %>%
-    bind_rows()
-# This parses the copy number file
-merqury_cn_hists <- list.files(paste0(data_base, "merqury"), full.names = T, pattern = "cn.hist")  %>%
-    lapply(\(x) {
-            read_tsv(x, col_names = T, show_col_types = FALSE) %>%
-            mutate(
-                sample = str_extract(x %>% basename(),
-                                ".+?(?=_[assembly|links|longstitch|ragtag|medaka|pilon])"),
+                                ".+?(?=_\\.assembly|\\-assemble|links|longstitch|ragtag|medaka|pilon|\\-run|\\-polish)"),
                 stage = case_when(
                     str_detect(x, "_ragtag") ~ "RagTag",
                     str_detect(x, "_medaka") ~ "medaka",
                     str_detect(x, "_pilon") ~ "pilon",
                     str_detect(x, "_longstitch") ~ "longstitch",
                     str_detect(x, "_links") ~ "LINKS",
-                    str_detect(x, "assembly") ~ "Assembly",
+                    str_detect(x, "assemble") ~ "Assembly",
+                    TRUE ~ "Unknown"),
+                Assembly = as.factor(Assembly),
+                stage = as.factor(stage),
+                sample = as.factor(sample),
+                kmer_multiplicity = as.integer(kmer_multiplicity),
+                Count = as.integer(Count))
+            }) %>%
+    bind_rows() %>%
+  left_join(groups, by = join_by(sample))
+# This parses the copy number file
+merqury_cn_hists <- list.files(paste0(data_base, "merqury"), full.names = T, pattern = "cn.hist")  %>%
+    lapply(\(x) {
+            read_tsv(x, col_names = T, show_col_types = FALSE) %>%
+            mutate(
+                sample = str_extract(x %>% basename(),
+                                ".+?(?=_\\.assembly|\\-assemble|links|longstitch|ragtag|medaka|pilon|\\-run|\\-polish)"),
+                stage = case_when(
+                    str_detect(x, "_ragtag") ~ "RagTag",
+                    str_detect(x, "_medaka") ~ "medaka",
+                    str_detect(x, "_pilon") ~ "pilon",
+                    str_detect(x, "_longstitch") ~ "longstitch",
+                    str_detect(x, "_links") ~ "LINKS",
+                    str_detect(x, "assemble") ~ "Assembly",
                     TRUE ~ "Unknown"),
                 Copies = as.factor(Copies),
                 stage = as.factor(stage),
                 sample = as.factor(sample),
                 kmer_multiplicity = as.integer(kmer_multiplicity),
-                Count = as.integer(Count)
-            )
-        }
-    ) %>%
-    bind_rows()
+                Count = as.integer(Count))
+            }) %>%
+    bind_rows() %>%
+  left_join(groups, by = join_by(sample))
 # This parses the qv file
-merqury_qv <-
-    list.files(paste0(data_base, "merqury"), full.names = T, pattern = ".qv") %>%
+merqury_qv <- list.files(paste0(data_base, "merqury"), full.names = T, pattern = ".qv") %>%
         lapply(\(x) {
                 read_tsv(x,
                     col_names = c("Assembly", "kmers_assembly_unique", "kmers_assembly_shared", "QV", "error_rate"),
                     show_col_types = FALSE) %>%
                 mutate(
                     sample = str_extract(x %>% basename(),
-                                ".+?(?=_[assembly|links|longstitch|ragtag|medaka|pilon])"),
+                                ".+?(?=_\\.assembly|\\-assemble|links|longstitch|ragtag|medaka|pilon|\\-run|\\-polish)"),
                     stage = case_when(
                         str_detect(x, "_ragtag") ~ "RagTag",
                         str_detect(x, "_medaka") ~ "medaka",
                         str_detect(x, "_pilon") ~ "pilon",
                         str_detect(x, "_longstitch") ~ "longstitch",
                         str_detect(x, "_links") ~ "LINKS",
-                        str_detect(x, "assembly") ~ "Assembly",
+                        str_detect(x, "assemble") ~ "Assembly",
                         TRUE ~ "Unknown"),
                     stage = as.factor(stage),
                     sample = as.factor(sample),
                     kmers_assembly_shared = as.integer(kmers_assembly_shared),
                     kmers_assembly_unique = as.integer(kmers_assembly_unique),
                     QV = as.double(QV),
-                    error_rate = as.double(error_rate)
-                )
+                    error_rate = as.double(error_rate))
             }
         ) %>%
-    bind_rows()
+    bind_rows() %>%
+  left_join(groups, by = join_by(sample))
 dir.create("merqury_files")
 ```
 
@@ -676,13 +647,13 @@ dir.create("merqury_files")
 #| include: false
 # This generates QV-plots from merqury; the plot function is stuffed into plot_merqury
 dir.create("merqury_files/qv_plots/")
-for (i in 1:length(unique(merqury_qv$sample))) {
-    cur_sample <- unique(merqury_qv$sample)[i]
+for (i in 1:length(unique(merqury_qv$group))) {
+    cur_group <- unique(merqury_qv$group)[i]
     paste0('```{r}
 p <- merqury_qv %>%
-    plot_merqury_qv("', cur_sample,'")
+    plot_merqury_qv("', cur_group,'")
 ggplotly(p)\n```') %>%
-    write_lines(glue::glue("merqury_files/qv_plots/_{ cur_sample }_qv_plt.Rmd"))
+    write_lines(glue::glue("merqury_files/qv_plots/_{ cur_group }_qv_plt.Rmd"))
 }
 ```
 
@@ -692,13 +663,13 @@ ggplotly(p)\n```') %>%
 # This generates stat-plots from merqury; the plot function is stuffed into plot_merqury
 
 dir.create("merqury_files/stat_plots/")
-for (i in 1:length(unique(merqury_stats$sample))) {
-    cur_sample <- unique(merqury_stats$sample)[i]
+for (i in 1:length(unique(merqury_stats$group))) {
+    cur_group <- unique(merqury_stats$group)[i]
     paste0('```{r}
 p <- merqury_stats %>%
-    plot_merqury_stats("', cur_sample,'")
+    plot_merqury_stats("', cur_group,'")
 ggplotly(p)\n```') %>%
-    write_lines(glue::glue("merqury_files/stat_plots/_{ cur_sample }_completeness_plt.Rmd"))
+    write_lines(glue::glue("merqury_files/stat_plots/_{ cur_group }_completeness_plt.Rmd"))
 }
 ```
 
@@ -708,13 +679,13 @@ ggplotly(p)\n```') %>%
 # This generates assembly plots from merqury; the plot function is stuffed into plot_merqury
 
 dir.create("merqury_files/asm_plots/")
-for (i in 1:length(unique(merqury_asm_hists$sample))) {
-    cur_sample <- unique(merqury_asm_hists$sample)[i]
+for (i in 1:length(unique(merqury_asm_hists$group))) {
+    cur_group <- unique(merqury_asm_hists$group)[i]
     paste0('```{r}
 p <- merqury_asm_hists %>%
-        plot_merqury_multiplicity("', cur_sample,'")
+        plot_merqury_multiplicity("', cur_group,'")
 ggplotly(p)\n```') %>%
-    write_lines(glue::glue("merqury_files/asm_plots/_{ cur_sample }_asm_plt.Rmd"))
+    write_lines(glue::glue("merqury_files/asm_plots/_{ cur_group }_asm_plt.Rmd"))
 }
 ```
 
@@ -724,13 +695,13 @@ ggplotly(p)\n```') %>%
 # This generates copy-number from merqury; the plot function is stuffed into plot_merqury
 
 dir.create("merqury_files/cn_plots/")
-for (i in 1:length(unique(merqury_cn_hists$sample))) {
-    cur_sample <- unique(merqury_cn_hists$sample)[i]
+for (i in 1:length(unique(merqury_cn_hists$group))) {
+    cur_group <- unique(merqury_cn_hists$group)[i]
     paste0('```{r}
 p <- merqury_cn_hists %>%
-        plot_merqury_copynumber("', cur_sample,'")
+        plot_merqury_copynumber("', cur_group,'")
 ggplotly(p)\n```') %>%
-    write_lines(glue::glue("merqury_files/cn_plots/_{ cur_sample }_cn_plt.Rmd"))
+    write_lines(glue::glue("merqury_files/cn_plots/_{ cur_group }_cn_plt.Rmd"))
 }
 ```
 
@@ -746,55 +717,52 @@ merqury compares k-mer spectra between assemblies and short read libraries to as
 # Below the value boxes there is a tabset of plots, each tab contains one of the plot-types produced above.
 # Those are: Completeness, k-mer specatr, QV and CN
 
-for (i in 1:length(unique(merqury_stats$sample))) {
-    cur_sample <-  unique(merqury_stats$sample)[i]
+for (i in 1:length(unique(merqury_stats$group))) {
+    cur_group <-  unique(merqury_stats$group)[i]
     highest_val <-  merqury_stats %>%
-        filter(sample == cur_sample) %>%
+        filter(group == cur_group) %>%
         filter(percent == max(percent)) %$%
         percent %>%
         unique()
     highest_stage  <-  merqury_stats %>%
-        filter(sample == cur_sample) %>%
-        filter(percent == highest_val) %$%
-        stage %>%
-        unique()
+        filter(group == cur_group) %>%
+        filter(percent == highest_val) %>%
+        dplyr::select(sample, stage, percent)
     lowest_val <-  merqury_stats %>%
-        filter(sample == cur_sample) %>%
+        filter(group == cur_group) %>%
         filter(percent == min(percent)) %$%
         percent %>%
         unique()
     lowest_stage  <-  merqury_stats %>%
-        filter(sample == cur_sample) %>%
-        filter(percent == lowest_val) %$%
-        stage %>%
-        unique()
+        filter(group == cur_group) %>%
+        filter(percent == lowest_val) %>%
+        dplyr::select(sample, stage, percent)
     highest_qv  <- merqury_qv  %>%
-        filter(sample == cur_sample)  %>%
+        filter(group == cur_group)  %>%
         filter(QV == max(QV)) %$%
         QV %>%
         unique()
     highest_qv_stage  <- merqury_qv  %>%
-        filter(sample == cur_sample)  %>%
-        filter(QV == max(QV)) %$%
-        stage %>%
-        unique()
+        filter(group == cur_group)  %>%
+        filter(QV == max(QV)) %>%
+        dplyr::select(sample, stage, QV)
 
-    cat(paste('## ', cur_sample),
+    cat(paste('## ', cur_group),
         paste0('\n\n'),
         paste0('### Valueboxes'),
         paste0('\n\n'),
-        paste0('::: {.valuebox icon="exclude" color="primary" title="Merqury QV" }\n'),
-        glue::glue("QV: {unique(highest_qv) %>% round(2)}, at stage(s): {paste(highest_qv_stage, collapse = ', ')}"),
+        paste0('::: {.valuebox icon="exclude" color="primary" title="Max. merqury QV" }\n'),
+        glue::glue("QV: {unique(highest_qv) %>% round(2)}, at: {paste(highest_qv_stage$sample, highest_qv_stage$stage, collapse = ', ')}"),
         paste0('\n'),
         paste0(':::'),
         paste0('\n\n'),
         paste0('::: {.valuebox icon="percent" color="success" title="Highest k-mer completeness" }\n'),
-        glue::glue("{unique(highest_val) %>% round(2)}%, at stage(s): {paste(highest_stage, collapse = ', ')}"),
+        glue::glue("{unique(highest_val) %>% round(2)}%, at stage(s): {paste(highest_stage$sample, highest_stage$stage, collapse = ', ')}"),
         paste0('\n'),
         paste0(':::'),
         paste0('\n\n'),
         paste0('::: {.valuebox icon="heartbreak" color="warning" title="Lowest k-mer completeness" }\n'),
-        glue::glue("{unique(lowest_val) %>% round(2)}%, at stage(s): {paste(lowest_stage, collapse = ', ')}"),
+        glue::glue("{unique(lowest_val) %>% round(2)}%, at stage(s): {paste(lowest_stage$sample, lowest_stage$stage, collapse = ', ')}"),
         paste0('\n'),
         paste0(':::'),
         paste0('\n\n'),
@@ -803,7 +771,7 @@ for (i in 1:length(unique(merqury_stats$sample))) {
         paste0('\n\n'),
         paste0('#### Completeness \n'),
         paste0('\n'),
-        knitr::knit_child(glue::glue('merqury_files/stat_plots/_{ cur_sample }_completeness_plt.Rmd'),
+        knitr::knit_child(glue::glue('merqury_files/stat_plots/_{ cur_group }_completeness_plt.Rmd'),
                     envir = globalenv(),
                     quiet = TRUE),
         paste0('\n'),
@@ -811,19 +779,19 @@ for (i in 1:length(unique(merqury_stats$sample))) {
         paste0('\n'),
         paste0('QV is defined as:\n', expression(10*-log10(error_rate))),
         paste0('\n'),
-        knitr::knit_child(glue::glue('merqury_files/qv_plots/_{ cur_sample }_qv_plt.Rmd'),
+        knitr::knit_child(glue::glue('merqury_files/qv_plots/_{ cur_group }_qv_plt.Rmd'),
                     envir = globalenv(),
                     quiet = TRUE),
         paste0('\n'),
         paste0('#### Spectra \n'),
         paste0('\n'),
-        knitr::knit_child(glue::glue('merqury_files/asm_plots/_{ cur_sample }_asm_plt.Rmd'),
+        knitr::knit_child(glue::glue('merqury_files/asm_plots/_{ cur_group }_asm_plt.Rmd'),
                     envir = globalenv(),
                     quiet = TRUE),
         paste0('\n'),
         paste0('#### Copy Number \n'),
         paste0('\n'),
-        knitr::knit_child(glue::glue('merqury_files/cn_plots/_{ cur_sample }_cn_plt.Rmd'),
+        knitr::knit_child(glue::glue('merqury_files/cn_plots/_{ cur_group }_cn_plt.Rmd'),
                     envir = globalenv(),
                     quiet = TRUE),
         paste0('\n\n\n'),
@@ -841,6 +809,61 @@ unlink("merqury_files/asm_plots")
 unlink("merqury_files")
 ```
 
+# genomescope
+
+::: {.content-visible unless-profile="jellyfish"}
+jellyfish / genomescope was not included in the pipeline run.
+:::
+
+```{r}
+#| eval: !expr params$jellyfish
+#| message: false
+#| echo: false
+#| output: false
+#| warning: false
+# Parse the genomescope statistics
+genomescope_out <- list.files(paste0(data_base, "genomescope"), full.names = T, pattern = "genomescope.txt") %>%
+    map_dfr(\(x) read_genomescope(x)) %>%
+    left_join(groups, by = join_by(sample))
+```
+
+::: {.content-visible when-profile="jellyfish"}
+
+Below are the genomescope estimates based on the provided ONT reads:
+
+```{r}
+#| eval: !expr params$jellyfish
+#| output: asis
+# Since genomescope produces plots, I am simply including those here instead of recreating them, the proper QC for kmers comes with merqury.
+img_files <- list.files(paste0(data_base,"genomescope"), full.names = T, pattern = "plot.png")
+dir.create("genomescope_files")
+for (file in img_files) {
+    file.copy(from = file,
+            to   = paste0("genomescope_files/", file %>% basename(), sep =""))
+
+}
+
+img_files <- data.frame(file = list.files("genomescope_files/", full.names = T, pattern = "plot.png")) %>%
+  mutate(sample = str_extract(file %>% basename(), ".+?(?=_plot.png)")) %>%
+  left_join(groups, join_by(sample))
+
+
+cat(":::{.panel-tabset}\n\n")
+for(grp in unique(img_files$group)) {
+    cat(glue::glue('## {grp}\n\n\n'))
+    cat(glue::glue('![](<<img_files %>% filter(group == grp) %$% file>>){width=50% fig-align="centre"}\n\n\n',
+               .open = "<<",
+               .close = ">>"))
+    }
+cat(":::\n")
+```
+:::
+```{r}
+glue::glue('## <<grp>>\n (<<img_files %>% filter(group == grp) %$% file %>% lapply(function(file) paste("![]", file, "{width=50% fig-align=centre}\n")) %>% unlist>>)\n\n\n',
+           .open = "<<",
+          .close = ">>")
+```
+
 # Software versions
 
 The pipeline was run using the following software versions:
@@ -848,15 +871,15 @@ The pipeline was run using the following software versions:
 ```{r}
 versions <- yaml::read_yaml("software_versions.yml")
 lapply(1:length(versions), \(process) {
-    proc = versions[[process]]
-    proc_name = names(versions[process])
-    tools <- lapply(1:length(proc), \(tool) {
-        tool_name = proc[tool] %>% names
-        tool_version = proc[[tool]] %>% as.character()
-        return(tibble(Process = proc_name,Tool = tool_name, Version = tool_version))
-        }) %>%
+  proc = versions[[process]]
+  proc_name = names(versions[process])
+  tools <- lapply(1:length(proc), \(tool) {
+    tool_name = proc[tool] %>% names
+    tool_version = proc[[tool]] %>% as.character()
+    return(tibble(Process = proc_name,Tool = tool_name, Version = tool_version))
+  }) %>%
     bind_rows()
-    }) %>%
-bind_rows() %>%
-knitr::kable()
+}) %>%
+  bind_rows() %>%
+  knitr::kable()
 ```

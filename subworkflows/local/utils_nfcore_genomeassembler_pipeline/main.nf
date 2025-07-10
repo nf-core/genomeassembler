@@ -105,6 +105,7 @@ workflow PIPELINE_INITIALISATION {
                     null,
                 ont_collect: it.ont_collect ?: params.ont_collect,
                 ont_trim: it.ont_trim ?: params.ont_trim,
+                ont_nanoq: it.ont_nanoq ?: params.ont_nanoq,
                 ont_jellyfish: it.ont_jellyfish ?: (params.ont_jellyfish && it.ontreads),
                 ont_jellyfish_k: it.ont_jellyfish_k ?: params.ont_jellyfish_k,
                 ont_read_length: it.ont_read_length ?: params.read_length,
@@ -135,8 +136,8 @@ workflow PIPELINE_INITIALISATION {
                 busco: it.busco ?: params.busco,
                 busco_lineage: it.busco_lineage ?: params.busco_lineage,
                 busco_db: it.busco_db ?: params.busco_db,
+                merqury: it.merqury ?: params.merqury,
                 lift_annotations: it.lift_annotations ?: params.lift_annotations,
-
                 shortread_F: it.shortread_F ?: params.shortread_F,
                 shortread_R: it.shortread_R ?: params.shortread_R,
                 paired: it.paired ?: params.paired,

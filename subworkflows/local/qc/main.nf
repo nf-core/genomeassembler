@@ -25,6 +25,7 @@ workflow QC {
 
     ch_shortread_branched
         .shortread
+        .filter { it -> it.merqury }
         .map { it -> [it.meta] }
         .join(scaffolds)
         .join(meryl_kmers)

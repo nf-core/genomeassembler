@@ -113,6 +113,7 @@ workflow GENOMEASSEMBLER {
         .tap { busco_files }
         .map { it -> [it[0], it[1], it[1], it[1], it[1]] }
         .tap { merqury_files }
+
     /*
     =============
     Prepare reads
@@ -294,8 +295,25 @@ workflow GENOMEASSEMBLER {
         .set { report_functions }
 
     if(!params.merqury) {
-        merqury_files = Channel.of([])
+
     }
+
+    ch_main
+        .collect { it -> it.quast ?: null }
+        .map { it -> it.any { it2 -> it2 == true ?: false } }
+        .set { quast_val }
+    ch_main
+        .collect { it -> it.busco ?: null }
+        .map { it -> it.any { it2 -> it2 == true ?: false } }
+        .set { busco_val }
+    ch_main
+        .collect { it -> it.ont_jellyfish ?: null }
+        .map { it -> it.any { it2 -> it2 == true ?: false } }
+        .set { jelly_val }
+    ch_main
+        .collect { it -> it.merqury ?: null }
+        .map { it -> it.any { it2 -> it2 == true ?: false } }
+        .set { merqury_val }
 
     REPORT( report_files,
             report_functions,

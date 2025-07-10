@@ -54,12 +54,12 @@ process REPORT {
         report_params  = report_params << ' -P merqury:true'
     }
 
-    def yamlBuilder = new groovy.yaml.YamlBuilder()
-    yamlBuilder(groups)
-    def yaml_content = yamlBuilder.toString().tokenize('\n').join("\n    ")
+    def groupBuilder = new groovy.yaml.YamlBuilder()
+    groupBuilder(groups)
+    def group_content = groupBuilder.toString().tokenize('\n').join("\n    ")
     """
     cat <<- END_YAML_GROUPS > groups.yml
-    ${yaml_content}
+    ${group_content}
     END_YAML_GROUPS
 
     export HOME="\$PWD"
