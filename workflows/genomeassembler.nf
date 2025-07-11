@@ -124,65 +124,97 @@ workflow GENOMEASSEMBLER {
     */
     ch_main
         .filter {
-            it -> it.shortread_F ? true : false
+            it -> (it.shortread_F && it.use_short_reads) ? true : false
         }
         .set { shortreads }
 
+    ch_main
+        .filter {
+            it -> (it.ontreads) ? true : false
+        }
+        .set { ontreads }
+
+    ch_main
+        .filter {
+            it -> (it.hifireads) ? true : false
+        }
+        .set { hifireads }
+
     // adapted to sample-logic
     PREPARE_SHORTREADS(shortreads)
+
+    PREPARE_SHORTREADS.out.meryl_kmers.set { meryl_kmers }
     // This changes ch_main shortreads_F and _R become one tuple, paired is gone.
 
     // put shortreads back together with samples without shortreads
+
     ch_main
         .filter {
             it -> !it.shortread_F ? true : false
         }
-        .map { it -> it - it.subMap["shortread_F","shortread_R", "paired"] + [shorteads: null] }
-        .mix(PREPARE_SHORTREADS.out.shortreads)
+        .map { it -> it - it.subMap("shortread_F","shortread_R", "paired") + [shorteads: null] }
+        .mix(PREPARE_SHORTREADS.out.main_out)
         .set { ch_main_shortreaded }
 
-    PREPARE_SHORTREADS.out.meryl_kmers.set { meryl_kmers }
+    ONT(ontreads)
+    ONT.out.main_out.set { ch_main_ont_prepped }
 
-    ch_versions = ch_versions.mix(PREPARE_SHORTREADS.out.versions)
+    HIFI(hifireads)
+    HIFI.out.main_out.set { ch_main_hifi_prepped }
 
-    /*
-    ONT reads
-    */
+    // rebuild the main channel from shortread out, ont out and hifi out.
+    // This will block entry into assemble, and it should.
 
-    // adapted to sample-logic
-    ONT(ch_main_shortreaded)
 
-    ONT.out.main_out.set { ch_main_onted }
+    // ch_main_shortreaded contains all samples
+    // add ONT outputs to mixed shortread output
 
-    ONT.out.nanoq_report
-        .concat(
-            ONT.out.nanoq_stats
+    ch_main_shortreaded
+        .filter {
+            it -> it.ontreads ? true : false
+        }
+        .map { it -> it.subMap("meta","shortreads")}
+        .map { it -> it.collect { entry -> [ entry.value, entry ] } }
+            .join( ch_main_ont_prepped
+                    .map { it -> it - it.subMap("shortreads") }
+                    .map { it -> it.collect { entry -> [ entry.value, entry ] } }
+            )
+            // After joining re-create the maps from the stored map
+        .map { it -> it.collect { _entry, map -> [ (map.key): map.value ] }.collectEntries() }
+        // mix back in those samples where nothing was done to the ont reads
+        .mix(ch_main_shortreaded
+            .filter {
+                it -> it.ontreads ? false : true
+            }
         )
-        .collect { it -> it[1] }
-        .set { nanoq_files }
+        .set {
+            ch_main_sr_ont
+        }
 
-    ONT.out.genomescope_summary
-        .concat(
-            ONT.out.genomescope_plot
+    // Add prepared hifi-reads:
+
+    ch_main_sr_ont
+        .filter {
+            it -> it.hifireads ? true : false
+        }
+        .map { it -> it.subMap("meta","shortreads","ontreads")}
+        .map { it -> it.collect { entry -> [ entry.value, entry ] } }
+            .join( ch_main_hifi_prepped
+                    .map { it -> it - it.subMap("shortreads","ontreads") }
+                    .map { it -> it.collect { entry -> [ entry.value, entry ] } }
+            )
+            // After joining re-create the maps from the stored map
+        .map { it -> it.collect { _entry, map -> [ (map.key): map.value ] }.collectEntries() }
+        // mix back in those samples where nothing was done to the hifireads reads
+        .mix(ch_main_sr_ont
+            .filter {
+                it -> it.hifireads ? false : true
+            }
         )
-        .unique()
-        .collect { it -> it[1] }
-        .set { genomescope_files }
+        .set {
+            ch_main_prepared
+        }
 
-    ch_versions = ch_versions.mix(ONT.out.versions)
-
-
-    /*
-    HIFI reads
-    */
-
-    // adapted to sample-logic
-
-    HIFI(ch_main_onted)
-
-    HIFI.out.main_out.set { ch_main_prepared }
-
-    ch_versions = ch_versions.mix(HIFI.out.versions)
     /*
     Assembly
     */
@@ -232,8 +264,26 @@ workflow GENOMEASSEMBLER {
         .mix(SCAFFOLD.out.ch_main)
         .set { ch_main_scaffolded }
 
+    ONT.out.nanoq_report
+        .concat(
+            ONT.out.nanoq_stats
+        )
+        .collect { it -> it[1] }
+        .set { nanoq_files }
 
-    ch_versions = ch_versions.mix(SCAFFOLD.out.versions)
+    ONT.out.genomescope_summary
+        .concat(
+            ONT.out.genomescope_plot
+        )
+        .unique()
+        .collect { it -> it[1] }
+        .set { genomescope_files }
+
+    ch_versions = ch_versions.mix(PREPARE_SHORTREADS.out.versions).mix(ONT.out.versions).mix(HIFI.out.versions).mix(ASSEMBLE.out.versions).mix(POLISH.out.versions).mix(SCAFFOLD.out.versions)
+
+    ch_versions = ch_versions
+
+
 
     /*
     Report

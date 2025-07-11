@@ -12,15 +12,6 @@ workflow PREPARE_ONT {
     ch_main
         .branch {
             it ->
-            ont: it.ontreads != null
-            no_ont: !it.ontreads
-        }
-    .set { ch_ont }
-
-    ch_ont
-        .ont
-        .branch {
-            it ->
             to_collect: it.ont_collect
             no_collect: !it.ont_collect
         }
@@ -40,12 +31,14 @@ workflow PREPARE_ONT {
 
     ch_ont_collect_branched
         .to_collect
-        .map { it -> it - it.subMap["ontreads"] }
+        .map { it -> it - it.subMap("ontreads") }
         .map { it -> it.collect { entry -> [ entry.value, entry ] } }
         .join(ch_collected_reads)
         .map { it -> it.collect { _entry, map -> [ (map.key): map.value ] }.collectEntries() }
         .mix(ch_ont_collect_branched.no_collect)
         .set { ch_collected }
+
+    // ch_collected is the same samples as the input channel
 
     ch_collected
         .branch {
@@ -55,23 +48,40 @@ workflow PREPARE_ONT {
         .set { ch_ont_chop_branched }
 
     ch_ont_chop_branched
-            .chop
-            .map { it -> [it.meta, it.ontreads]}
-            .set { chop_in }
+        .chop
+        .map { it -> [it.meta, it.ontreads]}
+        .set { chop_in }
 
     CHOP(chop_in)
 
-    CHOP.out.chopped_reads
-        .join(ch_ont_chop_branched
+    ch_ont_chop_branched
             .chop
-            .map { it -> [it.meta, it.ont_nanoq] }
-        )
-        .filter { it -> it[2] == true }
-        .map { it -> [meta: it[0], ontreads: it[1]]}
-        .mix(ch_ont_chop_branched
-            .no_chop
-            .filter { it -> it.ont_nanoq }
-            .map { it -> [meta: it.meta, ontreads: it.ontreads] } )
+            .map { it -> it - it.subMap("ontreads")}
+            .map { it -> it.collect { entry -> [ entry.value, entry ] } }
+            .join(
+                CHOP
+                    .out
+                    .chopped_reads
+                    .map { meta, reads -> [meta: meta, ontreads: reads] }
+                    .map { it -> it.collect { entry -> [ entry.value, entry ] } }
+            )
+            .map { it -> it.collect { _entry, map -> [ (map.key): map.value ] }.collectEntries() }
+            .mix(
+                ch_ont_chop_branched
+                    .no_chop
+                )
+            .set { ch_ont_chopped }
+
+    ch_ont_chopped
+        .branch {
+            nanoq: it.ont_nanoq
+            no_nanoq: !it.ont_nanoq
+        }
+        .set { ch_ont_chopped_branched }
+
+    ch_ont_chopped_branched
+        .nanoq
+        .map { it -> [it.meta, it.ontreads] }
         .set {ch_nanoq_in}
 
     RUN_NANOQ(ch_nanoq_in)
@@ -85,18 +95,13 @@ workflow PREPARE_ONT {
 
     RUN_NANOQ.out.stats.set { nanoq_stats }
 
-    ch_ont
-        .ont
-        .filter { it -> it.ont_nanoq }
-        .map { it -> it - it.subMap("ontreads", "ont_read_length") }
+    ch_ont_chopped_branched
+        .nanoq
+        .map { it -> it - it.subMap("ont_read_length") }
         .map { it -> it.collect { entry -> [ entry.value, entry ] } }
         .join( med_len )
-        .join( ch_nanoq_in
-                .map { it -> it.collect { entry -> [ entry.value, entry ] } }
-            )
         .map { it -> it.collect { _entry, map -> [ (map.key): map.value ] }.collectEntries() }
-        .mix(ch_ont.no_ont)
-        .mix(ch_ont.ont.filter { it -> !it.nanoq })
+        .mix(ch_ont_chopped_branched.no_nanoq)
         .set { main_out }
 
     versions = ch_versions.mix(COLLECT.out.versions).mix(CHOP.out.versions).mix(RUN_NANOQ.out.versions)

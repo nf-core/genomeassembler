@@ -10,11 +10,7 @@ workflow CHOP {
 
     PORECHOP(input)
 
-    input.map {
-            it -> [ it[0] ]
-
-        }
-        .join(PORECHOP.out.reads)
+    PORECHOP.out.reads
         .set { chopped_reads }
 
     ch_versions.mix(PORECHOP.out.versions)

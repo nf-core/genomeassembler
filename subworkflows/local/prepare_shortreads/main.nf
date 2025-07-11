@@ -39,18 +39,19 @@ workflow PREPARE_SHORTREADS {
     shortreads
         .branch {
             it ->
-            trim: it.shortreads_trim
-            no_trim: !it.shortreads_trim
+            trim: it.shortread_trim
+            no_trim: !it.shortread_trim
         }
         .set { shortreads }
 
-    TRIMGALORE(shortreads.trim)
+    TRIMGALORE(shortreads.trim.map { it -> [it.meta, it.shortreads] })
 
     // unite branched:
     // add trimmed reads to trim channel, then mix with shortreads.no_trim
 
-    shortreads.trim
-        .map { it -> it - it.subMap["shortreads"] }
+    shortreads
+        .trim
+        .map { it -> it - it.subMap("shortreads") }
         .map { it -> it.collect { entry -> [ entry.value, entry ] } }
         .join(
             TRIMGALORE.out.reads
@@ -75,11 +76,15 @@ workflow PREPARE_SHORTREADS {
 
     shortreads_in
         .map {
-            it -> it.subMap('shortread_F', 'shortread_R', 'paired')
+            it -> it - it.subMap('shortread_F', 'shortread_R', 'paired')
         }
+        .map { it -> it.collect { entry -> [ entry.value, entry ] } }
         .join(
-            shortreads.map { it -> [meta: [id: it[0].id], shortreads: it[1]]}
+            shortreads
+                .map { it -> [meta: [id: it.meta.id], shortreads: it.shortreads]}
+                .map { it -> it.collect { entry -> [ entry.value, entry ] } }
         )
+        .map { it -> it.collect { _entry, map -> [ (map.key): map.value ] }.collectEntries() }
         .set { main_out }
 
     versions = ch_versions.mix(MERYL_COUNT.out.versions).mix(MERYL_UNIONSUM.out.versions)

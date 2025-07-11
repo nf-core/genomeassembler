@@ -6,16 +6,8 @@ workflow RUN_NANOQ {
 
     main:
     Channel.empty().set { versions }
-    inputs.map {
-        it ->
-        [
-            meta: it.meta,
-            ontreads: it.ontreads
-        ]
-    }
-        .set { in_reads }
 
-    NANOQ(in_reads)
+    NANOQ(inputs)
 
     NANOQ.out.report.set { report }
 

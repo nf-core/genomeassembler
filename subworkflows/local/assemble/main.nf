@@ -107,7 +107,7 @@ workflow ASSEMBLE {
             .set { ch_main_assemble_ont_hifiasm }
 
 
-        HIFIASM_ONT(ch_main_assemble_ont_hifiasm.map { it -> [ [id: it.meta.id, hifiasm_args: it.hifiasm_args], it.ontreads, [] ] }, [[], [], []], [[], [], []], [[], []])
+        HIFIASM_ONT(ch_main_assemble_ont_hifiasm.map { it -> [ [id: it.meta.id, hifiasm_args: it.hifiasm_args], [], it.ontreads ] }, [[], [], []], [[], [], []], [[], []])
 
         GFA_2_FA_ONT( HIFIASM_ONT.out.processed_unitigs.map { meta, fasta -> [[id: meta.id], fasta] } )
 
