@@ -32,6 +32,9 @@
                     "@id": "assets/"
                 },
                 {
+                    "@id": "bin/"
+                },
+                {
                     "@id": "conf/"
                 },
                 {
@@ -42,6 +45,9 @@
                 },
                 {
                     "@id": "modules/"
+                },
+                {
+                    "@id": "modules/local/"
                 },
                 {
                     "@id": "modules/nf-core/"
@@ -121,7 +127,22 @@
         },
         {
             "@id": "main.nf",
-            "@type": ["File", "SoftwareSourceCode", "ComputationalWorkflow"],
+            "@type": [
+                "File",
+                "SoftwareSourceCode",
+                "ComputationalWorkflow"
+            ],
+            "creator": [
+                {
+                    "@id": "https://orcid.org/0000-0003-3099-7860"
+                },
+                {
+                    "@id": "https://orcid.org/0000-0002-7860-3560"
+                },
+                {
+                    "@id": "https://orcid.org/0000-0003-1675-0677"
+                }
+            ],
             "dateCreated": "",
             "dateModified": "2025-07-08T11:38:27Z",
             "dct:conformsTo": "https://bioschemas.org/profiles/ComputationalWorkflow/1.0-RELEASE/",
@@ -186,6 +207,11 @@
             "description": "Additional files"
         },
         {
+            "@id": "bin/",
+            "@type": "Dataset",
+            "description": "Scripts that must be callable from a pipeline process"
+        },
+        {
             "@id": "conf/",
             "@type": "Dataset",
             "description": "Configuration files"
@@ -204,6 +230,11 @@
             "@id": "modules/",
             "@type": "Dataset",
             "description": "Modules used by the pipeline"
+        },
+        {
+            "@id": "modules/local/",
+            "@type": "Dataset",
+            "description": "Pipeline-specific modules"
         },
         {
             "@id": "modules/nf-core/",
@@ -290,6 +321,24 @@
             "@type": "Organization",
             "name": "nf-core",
             "url": "https://nf-co.re/"
+        },
+        {
+            "@id": "https://orcid.org/0000-0003-3099-7860",
+            "@type": "Person",
+            "email": "niklas@bio.lmu.de",
+            "name": "Niklas Schandry"
+        },
+        {
+            "@id": "https://orcid.org/0000-0002-7860-3560",
+            "@type": "Person",
+            "email": "mm49@sanger.ac.uk",
+            "name": "Matthieu Muffato"
+        },
+        {
+            "@id": "https://orcid.org/0000-0003-1675-0677",
+            "@type": "Person",
+            "email": "mahesh.binzer-panchal@nbis.se",
+            "name": "Mahesh Binzer-Panchal"
         }
     ]
 }

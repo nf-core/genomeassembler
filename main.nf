@@ -15,7 +15,7 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-include { GENOMEASSEMBLER  } from './workflows/genomeassembler'
+include { GENOMEASSEMBLER         } from './workflows/genomeassembler'
 include { PIPELINE_INITIALISATION } from './subworkflows/local/utils_nfcore_genomeassembler_pipeline'
 include { PIPELINE_COMPLETION     } from './subworkflows/local/utils_nfcore_genomeassembler_pipeline'
 /*
@@ -30,7 +30,8 @@ include { PIPELINE_COMPLETION     } from './subworkflows/local/utils_nfcore_geno
 workflow NFCORE_GENOMEASSEMBLER {
 
     take:
-    samplesheet // channel: samplesheet read in from --input
+        samplesheet // channel: samplesheet read in from --input
+        refs
 
     main:
 
@@ -38,7 +39,8 @@ workflow NFCORE_GENOMEASSEMBLER {
     // WORKFLOW: Run pipeline
     //
     GENOMEASSEMBLER (
-        samplesheet
+        samplesheet,
+        refs
     )
 }
 /*
@@ -66,7 +68,7 @@ workflow {
     // WORKFLOW: Run main workflow
     //
     NFCORE_GENOMEASSEMBLER (
-        PIPELINE_INITIALISATION.out.samplesheet
+        PIPELINE_INITIALISATION.out.samplesheet, PIPELINE_INITIALISATION.out.refs
     )
     //
     // SUBWORKFLOW: Run completion tasks

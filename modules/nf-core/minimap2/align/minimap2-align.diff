@@ -1,0 +1,20 @@
+Changes in component 'nf-core/minimap2/align'
+'modules/nf-core/minimap2/align/environment.yml' is unchanged
+'modules/nf-core/minimap2/align/meta.yml' is unchanged
+Changes in 'minimap2/align/main.nf':
+--- modules/nf-core/minimap2/align/main.nf
++++ modules/nf-core/minimap2/align/main.nf
+@@ -9,8 +9,7 @@
+         'community.wave.seqera.io/library/minimap2_samtools:33bb43c18d22e29c' }"
+ 
+     input:
+-    tuple val(meta), path(reads)
+-    tuple val(meta2), path(reference)
++    tuple val(meta), path(reads), path(reference)
+     val bam_format
+     val bam_index_extension
+     val cigar_paf_format
+
+'modules/nf-core/minimap2/align/tests/main.nf.test' is unchanged
+'modules/nf-core/minimap2/align/tests/main.nf.test.snap' is unchanged
+************************************************************
