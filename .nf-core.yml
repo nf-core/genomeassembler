@@ -7,7 +7,6 @@ lint:
     - assets/multiqc_config.yml
   files_unchanged:
     - .github/CONTRIBUTING.md
-  multiqc_config: false
 nf_core_version: 3.3.2
 repository_type: pipeline
 template:
@@ -18,10 +17,6 @@ template:
   name: genomeassembler
   org: nf-core
   outdir: .
-  skip_features:
-    - multiqc
-    - igenomes
-  version: 1.1.0
   skip_features:
     - multiqc
     - igenomes
