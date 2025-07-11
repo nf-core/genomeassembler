@@ -62,7 +62,6 @@ workflow ASSEMBLE {
             ]
             mode: it.assembler1 == "flye" ? "--nano-hq" : "--pacbio-hifi"
         }
-<<<<<<< HEAD
         .set { flye_inputs }
 
     FLYE(flye_inputs.reads, flye_inputs.mode)
@@ -113,7 +112,6 @@ workflow ASSEMBLE {
                     .filter { it -> it.assembler1 == "hifiasm"  }
             )
             .set { ch_main_assemble_ont_hifiasm }
-
 
         HIFIASM_ONT(ch_main_assemble_ont_hifiasm.map { it -> [ [id: it.meta.id, hifiasm_args: it.hifiasm_args ?: ""],  it.ontreads, [] ] }, [[], [], []], [[], [], []], [[], []])
 
@@ -381,20 +379,6 @@ workflow ASSEMBLE {
 
     RUN_LIFTOFF(liftoff_in)
     ch_versions = ch_versions.mix(RUN_LIFTOFF.out.versions)
-=======
-    }
-    /*
-    QC on initial assembly
-    */
-    QC( ch_main,
-        meryl_kmers)
-    ch_versions = ch_versions.mix(QC.out.versions)
-
-    if (params.lift_annotations) {
-        RUN_LIFTOFF(ch_main)
-        ch_versions = ch_versions.mix(RUN_LIFTOFF.out.versions)
-    }
->>>>>>> d2e37c9 (refactor assemble and assemble subworkflows for sample-wise parameterization)
 
     emit:
     ch_main                     = ch_main_to_qc
