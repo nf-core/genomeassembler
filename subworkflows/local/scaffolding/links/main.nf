@@ -1,9 +1,6 @@
-include { LINKS } from '../../../../modules/local/links/main'
-include { MAP_TO_ASSEMBLY } from '../../mapping/map_to_assembly/main'
-include { RUN_QUAST } from '../../qc/quast/main'
-include { RUN_BUSCO } from '../../qc/busco/main'
+include { LINKS } from '../../../../modules/nf-core/links/main'
+include { QC } from '../../qc/main'
 include { RUN_LIFTOFF } from '../../liftoff/main'
-include { MERQURY_QC } from '../../qc/merqury/main'
 
 workflow RUN_LINKS {
     take:
@@ -16,49 +13,23 @@ workflow RUN_LINKS {
 
     main:
     Channel.empty().set { ch_versions }
-    Channel.empty().set { quast_out }
-    Channel.empty().set { busco_out }
-    Channel.empty().set { merqury_report_files }
 
     assembly
         .join(in_reads)
+        .multiMap { meta, assembly_fa, reads ->
+            assembly: [meta, assembly_fa]
+            reads: [meta, reads]
+            }
         .set { links_in }
 
-    LINKS(links_in)
-    LINKS.out.scaffolds.set { scaffolds }
+    LINKS(links_in.assembly, links_in.reads)
+    LINKS.out.scaffolds_fasta.set { scaffolds }
 
     ch_versions = ch_versions.mix(LINKS.out.versions)
 
-    MAP_TO_ASSEMBLY(in_reads, scaffolds)
+    QC(inputs, in_reads, scaffolds, ch_aln_to_ref, meryl_kmers)
 
-    ch_versions = ch_versions.mix(MAP_TO_ASSEMBLY.out.versions)
-
-    RUN_QUAST(scaffolds, inputs, ch_aln_to_ref, MAP_TO_ASSEMBLY.out.aln_to_assembly_bam)
-    RUN_QUAST.out.quast_tsv.set { quast_out }
-
-    ch_versions = ch_versions.mix(RUN_QUAST.out.versions)
-
-    RUN_BUSCO(scaffolds)
-    RUN_BUSCO.out.batch_summary.set { busco_out }
-
-    ch_versions = ch_versions.mix(RUN_BUSCO.out.versions)
-
-    if (params.short_reads) {
-        MERQURY_QC(scaffolds, meryl_kmers)
-        MERQURY_QC.out.stats
-            .join(
-                MERQURY_QC.out.spectra_asm_hist
-            )
-            .join(
-                MERQURY_QC.out.spectra_cn_hist
-            )
-            .join(
-                MERQURY_QC.out.assembly_qv
-            )
-            .set { merqury_report_files }
-
-        ch_versions = ch_versions.mix(MERQURY_QC.out.versions)
-    }
+    ch_versions = ch_versions.mix(QC.out.versions)
 
     if (params.lift_annotations) {
         RUN_LIFTOFF(scaffolds, inputs)
@@ -69,8 +40,8 @@ workflow RUN_LINKS {
 
     emit:
     scaffolds
-    quast_out
-    busco_out
-    merqury_report_files
+    quast_out               = QC.out.quast_out
+    busco_out               = QC.out.busco_out
+    merqury_report_files    = QC.out.merqury_report_files
     versions
 }

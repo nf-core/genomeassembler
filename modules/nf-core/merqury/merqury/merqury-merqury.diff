@@ -35,7 +35,6 @@ Changes in 'merqury/merqury/main.nf':
  
      when:
 
-'modules/nf-core/merqury/merqury/tests/tags.yml' is unchanged
 'modules/nf-core/merqury/merqury/tests/main.nf.test' is unchanged
 'modules/nf-core/merqury/merqury/tests/main.nf.test.snap' is unchanged
 ************************************************************

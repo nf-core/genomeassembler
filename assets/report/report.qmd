@@ -1,6 +1,6 @@
 ---
 title: "nf-core/genomeassembler report"
-author: "Niklas Schandry"
+author: ""
 format: dashboard
 editor: source
 nav-buttons:
@@ -316,7 +316,31 @@ for (i in 1:length(unique(quast_stats$sample))) {
         paste0('\n'),
         paste0(':::'),
         paste0('\n\n'),
-        paste0('### Plots \n\n'),
+        paste0('### {.tabset}'),
+        paste0('\n\n'),
+        paste0('#### Tables \n\n'),
+        quast_stats %>%
+            filter(sample == unique(quast_stats$sample)[i]) %>%
+            dplyr::select(sample, stage, stat, value) %>%
+            pivot_wider(names_from = "stat", values_from = "value") %>%
+            #knitr::kable(format = 'html', caption = glue::glue('QUAST statistics'))
+            gt::gt() %>%
+            gt::cols_nanoplot(columns = starts_with("# contigs ("),
+                    new_col_name = "Contigs_by_size",
+                    new_col_label = gt::md("*# Contigs by size*")) %>%
+            gt::cols_nanoplot(columns = starts_with("Total length ("),
+                    new_col_name = "Total_length",
+                    new_col_label = gt::md("*Total length*")) %>%
+            gt::tab_footnote(
+                    footnote = "Breaks are: contigs >= 0, 1kb, 5kb, 10kb, 25kb, 50kb",
+                    locations = gt::cells_column_labels(columns = c(Contigs_by_size, Total_length))) %>%
+            gt::cols_align(align = "center",
+                    columns = c(Contigs_by_size, Total_length)) %>%
+            gt::cols_move(Contigs_by_size, "Largest contig") %>%
+            gt::cols_move(Total_length, "Total length") %>%
+            gt::as_raw_html(),
+        paste0('\n\n'),
+        paste0('#### Plots \n\n'),
         knitr::knit_child(glue::glue('quast_files/length/_{ unique(quast_stats$sample)[i] }_quast.Rmd'),
                             envir = globalenv(),
                             quiet = TRUE),
@@ -464,7 +488,15 @@ for (i in 1:length(unique(busco_reports$sample))) {
         paste0('\n'),
         paste0(':::'),
         paste0('\n\n'),
-        paste('### { .flow }'),
+        paste('###'),
+        paste0('\n\n'),
+        busco_reports %>%
+            filter(sample == cur_sample) %>%
+            dplyr::select(sample, stage, Var, value) %>%
+            mutate(Var = str_replace_all(Var, "_", " ")) %>%
+            pivot_wider(names_from = "Var", values_from = "value") %>%
+            gt::gt() %>%
+            gt::as_raw_html(),
         paste0('\n\n'),
         knitr::knit_child(glue::glue('busco_files/orthologs/_{ unique(busco_reports$sample)[i] }_orthologs.Rmd'),
                             envir = globalenv(),

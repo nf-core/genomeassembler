@@ -43,7 +43,7 @@ workflow PIPELINE_INITIALISATION {
         version,
         true,
         outdir,
-        workflow.profile.tokenize(',').intersect(['conda', 'mamba']).size() >= 1
+        workflow.profile.tokenize(',').intersect(['conda', 'mamba']).size() >= 1,
     )
 
     //
@@ -52,7 +52,7 @@ workflow PIPELINE_INITIALISATION {
     UTILS_NFSCHEMA_PLUGIN(
         workflow,
         validate_params,
-        null
+        null,
     )
 
     //
@@ -67,22 +67,27 @@ workflow PIPELINE_INITIALISATION {
     //
 
     Channel.empty().set { ch_refs }
-    Channel
-        .fromPath(params.input)
+    Channel.fromPath(params.input)
         .splitCsv(header: true)
         .map { it -> [meta: [id: it.sample], ontreads: it.ontreads, hifireads: it.hifireads, ref_fasta: it.ref_fasta, ref_gff: it.ref_gff, shortread_F: it.shortread_F, shortread_R: it.shortread_R, paired: it.paired] }
         .set { ch_samplesheet }
     if (params.use_ref) {
         ch_samplesheet
-            .map { it -> [it.meta, it.ref_fasta] }
+            .map { it -> [it.meta, file(it.ref_fasta, checkIfExists: true)] }
             .set { ch_refs }
+    }
+    if (params.lift_annotations) {
+        ch_samplesheet
+            .map { it -> [it.meta, file(it.ref_gff, checkIfExists: true)] }
     }
     // check for assembler / read combination
     def hifi_only = params.hifi && !params.ont ? true : false
-    if (params.assembler == "flye") {
-        if (params.hifi) {
-            if (!hifi_only) {
-                error('Cannot combine hifi and ont reads with flye')
+    if (!params.skip_assembly) {
+        if (params.assembler == "flye") {
+            if (params.hifi) {
+                if (!hifi_only) {
+                    error('Cannot combine hifi and ont reads with flye')
+                }
             }
         }
     }
@@ -96,10 +101,12 @@ workflow PIPELINE_INITIALISATION {
     if (params.scaffold_longstitch) {
         // If genomesize is not provided, and if ONT is not used in combination with jellyfish
         // Throw an error
-        if ( !params.genome_size && (!params.ont && !params.jellyfish) ) {
+        if (!params.genome_size && (!params.ont && !params.jellyfish)) {
             error("Scaffolding with longstitch requires genome size.\n Either provide a genome size with --genome_size or estimate from ONT reads using jellyfish and genomescope")
         }
     }
+
+
     emit:
     samplesheet = ch_samplesheet
     refs = ch_refs
@@ -169,7 +176,7 @@ def validateInputSamplesheet(input) {
         error("Please check input samplesheet -> Multiple runs of a sample must be of the same datatype i.e. single-end or paired-end: ${metas[0].id}")
     }
 
-    return [metas[0], fastqs]
+    return [ metas[0], fastqs ]
 }
 //
 // Generate methods description for MultiQC

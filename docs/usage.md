@@ -15,14 +15,15 @@ This pipeline can perform assembly, polishing, scaffolding and annotation lift-o
 
 To ease configuration, there are a couple of pre-defined profiles for various combinations of read sources and assemblers (named readtype_assembler)
 
-| ONT | HiFI  | Assembly-strategy                                  | Profile name          |
-| --- | ----- | -------------------------------------------------- | --------------------- |
-| Yes | No    | flye                                               | `ont_flye`            |
-| No  | Yes   | flye                                               | `hifi_flye`           |
-| Yes | No    | hifiasm                                            | `ont_hifiasm`         |
-| No  | Yes   | hifiasm                                            | `hifi_hifiasm`        |
-| Yes | Yes   | hifiasm --ul                                       | `hifiont_hifiasm`     |
-| Yes | Yes   | Scaffolding of ONT assemblies onto HiFi assemblies | `hifiont_flyehifiasm` |
+| ONT | HiFI  | Assembly-strategy                                                      | Profile name                 |
+| --- | ----- | ---------------------------------------------------------------------- | ---------------------------- |
+| Yes | No    | flye                                                                   | `ont_flye`                   |
+| No  | Yes   | flye                                                                   | `hifi_flye`                  |
+| Yes | No    | hifiasm                                                                | `ont_hifiasm`                |
+| No  | Yes   | hifiasm                                                                | `hifi_hifiasm`               |
+| Yes | Yes   | hifiasm --ul                                                           | `hifiont_hifiasm`            |
+| Yes | Yes   | Scaffolding of ONT assemblies (flye) onto HiFi assemblies (hifiasm)    | `hifiont_flye_on_hifiasm`    |
+| Yes | Yes   | Scaffolding of ONT assemblies (hifiasm) onto HiFi assemblies (hifiasm) | `hifiont_hifiasm_on_hifiasm` |
 
 ## Samplesheet input
 
@@ -38,7 +39,7 @@ The largest samplesheet format is:
 
 ```csv title="samplesheet.csv"
 sample,ontreads,hifireads,ref_fasta,ref_gff,shortread_F,shortread_R,paired
-Sample1,sample1ont.fq.gz,sample1hifi.fq.gz,ref.fa,ref.gff,sample1_r1.fq.gz,sample1_r2,fq.gz
+Sample1,/path/reads/sample1ont.fq.gz,/path/reads/sample1hifi.fq.gz,/path/references/ref.fa,/path/references/ref.gff,/path/reads/sample1_r1.fq.gz,/path/reads/sample1_r2.fq.gz,true
 ```
 
 The samplesheet _must_ contain a column name `sample` [string].
@@ -54,9 +55,12 @@ Further columns _can_ be:
   - `shortread_R`: shortread reverse file (paired end)
   - `paired`: [true/false] true if the reads are paired end, false if they are single-end. The `shortreads_R` column should exist if `paired` is `false` but can be empty.
 
+> [!INFO]
+> It is strongly recommended to provide all paths as absolute paths
+
 ### Multiple runs of the same sample
 
-For ONT reads, a folder containing several fastq files can be provided, which will be concatenated into a single file if `--collect` is used. Generally we recommend to provide all reads in a single file.
+For ONT reads, a glob pattern can be provided, matching files will be concatenated into a single file if `--collect` is used. Generally we recommend to provide all reads in a single file.
 
 ## Running the pipeline
 

@@ -8,17 +8,17 @@ process COLLECT_READS {
         : 'community.wave.seqera.io/library/coreutils_grep_gzip_lbzip2_pruned:838ba80435a629f8'}"
 
     input:
-    tuple val(meta), path(read_directory)
+    tuple val(meta), path(reads)
 
     output:
-    tuple val(meta), path("*.fastq"), emit: combined_reads
+    tuple val(meta), path("*_all_reads.fq.gz"), emit: combined_reads
     path "versions.yml", emit: versions
 
     script:
     def prefix = task.ext.prefix ?: "${meta.id}"
 
     """
-    gunzip -c ${read_directory}/*.gz > ${prefix}_all_reads.fastq
+    cat ${reads} > ${prefix}_all_reads.fq.gz
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
         gzip: \$(echo \$(gzip --version | head -n1 | sed 's/gzip //'))
@@ -28,7 +28,7 @@ process COLLECT_READS {
     stub:
     def prefix = task.ext.prefix ?: "${meta.id}"
     """
-    touch ${prefix}_all_reads.fastq
+    touch ${prefix}_all_reads.fq; gzip ${prefix}_all_reads.fq
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
         gzip: \$(echo \$(gzip --version | head -n1 | sed 's/gzip //'))

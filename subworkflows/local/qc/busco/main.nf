@@ -11,7 +11,7 @@ workflow RUN_BUSCO {
     Channel.empty().set { short_summary_json }
 
     if (params.busco) {
-        BUSCO(assembly, 'genome', params.busco_lineage, params.busco_db ? file(params.busco_db, checkIfExists: true) : [], [])
+        BUSCO(assembly, 'genome', params.busco_lineage, params.busco_db ? file(params.busco_db, checkIfExists: true) : [], [], true)
         BUSCO.out.batch_summary.set { batch_summary }
         BUSCO.out.short_summaries_txt.set { short_summary_txt }
         BUSCO.out.short_summaries_json.set { short_summary_json }

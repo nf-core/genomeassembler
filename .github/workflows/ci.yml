@@ -27,7 +27,7 @@ jobs:
     strategy:
       matrix:
         NXF_VER:
-          - "24.04.2"
+          - "24.10.5"
           - "latest-everything"
         ASSEMBLER:
           - "hifi_flye"
@@ -35,7 +35,8 @@ jobs:
           - "ont_flye"
           - "ont_hifiasm"
           - "hifiont_hifiasm"
-          - "hifiont_flyehifiasm"
+          - "hifiont_flye_on_hifiasm"
+          - "hifiont_hifiasm_on_hifiasm"
         profile:
           - "conda"
           - "docker"
@@ -85,9 +86,10 @@ jobs:
           echo $(realpath $CONDA)/condabin >> $GITHUB_PATH
           echo $(realpath python) >> $GITHUB_PATH
 
-      - name: "Run pipeline with test data ${{ matrix.ASSEMBLER }}"
+      - name: "Run pipeline with test data ${{ matrix.NXF_VER }} | ${{ matrix.ASSEMBLER }} | ${{ matrix.profile }}"
+        continue-on-error: ${{ matrix.NXF_VER == 'latest-everything' }}
         run: |
-          nextflow run ${GITHUB_WORKSPACE} -profile ${{ matrix.ASSEMBLER }},test,${{matrix.profile}}  --outdir ./results_${{matrix.profile}}_${{ matrix.ASSEMBLER }}
+          nextflow run ${GITHUB_WORKSPACE} -profile ${{ matrix.ASSEMBLER }},test,${{matrix.profile}} --outdir ./results_${{matrix.profile}}_${{ matrix.ASSEMBLER }}
 
       - name: Clean up Disk space
         uses: jlumbroso/free-disk-space@54081f138730dfa15788a46383842cd2f914a1be # v1.3.1
