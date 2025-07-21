@@ -1,8 +1,8 @@
-include { COUNT } from '../../../modules/local/jellyfish/count/main'
-include { DUMP } from '../../../modules/local/jellyfish/dump/main'
-include { HISTO } from '../../../modules/local/jellyfish/histo/main'
-include { STATS } from '../../../modules/local/jellyfish/stats/main'
-include { GENOMESCOPE } from '../../../modules/local/genomescope/main'
+include { COUNT } from '../../../../modules/local/jellyfish/count/main'
+include { DUMP } from '../../../../modules/local/jellyfish/dump/main'
+include { HISTO } from '../../../../modules/local/jellyfish/histo/main'
+include { STATS } from '../../../../modules/local/jellyfish/stats/main'
+include { GENOMESCOPE } from '../../../../modules/local/genomescope/main'
 
 workflow JELLYFISH {
     take:
@@ -14,8 +14,8 @@ workflow JELLYFISH {
     ch_main.map {
         it ->
             [
-                [id: it.meta.id, ont_jellyfish_k: it.ont_jellyfish_k],
-                it.ontreads
+                [id: it.meta.id, jellyfish_k: it.jellyfish_k],
+                it.qc_reads_path
             ]
         }
     .set { samples }
@@ -39,8 +39,8 @@ workflow JELLYFISH {
                 .map { it ->
                     [
                         it.meta,
-                        it.ont_jellyfish_k,
-                        it.ont_read_length
+                        it.jellyfish_k,
+                        it.qc_read_length
                     ]
                 }
         )

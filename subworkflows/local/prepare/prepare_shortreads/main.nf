@@ -1,6 +1,6 @@
-include { TRIMGALORE } from '../../../modules/nf-core/trimgalore/main'
-include { MERYL_COUNT } from '../../../modules/nf-core/meryl/count/main'
-include { MERYL_UNIONSUM } from '../../../modules/nf-core/meryl/unionsum/main'
+include { TRIMGALORE } from '../../../../modules/nf-core/trimgalore/main'
+include { MERYL_COUNT } from '../../../../modules/nf-core/meryl/count/main'
+include { MERYL_UNIONSUM } from '../../../../modules/nf-core/meryl/unionsum/main'
 
 workflow PREPARE_SHORTREADS {
     take:
@@ -9,8 +9,17 @@ workflow PREPARE_SHORTREADS {
     main:
     Channel.empty().set { ch_versions }
 
-    //shortreads_in.view { it -> "Shortread input: $it"}
-
+    /*
+    TODO:
+                        Grouped preparations
+    Generally, I expect that a group will contain the same set of input.
+    To reduce redundant work on the inputs that belong one group, in all
+    prepare_* subworkflows groups will be used as meta.id, if a group is
+    set. After the preparations are done, results are joined back to all
+    members of the group. This needs to account for sample level setting
+    of additional args. For shortreads no args can be set at the sample-
+    level, so here everything group only.
+    */
     shortreads_in
         .map { create_shortread_channel(it) }
         .set { shortreads }

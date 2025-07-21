@@ -1,4 +1,4 @@
-include { COLLECT_READS } from '../../../../modules/local/collect_reads/main'
+include { COLLECT_READS } from '../../../../../modules/local/collect_reads/main'
 
 workflow COLLECT {
     take:

@@ -40,7 +40,7 @@ workflow ASSEMBLE {
     // Flye inputs:
     ch_main_assemble_branched
         .single
-        .filter { it -> it.assembler1 == "flye" }
+        .filter { it -> it.assembler1 == "flye" || it.assembler2 == "flye" }
         .mix(
             ch_main_assemble_branched
                 .scaffold
@@ -56,11 +56,11 @@ workflow ASSEMBLE {
                 [
                     id: it.meta.id,
                     genome_size: it.genome_size,
-                    flye_args: it.fyle_args
+                    flye_args: it.flye_args ?: ""
                 ],
-                it.assembler1 == "flye" ? it.ontreads : (it.assembler2 == "flye" ? it.hifireads : null),
+                it.assembler1 == "flye" ? it.ontreads : (it.assembler2 == "flye" ? it.hifireads : []),
             ]
-            mode: it.flye_mode ?: it.assembler1 == "flye" ? "--nano-hq" : "--pacbio-hifi"
+            mode: it.assembler1 == "flye" ? "--nano-hq" : "--pacbio-hifi"
         }
         .set { flye_inputs }
 
@@ -86,10 +86,17 @@ workflow ASSEMBLE {
             )
             .set { ch_main_assemble_hifi_hifiasm }
 
-        HIFIASM(ch_main_assemble_hifi_hifiasm.map { it -> [ [id: it.meta.id, hifiasm_args: it.hifiasm_args], it.hifireads, it.ontreads ?: [] ] },
-                 [[], [], []],
-                 [[], [], []],
-                 [[], []])
+        HIFIASM(ch_main_assemble_hifi_hifiasm
+                    .map {
+                        it -> [
+                            [id: it.meta.id, hifiasm_args: it.hifiasm_args ?: ""],
+                            it.hifireads,
+                            (it.stragtegy == "hybrid" && it.ontreads) ? it.ontreads : []
+                            ]
+                        },
+                [[], [], []],
+                [[], [], []],
+                [[], []])
 
         GFA_2_FA_HIFI( HIFIASM.out.processed_unitigs.map { meta, fasta -> [[id: meta.id], fasta] } )
 
@@ -107,7 +114,7 @@ workflow ASSEMBLE {
             .set { ch_main_assemble_ont_hifiasm }
 
 
-        HIFIASM_ONT(ch_main_assemble_ont_hifiasm.map { it -> [ [id: it.meta.id, hifiasm_args: it.hifiasm_args], [], it.ontreads ] }, [[], [], []], [[], [], []], [[], []])
+        HIFIASM_ONT(ch_main_assemble_ont_hifiasm.map { it -> [ [id: it.meta.id, hifiasm_args: it.hifiasm_args ?: ""],  it.ontreads, [] ] }, [[], [], []], [[], [], []], [[], []])
 
         GFA_2_FA_ONT( HIFIASM_ONT.out.processed_unitigs.map { meta, fasta -> [[id: meta.id], fasta] } )
 

@@ -156,6 +156,14 @@ workflow GENOMEASSEMBLER {
         .mix(PREPARE_SHORTREADS.out.main_out)
         .set { ch_main_shortreaded }
 
+
+    /*
+    TODO:
+    A current limitation is that jellyfish / genomescope are only in ONT.
+    Further refactoring is probably necessary, PREPARE should be split into shortread
+    and longread, and QC-reads should be used to prepare the jellyfish / genomescope
+
+    */
     ONT(ontreads)
     ONT.out.main_out.set { ch_main_ont_prepped }
 
