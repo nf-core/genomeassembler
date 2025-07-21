@@ -18,7 +18,7 @@ process COLLECT_READS {
     def prefix = task.ext.prefix ?: "${meta.id}"
 
     """
-    zcat ${reads} | gzip > ${prefix}_all_reads.fq.gz
+    cat ${reads} > ${prefix}_all_reads.fq.gz
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
         gzip: \$(echo \$(gzip --version | head -n1 | sed 's/gzip //'))
@@ -28,7 +28,7 @@ process COLLECT_READS {
     stub:
     def prefix = task.ext.prefix ?: "${meta.id}"
     """
-    touch ${prefix}_all_reads.fq.gz
+    touch ${prefix}_all_reads.fq; gzip ${prefix}_all_reads.fq
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
         gzip: \$(echo \$(gzip --version | head -n1 | sed 's/gzip //'))
