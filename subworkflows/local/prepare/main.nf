@@ -1,7 +1,7 @@
-include { PREPARE_ONT as ONT } from 'prepare_ont/main'
-include { PREPARE_HIFI as HIFI } from 'prepare_hifi/main'
-include { PREPARE_SHORTREADS as SHORTREADS } from 'prepare_shortreads/main'
-include { JELLYFISH } from 'jellyfish/main'
+include { PREPARE_ONT as ONT } from './prepare_ont/main'
+include { PREPARE_HIFI as HIFI } from './prepare_hifi/main'
+include { PREPARE_SHORTREADS as SHORTREADS } from './prepare_shortreads/main'
+include { JELLYFISH } from './jellyfish/main'
 
 workflow PREPARE {
     /*
@@ -190,4 +190,6 @@ workflow PREPARE {
     versions
     genomescope_summary
     genomescope_plot
+    nanoq_report = ONT.out.nanoq_report
+    nanoq_stats = ONT.out.nanoq_stats
 }

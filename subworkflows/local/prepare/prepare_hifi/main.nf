@@ -59,13 +59,14 @@ workflow PREPARE_HIFI {
 
     TO_FASTQ
         .out
+        .fastq
         .filter { it -> it[0].ids }
         .flatMap { it ->
             it[0].ids
                 .tokenize("+")
                 .collect { sample -> [ meta: [ id: sample ], hifireads: it[1] ] }
             }
-        .mix(TO_FASTQESS.out
+        .mix(TO_FASTQ.out.fastq
             .filter { it -> !it[0].ids }
             .map {
                 it -> [ meta: [ id: it[0].id ], hifireads: it[1] ]

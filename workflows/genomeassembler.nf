@@ -3,31 +3,29 @@
     IMPORT MODULES / SUBWORKFLOWS / FUNCTIONS
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
-include { paramsSummaryMap } from 'plugin/nf-schema'
-include { paramsSummaryMultiqc } from '../subworkflows/nf-core/utils_nfcore_pipeline'
-include { softwareVersionsToYAML } from '../subworkflows/nf-core/utils_nfcore_pipeline'
-include { methodsDescriptionText } from '../subworkflows/local/utils_nfcore_genomeassembler_pipeline'
-// Read preparation
-include { PREPARE } from '../subworkflows/local/prepare/main'
+include { paramsSummaryMap          } from 'plugin/nf-schema'
+include { paramsSummaryMultiqc      } from '../subworkflows/nf-core/utils_nfcore_pipeline'
+include { softwareVersionsToYAML    } from '../subworkflows/nf-core/utils_nfcore_pipeline'
+include { methodsDescriptionText    } from '../subworkflows/local/utils_nfcore_genomeassembler_pipeline'
 
-// Read checks
-include { ONT } from '../subworkflows/local/ont/main'
-include { HIFI } from '../subworkflows/local/hifi/main'
+// Read preparation
+include { PREPARE                   } from '../subworkflows/local/prepare/main'
 
 // Assembly
-include { ASSEMBLE } from '../subworkflows/local/assemble/main'
+include { ASSEMBLE                  } from '../subworkflows/local/assemble/main'
 
 // Polishing
-include { POLISH } from '../subworkflows/local/polishing/main'
+include { POLISH                    } from '../subworkflows/local/polishing/main'
 
 // Scaffolding
-include { SCAFFOLD } from '../subworkflows/local/scaffolding/main'
+include { SCAFFOLD                  } from '../subworkflows/local/scaffolding/main'
+
 // reporting
-include { REPORT } from '../modules/local/report/main'
+include { REPORT                    } from '../modules/local/report/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    RUN MAIN WORKFLOW
+    MAIN WORKFLOW
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
@@ -40,12 +38,19 @@ workflow GENOMEASSEMBLER {
     ch_input.set { ch_main }
 
     /*
-    This is the "main" channel, it contains all sample-wise information.
-    This channel should be the main input of all subworkflows,
-    and the subworkflows should make relevant changes / updates to the map.
-    This channel should stay a map (!!) to allow key-based modifications in subworkflows.
-    The keys are defined in subworkflows/local/utils_nfcore_genomeassembler/main.nf
-    Here is a list of keys and their types that come in :
+
+    The "main" channel, contains all sample-wise information.
+    This channel should be the main input of all subworkflows
+    and the subworkflows should make changes to this map. The
+    main channel should stay a map whenever possible and this
+    main channel reflects all pipeline parameters.
+    I will make use of the meta map to pass additional infor-
+    mation into processes. This is neccessary to provide fine
+    control for parameterization of processes. This is passed
+    via ext.args to the process and fetched from meta.
+
+    The keys are defined in
+    ./subworkflows/local/utils_nfcore_genomeassembler/main.nf
 
         meta: [id: string],
         ontreads: path,
@@ -75,13 +80,9 @@ workflow GENOMEASSEMBLER {
         scaffold_ragtag: bool,
         use_ref: bool,
         flye_mode: string,
-        // assembly already provided?
         assembly: path,
-        // ref mapping provided?
         ref_map_bam: path,
-        // assembly mapping provided
         assembly_map_bam: path,
-        // reads for qc
         qc_reads: string ["ont","hifi"],
         qc_reads_path: path,
         quast: bool,
@@ -89,7 +90,6 @@ workflow GENOMEASSEMBLER {
         busco_lineage: string,
         busco_db: path,
         lift_annotations: bool,
-        // short read options
         shortread_F: path,
         shortread_R: path,
         paired: bool,
@@ -172,22 +172,22 @@ workflow GENOMEASSEMBLER {
         .mix(SCAFFOLD.out.ch_main)
         .set { ch_main_scaffolded }
 
-    ONT.out.nanoq_report
+    PREPARE.out.nanoq_report
         .concat(
-            ONT.out.nanoq_stats
+            PREPARE.out.nanoq_stats
         )
         .collect { it -> it[1] }
         .set { nanoq_files }
 
-    ONT.out.genomescope_summary
+    PREPARE.out.genomescope_summary
         .concat(
-            ONT.out.genomescope_plot
+            PREPARE.out.genomescope_plot
         )
         .unique()
         .collect { it -> it[1] }
         .set { genomescope_files }
 
-    ch_versions = ch_versions.mix(PREPARE_SHORTREADS.out.versions).mix(ONT.out.versions).mix(HIFI.out.versions).mix(ASSEMBLE.out.versions).mix(POLISH.out.versions).mix(SCAFFOLD.out.versions)
+    ch_versions = ch_versions.mix(PREPARE.out.versions).mix(ASSEMBLE.out.versions).mix(POLISH.out.versions).mix(SCAFFOLD.out.versions)
 
     ch_versions = ch_versions
 

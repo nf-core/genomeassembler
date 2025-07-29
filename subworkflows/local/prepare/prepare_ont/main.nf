@@ -48,11 +48,11 @@ workflow PREPARE_ONT {
                 .tokenize("+")
                 .collect { sample -> [ meta: [ id: sample ], ontreads: it[1] ] }
             }
-        .mix(COLLECT.out
-            .filter { it -> !it[0].ids }
-            .map {
-                it -> [ meta: [ it[0].id ], ontreads: it[1] ]
-            }
+        .mix(COLLECT.out.reads
+                .filter { it -> !it[0].ids }
+                .map {
+                    it -> [ meta: [ it[0].id ], ontreads: it[1] ]
+                }
         )
         .map { it -> it.collect { entry -> [ entry.value, entry ] } }
         .set { ch_collected_reads }
