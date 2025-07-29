@@ -9,23 +9,9 @@ workflow PREPARE_SHORTREADS {
     main:
     Channel.empty().set { ch_versions }
 
-    /*
-    TODO:
-                        Grouped preparations
-    Generally, I expect that a group will contain the same set of input.
-    To reduce redundant work on the inputs that belong one group, in all
-    prepare_* subworkflows groups will be used as meta.id, if a group is
-    set. After the preparations are done, results are joined back to all
-    members of the group. This needs to account for sample level setting
-    of additional args. For shortreads no args can be set at the sample-
-    level, so here everything group only.
-    */
     shortreads_in
         .map { create_shortread_channel(it) }
         .set { shortreads }
-
-
-    // use modified shortread channel
 
     shortreads_in
         .map {
@@ -53,35 +39,98 @@ workflow PREPARE_SHORTREADS {
         }
         .set { shortreads }
 
-    TRIMGALORE(shortreads.trim.map { it -> [it.meta, it.shortreads] })
+    shortreads
+        .trim
+        .filter { it -> it.group  }
+        .map { it -> [it.meta, it.group, it.shortreads] }
+        // Create a group
+        .groupTuple(by: 1)
+        .map {
+            it ->
+                [
+                    [ id: it[1], ids: it[0].id.collect().join("+") ],
+                    it[2].unique()[0]
+                ]
+        }
+        .mix(shortreads.trim
+            .filter { it -> !it.group }
+            .map {
+                it -> [ it.meta, it.shortreads ]
+            }
+        )
+        .set { trimgalore_in }
+
+    TRIMGALORE(trimgalore_in)
+
+    TRIMGALORE.out.reads
+        .filter { it -> it[0].ids }
+        .flatMap { it ->
+            it[0].ids.tokenize("+").collect {
+                sample -> [meta: [ id: sample ], shortreads: it[1] ]
+            }
+        }
+        .mix(
+            TRIMGALORE.out.reads
+                .filter { it -> !it[0].ids }
+                .map { it -> [ meta: [ id: it[0].id ], shortreads: it[1] ] }
+        )
+        .map { it -> it.collect { entry -> [ entry.value, entry ] } }
+        .set { trimmed_reads }
 
     // unite branched:
     // add trimmed reads to trim channel, then mix with shortreads.no_trim
 
-    shortreads
-        .trim
+    shortreads.trim
         .map { it -> it - it.subMap("shortreads") }
         .map { it -> it.collect { entry -> [ entry.value, entry ] } }
-        .join(
-            TRIMGALORE.out.reads
-                .map { it -> [meta: [id: it[0].id], shortreads: it[1]]}
-                .map { it -> it.collect { entry -> [ entry.value, entry ] } }
-        )
+        .join( trimmed_reads )
         .map { it -> it.collect { _entry, map -> [ (map.key): map.value ] }.collectEntries() }
         .mix( shortreads.no_trim )
         .set { shortreads }
 
     ch_versions = ch_versions.mix(TRIMGALORE.out.versions)
+
     shortreads
-                .filter { it -> it.merqury }
-                .multiMap { it ->
-                    reads: [ it.meta, it.shortreads ]
-                    kmer_size: it.meryl_k
-                }
-                .set { meryl_in }
+        .filter { it -> it.merqury }
+        .filter { it -> it.group  }
+        .map { it -> [it.meta, it.group, it.shortreads, it.meryl_k] }
+        // Create a group
+        .groupTuple(by: 1)
+        .map {
+            it -> [
+                meta: [ id: it[1], ids: it[0].id.collect().join("+") ],
+                shortreads: it[2].unique()[0],
+                meryl_k: it[3].unique()[0]
+            ]
+        }
+        .mix(shortreads
+            .filter { it -> it.merqury }
+            .filter { it -> !it.group  }
+            .map { it -> [meta: it.meta, shortreads: it.shortreads, meryl_k: it.meryl_k]}
+        )
+        .multiMap { it ->
+            reads: [ it.meta, it.shortreads ]
+            kmer_size: it.meryl_k
+        }
+        .set { meryl_in }
+
     MERYL_COUNT(meryl_in.reads, meryl_in.kmer_size)
+
     MERYL_UNIONSUM(MERYL_COUNT.out.meryl_db, params.meryl_k)
-    MERYL_UNIONSUM.out.meryl_db.set { meryl_kmers }
+
+    MERYL_UNIONSUM.out.meryl_db
+        .filter { it -> it[0].ids }
+        .flatMap { it ->
+            it[0].ids
+                .tokenize("+")
+                .collect { sample -> [ [ id: sample ], it[1] ] }
+            }
+        .mix(MERYL_UNIONSUM.out.meryl_db
+            .filter { it -> !it[0].ids }
+            .map {
+                it -> [ [ id: it[0].id ], it[1] ]
+            }
+        ).set { meryl_kmers }
 
     shortreads_in
         .map {

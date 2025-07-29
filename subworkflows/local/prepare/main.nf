@@ -1,8 +1,70 @@
 include { PREPARE_ONT as ONT } from 'prepare_ont/main'
 include { PREPARE_HIFI as HIFI } from 'prepare_hifi/main'
 include { PREPARE_SHORTREADS as SHORTREADS } from 'prepare_shortreads/main'
+include { JELLYFISH } from 'jellyfish/main'
 
 workflow PREPARE {
+    /*
+                        Grouped preparations
+
+    Generally, I expect that a group will contain the same set of input.
+    To reduce redundant work on the inputs that belong one group, in all
+    prepare_* subworkflows groups will be used as meta.id, if a group is
+    set. After the preparations are done, results are joined back to all
+    members of the group. This needs to account for sample level setting
+    of additional args. For preparation no arg can be set at the sample-
+    level, so here everything group only.
+
+    The pattern for grouping/ungrouping and mixing samples is:
+
+    Grouping:
+    channel_grouped is a map that contains at least meta, group and path
+    within one group the path is expected to be the same for all members
+
+    channel_grouped
+        .filter { it -> it.group  }
+        .map { it -> [it.meta, it.group, it.path] }
+        .groupTuple(by: 1)
+        .map {
+            it ->
+                [
+                    [id: it[1], ids: it[0].id.collect().join("+")],
+                    it[2].unique()[0]
+                ]
+        }
+        .mix(
+            groups
+                .filter { it -> !it.group }
+                .map {
+                    it -> [ it.meta, it.path ]
+                }
+        )
+        .set { collected_groups }
+
+    This produces one channel that contains meta and path ready to go in
+    a process.
+
+    For a process that again returns [meta, path] split group in samples
+    and merge with ungrouped samples:
+
+    PROCESS(collected_groups)
+
+    PROCESS.out
+        .filter { it -> it[0].ids }
+        .flatMap { it ->
+            it[0].ids
+                .tokenize("+")
+                .collect { sample -> [ meta: [ id: sample ], path: it[1] ] }
+            }
+        .mix(PROCESS.out
+            .filter { it -> !it[0].ids }
+            .map {
+                it -> [ meta: [ id: it[0].id ], path: it[1] ]
+            }
+        )
+        .set { process_output }
+    */
+
     take: ch_main
 
     main:
@@ -26,9 +88,11 @@ workflow PREPARE {
 
 
     // adapted to sample-logic
+
     SHORTREADS(shortreads)
 
     SHORTREADS.out.meryl_kmers.set { meryl_kmers }
+
     // This changes ch_main shortreads_F and _R become one tuple, paired is gone.
 
     // put shortreads back together with samples without shortreads
@@ -42,20 +106,7 @@ workflow PREPARE {
         .set { ch_main_shortreaded }
 
 
-    /*
-    TODO:
-    A current limitation is that jellyfish / genomescope are only in ONT.
-    Further refactoring is probably necessary, PREPARE should be split into shortread
-    and longread, and QC-reads should be used to prepare the jellyfish / genomescope
-
-    */
     ONT(ontreads)
-
-    ONT.out.main_out.set { ch_main_ont_prepped }
-
-    ONT.out.nanoq_report.set { nanoq_report }
-
-    ONT.out.nanoq_stats.set { nanoq_stats }
 
     ONT.out.main_out.set { ch_main_ont_prepped }
 
@@ -126,7 +177,17 @@ workflow PREPARE {
 
     JELLYFISH.out.genomescope_summary.set { genomescope_summary }
     JELLYFISH.out.genomescope_plot.set { genomescope_plot }
-    ch_versions = ch_versions.mix(JELLYFISH.out.versions)
 
-    versions = ch_versions
+    SHORTREADS.out.versions
+        .mix(ONT.out.versions)
+        .mix(HIFI.out.versions)
+        .mix(JELLYFISH.out.versions)
+        .set { versions }
+
+    emit:
+    ch_main    = main_out
+    meryl_kmers
+    versions
+    genomescope_summary
+    genomescope_plot
 }

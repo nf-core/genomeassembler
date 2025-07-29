@@ -19,13 +19,41 @@ workflow PREPARE_ONT {
 
     ch_ont_collect_branched
         .to_collect
-        .map { it -> [it.meta, it.ontreads] }
+        .filter { it -> it.group }
+        .map { it -> [it.meta, it.group, it.ontreads] }
+        .groupTuple(by: 1)
+        .map {
+            it ->
+                [
+                    [id: it[1], ids: it[0].id.collect().join("+")],
+                    it[2].unique()[0]
+                ]
+        }
+        .mix(
+            ch_ont_collect_branched
+                .to_collect
+                .filter { it -> !it.group }
+                .map {
+                    it -> [ it.meta, it.ontreads ]
+                }
+        )
         .set { collect_in }
 
     COLLECT(collect_in)
 
     COLLECT.out.reads
-        .map { it -> [meta: it[0], ontreads: it[1]] }
+        .filter { it -> it[0].ids }
+        .flatMap { it ->
+            it[0].ids
+                .tokenize("+")
+                .collect { sample -> [ meta: [ id: sample ], ontreads: it[1] ] }
+            }
+        .mix(COLLECT.out
+            .filter { it -> !it[0].ids }
+            .map {
+                it -> [ meta: [ it[0].id ], ontreads: it[1] ]
+            }
+        )
         .map { it -> it.collect { entry -> [ entry.value, entry ] } }
         .set { ch_collected_reads }
 
@@ -49,7 +77,25 @@ workflow PREPARE_ONT {
 
     ch_ont_chop_branched
         .chop
-        .map { it -> [it.meta, it.ontreads]}
+        .filter { it -> it.group }
+        .map { it -> [it.meta, it.group, it.ontreads] }
+        .groupTuple(by: 1)
+        .map {
+            it ->
+                [
+                    [id: it[1], ids: it[0].id.collect().join("+")],
+                    it[2].unique()[0]
+                ]
+        }
+        .mix(
+            ch_ont_chop_branched
+                .chop
+                .filter { it -> !it.group }
+                .map {
+                    it -> [ it.meta, it.ontreads ]
+                }
+        )
+        .map { it -> [ it.meta, it.ontreads ] }
         .set { chop_in }
 
     CHOP(chop_in)
@@ -62,7 +108,20 @@ workflow PREPARE_ONT {
                 CHOP
                     .out
                     .chopped_reads
-                    .map { meta, reads -> [meta: meta, ontreads: reads] }
+                    .filter { it -> it[0].ids }
+                    .flatMap { it ->
+                        it[0].ids
+                            .tokenize("+")
+                            .collect { sample -> [ meta: [ id: sample ], ontreads: it[1] ] }
+                    }
+                    .mix(CHOP
+                        .out
+                        .chopped_reads
+                        .filter { it -> !it[0].ids }
+                        .map {
+                            it -> [ meta: [ it[0].id ], ontreads: it[1] ]
+                        }
+                    )
                     .map { it -> it.collect { entry -> [ entry.value, entry ] } }
             )
             .map { it -> it.collect { _entry, map -> [ (map.key): map.value ] }.collectEntries() }
@@ -81,13 +140,41 @@ workflow PREPARE_ONT {
 
     ch_ont_chopped_branched
         .nanoq
-        .map { it -> [it.meta, it.ontreads] }
-        .set {ch_nanoq_in}
+        .filter { it -> it.group }
+        .map { it -> [it.meta, it.group, it.ontreads] }
+        .groupTuple(by: 1)
+        .map {
+            it ->
+                [
+                    [id: it[1], ids: it[0].id.collect().join("+")],
+                    it[2].unique()[0]
+                ]
+        }
+        .mix(
+            ch_ont_chopped_branched
+                .nanoq
+                .filter { it -> !it.group }
+                .map {
+                    it -> [ it.meta, it.ontreads ]
+                }
+        )
+        .map { it -> [ it.meta, it.ontreads ] }
+        .set { ch_nanoq_in }
 
     RUN_NANOQ(ch_nanoq_in)
 
     RUN_NANOQ.out.median_length
-        .map { it -> [meta: it[0], ont_read_length: it[1]] }
+        .filter { it -> it[0].ids }
+        .flatMap { it ->
+            it[0].ids
+                .tokenize("+")
+                .collect { sample -> [ meta: [ id: sample ], ont_read_length: it[1] ] }
+        }
+        .mix(
+            RUN_NANOQ.out.median_length
+            .filter { it -> !it[0].ids }
+            .map { it -> [meta: [ id: it[0].id ], ont_read_length: it[1]] }
+         )
         .map { it -> it.collect { entry -> [ entry.value, entry ] } }
         .set { med_len }
 

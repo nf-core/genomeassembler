@@ -11,6 +11,7 @@ workflow JELLYFISH {
     main:
     Channel.empty().set { genomescope_in }
     Channel.empty().set { ch_versions }
+
     ch_main.map {
         it ->
             [
@@ -40,7 +41,7 @@ workflow JELLYFISH {
                     [
                         it.meta,
                         it.jellyfish_k,
-                        it.qc_read_length
+                        (it.qc_reads == "ONT" && it.ont_read_length) ? it.ont_read_length : it.qc_read_length
                     ]
                 }
         )
