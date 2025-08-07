@@ -10,14 +10,14 @@ process REPORT {
     https://wave.seqera.io/view/builds/bd-be4a8863b7b76cf7_1 docker
     */
     input:
-    path qmdir_files, stageAs: "*"
-    path funct_files, stageAs: "functions/*"
-    path nanoq_files, stageAs: "data/nanoq/*"
-    path jelly_files, stageAs: "data/genomescope/*"
-    path quast_files, stageAs: "data/quast/*"
-    path busco_files, stageAs: "data/busco/*"
-    path meryl_files, stageAs: "data/merqury/*"
-    path versions, stageAs: "software_versions.yml"
+    path qmdir_files,       stageAs: "*"
+    path funct_files,       stageAs: "functions/*"
+    path fastplong_files,   stageAs: "data/fastplong/*"
+    path jelly_files,       stageAs: "data/genomescope/*"
+    path quast_files,       stageAs: "data/quast/*"
+    path busco_files,       stageAs: "data/busco/*"
+    path meryl_files,       stageAs: "data/merqury/*"
+    path versions,          stageAs: "software_versions.yml"
     val groups
 
     output:
@@ -33,9 +33,9 @@ process REPORT {
     script:
     def report_profile = "--profile base"
     def report_params = ''
-    if (nanoq_files) {
-        report_profile = report_profile << ",nanoq"
-        report_params  = report_params << ' -P nanoq:true'
+    if (fastplong_files) {
+        report_profile = report_profile << ",fastplong"
+        report_params  = report_params << ' -P fastplong:true'
     }
     if (quast_files) {
         report_profile = report_profile << ",quast"
@@ -94,4 +94,35 @@ process REPORT {
         quarto-cli: \$(quarto --version)
     END_VERSIONS
     """
+}
+library(magrittr)
+library(tidyjson)
+library(dplyr)
+library(readr)
+
+# Read a nanoq json report
+read_fastplong <- function(file) {
+  sample_name <- file %>% str_extract('(?<=fastplong/).+?(?=_(ont|hifi)\\.fastplong\\.json)')
+  read_type <- file %>%
+    str_extract('(?<=fastplong/).*') %>%
+    str_extract('_(ont|hifi)\\.') %>%
+    str_remove_all("_|\\.")
+  read_json(file) %>%
+      enter_object("summary") %>%
+      tidyjson::spread_all() %>%
+      as_tibble() %>%
+      select(-document.id,-fastplong_version) %>%
+      pivot_longer(everything(),
+                   names_to = c("stage", "stat"),
+                   names_pattern = "(.*)\\.(.*)") %>%
+    mutate(sample = sample_name) %>%
+    mutate(
+      stat = stat %>%
+        str_replace_all("_", " ") %>%
+        str_to_title(),
+      stage = stage %>%
+        str_replace_all("_", " ") %>%
+        str_to_title(),
+      read_type = read_type
+    )
 }

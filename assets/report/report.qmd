@@ -6,11 +6,11 @@ nav-buttons:
     - icon: github
     - href: https://github.com/nf-core/genomeassembler
 params:
-    nanoq: true
+    fastplong: false
     busco: true
     quast: true
-    jellyfish: true
-    merqury: true
+    jellyfish: false
+    merqury: false
 ---
 
 ```{r load libraries and functions}
@@ -24,86 +24,71 @@ library(magrittr)
 library(plotly)
 #library(gt)
 # Load functions
-list.files("functions",
-           full.names = T,
-           pattern = ".R") %>%
+list.files("functions", full.names = T, pattern = ".R") %>%
     map(\(x) source(x))
 
 # Set default ggplot theme
 theme_set(theme_bw(base_size = 14,
                     base_family = "Arial"))
 theme_update(strip.background = element_blank(),
-             axis.text.x = element_text(angle = 70, hjust = 1))
+                axis.text.x = element_text(angle = 70, hjust = 1))
 ## Colors, these come from the khroma package ("muted")
 ### For <=9 stages:
-colors_9 <- c(
-  "#CC6677",
-  "#332288",
-  "#DDCC77",
-  "#117733",
-  "#88CCEE",
-  "#882255",
-  "#44AA99",
-  "#999933",
-  "#AA4499"
-)
-color_scale_plots <- scale_color_manual(values = colors_9, na.value = "#DDDDDD")
-fill_scale_plots <- scale_fill_manual(values = colors_9, na.value = "#DDDDDD")
-
-
+color_scale_plots <- scale_color_manual(values = c("#CC6677", "#332288", "#DDCC77", "#117733", "#88CCEE", "#882255", "#44AA99", "#999933", "#AA4499"), na.value = "#DDDDDD")
+fill_scale_plots <- scale_fill_manual(values = c("#CC6677", "#332288", "#DDCC77", "#117733", "#88CCEE", "#882255", "#44AA99", "#999933", "#AA4499"), na.value = "#DDDDDD")
 # Base directory containing reports
 data_base <-  "data/"
-
-# groups
 groups <- yaml::read_yaml("examples/yml/example.yml") %>%
-  map_dfr(\(row)
-          data.frame(sample = pluck(row, 1, "id"), group = pluck(row, 1, "group"))) %>%
-  mutate(group = case_when(group %in% c("","null") ~ sample, TRUE ~ group))
+    map_dfr(\(row)
+        data.frame(
+          id = pluck(row,1,"id"),
+          group = pluck(row,1,"group")
+          )
+        )
 ```
+
 
 # About
 
 This report displays the main information gathered from various QC steps.
 
-# nanoq {.tabset}
+# fastplong {.tabset}
 
-::: {.content-visible unless-profile="nanoq"}
-nanoq was not included in the pipeline run, no ONT reads were included.
+::: {.content-visible unless-profile="fastplong"}
+fastplong was not included in the pipeline run.
 :::
 
-```{r nanoq read inputs}
-#| eval: !expr params$nanoq
+```{r fastplong read inputs}
+#| eval: !expr params$fastplong
 #| include: false
 #| message: false
 #| output: false
 
-# Parse nanoq reports into table
-nanoq_reports <- list.files(paste0(data_base, "nanoq"),
-                            pattern = "report.json",
+# Parse fastplong reports into table
+# Note that for these reports the sample name is the group
+fastplong_reports <- list.files(paste0(data_base, "fastplong"),
+                            pattern = ".json",
                             full.names = T) %>%
-    map_dfr(\(x) read_nanoq(x)) %>%
-    left_join(groups, by = join_by(sample))
+    map_dfr(\(x) read_fastplong(x))
 ```
 
 ```{r}
-#| eval: !expr params$nanoq
+#| eval: !expr params$fastplong
 #| include: false
 
-# For each sample, we create one plot chunk that will be saved into nanoq files
+# For each sample, we create one plot chunk that will be saved into fastplong files
 # This is an rmd chunk in plain text.
 
-dir.create("nanoq_files")
-for (i in 1:length(unique(nanoq_reports$group))) {
+dir.create("fastplong_files")
+for (i in 1:length(unique(fastplong_reports$sample))) {
 paste0('```{r}\n
-            #| title: "Nanoq read statistics"
-            p <- nanoq_reports %>%
-            filter(stat %in% c("Median Length", "Longest", "Median Quality","Bases")) %>%
-            filter(group == "', unique(nanoq_reports$group)[i], '") %>%
-            mutate(stat=fct_relevel(stat,c("Bases","Longest","Median Length","Median Quality"))) %>%
-            ggplot(aes(x = sample, y = val)) +
+            #| title: "fastplong read statistics"
+            p <- fastplong_reports %>%
+            filter(group == "', unique(fastplong_reports$sample)[i], '") %>%
+            ggplot(aes(x = sample, y = value)) +
             geom_line() +
             geom_point(size = 5, pch=21, aes(fill=stage)) +
-            facet_wrap(~stat, scales = "free_y", ncol=2) +
+            facet_wrap(read_type~stat, scales = "free_y", ncol=2) +
             fill_scale_plots +
             scale_y_continuous(labels = function(x) format(x,scientific=-1,trim=T, digits = 3, drop0trailing=T), n.breaks = 4) +
             theme(axis.title.x = element_blank(),
@@ -112,48 +97,69 @@ paste0('```{r}\n
                     legend.title = element_blank(),
                     panel.grid.minor = element_blank())
         ggplotly(p)\n```') %>%
-    write_lines(glue::glue("nanoq_files/_{ unique(nanoq_reports$group)[i] }_nanoq.Rmd"))
+    write_lines(glue::glue("fastplong_files/_{ unique(fastplong_reports$sample)[i] }_fastplong.Rmd"))
 }
 ```
 
-::: {.content-visible when-profile="nanoq"}
+::: {.content-visible when-profile="fastplong"}
 
 ::: {.panel-tabset .flow}
 
-```{r nanoq add subplots}
-#| eval: !expr params$nanoq
+```{r fastplong add subplots}
+#| eval: !expr params$fastplong
 #| results: asis
 
 # This loop creates one tab per group
 ## Each tab contains 3 valueboxes
 ## Below the valueboxes, the sample-specific plot code generated above is inserted
 
-for (i in 1:length(unique(nanoq_reports$group))) {
-    cat(paste0('## ', unique(nanoq_reports$group)[i], '\n\n'),
+for (i in 1:length(unique(fastplong_reports$sample))) {
+    cat(paste0('## ', unique(fastplong_reports$sample)[i], '\n\n'),
         paste0('### { width = 30% }', '\n\n'),
         paste0('::: {.valuebox icon="magic" color="primary" title="Total bases sequenced"}','\n'),
-        paste0(nanoq_reports %>%
-            filter(stat == "Bases") %>%
-            filter(group == unique(nanoq_reports$group)[i],) %$%
+        paste0(fastplong_reports %>%
+            filter(stat == "Total Bases", stage == "After Filtering") %>%
+            filter(sample == unique(fastplong_reports$sample)[i],) %$%
             sum(val) %>%
             format(scientific=-1,trim=T, digits = 3, drop0trailing=T),'\n'),
         paste0(':::', '\n\n'),
         paste0('::: {.valuebox icon="collection" color="secondary" title="Number of reads"}', '\n'),
-        paste0(nanoq_reports %>%
-                filter(stat == "N Reads") %>%
-                filter(group == unique(nanoq_reports$group)[i]) %$%
+        paste0(fastplong_reports %>%
+                filter(stat == "Total Reads", stage == "After Filtering") %>%
+                filter(sample == unique(fastplong_reports$sample)[i]) %$%
                 sum(val) %>%
                 paste(" bases"), '\n'),
         paste0(':::', '\n\n'),
-        paste0('::: {.valuebox icon="chevron-double-up" color="success" title="Longest read"}', '\n'),
-        paste0(nanoq_reports %>%
-                filter(stat == "Longest") %>%
-                filter(group == unique(nanoq_reports$group)[i]) %$%
-                max(val) %>%
-                paste0(" bases"),'\n'),
+        paste0('::: {.valuebox icon="chevron-double-up" color="success" title="Q30 rate"}', '\n'),
+        paste0(fastplong_reports %>%
+                filter(stat == "Q30 Rate", stage == "After Filtering") %>%
+                filter(sample == unique(fastplong_reports$sample)[i]) %$%
+                {value*100} %>%
+                round(1) %>%
+                paste0(" %"),
+                '\n'),
         paste0(':::', '\n\n'),
+        paste0('\n\n'),
+        paste0('### {.tabset}'),
+        paste0('\n\n'),
+        paste0('#### Tables \n\n'),
+        fastplong_reports %>%
+            filter(sample == unique(fastplong_reports$sample)[i]) %>%
+            pivot_wider(id_cols = c("sample","read_type","stat"),names_from = "stage") %>%
+          gt::gt() %>%
+          gt::cols_label(
+            sample = "Group",
+            read_type = "Read Type",
+            stat = "Metric"
+          ) %>%
+          gt::fmt_number(suffixing = TRUE, n_sigfig = 3, rows = ! (stat %>% str_detect("Rate"))) %>%
+          gt::fmt_percent(rows = stat %>% str_detect("Rate"))  %>%
+          gt::as_raw_html()
+        ,
+        paste0('\n\n'),
+        paste0('#### Plots'),
         paste0('### ', '\n\n'),
-        knitr::knit_child(glue::glue('nanoq_files/_{ unique(nanoq_reports$group)[i] }_nanoq.Rmd'),
+        knitr::knit_child(glue::glue('fastplong_files/_{ unique(fastplong_reports$sample)[i] }_fastplong.Rmd'),
                         envir = globalenv(),
                         quiet = TRUE),
         paste0('\n\n'),
@@ -163,14 +169,15 @@ for (i in 1:length(unique(nanoq_reports$group))) {
 ```
 
 ```{r}
-#| eval: !expr params$nanoq
+#| eval: !expr params$fastplong
 # Clean up the intermediate files
-unlink("nanoq_files", recursive = T)
+unlink("fastplong_files", recursive = T)
 ```
 
 :::
 
 :::
+
 
 # QUAST {.tabset}
 

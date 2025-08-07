@@ -174,7 +174,7 @@ workflow PREPARE {
     def slurp = new groovy.json.JsonSlurper()
 
     ch_main_prepared
-        .filter(it.qc_reads == "ONT")
+        .filter(it.qc_reads.toLower() == "ont")
         .map { it -> it.collect { entry -> [ entry.value, entry ] } }
         .join(ONT.out.fastplong_ont_reports
                 .map { it -> [ meta: it[0], fastplong_json: it[1] ]}
@@ -182,7 +182,7 @@ workflow PREPARE {
             )
         .mix(
             ch_main_prepared
-            .filter(it.qc_reads == "HIFI")
+            .filter(it.qc_reads.toLower() == "hifi")
             .map { it -> it.collect { entry -> [ entry.value, entry ] } }
             .join(HIFI.out.fastplong_hifi_reports
                 .map { it -> [ meta: it[0], fastplong_json: it[1] ]}
@@ -190,12 +190,13 @@ workflow PREPARE {
             )
         )
         .map { it -> it.collect { _entry, map -> [ (map.key): map.value ] }.collectEntries() }
-        .map { it -> it +
+        .map { it ->
+            it +
             [
                 qc_read_mean: slurp.parse(it.fastplong_json).summary.after_filtering.read_mean_length ?:
                               slurp.parse(it.fastplong_json).summary.before_filtering.read_mean_length
-            ]
-            - it.subMap("fastplong_json")
+            ] -
+            it.subMap("fastplong_json")
         }
         .branch {
             it ->
@@ -221,11 +222,12 @@ workflow PREPARE {
         .mix(JELLYFISH.out.versions)
         .set { versions }
 
+    fastplong_json_reports = HIFI.out.fastplong_hifi_reports.mix(ONT.out.fastplong_ont_reports)
+
     emit:
     ch_main                 = main_out
+    fastplong_json_reports
     meryl_kmers
-    nanoq_stats             = ONT.out.nanoq_stats
-    nanoq_report            = ONT.out.nanoq_report
     genomescope_summary
     genomescope_plot
     versions

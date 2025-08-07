@@ -107,7 +107,7 @@ workflow GENOMEASSEMBLER {
     Channel
         .of([])
         .tap { quast_files }
-        .tap { fastplong_files }
+        .tap { fastplong_reports }
         .tap { genomescope_files }
         .map { it -> ["dummy", it] }
         .tap { busco_files }
@@ -174,12 +174,9 @@ workflow GENOMEASSEMBLER {
         .mix(SCAFFOLD.out.ch_main)
         .set { ch_main_scaffolded }
 
-    PREPARE.out.nanoq_report
-        .concat(
-            PREPARE.out.nanoq_stats
-        )
+    PREPARE.out.fastplong_json_reports
         .collect { it -> it[1] }
-        .set { nanoq_files }
+        .set { fasplong_jsons }
 
     PREPARE.out.genomescope_summary
         .concat(
@@ -254,10 +251,6 @@ workflow GENOMEASSEMBLER {
         .collect()
         .set { report_functions }
 
-    if(!params.merqury) {
-
-    }
-
     ch_main
         .collect { it -> it.quast ?: null }
         .map { it -> it.any { it2 -> it2 == true ?: false } }
@@ -277,7 +270,7 @@ workflow GENOMEASSEMBLER {
 
     REPORT( report_files,
             report_functions,
-            nanoq_files,
+            fasplong_jsons,
             genomescope_files,
             quast_files,
             busco_files,
