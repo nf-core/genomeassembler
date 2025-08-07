@@ -97,6 +97,8 @@ workflow GENOMEASSEMBLER {
         shortread_trim: bool
     */
 
+    // TODO: Currently the pipeline is losing everything with hifireads somewhere.
+
     Channel.empty().set { meryl_kmers }
 
     Channel.empty().set { ch_versions }
@@ -105,7 +107,7 @@ workflow GENOMEASSEMBLER {
     Channel
         .of([])
         .tap { quast_files }
-        .tap { nanoq_files }
+        .tap { fastplong_files }
         .tap { genomescope_files }
         .map { it -> ["dummy", it] }
         .tap { busco_files }

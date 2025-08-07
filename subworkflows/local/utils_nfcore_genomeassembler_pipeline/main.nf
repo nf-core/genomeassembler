@@ -72,7 +72,7 @@ workflow PIPELINE_INITIALISATION {
             [
                 meta: [id: it.sample],
                 // new in refactor-assemblies
-                group: it.group ?: "none",
+                group: it.group ?: null,
                 ontreads: it.ontreads ?: params.ontreads,
                 hifireads: it.hifireads ?: params.hifireads,
                 // new in refactor-assemblers
@@ -105,12 +105,13 @@ workflow PIPELINE_INITIALISATION {
                     null,
                 ont_collect: it.ont_collect ?: params.ont_collect,
                 ont_trim: it.ont_trim ?: params.ont_trim,
-                ont_nanoq: it.ont_nanoq ?: params.ont_nanoq,
+                ont_adapters: it.ont_adapters ?: params.ont_adapters,
+                ont_fastplong_args: it.ont_fastplong_args ?: params.ont_fastplong_args,
                 jellyfish: it.jellyfish ?: params.jellyfish,
                 jellyfish_k: it.ont_jellyfish_k ?: params.jellyfish_k,
-                qc_read_length: it.qc_read_length ?: params.qc_read_length,
                 hifi_trim: it.hifi_trim ?: params.hifi_trim,
-                hifi_primers: it.hifi_primers ?: params.hifi_primers,
+                hifi_adapters: it.hifi_adapters ?: params.hifi_adapters,
+                hifi_fastplong_args: it.hifi_fastplong_args ?: params.hifi_fastplong_args,
                 polish_medaka: it.polish_medaka ?: params.polish_medaka,
                 medaka_model: it.medaka_model ?: params.medaka_model,
                 polish_pilon: it.polish_pilon ?: params.polish_pilon,
@@ -128,7 +129,6 @@ workflow PIPELINE_INITIALISATION {
                 ref_map_bam: it.ref_map_bam ?: params.ref_map_bam ?: null,
                 // assembly mapping provided
                 assembly_map_bam: it.assembly_map_bam ?: params.ref_map_bam ?: null,
-
                 // reads for qc
                 qc_reads: ((it.qc_reads == "ont" || params.qc_reads == "ont") && it.ontreads) ? "ont" : "hifi",
                 qc_reads_path: ((it.qc_reads == "ont" || params.qc_reads == "ont") && it.ontreads) ? (it.ontreads) : (it.hifireads),
@@ -207,7 +207,7 @@ workflow PIPELINE_INITIALISATION {
                 ]
                 : null,
             // Check if genome_size is given with --scaffold_longstitch
-            (it.scaffold_longstitch && !it.genome_size && !(it.ontreads && params.ont_jellyfish))
+            (it.scaffold_longstitch && !it.genome_size && !(it.ontreads && params.jellyfish))
                 ?
                 [
                     println("Please confirm samplesheet: [sample: $it.meta.id]: scaffolding with longstitch requires genome-size. Either provide genome-size estimate, or estimate from ONT reads with --jellyfish"),

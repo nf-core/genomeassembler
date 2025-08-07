@@ -4,5 +4,4 @@ channels:
   - conda-forge
   - bioconda
 dependencies:
-  - bioconda::porechop=0.2.4
-  - conda-forge::pigz=2.8
+  - "bioconda::fastplong=0.3.0"

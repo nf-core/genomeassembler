@@ -4,6 +4,8 @@ include { PREPARE_SHORTREADS as SHORTREADS } from './prepare_shortreads/main'
 include { JELLYFISH } from './jellyfish/main'
 
 workflow PREPARE {
+    // TODO: Switch to fastp and fastplong.
+
     /*
                         Grouped preparations
 
@@ -142,11 +144,11 @@ workflow PREPARE {
         .filter {
             it -> it.hifireads ? true : false
         }
-        .map { it -> it.subMap("meta","shortreads","ontreads")}
+        .map { it -> it.subMap("meta", "shortreads", "ontreads")}
         .map { it -> it.collect { entry -> [ entry.value, entry ] } }
-            .join( ch_main_hifi_prepped
-                    .map { it -> it - it.subMap("shortreads","ontreads") }
-                    .map { it -> it.collect { entry -> [ entry.value, entry ] } }
+        .join( ch_main_hifi_prepped
+                .map { it -> it - it.subMap("shortreads","ontreads") }
+                .map { it -> it.collect { entry -> [ entry.value, entry ] } }
             )
             // After joining re-create the maps from the stored map
         .map { it -> it.collect { _entry, map -> [ (map.key): map.value ] }.collectEntries() }
@@ -166,10 +168,45 @@ workflow PREPARE {
             jellyfish: it.jellyfish
             no_jelly: !it.jellyfish
         }
+        .set { ch_main_jellyfish_branched }
 
-    .set { ch_main_jellyfish_branched }
+    // Get average read length of the QC reads from fastplong json report
+    def slurp = new groovy.json.JsonSlurper()
 
-    JELLYFISH(ch_main_jellyfish_branched.jellyfish)
+    ch_main_prepared
+        .filter(it.qc_reads == "ONT")
+        .map { it -> it.collect { entry -> [ entry.value, entry ] } }
+        .join(ONT.out.fastplong_ont_reports
+                .map { it -> [ meta: it[0], fastplong_json: it[1] ]}
+                .map { it -> it.collect { entry -> [ entry.value, entry ] } }
+            )
+        .mix(
+            ch_main_prepared
+            .filter(it.qc_reads == "HIFI")
+            .map { it -> it.collect { entry -> [ entry.value, entry ] } }
+            .join(HIFI.out.fastplong_hifi_reports
+                .map { it -> [ meta: it[0], fastplong_json: it[1] ]}
+                .map { it -> it.collect { entry -> [ entry.value, entry ] } }
+            )
+        )
+        .map { it -> it.collect { _entry, map -> [ (map.key): map.value ] }.collectEntries() }
+        .map { it -> it +
+            [
+                qc_read_mean: slurp.parse(it.fastplong_json).summary.after_filtering.read_mean_length ?:
+                              slurp.parse(it.fastplong_json).summary.before_filtering.read_mean_length
+            ]
+            - it.subMap("fastplong_json")
+        }
+        .branch {
+            it ->
+                jelly: it.jellyfish
+                no_jelly: !it.jellyfish
+        }
+        .set { ch_main_jellyfish_branched }
+
+
+
+    JELLYFISH(ch_main_jellyfish_branched.jelly)
 
     ch_main_jellyfish_branched.no_jelly
         .mix( JELLYFISH.out.main_out )
@@ -185,11 +222,11 @@ workflow PREPARE {
         .set { versions }
 
     emit:
-    ch_main    = main_out
+    ch_main                 = main_out
     meryl_kmers
-    versions
+    nanoq_stats             = ONT.out.nanoq_stats
+    nanoq_report            = ONT.out.nanoq_report
     genomescope_summary
     genomescope_plot
-    nanoq_report = ONT.out.nanoq_report
-    nanoq_stats = ONT.out.nanoq_stats
+    versions
 }

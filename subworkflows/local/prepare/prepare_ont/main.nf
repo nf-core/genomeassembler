@@ -1,10 +1,10 @@
-include { CHOP } from './chop/main'
+include { FASTPLONG as FASTPLONG_ONT } from '../../../../modules/nf-core/fastplong/main'
 include { COLLECT } from './collect/main'
-include { RUN_NANOQ } from './run_nanoq/main'
+
 
 workflow PREPARE_ONT {
     take:
-    ch_main
+    ch_main // should contain only samples with ontreads
 
     main:
     Channel.empty().set { ch_versions }
@@ -12,12 +12,12 @@ workflow PREPARE_ONT {
     ch_main
         .branch {
             it ->
-            to_collect: it.ont_collect
-            no_collect: !it.ont_collect
+                to_collect: it.ont_collect
+                no_collect: !it.ont_collect
         }
-        .set { ch_ont_collect_branched }
+        .set { ch_main_collect_branched }
 
-    ch_ont_collect_branched
+    ch_main_collect_branched
         .to_collect
         .filter { it -> it.group }
         .map { it -> [it.meta, it.group, it.ontreads] }
@@ -30,7 +30,7 @@ workflow PREPARE_ONT {
                 ]
         }
         .mix(
-            ch_ont_collect_branched
+            ch_main_collect_branched
                 .to_collect
                 .filter { it -> !it.group }
                 .map {
@@ -57,145 +57,105 @@ workflow PREPARE_ONT {
         .map { it -> it.collect { entry -> [ entry.value, entry ] } }
         .set { ch_collected_reads }
 
-    ch_ont_collect_branched
+    ch_main_collect_branched
         .to_collect
         .map { it -> it - it.subMap("ontreads") }
         .map { it -> it.collect { entry -> [ entry.value, entry ] } }
         .join(ch_collected_reads)
         .map { it -> it.collect { _entry, map -> [ (map.key): map.value ] }.collectEntries() }
-        .mix(ch_ont_collect_branched.no_collect)
+        .mix(ch_main_collect_branched.no_collect)
         .set { ch_collected }
 
     // ch_collected is the same samples as the input channel
-
     ch_collected
-        .branch {
-            chop: it.ont_trim
-            no_chop: !it.ont_trim
-        }
-        .set { ch_ont_chop_branched }
-
-    ch_ont_chop_branched
-        .chop
-        .filter { it -> it.group }
-        .map { it -> [it.meta, it.group, it.ontreads] }
+        .filter { it -> it.group  }
+        .map { it -> [it.meta, it.group, it.ont_trim, it.ontreads, it.ont_adaptors, it.ont_fastplong_args] }
         .groupTuple(by: 1)
         .map {
             it ->
                 [
-                    [id: it[1], ids: it[0].id.collect().join("+")],
-                    it[2].unique()[0]
+                    meta: [
+                        id: it[1], ids: it[0].id.collect().join("+"),
+                        trim: it[2].unique()[0],
+                        ont_fastplong_args: it[5].unique()[0]
+                        ],
+                    ontreads: it[3].unique()[0],
+                    ont_adaptors: it[4].unique()[0]
                 ]
         }
         .mix(
-            ch_ont_chop_branched
-                .chop
+            ch_collected
                 .filter { it -> !it.group }
                 .map {
-                    it -> [ it.meta, it.ontreads ]
+                    it ->
+                    [
+                        meta: [
+                            id: it.meta.id,
+                            trim: it.ont_trim,
+                            ont_fastplong_args: it.ont_fastplong_args
+                            ],
+                        ontreads: it.ontreads,
+                        ont_adaptors: it.ont_adaptors,
+                    ]
                 }
         )
-        .map { it -> [ it.meta, it.ontreads ] }
-        .set { chop_in }
-
-    CHOP(chop_in)
-
-    ch_ont_chop_branched
-            .chop
-            .map { it -> it - it.subMap("ontreads")}
-            .map { it -> it.collect { entry -> [ entry.value, entry ] } }
-            .join(
-                CHOP
-                    .out
-                    .chopped_reads
-                    .filter { it -> it[0].ids }
-                    .flatMap { it ->
-                        it[0].ids
-                            .tokenize("+")
-                            .collect { sample -> [ meta: [ id: sample ], ontreads: it[1] ] }
-                    }
-                    .mix(CHOP
-                        .out
-                        .chopped_reads
-                        .filter { it -> !it[0].ids }
-                        .map {
-                            it -> [ meta: [ it[0].id ], ontreads: it[1] ]
-                        }
-                    )
-                    .map { it -> it.collect { entry -> [ entry.value, entry ] } }
-            )
-            .map { it -> it.collect { _entry, map -> [ (map.key): map.value ] }.collectEntries() }
-            .mix(
-                ch_ont_chop_branched
-                    .no_chop
-                )
-            .set { ch_ont_chopped }
-
-    ch_ont_chopped
-        .branch {
-            nanoq: it.ont_nanoq
-            no_nanoq: !it.ont_nanoq
-        }
-        .set { ch_ont_chopped_branched }
-
-    ch_ont_chopped_branched
-        .nanoq
-        .filter { it -> it.group }
-        .map { it -> [it.meta, it.group, it.ontreads] }
-        .groupTuple(by: 1)
-        .map {
+        .multiMap {
             it ->
-                [
-                    [id: it[1], ids: it[0].id.collect().join("+")],
-                    it[2].unique()[0]
-                ]
+            reads: [it.meta, it.ontreads]
+            adapters: it.ont_adapters
         }
-        .mix(
-            ch_ont_chopped_branched
-                .nanoq
-                .filter { it -> !it.group }
-                .map {
-                    it -> [ it.meta, it.ontreads ]
-                }
-        )
-        .map { it -> [ it.meta, it.ontreads ] }
-        .set { ch_nanoq_in }
+        .set { ch_fastplong_in }
 
-    RUN_NANOQ(ch_nanoq_in)
+    FASTPLONG_ONT(ch_fastplong_in.reads, ch_fastplong_in.adapters, false, false)
 
-    RUN_NANOQ.out.median_length
+    FASTPLONG_ONT
+        .out
+        .reads
         .filter { it -> it[0].ids }
         .flatMap { it ->
             it[0].ids
                 .tokenize("+")
-                .collect { sample -> [ meta: [ id: sample ], ont_read_length: it[1] ] }
-        }
-        .mix(
-            RUN_NANOQ.out.median_length
+                .collect { sample -> [ meta: [ id: sample ], ontreads: it[1] ] }
+            }
+        .mix(FASTPLONG_ONT.out.reads
             .filter { it -> !it[0].ids }
-            .map { it -> [meta: [ id: it[0].id ], ont_read_length: it[1]] }
-         )
+            .map {
+                it -> [ meta: [ id: it[0].id ], ontreads: it[1] ]
+            }
+        )
+        .set { fastplong_reads_out }
+
+    FASTPLONG_ONT
+        .out
+        .json
+        .filter { it -> it[0].ids }
+        .flatMap { it ->
+            it[0].ids
+                .tokenize("+")
+                .collect { sample -> [ [ id: sample ], it[1] ] }
+            }
+        .mix(FASTPLONG_ONT.out.json
+            .filter { it -> !it[0].ids }
+            .map {
+                it -> [ [ id: it[0].id ], it[1] ]
+            }
+        )
+        .set { fastplong_json_out }
+
+    ch_collected
+        .map { it -> it - it.subMap('ontreads') }
         .map { it -> it.collect { entry -> [ entry.value, entry ] } }
-        .set { med_len }
-
-    RUN_NANOQ.out.report.set { nanoq_report }
-
-    RUN_NANOQ.out.stats.set { nanoq_stats }
-
-    ch_ont_chopped_branched
-        .nanoq
-        .map { it -> it - it.subMap("ont_read_length") }
-        .map { it -> it.collect { entry -> [ entry.value, entry ] } }
-        .join( med_len )
+        .join(
+            fastplong_reads_out
+                .map { it -> it.collect { entry -> [ entry.value, entry ] } }
+        )
         .map { it -> it.collect { _entry, map -> [ (map.key): map.value ] }.collectEntries() }
-        .mix(ch_ont_chopped_branched.no_nanoq)
         .set { main_out }
 
-    versions = ch_versions.mix(COLLECT.out.versions).mix(CHOP.out.versions).mix(RUN_NANOQ.out.versions)
+    versions = ch_versions.mix(COLLECT.out.versions).mix(FASTPLONG_ONT.out.versions)
 
     emit:
     main_out
-    nanoq_report
-    nanoq_stats
+    fastplong_ont_reports = fastplong_json_out
     versions
 }

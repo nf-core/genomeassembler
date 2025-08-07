@@ -10,9 +10,9 @@
                         "git_sha": "05954dab2ff481bcb999f24455da29a5828af08d",
                         "installed_by": ["modules"]
                     },
-                    "fastqc": {
+                    "fastplong": {
                         "branch": "master",
-                        "git_sha": "41dfa3f7c0ffabb96a6a813fe321c6d1cc5b6e46",
+                        "git_sha": "88869fced9dc0c56043eff2dc748a5f47c57495d",
                         "installed_by": ["modules"]
                     },
                     "flye": {
@@ -30,11 +30,6 @@
                         "git_sha": "81880787133db07d9b4c1febd152c090eb8325dc",
                         "installed_by": ["modules"],
                         "patch": "modules/nf-core/liftoff/liftoff.diff"
-                    },
-                    "lima": {
-                        "branch": "master",
-                        "git_sha": "05954dab2ff481bcb999f24455da29a5828af08d",
-                        "installed_by": ["modules"]
                     },
                     "links": {
                         "branch": "master",
@@ -66,11 +61,6 @@
                     "pilon": {
                         "branch": "master",
                         "git_sha": "05954dab2ff481bcb999f24455da29a5828af08d",
-                        "installed_by": ["modules"]
-                    },
-                    "porechop/porechop": {
-                        "branch": "master",
-                        "git_sha": "dbf496251becaa54933305bb494b880253a84ee6",
                         "installed_by": ["modules"]
                     },
                     "ragtag/patch": {
