@@ -1,0 +1,19 @@
+Changes in component 'nf-core/fastplong'
+'modules/nf-core/fastplong/environment.yml' is unchanged
+'modules/nf-core/fastplong/meta.yml' is unchanged
+Changes in 'fastplong/main.nf':
+--- modules/nf-core/fastplong/main.nf
++++ modules/nf-core/fastplong/main.nf
+@@ -33,7 +33,7 @@
+     def report_title = task.ext.report_title ?: "${prefix}_fastplong_report"
+     """
+     fastplong \\
+-        --in ${prefix}.fastq.gz \\
++        --in ${reads} \\
+         $output_file \\
+         --json ${prefix}.fastplong.json \\
+         --html ${prefix}.fastplong.html \\
+
+'modules/nf-core/fastplong/tests/main.nf.test' is unchanged
+'modules/nf-core/fastplong/tests/main.nf.test.snap' is unchanged
+************************************************************

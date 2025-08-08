@@ -13,6 +13,12 @@
                     "fastplong": {
                         "branch": "master",
                         "git_sha": "88869fced9dc0c56043eff2dc748a5f47c57495d",
+                        "installed_by": ["modules"],
+                        "patch": "modules/nf-core/fastplong/fastplong.diff"
+                    },
+                    "fastqc": {
+                        "branch": "master",
+                        "git_sha": "41dfa3f7c0ffabb96a6a813fe321c6d1cc5b6e46",
                         "installed_by": ["modules"]
                     },
                     "flye": {

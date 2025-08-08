@@ -16,8 +16,7 @@ workflow JELLYFISH {
         it ->
             [
                 [id: it.meta.id, jellyfish_k: it.jellyfish_k],
-                it.qc_reads_path,
-                it.qc_read_mean
+                it.qc_reads_path
             ]
         }
     .set { samples }
@@ -42,7 +41,7 @@ workflow JELLYFISH {
                     [
                         it.meta,
                         it.jellyfish_k,
-                        it.qc_read_length
+                        it.qc_read_mean
                     ]
                 }
         )

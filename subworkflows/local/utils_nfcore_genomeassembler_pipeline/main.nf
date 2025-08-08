@@ -207,7 +207,7 @@ workflow PIPELINE_INITIALISATION {
                 ]
                 : null,
             // Check if genome_size is given with --scaffold_longstitch
-            (it.scaffold_longstitch && !it.genome_size && !(it.ontreads && params.jellyfish))
+            (it.scaffold_longstitch && !it.genome_size && !(params.jellyfish || it.jellyfish))
                 ?
                 [
                     println("Please confirm samplesheet: [sample: $it.meta.id]: scaffolding with longstitch requires genome-size. Either provide genome-size estimate, or estimate from ONT reads with --jellyfish"),

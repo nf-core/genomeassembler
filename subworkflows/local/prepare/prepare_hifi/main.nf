@@ -42,7 +42,7 @@ workflow PREPARE_HIFI {
         .multiMap {
             it ->
             reads: [it.meta, it.hifireads]
-            adapters: it.hifi_adapters
+            adapters: it.hifi_adapters ?: []
         }
         .set { ch_fastplong_in }
 

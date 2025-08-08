@@ -102,7 +102,7 @@ workflow PREPARE_ONT {
         .multiMap {
             it ->
             reads: [it.meta, it.ontreads]
-            adapters: it.ont_adapters
+            adapters: it.ont_adapters ?: []
         }
         .set { ch_fastplong_in }
 

@@ -216,41 +216,62 @@
                 }
             }
         },
-        "ont_read_options": {
-            "title": "ONT read options",
+        "long_read_preprocessing": {
+            "title": "Long-read preprocessing",
             "type": "object",
-            "description": "Options for ONT reads",
+            "description": "",
             "default": "",
             "properties": {
                 "ontreads": {
                     "type": "string",
                     "description": "Path to ONT reads"
                 },
+                "ont_collect": {
+                    "type": "boolean",
+                    "description": "Collect ONT reads from several files?"
+                },
                 "ont_trim": {
                     "type": "boolean",
-                    "description": "Trim ont reads with porechop?"
+                    "description": "Trim ont reads with fastplong?"
                 },
-                "ont_jellyfish": {
+                "ont_adapters": {
+                    "type": "string",
+                    "default": "[]",
+                    "description": "Adaptors for ONT read-trimming"
+                },
+                "ont_fastplong_args": {
+                    "type": "string",
+                    "description": "Additional args to be passed to fastplong for ONT reads"
+                },
+                "hifireads": {
+                    "type": "string",
+                    "description": "Path to HiFi reads"
+                },
+                "hifi_trim": {
                     "type": "boolean",
-                    "description": "Run jellyfish on ONT reads (k-mer analysis)"
+                    "description": "Trim HiFi reads with fastplonng"
                 },
-                "ont_jellyfish_k": {
+                "hifi_adapters": {
+                    "type": "string",
+                    "default": "[]",
+                    "description": "Adaptors for HiFi read-trimming"
+                },
+                "hifi_fastplong_args": {
+                    "type": "string",
+                    "description": "Additional args to be passed to fastplong for HiFi reads"
+                },
+                "jellyfish": {
+                    "type": "boolean",
+                    "description": "Run jellyfish and genomescope (recommended)"
+                },
+                "jellyfish_k": {
                     "type": "integer",
                     "default": 21,
-                    "description": "k-mer size for jellyfish"
-                },
-                "read_length": {
-                    "type": "integer",
-                    "description": "read length for genomescope (ONT only)",
-                    "minimum": 1
+                    "description": "Value of k used during k-mer analysis with jellyfish"
                 },
                 "dump": {
                     "type": "boolean",
                     "description": "dump jellyfish output"
-                },
-                "ont_collect": {
-                    "type": "boolean",
-                    "description": "Collect ONT reads from several files?"
                 }
             }
         },
@@ -291,26 +312,6 @@
                 "scaffold_ragtag": {
                     "type": "boolean",
                     "description": "Scaffold with ragtag (requires reference)?"
-                }
-            }
-        },
-        "hifi_read_options": {
-            "title": "HiFi read options",
-            "type": "object",
-            "description": "Options for HiFi reads",
-            "default": "",
-            "properties": {
-                "hifireads": {
-                    "type": "string",
-                    "description": "Path to HiFi reads"
-                },
-                "hifi_trim": {
-                    "type": "boolean",
-                    "description": "Trim HiFi reads with lima"
-                },
-                "hifi_primers": {
-                    "type": "string",
-                    "description": "Primers to use with lima"
                 }
             }
         },
@@ -384,12 +385,11 @@
             "properties": {
                 "use_short_reads": {
                     "type": "boolean",
-                    "description": "Use short reads?",
-                    "hidden": true
+                    "description": "Use short reads?"
                 },
-                "trim_short_reads": {
+                "shortread_trim": {
                     "type": "boolean",
-                    "description": "trim short reads with trimgalore"
+                    "description": "Trim short reads?"
                 },
                 "meryl_k": {
                     "type": "integer",
@@ -429,16 +429,13 @@
             "$ref": "#/$defs/assembly_options"
         },
         {
-            "$ref": "#/$defs/ont_read_options"
+            "$ref": "#/$defs/long_read_preprocessing"
         },
         {
             "$ref": "#/$defs/polishing_options"
         },
         {
             "$ref": "#/$defs/scaffolding_options"
-        },
-        {
-            "$ref": "#/$defs/hifi_read_options"
         },
         {
             "$ref": "#/$defs/qc_options"

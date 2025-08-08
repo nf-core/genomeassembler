@@ -174,7 +174,7 @@ workflow PREPARE {
     def slurp = new groovy.json.JsonSlurper()
 
     ch_main_prepared
-        .filter(it.qc_reads.toLower() == "ont")
+        .filter { it.qc_reads.toLowerCase() == "ont" }
         .map { it -> it.collect { entry -> [ entry.value, entry ] } }
         .join(ONT.out.fastplong_ont_reports
                 .map { it -> [ meta: it[0], fastplong_json: it[1] ]}
@@ -182,7 +182,7 @@ workflow PREPARE {
             )
         .mix(
             ch_main_prepared
-            .filter(it.qc_reads.toLower() == "hifi")
+            .filter { it.qc_reads.toLowerCase() == "hifi" }
             .map { it -> it.collect { entry -> [ entry.value, entry ] } }
             .join(HIFI.out.fastplong_hifi_reports
                 .map { it -> [ meta: it[0], fastplong_json: it[1] ]}
@@ -205,8 +205,6 @@ workflow PREPARE {
         }
         .set { ch_main_jellyfish_branched }
 
-
-
     JELLYFISH(ch_main_jellyfish_branched.jelly)
 
     ch_main_jellyfish_branched.no_jelly
@@ -214,6 +212,7 @@ workflow PREPARE {
         .set { main_out }
 
     JELLYFISH.out.genomescope_summary.set { genomescope_summary }
+
     JELLYFISH.out.genomescope_plot.set { genomescope_plot }
 
     SHORTREADS.out.versions
