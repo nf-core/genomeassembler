@@ -20,10 +20,10 @@ Things to do:
           -> assembler2 (required for scaffold): ["flye","hifiasm"]
           -> assembler2_args (optional; can be global via params.assembler2_args)
           -> assembly_scaffolding (required for scaffold): ["ont_on_hifi", "hifi_on_ont"]
-          -> QC_reads: ["ont", "hifi"] 
+          -> QC_reads: ["ont", "hifi"]
           -> genome_size: genome_size
           -> polish: "medaka", "pilon", "medaka+pilon" (both polish initial assembly), "medaka-pilon" (first medaka then pilon)
-    
+
     - Params to remove:
         - ont
         - hifi
@@ -37,7 +37,7 @@ Things to do:
 
 This channel is of map type. This means that it is not suitable for many things, but positional retrieval of entries from a channel that is not static seems like a way to create problems.
 This means that for joining, some dropping of k/v pairs and back-and-forth between map and list is required.
-The main channel is intially defined from the sample-sheet, but extended / modified throughout the pipeline run, it contains a number of entries. 
+The main channel is intially defined from the sample-sheet, but extended / modified throughout the pipeline run, it contains a number of entries.
 The main chnanel goes into each subworkflow and comes out of each subworkflow.
 Conditional execution within subworkflows is done via branching of the main channel,
 processing of the branch that is worked on, and mixing back of modified main channel with the untouched branch.
@@ -48,4 +48,4 @@ This means that there is no conditional execution of subworkflows, but everythin
 
 # Reporting
 
-Generally, reporting works as before, but an additional 
+Generally, reporting works as before, but an additional

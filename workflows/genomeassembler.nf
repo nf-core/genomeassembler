@@ -137,119 +137,19 @@ workflow GENOMEASSEMBLER {
     Channel
         .of([])
         .tap { quast_files }
-        .tap { fastplong_reports }
+        .tap { fastplong_jsons }
         .tap { genomescope_files }
         .map { it -> ["dummy", it] }
         .tap { busco_files }
         .map { it -> [it[0], it[1], it[1], it[1], it[1]] }
         .tap { merqury_files }
 
-    /*
-    =============
-    Prepare reads
-    =============
-    */
-    /*
-    Short reads
-    */
-    ch_main
-        .filter {
-            it -> (it.shortread_F && it.use_short_reads) ? true : false
-        }
-        .set { shortreads }
+    PREPARE(ch_main)
 
-    ch_main
-        .filter {
-            it -> (it.ontreads) ? true : false
-        }
-        .set { ontreads }
+    PREPARE.out.ch_main.set { ch_main_prepared }
 
-    ch_main
-        .filter {
-            it -> (it.hifireads) ? true : false
-        }
-        .set { hifireads }
+    PREPARE.out.fastplong_json_reports.set { fastplong_jsons }
 
-    // adapted to sample-logic
-    PREPARE_SHORTREADS(shortreads)
-
-    PREPARE_SHORTREADS.out.meryl_kmers.set { meryl_kmers }
-    // This changes ch_main shortreads_F and _R become one tuple, paired is gone.
-
-    // put shortreads back together with samples without shortreads
-
-    ch_main
-        .filter {
-            it -> !it.shortread_F ? true : false
-        }
-        .map { it -> it - it.subMap("shortread_F","shortread_R", "paired") + [shorteads: null] }
-        .mix(PREPARE_SHORTREADS.out.main_out)
-        .set { ch_main_shortreaded }
-
-    ONT(ontreads)
-    ONT.out.main_out.set { ch_main_ont_prepped }
-
-    HIFI(hifireads)
-    HIFI.out.main_out.set { ch_main_hifi_prepped }
-
-    // rebuild the main channel from shortread out, ont out and hifi out.
-    // This will block entry into assemble, and it should.
-
-
-    // ch_main_shortreaded contains all samples
-    // add ONT outputs to mixed shortread output
-
-    ch_main_shortreaded
-        .filter {
-            it -> it.ontreads ? true : false
-        }
-        .map { it -> it.subMap("meta","shortreads")}
-        .map { it -> it.collect { entry -> [ entry.value, entry ] } }
-            .join( ch_main_ont_prepped
-                    .map { it -> it - it.subMap("shortreads") }
-                    .map { it -> it.collect { entry -> [ entry.value, entry ] } }
-            )
-            // After joining re-create the maps from the stored map
-        .map { it -> it.collect { _entry, map -> [ (map.key): map.value ] }.collectEntries() }
-        // mix back in those samples where nothing was done to the ont reads
-        .mix(ch_main_shortreaded
-            .filter {
-                it -> it.ontreads ? false : true
-            }
-        )
-        .set {
-            ch_main_sr_ont
-        }
-
-    // Add prepared hifi-reads:
-
-    ch_main_sr_ont
-        .filter {
-            it -> it.hifireads ? true : false
-        }
-        .map { it -> it.subMap("meta","shortreads","ontreads")}
-        .map { it -> it.collect { entry -> [ entry.value, entry ] } }
-            .join( ch_main_hifi_prepped
-                    .map { it -> it - it.subMap("shortreads","ontreads") }
-                    .map { it -> it.collect { entry -> [ entry.value, entry ] } }
-            )
-            // After joining re-create the maps from the stored map
-        .map { it -> it.collect { _entry, map -> [ (map.key): map.value ] }.collectEntries() }
-        // mix back in those samples where nothing was done to the hifireads reads
-        .mix(ch_main_sr_ont
-            .filter {
-                it -> it.hifireads ? false : true
-            }
-        )
-        .set {
-            ch_main_prepared
-        }
-
-    /*
-    Assembly
-    */
-    // This pipeline is named genomeassembler, so everything goes into assemble
-    // even it might not actually be assembled.
     ASSEMBLE(ch_main_prepared, meryl_kmers)
 
     ASSEMBLE.out.ch_main.set { ch_main_assembled }
@@ -294,26 +194,7 @@ workflow GENOMEASSEMBLER {
         .mix(SCAFFOLD.out.ch_main)
         .set { ch_main_scaffolded }
 
-    ONT.out.nanoq_report
-        .concat(
-            ONT.out.nanoq_stats
-        )
-        .collect { it -> it[1] }
-        .set { nanoq_files }
-
-    ONT.out.genomescope_summary
-        .concat(
-            ONT.out.genomescope_plot
-        )
-        .unique()
-        .collect { it -> it[1] }
-        .set { genomescope_files }
-
-    ch_versions = ch_versions.mix(PREPARE_SHORTREADS.out.versions).mix(ONT.out.versions).mix(HIFI.out.versions).mix(ASSEMBLE.out.versions).mix(POLISH.out.versions).mix(SCAFFOLD.out.versions)
-
-    ch_versions = ch_versions
-
-
+    ch_versions = ch_versions.mix(PREPARE.out.versions).mix(ASSEMBLE.out.versions).mix(POLISH.out.versions).mix(SCAFFOLD.out.versions)
 
     /*
     Report
@@ -328,7 +209,8 @@ workflow GENOMEASSEMBLER {
 
     quast_files
         .concat(
-            ASSEMBLE.out.assembly_quast_reports.concat(
+            ASSEMBLE.out.assembly_quast_reports
+            .concat(
                 POLISH.out.polish_quast_reports
             ).concat(
                 SCAFFOLD.out.scaffold_quast_reports
@@ -340,7 +222,8 @@ workflow GENOMEASSEMBLER {
 
     busco_files
         .concat(
-            ASSEMBLE.out.assembly_busco_reports.concat(
+            ASSEMBLE.out.assembly_busco_reports
+            .concat(
                 POLISH.out.polish_busco_reports
             ).concat(
                 SCAFFOLD.out.scaffold_busco_reports
@@ -374,26 +257,9 @@ workflow GENOMEASSEMBLER {
         .collect()
         .set { report_functions }
 
-    ch_main
-        .collect { it -> it.quast ?: null }
-        .map { it -> it.any { it2 -> it2 == true ?: false } }
-        .set { quast_val }
-    ch_main
-        .collect { it -> it.busco ?: null }
-        .map { it -> it.any { it2 -> it2 == true ?: false } }
-        .set { busco_val }
-    ch_main
-        .collect { it -> it.ont_jellyfish ?: null }
-        .map { it -> it.any { it2 -> it2 == true ?: false } }
-        .set { jelly_val }
-    ch_main
-        .collect { it -> it.merqury ?: null }
-        .map { it -> it.any { it2 -> it2 == true ?: false } }
-        .set { merqury_val }
-
     REPORT( report_files,
             report_functions,
-            fasplong_jsons,
+            fastplong_jsons,
             genomescope_files,
             quast_files,
             busco_files,
