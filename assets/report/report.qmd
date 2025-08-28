@@ -44,7 +44,8 @@ groups <- yaml::read_yaml("groups.yml") %>%
           sample = pluck(row, 1, "id"),
           group = pluck(row, 1, "group", .default = "null")
           )
-        )
+        ) %>%
+  mutate(group = case_when(group == "null" ~ sample, TRUE ~ group))
 ```
 
 
@@ -81,15 +82,14 @@ fastplong_reports <- list.files(paste0(data_base, "fastplong"),
 # This is an rmd chunk in plain text.
 
 dir.create("fastplong_files")
-for (i in 1:length(unique(fastplong_reports$sample))) {
+for (i in 1:length(unique(fastplong_reports$group))) {
 paste0('```{r}\n
             #| title: "fastplong read statistics"
             p <- fastplong_reports %>%
-            filter(group == "', unique(fastplong_reports$sample)[i], '") %>%
+            filter(group == "', unique(fastplong_reports$group)[i], '") %>%
             ggplot(aes(x = sample, y = value)) +
-            geom_line() +
-            geom_point(size = 5, pch=21, aes(fill=stage)) +
-            facet_wrap(read_type~stat, scales = "free_y", ncol=2) +
+            geom_point(size = 5, pch=21, aes(fill=stage), position = position_dodge(width = 0.5)) +
+            facet_wrap(read_type~stat, scales = "free_y", ncol=2, , labeller = label_context) +
             fill_scale_plots +
             scale_y_continuous(labels = function(x) format(x,scientific=-1,trim=T, digits = 3, drop0trailing=T), n.breaks = 4) +
             theme(axis.title.x = element_blank(),
@@ -198,16 +198,19 @@ quast_stats <- list.files(paste0(data_base, "quast"),
     map_dfr(\(x) {
     read_quast_report(x) %>%
     mutate(
-            sample = str_extract(x %>% basename(),
-                                ".+?(?=_[assemble|polish|run])"),
+            # Get sample name by matching filename to samples in groups, reverse sort by length to hopefully catch
+            # the correct name first in case there is partial overlap between sample names.
+            sample = basename(x) %>%
+              str_extract(groups$sample[rev(order(nchar(groups$sample)))] %>% paste(collapse = "|")),
             stage = case_when(
                 str_detect(x, "_ragtag") ~ "RagTag",
                 str_detect(x, "_medaka") ~ "medaka",
                 str_detect(x, "_pilon") ~ "pilon",
                 str_detect(x, "_longstitch") ~ "longstitch",
                 str_detect(x, "_links") ~ "LINKS",
-                str_detect(x, "assemble") ~ "Assembly",
-                TRUE ~ "Unknown")) }) %>%
+                str_detect(x, "assembl[ey]") ~ "Assembly",
+                TRUE ~ "Unknown"))
+                }) %>%
     left_join(groups, by = join_by(sample))
 ```
 
@@ -562,15 +565,18 @@ meryl and merqury were not included in the pipeline run.
 merqury_stats <- list.files(paste0(data_base, "merqury"), full.names = T, pattern = "stats") %>%
     lapply(\(x) {
     read_tsv(x, col_names = c("sample_stage","all","assembly","total","percent"), show_col_types = FALSE) %>%
-    mutate( sample = str_extract(x %>% basename(),
-                                ".+?(?=_\\.assembly|\\-assemble|links|longstitch|ragtag|medaka|pilon|\\-run|\\-polish)"),
+            # Get sample name by matching filename to samples in groups, reverse sort by length to hopefully catch
+            # the correct name first in case there is partial overlap between sample names.
+            mutate(
+            sample = basename(x) %>%
+              str_extract(groups$sample[rev(order(nchar(groups$sample)))] %>% paste(collapse = "|")),
             stage = case_when(
                     str_detect(x, "_ragtag") ~ "RagTag",
                     str_detect(x, "_medaka") ~ "medaka",
                     str_detect(x, "_pilon") ~ "pilon",
                     str_detect(x, "_longstitch") ~ "longstitch",
                     str_detect(x, "_links") ~ "LINKS",
-                    str_detect(x, "assemble") ~ "Assembly",
+                    str_detect(x, "assembl[ey]") ~ "Assembly",
                     TRUE ~ "Unknown")) }) %>%
     bind_rows() %>%
     left_join(groups, by = join_by(sample))
@@ -579,15 +585,15 @@ merqury_asm_hists <- list.files(paste0(data_base, "/merqury"), full.names = T, p
     lapply(\(x) {
             read_tsv(x, col_names = T, show_col_types = FALSE) %>%
             mutate(
-                sample = str_extract(x %>% basename(),
-                                ".+?(?=_\\.assembly|\\-assemble|links|longstitch|ragtag|medaka|pilon|\\-run|\\-polish)"),
+                sample = basename(x) %>%
+                    str_extract(groups$sample[rev(order(nchar(groups$sample)))] %>% paste(collapse = "|")),
                 stage = case_when(
                     str_detect(x, "_ragtag") ~ "RagTag",
                     str_detect(x, "_medaka") ~ "medaka",
                     str_detect(x, "_pilon") ~ "pilon",
                     str_detect(x, "_longstitch") ~ "longstitch",
                     str_detect(x, "_links") ~ "LINKS",
-                    str_detect(x, "assemble") ~ "Assembly",
+                    str_detect(x, "assembl[ey]") ~ "Assembly",
                     TRUE ~ "Unknown"),
                 Assembly = as.factor(Assembly),
                 stage = as.factor(stage),
@@ -602,15 +608,15 @@ merqury_cn_hists <- list.files(paste0(data_base, "merqury"), full.names = T, pat
     lapply(\(x) {
             read_tsv(x, col_names = T, show_col_types = FALSE) %>%
             mutate(
-                sample = str_extract(x %>% basename(),
-                                ".+?(?=_\\.assembly|\\-assemble|links|longstitch|ragtag|medaka|pilon|\\-run|\\-polish)"),
+                sample = basename(x) %>%
+                    str_extract(groups$sample[rev(order(nchar(groups$sample)))] %>% paste(collapse = "|")),
                 stage = case_when(
                     str_detect(x, "_ragtag") ~ "RagTag",
                     str_detect(x, "_medaka") ~ "medaka",
                     str_detect(x, "_pilon") ~ "pilon",
                     str_detect(x, "_longstitch") ~ "longstitch",
                     str_detect(x, "_links") ~ "LINKS",
-                    str_detect(x, "assemble") ~ "Assembly",
+                    str_detect(x, "assembl[ey]") ~ "Assembly",
                     TRUE ~ "Unknown"),
                 Copies = as.factor(Copies),
                 stage = as.factor(stage),
@@ -627,15 +633,15 @@ merqury_qv <- list.files(paste0(data_base, "merqury"), full.names = T, pattern =
                     col_names = c("Assembly", "kmers_assembly_unique", "kmers_assembly_shared", "QV", "error_rate"),
                     show_col_types = FALSE) %>%
                 mutate(
-                    sample = str_extract(x %>% basename(),
-                                ".+?(?=_\\.assembly|\\-assemble|links|longstitch|ragtag|medaka|pilon|\\-run|\\-polish)"),
+                    sample = basename(x) %>%
+                        str_extract(groups$sample[rev(order(nchar(groups$sample)))] %>% paste(collapse = "|")),
                     stage = case_when(
                         str_detect(x, "_ragtag") ~ "RagTag",
                         str_detect(x, "_medaka") ~ "medaka",
                         str_detect(x, "_pilon") ~ "pilon",
                         str_detect(x, "_longstitch") ~ "longstitch",
                         str_detect(x, "_links") ~ "LINKS",
-                        str_detect(x, "assemble") ~ "Assembly",
+                        str_detect(x, "assembl[ey]") ~ "Assembly",
                         TRUE ~ "Unknown"),
                     stage = as.factor(stage),
                     sample = as.factor(sample),
