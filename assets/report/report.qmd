@@ -38,11 +38,11 @@ color_scale_plots <- scale_color_manual(values = c("#CC6677", "#332288", "#DDCC7
 fill_scale_plots <- scale_fill_manual(values = c("#CC6677", "#332288", "#DDCC77", "#117733", "#88CCEE", "#882255", "#44AA99", "#999933", "#AA4499"), na.value = "#DDDDDD")
 # Base directory containing reports
 data_base <-  "data/"
-groups <- yaml::read_yaml("examples/yml/example.yml") %>%
+groups <- yaml::read_yaml("groups.yml") %>%
     map_dfr(\(row)
         data.frame(
-          id = pluck(row,1,"id"),
-          group = pluck(row,1,"group")
+          sample = pluck(row, 1, "id"),
+          group = pluck(row, 1, "group", .default = "null")
           )
         )
 ```
@@ -69,7 +69,8 @@ fastplong was not included in the pipeline run.
 fastplong_reports <- list.files(paste0(data_base, "fastplong"),
                             pattern = ".json",
                             full.names = T) %>%
-    map_dfr(\(x) read_fastplong(x))
+    map_dfr(\(x) read_fastplong(x)) %>%
+    left_join(groups, by = join_by(sample))
 ```
 
 ```{r}
@@ -120,14 +121,14 @@ for (i in 1:length(unique(fastplong_reports$sample))) {
         paste0(fastplong_reports %>%
             filter(stat == "Total Bases", stage == "After Filtering") %>%
             filter(sample == unique(fastplong_reports$sample)[i],) %$%
-            sum(val) %>%
+            sum(value) %>%
             format(scientific=-1,trim=T, digits = 3, drop0trailing=T),'\n'),
         paste0(':::', '\n\n'),
         paste0('::: {.valuebox icon="collection" color="secondary" title="Number of reads"}', '\n'),
         paste0(fastplong_reports %>%
                 filter(stat == "Total Reads", stage == "After Filtering") %>%
                 filter(sample == unique(fastplong_reports$sample)[i]) %$%
-                sum(val) %>%
+                sum(value) %>%
                 paste(" bases"), '\n'),
         paste0(':::', '\n\n'),
         paste0('::: {.valuebox icon="chevron-double-up" color="success" title="Q30 rate"}', '\n'),

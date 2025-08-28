@@ -117,7 +117,7 @@ workflow PIPELINE_INITIALISATION {
                 polish_pilon: it.polish_pilon ?: params.polish_pilon,
                 scaffold_longstitch: it.scaffold_longstitch ?: params.scaffold_longstitch,
                 scaffold_links: it.scaffold_longstitch ?: params.scaffold_links,
-                scaffold_ragtag: it.scaffold_longstitch ?: params.scaffold_ragtag,
+                scaffold_ragtag: it.scaffold_ragtag ?: params.scaffold_ragtag,
                 use_ref: it.use_ref ?: params.use_ref ?: it.ref_fasta ? true : false,
                 // not new
                 ref_fasta: it.ref_fasta ?: params.ref_fasta,

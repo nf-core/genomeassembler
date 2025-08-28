@@ -40,7 +40,8 @@
                     "links": {
                         "branch": "master",
                         "git_sha": "bd049fd0244ed914f2d10bed580b49fb44eba914",
-                        "installed_by": ["modules"]
+                        "installed_by": ["modules"],
+                        "patch": "modules/nf-core/links/links.diff"
                     },
                     "merqury/merqury": {
                         "branch": "master",

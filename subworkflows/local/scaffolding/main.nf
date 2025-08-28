@@ -50,7 +50,7 @@ workflow SCAFFOLD {
 
     ch_main
         .filter {
-            it ->  it.scaffold_ragag
+            it ->  it.scaffold_ragtag
         }
     .set { ragtag_in }
 
