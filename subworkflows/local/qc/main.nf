@@ -6,6 +6,7 @@ include { MERQURY_QC } from './merqury/main.nf'
 workflow QC {
     take:
     ch_main
+    scaffolds
     meryl_kmers
 
     main:

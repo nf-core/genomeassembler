@@ -96,8 +96,6 @@ workflow GENOMEASSEMBLER {
         shortread_trim: bool
     */
 
-    // TODO: Currently the pipeline is losing everything with hifireads somewhere.
-
     Channel.empty().set { meryl_kmers }
 
     Channel.empty().set { ch_versions }

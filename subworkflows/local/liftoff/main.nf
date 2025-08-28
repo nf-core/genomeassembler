@@ -6,7 +6,7 @@ workflow RUN_LIFTOFF {
 
     main:
     Channel.empty().set { ch_versions }
-    ch_main
+    liftoff_in
         .map { it ->
             [
                 it.meta,
