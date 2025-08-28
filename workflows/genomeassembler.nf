@@ -36,10 +36,8 @@ workflow GENOMEASSEMBLER {
     main:
     // Initialize empty channels
     ch_input.set { ch_main }
-<<<<<<< HEAD
 
     /*
-
     The "main" channel, contains all sample-wise information.
     This channel should be the main input of all subworkflows
     and the subworkflows should make changes to this map. The
@@ -100,35 +98,6 @@ workflow GENOMEASSEMBLER {
 
     // TODO: Currently the pipeline is losing everything with hifireads somewhere.
 
-=======
-    /*
-    This is the "main" channel, it contains all sample-wise information.
-    This channel should be the main input of all subworkflows,
-    and the subworkflows should make relevant changes / updates to the map.
-    This channel should stay a map to allow key-based modifications in subworkflows.
-    The keys are defined in subworkflows/local/utils_nfcore_genomeassembler/main.nf :
-
-                meta: [id: string],
-                ontreads: path,
-                hifireads: path,
-                strategy: string,
-                assembler1: string,
-                assembler2: string,
-                scaffolding: string,
-                genome_size: integer,
-                assembler1_args: string,
-                assembler2_args: string,
-                ref_fasta: path,
-                ref_gff: path,
-                shortread_F: path,
-                shortread_R: path,
-                paired: bool
-
-    */
-    Channel.empty().set { ch_ref_bam }
-    Channel.empty().set { ch_polished_genome }
-    Channel.empty().set { ch_shortreads }
->>>>>>> d2e37c9 (refactor assemble and assemble subworkflows for sample-wise parameterization)
     Channel.empty().set { meryl_kmers }
 
     Channel.empty().set { ch_versions }
