@@ -6,16 +6,6 @@ workflow RUN_LIFTOFF {
 
     main:
     Channel.empty().set { ch_versions }
-    liftoff_in
-        .map { it ->
-            [
-                it.meta,
-                it.assembly,
-                it.ref_fasta,
-                it.ref_gff
-            ]
-        }
-        .set { liftoff_in }
 
     LIFTOFF(liftoff_in, [])
 

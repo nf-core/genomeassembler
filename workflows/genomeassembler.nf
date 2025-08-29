@@ -38,6 +38,7 @@ workflow GENOMEASSEMBLER {
     ch_input.set { ch_main }
 
     /*
+
     The "main" channel, contains all sample-wise information.
     This channel should be the main input of all subworkflows
     and the subworkflows should make changes to this map. The
@@ -96,6 +97,8 @@ workflow GENOMEASSEMBLER {
         shortread_trim: bool
     */
 
+    // TODO: Currently the pipeline is losing everything with hifireads somewhere.
+
     Channel.empty().set { meryl_kmers }
 
     Channel.empty().set { ch_versions }
@@ -104,19 +107,29 @@ workflow GENOMEASSEMBLER {
     Channel
         .of([])
         .tap { quast_files }
-        .tap { fastplong_jsons }
+        .tap { fastplong_reports }
         .tap { genomescope_files }
         .map { it -> ["dummy", it] }
         .tap { busco_files }
         .map { it -> [it[0], it[1], it[1], it[1], it[1]] }
         .tap { merqury_files }
 
+    /*
+    =============
+    Prepare reads
+    =============
+    */
     PREPARE(ch_main)
 
     PREPARE.out.ch_main.set { ch_main_prepared }
 
-    PREPARE.out.fastplong_json_reports.set { fastplong_jsons }
+    PREPARE.out.meryl_kmers.set { meryl_kmers }
 
+    /*
+    Assembly
+    */
+    // This pipeline is named genomeassembler, so everything goes into assemble
+    // even it might not actually be assembled.
     ASSEMBLE(ch_main_prepared, meryl_kmers)
 
     ASSEMBLE.out.ch_main.set { ch_main_assembled }
@@ -161,7 +174,23 @@ workflow GENOMEASSEMBLER {
         .mix(SCAFFOLD.out.ch_main)
         .set { ch_main_scaffolded }
 
+    PREPARE.out.fastplong_json_reports
+        .collect { it -> it[1] }
+        .set { fasplong_jsons }
+
+    PREPARE.out.genomescope_summary
+        .concat(
+            PREPARE.out.genomescope_plot
+        )
+        .unique()
+        .collect { it -> it[1] }
+        .set { genomescope_files }
+
     ch_versions = ch_versions.mix(PREPARE.out.versions).mix(ASSEMBLE.out.versions).mix(POLISH.out.versions).mix(SCAFFOLD.out.versions)
+
+    ch_versions = ch_versions
+
+
 
     /*
     Report
@@ -176,8 +205,7 @@ workflow GENOMEASSEMBLER {
 
     quast_files
         .concat(
-            ASSEMBLE.out.assembly_quast_reports
-            .concat(
+            ASSEMBLE.out.assembly_quast_reports.concat(
                 POLISH.out.polish_quast_reports
             ).concat(
                 SCAFFOLD.out.scaffold_quast_reports
@@ -189,8 +217,7 @@ workflow GENOMEASSEMBLER {
 
     busco_files
         .concat(
-            ASSEMBLE.out.assembly_busco_reports
-            .concat(
+            ASSEMBLE.out.assembly_busco_reports.concat(
                 POLISH.out.polish_busco_reports
             ).concat(
                 SCAFFOLD.out.scaffold_busco_reports
@@ -226,7 +253,7 @@ workflow GENOMEASSEMBLER {
 
     REPORT( report_files,
             report_functions,
-            fastplong_jsons,
+            fasplong_jsons,
             genomescope_files,
             quast_files,
             busco_files,
