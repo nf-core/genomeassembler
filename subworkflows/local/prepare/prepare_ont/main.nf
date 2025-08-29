@@ -68,7 +68,8 @@ workflow PREPARE_ONT {
 
     // ch_collected is the same samples as the input channel
     ch_collected
-        .filter { it -> it.group  }
+        .filter { it -> it.ont_trim}
+        .filter { it -> it.group }
         .map { it -> [it.meta, it.group, it.ont_trim, it.ontreads, it.ont_adaptors, it.ont_fastplong_args] }
         .groupTuple(by: 1)
         .map {
@@ -85,6 +86,7 @@ workflow PREPARE_ONT {
         }
         .mix(
             ch_collected
+                .filter { it -> it.ont_trim}
                 .filter { it -> !it.group }
                 .map {
                     it ->
@@ -143,6 +145,7 @@ workflow PREPARE_ONT {
         .set { fastplong_json_out }
 
     ch_collected
+        .filter { it -> it.ont_trim }
         .map { it -> it - it.subMap('ontreads') }
         .map { it -> it.collect { entry -> [ entry.value, entry ] } }
         .join(
@@ -150,6 +153,7 @@ workflow PREPARE_ONT {
                 .map { it -> it.collect { entry -> [ entry.value, entry ] } }
         )
         .map { it -> it.collect { _entry, map -> [ (map.key): map.value ] }.collectEntries() }
+        .mix(ch_collected.filter { it -> !it.ont_trim })
         .set { main_out }
 
     versions = ch_versions.mix(COLLECT.out.versions).mix(FASTPLONG_ONT.out.versions)

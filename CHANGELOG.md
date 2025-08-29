@@ -3,6 +3,32 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v2.0.0 'Saffron Vulture' - [2025-xx-xx]
+
+v2.0.0 of this pipeline is a (almost complete) refactor of the pipeline to facilitate sample-level parameteristation. Besides, it contains some additional changes:
+
+### `Added`
+
+- fastplong for long-read trimming and qc
+- migration to nf-test
+- increased flexibility of the scaffolding strategy
+- added option to group samples
+-
+
+### `Fixed`
+
+### `Dependencies`
+
+- `fastplong`
+
+### `Deprecated`
+
+The following tools are no longer used:
+
+- `nanoq`
+- `porechop`
+- `lima`
+
 ## v1.1.0 'Brass Pigeon' - [2025-07-21]
 
 ### `Added`
@@ -72,3 +98,5 @@ Initial release of nf-core/genomeassembler, created with the [nf-core](https://n
 ### `Dependencies`
 
 ### `Deprecated`
+
+Codenames for v1.x are various types of metallic pigeons, v2.x are vultures of different colors.
