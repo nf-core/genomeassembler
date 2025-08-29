@@ -138,14 +138,15 @@ workflow PIPELINE_INITIALISATION {
                 busco_db: it.busco_db ?: params.busco_db,
                 meryl_k: it.meryl_k ?: params.meryl_k,
                 merqury: it.merqury ?: params.merqury,
-                lift_annotations: it.lift_annotations ?: params.lift_annotations,
+                lift_annotations: (it.ref_gff || params.ref_gff) ? (it.lift_annotations ?: params.lift_annotations) : false,
                 shortread_F: it.shortread_F ?: params.shortread_F,
                 shortread_R: it.shortread_R ?: params.shortread_R,
                 paired: it.paired ?: params.paired,
                 // new:
                 use_short_reads: it.use_short_reads ?: params.use_short_reads ?: it.shortread_F ? true : false,
                 shortread_trim: it.shortread_trim ?: params.shortread_trim
-            ] }
+            ]
+        }
         .set { ch_samplesheet }
 
     // Define valid hybrid assemblers

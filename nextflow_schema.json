@@ -186,14 +186,19 @@
                 },
                 "assembler": {
                     "type": "string",
-                    "description": "Assembler to use. Valid choices are: `'hifiasm'`, `'flye'`,  `'flye_on_hifiasm'` or `hifiasm_on_hifiasm`. `flye_on_hifiasm` will scaffold flye assembly (ont) on hifiasm (hifi) assembly using ragtag. `hifiasm_on_hifiasm` will scaffold hifiasm (ont) onto hifiasm (HiFi) using ragtag",
-                    "enum": ["flye", "hifiasm", "flye_on_hifiasm", "hifiasm_on_hifiasm"],
+                    "description": "Assembler to use. Valid choices depend on strategy; for single either `flye` or `hifiasm`, hybrid can be done with `hifiasm` and for scaffolded assembly provide the names of the assemblers separated with an underscore. The first assembler will be used for ONT reads, the second for HiFi reads.",
+                    "enum": ["flye", "hifiasm", "flye_hifiasm", "hifiasm_hifiasm", "flye_flye", "hifiasm_flye"],
                     "default": "hifiasm"
                 },
+                "assembly_scaffolding_order": {
+                    "type": "string",
+                    "default": "ont_on_hifi",
+                    "description": "When strategy is \"scaffold\", which assembly should be scaffolded onto which?",
+                    "enum": ["ont_on_hifi", "hifi_on_ont"]
+                },
                 "genome_size": {
-                    "type": "integer",
-                    "description": "expected genome size, optional",
-                    "minimum": 1
+                    "type": "string",
+                    "description": "expected genome size, optional"
                 },
                 "flye_mode": {
                     "type": "string",
@@ -207,12 +212,8 @@
                 },
                 "hifiasm_args": {
                     "type": "string",
-                    "description": "Extra arguments passed to `hifiasm`"
-                },
-                "assembly_scaffolding_order": {
-                    "type": "string",
-                    "default": "ont_on_hifi",
-                    "description": "When strategy is \"scaffold\", which assembly should be scaffolded onto which?"
+                    "description": "Extra arguments passed to `hifiasm`",
+                    "default": "\"\""
                 }
             }
         },
@@ -241,7 +242,8 @@
                 },
                 "ont_fastplong_args": {
                     "type": "string",
-                    "description": "Additional args to be passed to fastplong for ONT reads"
+                    "description": "Additional args to be passed to fastplong for ONT reads",
+                    "default": "\"\""
                 },
                 "hifireads": {
                     "type": "string",
@@ -258,7 +260,8 @@
                 },
                 "hifi_fastplong_args": {
                     "type": "string",
-                    "description": "Additional args to be passed to fastplong for HiFi reads"
+                    "description": "Additional args to be passed to fastplong for HiFi reads",
+                    "default": "\"\""
                 },
                 "jellyfish": {
                     "type": "boolean",
@@ -291,7 +294,8 @@
                 },
                 "medaka_model": {
                     "type": "string",
-                    "description": "model to use with medaka"
+                    "description": "model to use with medaka",
+                    "default": "\"\""
                 }
             }
         },
@@ -372,7 +376,7 @@
             "properties": {
                 "lift_annotations": {
                     "type": "boolean",
-                    "description": "Lift-over annotations (requires reference)?",
+                    "description": "Lift-over annotations (requires ref_gff)?",
                     "default": true
                 }
             }

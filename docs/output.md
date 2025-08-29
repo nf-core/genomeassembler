@@ -11,8 +11,7 @@ The directories listed below will be created in the results directory after the 
 The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes data using the following steps:
 
 - [**Read preparation**](#read-preparation)
-  - [**ONT Reads**](#ont-reads):
-  - [**HiFi reads**](#hifi-reads):
+  - [**Long reads**](#long-reads):
   - [**Short reads**](#short-reads):
 - [**Assembly**](#assembly), choice between assemblers
 - [**Polishing**](#polishing)
@@ -38,10 +37,10 @@ Within each sample, the files are structured as follows:
 
 The outputs from all read preparation steps are emitted into `<SampleName>/reads/`.
 
-#### ONT reads
+#### Long reads
 
-If the basecalls are scattered across multiple files, `collect` can be used to collect those into a single file.
-[porechop](https://github.com/rrwick/Porechop) is a tool that identifies and trims adapter sequences from ONT reads.
+If the ONT basecalls are scattered across multiple files, `collect` can be used to collect those into a single file.
+[fastplong](https://github.com/OpenGene/fastplong) is a tool for QC and preprocessing of long-reads.
 [genomescope](https://github.com/tbenavi1/genomescope2.0) estimates genome size and ploidy from the k-mer spectrum computed by [jellyfish](https://github.com/gmarcais/Jellyfish).
 
 <details markdown="1">
@@ -50,7 +49,9 @@ If the basecalls are scattered across multiple files, `collect` can be used to c
 - `<SampleName>/`
   - `reads/`
     - `collect/`: single fastq.gz files per sample
-    - `porechop/`: output from porechop, fastq.gz
+    - `fastplong/`: output from fastplong, fastq.gz and report in json and html format.
+      - `ont/`: fastplong output for ONT reads
+      - `hifi/`: fastplong output for HiFi reads
     - `genomescope/`: output from jellyfish and genomescope
       - `jellyfish/`
         - `count/`: output from jellyfish count
@@ -58,20 +59,6 @@ If the basecalls are scattered across multiple files, `collect` can be used to c
         - `histo/`: output from jellyfish histogram
         - `dump/`: output from jellyfish dump
       - `genomescope/`: genomescope plots
-
-</details>
-
-#### HiFi reads
-
-[lima](https://lima.how/) performs trimming of adapters from pacbio HiFi reads.
-
-<details markdown="1">
-<summary>Output files</summary>
-
-- `<SampleName>/`
-  - `reads/`
-    - `lima/`: hifi reads after adapter removal with lima.
-      - `fastq/`: hifi reads after adapter remval with lima converted to fastq format.
 
 </details>
 
@@ -101,7 +88,7 @@ If the basecalls are scattered across multiple files, `collect` can be used to c
 This folder contains the initial assemblies of the provided reads.
 Depending on the assembly strategy chosen, different assemblers are used.
 [flye](https://github.com/mikolmogorov/Flye) performs assembly of ONT reads
-[hifiasm](https://github.com/chhylp123/hifiasm) performs assembly of HiFi reads, or combinations of HiFi reads and ONT reads in `--ul` mode.
+[hifiasm](https://github.com/chhylp123/hifiasm) performs assembly of HiFi or ONT reads, or combinations of HiFi reads and ONT reads in `--ul` mode.
 [ragtag](https://github.com/malonge/RagTag) performs scaffolding and can be used to scaffold assemblies of ONT onto assemblies of HiFi reads.
 Annotation `gff3` and `unmapped.txt` files are only created if a reference for annotation liftover is provided and `lift_annotations` is enabled.
 
@@ -124,7 +111,7 @@ Annotation `gff3` and `unmapped.txt` files are only created if a reference for a
       - `<SampleName>.asm.bp.r_utg.gfa`: raw unitigs in gfa format
       - `<SampleName>.stderr.log`: Any output form hifiasm to stderr
       - `gfa2_fasta/`: hifiasm assembly in fasta format.
-    - `ragtag/`: output from RagTag, only if `'flye_on_hifiasm'` was used as the assembler. Contains one folder per sample.
+    - `ragtag/`: output from RagTag, only if `'scaffold'` was used as the strategy.
       - `<SampleName>_assembly_scaffold/`
         - `<SampleName>_assembly_scaffold.agp`: Scaffolds in agp format
         - `<SampleName>_assembly_scaffold.fasta`: Scaffolds in fasta format
@@ -229,9 +216,6 @@ The files and folders in the different QC folders are named based on
       - `<SampleName>_<stage>.assembly_only.bed` : bp errors in assembly (bed)
       - `<SampleName>_<stage>.assembly_only.wig` : bp errors in assembly (wig)
       - `<SampleName>_<stage>.unionsum.hist.ploidy` : ploidy estimates from short-reads
-    - `nanoq/`: nanoq results
-      - `<SampleName>_report.json`: nanoq report in json format
-      - `<SampleName>_stats.json`: nanoq stats in json format
     - `QUAST/`: QUAST analysis
       - `<Sample Name>_<stage>/`: QUAST results, cp. [QUAST Docs](https://github.com/ablab/quast?tab=readme-ov-file#output)
         - `report.txt`: summary table

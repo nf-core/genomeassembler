@@ -59,16 +59,16 @@ Options controlling pipeline behavior
 
 Options controlling assembly
 
-| Parameter                              | Description                                                                                                                                                                                                                                      | Type      | Default     | Required | Hidden |
-| -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------- | ----------- | -------- | ------ |
-| `strategy`                             | Assembly strategy to use. Valid choices are `'single'`, `'hybrid'` and `'scaffold'`                                                                                                                                                              | `string`  | single      |          |        |
-| `assembler`                            | Assembler to use. Valid choices are: `'hifiasm'`, `'flye'`, `'flye_on_hifiasm'` or `hifiasm_on_hifiasm`. `flye_on_hifiasm` will scaffold flye assembly (ont) on hifiasm (hifi) assembly using ragtag. `hifiasm_on_hifiasm` will scaffold hifiasm |
-| (ont) onto hifiasm (HiFi) using ragtag | `string`                                                                                                                                                                                                                                         | hifiasm   |             |          |
-| `genome_size`                          | expected genome size, optional                                                                                                                                                                                                                   | `integer` |             |          |        |
-| `flye_mode`                            | flye mode                                                                                                                                                                                                                                        | `string`  | --nano-hq   |          |        |
-| `flye_args`                            | additional args for flye                                                                                                                                                                                                                         | `string`  |             |          |        |
-| `hifiasm_args`                         | Extra arguments passed to `hifiasm`                                                                                                                                                                                                              | `string`  |             |          |        |
-| `assembly_scaffolding_order`           | When strategy is "scaffold", which assembly should be scaffolded onto which?                                                                                                                                                                     | `string`  | ont_on_hifi |          |        |
+| Parameter                                         | Description                                                                                                                                                                                                                                         | Type     | Default     | Required | Hidden |
+| ------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | ----------- | -------- | ------ |
+| `strategy`                                        | Assembly strategy to use. Valid choices are `'single'`, `'hybrid'` and `'scaffold'`                                                                                                                                                                 | `string` | single      |          |        |
+| `assembler`                                       | Assembler to use. Valid choices depend on strategy; for single either `flye` or `hifiasm`, hybrid can be done with `hifiasm` and for scaffolded assembly provide the names of the assemblers separated with an underscore. The first assembler will |
+| be used for ONT reads, the second for HiFi reads. | `string`                                                                                                                                                                                                                                            | hifiasm  |             |          |
+| `assembly_scaffolding_order`                      | When strategy is "scaffold", which assembly should be scaffolded onto which?                                                                                                                                                                        | `string` | ont_on_hifi |          |        |
+| `genome_size`                                     | expected genome size, optional                                                                                                                                                                                                                      | `string` |             |          |        |
+| `flye_mode`                                       | flye mode                                                                                                                                                                                                                                           | `string` | --nano-hq   |          |        |
+| `flye_args`                                       | additional args for flye                                                                                                                                                                                                                            | `string` |             |          |        |
+| `hifiasm_args`                                    | Extra arguments passed to `hifiasm`                                                                                                                                                                                                                 | `string` | ""          |          |        |
 
 ## Long-read preprocessing
 
@@ -78,11 +78,11 @@ Options controlling assembly
 | `ont_collect`         | Collect ONT reads from several files?                    | `boolean` |         |          |        |
 | `ont_trim`            | Trim ont reads with fastplong?                           | `boolean` |         |          |        |
 | `ont_adapters`        | Adaptors for ONT read-trimming                           | `string`  | []      |          |        |
-| `ont_fastplong_args`  | Additional args to be passed to fastplong for ONT reads  | `string`  |         |          |        |
+| `ont_fastplong_args`  | Additional args to be passed to fastplong for ONT reads  | `string`  | ""      |          |        |
 | `hifireads`           | Path to HiFi reads                                       | `string`  |         |          |        |
 | `hifi_trim`           | Trim HiFi reads with fastplonng                          | `boolean` |         |          |        |
 | `hifi_adapters`       | Adaptors for HiFi read-trimming                          | `string`  | []      |          |        |
-| `hifi_fastplong_args` | Additional args to be passed to fastplong for HiFi reads | `string`  |         |          |        |
+| `hifi_fastplong_args` | Additional args to be passed to fastplong for HiFi reads | `string`  | ""      |          |        |
 | `jellyfish`           | Run jellyfish and genomescope (recommended)              | `boolean` |         |          |        |
 | `jellyfish_k`         | Value of k used during k-mer analysis with jellyfish     | `integer` | 21      |          |        |
 | `dump`                | dump jellyfish output                                    | `boolean` |         |          |        |
@@ -95,7 +95,7 @@ Polishing options
 | --------------- | ------------------------------------------------ | --------- | ------- | -------- | ------ |
 | `polish_pilon`  | Polish assembly with pilon? Requires short reads | `boolean` |         |          |        |
 | `polish_medaka` | Polish assembly with medaka (ONT only)           | `boolean` |         |          |        |
-| `medaka_model`  | model to use with medaka                         | `string`  |         |          |        |
+| `medaka_model`  | model to use with medaka                         | `string`  | ""      |          |        |
 
 ## Scaffolding options
 
@@ -127,9 +127,9 @@ Options for QC tools
 
 Options controlling annotation liftover
 
-| Parameter          | Description                                 | Type      | Default | Required | Hidden |
-| ------------------ | ------------------------------------------- | --------- | ------- | -------- | ------ |
-| `lift_annotations` | Lift-over annotations (requires reference)? | `boolean` | True    |          |        |
+| Parameter          | Description                               | Type      | Default | Required | Hidden |
+| ------------------ | ----------------------------------------- | --------- | ------- | -------- | ------ |
+| `lift_annotations` | Lift-over annotations (requires ref_gff)? | `boolean` | True    |          |        |
 
 ## Short read options
 
