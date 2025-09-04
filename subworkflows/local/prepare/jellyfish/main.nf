@@ -1,5 +1,4 @@
 include { COUNT } from '../../../../modules/local/jellyfish/count/main'
-include { DUMP } from '../../../../modules/local/jellyfish/dump/main'
 include { HISTO } from '../../../../modules/local/jellyfish/histo/main'
 include { STATS } from '../../../../modules/local/jellyfish/stats/main'
 include { GENOMESCOPE } from '../../../../modules/local/genomescope/main'
