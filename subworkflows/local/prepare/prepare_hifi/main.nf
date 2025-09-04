@@ -7,8 +7,8 @@ workflow PREPARE_HIFI {
     main:
     Channel.empty().set { ch_versions }
 
+    main_in.dump(tag: "Prepare-HIFI input")
     main_in
-        .filter { it -> it.hifi_trim}
         .filter { it -> it.group }
         .map { it -> [it.meta, it.group, it.hifi_trim, it.hifireads, it.hifi_adapters, it.hifi_fastplong_args] }
         .groupTuple(by: 1)
@@ -26,7 +26,6 @@ workflow PREPARE_HIFI {
         }
         .mix(
             main_in
-                .filter { it -> it.hifi_trim}
                 .filter { it -> !it.group }
                 .map {
                     it ->
@@ -86,7 +85,6 @@ workflow PREPARE_HIFI {
 
      // inputs are joined to outputs
     main_in
-        .filter { it -> it.hifi_trim }
         .map { it -> it - it.subMap('hifireads') }
         .map { it -> it.collect { entry -> [ entry.value, entry ] } }
         .join(
@@ -94,8 +92,9 @@ workflow PREPARE_HIFI {
                 .map { it -> it.collect { entry -> [ entry.value, entry ] } }
         )
         .map { it -> it.collect { _entry, map -> [ (map.key): map.value ] }.collectEntries() }
-        .mix(main_in.filter { it -> it.hifi_trim })
         .set { main_out }
+
+    main_out.dump(tag: "Prepare-HIFI output")
 
     versions = ch_versions.mix(FASTPLONG_HIFI.out.versions)
 

@@ -18,6 +18,8 @@ workflow ASSEMBLE {
     // Empty channels
     Channel.empty().set { ch_versions }
 
+
+    ch_main.dump(tag: "Assemble - Inputs")
     ch_main
         .branch {
             it ->
@@ -37,10 +39,20 @@ workflow ASSEMBLE {
             }
             .set { ch_main_assemble_branched }
 
+    ch_main_assemble_branched
+        .single
+        .dump(tag: "Assemble: Branched: Single")
+    ch_main_assemble_branched
+        .hybrid
+        .dump(tag: "Assemble: Branched: Hybrid")
+    ch_main_assemble_branched
+        .scaffold
+        .dump(tag: "Assemble: Branched: scaffold")
+
     // Flye inputs:
     ch_main_assemble_branched
         .single
-        .filter { it -> it.assembler1 == "flye" || it.assembler2 == "flye" }
+        .filter { it -> it.assembler1 == "flye" }
         .mix(
             ch_main_assemble_branched
                 .scaffold
@@ -60,14 +72,15 @@ workflow ASSEMBLE {
                 ],
                 it.assembler1 == "flye" ? it.ontreads : (it.assembler2 == "flye" ? it.hifireads : []),
             ]
-            mode: it.assembler1 == "flye" ? "--nano-hq" : "--pacbio-hifi"
+            mode: it.ontreads ? "--nano-hq" : "--pacbio-hifi"
         }
         .set { flye_inputs }
+
+    flye_inputs.reads.dump(tag: "Assemble: Flye inputs")
 
     FLYE(flye_inputs.reads, flye_inputs.mode)
 
     ch_versions = ch_versions.mix(FLYE.out.versions)
-
 
     // Hifiasm: everything that is not ONT
     ch_main_assemble_branched
@@ -86,206 +99,214 @@ workflow ASSEMBLE {
             )
             .set { ch_main_assemble_hifi_hifiasm }
 
-        HIFIASM(ch_main_assemble_hifi_hifiasm
-                    .map {
-                        it -> [
-                            [id: it.meta.id, hifiasm_args: it.hifiasm_args ?: ""],
-                            it.hifireads,
-                            (it.stragtegy == "hybrid" && it.ontreads) ? it.ontreads : []
-                            ]
-                        },
-                [[], [], []],
-                [[], [], []],
-                [[], []])
+    ch_main_assemble_hifi_hifiasm.dump(tag: "Assemble: hifiasm HIFI inputs")
 
-        GFA_2_FA_HIFI( HIFIASM.out.processed_unitigs.map { meta, fasta -> [[id: meta.id], fasta] } )
+    HIFIASM(ch_main_assemble_hifi_hifiasm
+                .map {
+                    it -> [
+                        [id: it.meta.id, hifiasm_args: it.hifiasm_args ?: ""],
+                        it.hifireads,
+                        (it.stragtegy == "hybrid" && it.ontreads) ? it.ontreads : []
+                        ]
+                    },
+            [[], [], []],
+            [[], [], []],
+            [[], []])
 
-        ch_versions = ch_versions.mix(HIFIASM.out.versions).mix(GFA_2_FA_HIFI.out.versions)
+    GFA_2_FA_HIFI( HIFIASM.out.processed_unitigs.map { meta, fasta -> [[id: meta.id], fasta] } )
+
+    ch_versions = ch_versions.mix(HIFIASM.out.versions).mix(GFA_2_FA_HIFI.out.versions)
+
+    // Assemble hifiasm_ont branch
+    ch_main_assemble_branched
+        .single
+        .filter { it -> it.assembler1 == "hifiasm" && it.ontreads }
+        .mix(ch_main_assemble_branched
+                .scaffold
+                .filter { it -> it.assembler1 == "hifiasm"  }
+        )
+        .set { ch_main_assemble_ont_hifiasm }
+
+    ch_main_assemble_ont_hifiasm.dump(tag: "Assemble: hifiasm ONT inputs")
+
+    HIFIASM_ONT(ch_main_assemble_ont_hifiasm.map { it -> [ [id: it.meta.id, hifiasm_args: it.hifiasm_args ?: ""],  it.ontreads, [] ] }, [[], [], []], [[], [], []], [[], []])
+
+    GFA_2_FA_ONT( HIFIASM_ONT.out.processed_unitigs.map { meta, fasta -> [[id: meta.id], fasta] } )
+
+    ch_versions = ch_versions.mix(HIFIASM_ONT.out.versions).mix(GFA_2_FA_ONT.out.versions)
 
 
-        // Assemble hifiasm_ont branch
-        ch_main_assemble_branched
-            .single
-            .filter { it -> it.assembler1 == "hifiasm" && it.ontreads }
-            .mix(ch_main_assemble_branched
-                    .scaffold
-                    .filter { it -> it.assembler1 == "hifiasm"  }
-            )
-            .set { ch_main_assemble_ont_hifiasm }
-
-        HIFIASM_ONT(ch_main_assemble_ont_hifiasm.map { it -> [ [id: it.meta.id, hifiasm_args: it.hifiasm_args ?: ""],  it.ontreads, [] ] }, [[], [], []], [[], [], []], [[], []])
-
-        GFA_2_FA_ONT( HIFIASM_ONT.out.processed_unitigs.map { meta, fasta -> [[id: meta.id], fasta] } )
-
-        ch_versions = ch_versions.mix(HIFIASM_ONT.out.versions).mix(GFA_2_FA_ONT.out.versions)
-
-
-        // Now, the individual assemblies need to be correctly added into the main channel.
-        // This should be done per-strategy I think
-        // join assembler outputs back to assembler inputs and determine correct placement of the assembly.
-        // Flye:
-        ch_main_assemble_flye
-            // Convert to list for join
-            .map { it -> it.collect { entry -> [ entry.value, entry ] } }
-            .join( FLYE.out.fasta
-                    .map { meta, assembly -> [meta: [id: meta.id], flye_assembly: assembly ] }
-                    .map { it -> it.collect { entry -> [ entry.value, entry ] } }
-            )
-            // After joining re-create the maps from the stored map
-            .map { it -> it.collect { _entry, map -> [ (map.key): map.value ] }.collectEntries() }
-            .map { it -> it - it.subMap("flye_assembly") +
-                    [
-                        assembly:  it.strategy == "single" ? it.flye_assembly : null,
-                        assembly1: it.assembler1 == "flye" ? it.flye_assembly : null,
-                        assembly2: it.assembler2 == "flye" ? it.flye_assembly : null,
-                    ]
-            }
-            .set { flye_assemblies }
-
-        ch_main_assemble_hifi_hifiasm
-            // Convert to list for join
-            .map { it -> it.collect { entry -> [ entry.value, entry ] } }
-            .join( GFA_2_FA_HIFI.out.contigs_fasta
-                    .map { meta, assembly -> [meta: meta, hifiasm_assembly: assembly ] }
-                    .map { it -> it.collect { entry -> [ entry.value, entry ] } }
-            )
-            // After joining re-create the maps from the stored map
-            .map { it -> it.collect { _entry, map -> [ (map.key): map.value ] }.collectEntries() }
-            .map {
-                it -> it -it.subMap("hifiasm_assembly") +
+    // Now, the individual assemblies need to be correctly added into the main channel.
+    // This should be done per-strategy I think
+    // join assembler outputs back to assembler inputs and determine correct placement of the assembly.
+    // Flye:
+    ch_main_assemble_flye
+        // Convert to list for join
+        .map { it -> it.collect { entry -> [ entry.value, entry ] } }
+        .join( FLYE.out.fasta
+                .map { meta, assembly -> [meta: [id: meta.id], flye_assembly: assembly ] }
+                .map { it -> it.collect { entry -> [ entry.value, entry ] } }
+        )
+        // After joining re-create the maps from the stored map
+        .map { it -> it.collect { _entry, map -> [ (map.key): map.value ] }.collectEntries() }
+        .map { it -> it - it.subMap("flye_assembly") +
                 [
-                    assembly: (it.strategy == "single" || it.strategy == "hybrid") && it.assembler1 == "hifiasm" ? it.hifiasm_assembly : null,
-                    assembly1: it.strategy == "scaffold" && it.assembler1 == "hifiasm" ? it.hifiasm_assembly : null,
-                    assembly2: it.strategy == "scaffold" && it.assembler2 == "hifiasm" ? it.hifiasm_assembly : null
+                    assembly:  it.strategy == "single" ? it.flye_assembly : null,
+                    assembly1: it.assembler1 == "flye" ? it.flye_assembly : null,
+                    assembly2: it.assembler2 == "flye" ? it.flye_assembly : null,
                 ]
-            }
-            .set { hifiasm_hifi_assemblies }
+        }
+        .set { flye_assemblies }
+    flye_assemblies.dump(tag: "Assemble: Flye assemblies")
+
+    ch_main_assemble_hifi_hifiasm
+        // Convert to list for join
+        .map { it -> it.collect { entry -> [ entry.value, entry ] } }
+        .join( GFA_2_FA_HIFI.out.contigs_fasta
+                .map { meta, assembly -> [meta: meta, hifiasm_assembly: assembly ] }
+                .map { it -> it.collect { entry -> [ entry.value, entry ] } }
+        )
+        // After joining re-create the maps from the stored map
+        .map { it -> it.collect { _entry, map -> [ (map.key): map.value ] }.collectEntries() }
+        .map {
+            it -> it -it.subMap("hifiasm_assembly") +
+            [
+                assembly: (it.strategy == "single" || it.strategy == "hybrid") && it.assembler1 == "hifiasm" ? it.hifiasm_assembly : null,
+                assembly1: it.strategy == "scaffold" && it.assembler1 == "hifiasm" ? it.hifiasm_assembly : null,
+                assembly2: it.strategy == "scaffold" && it.assembler2 == "hifiasm" ? it.hifiasm_assembly : null
+            ]
+        }
+        .set { hifiasm_hifi_assemblies }
+    hifiasm_hifi_assemblies.dump(tag: "Assemble: hifiasm HIFI assemblies")
 
 
-        ch_main_assemble_ont_hifiasm
-            .map { it -> it.collect { entry -> [ entry.value, entry ] } }
-            .join( GFA_2_FA_ONT.out.contigs_fasta
-                    .map { meta, assembly -> [meta: meta, hifiasm_assembly: assembly ] }
-                    .map { it -> it.collect { entry -> [ entry.value, entry ] } }
-            )
-            // After joining re-create the maps from the stored map
-            .map { it -> it.collect { _entry, map -> [ (map.key): map.value ] }.collectEntries() }
-            .map {
-                it -> it -it.subMap("hifiasm_assembly") +
-                [
-                    assembly: (it.strategy == "single" || it.strategy == "hybrid") && it.assembler1 == "hifiasm" ? it.hifiasm_assembly : null,
-                    assembly1: it.strategy == "scaffold" && it.assembler1 == "hifiasm" ? it.hifiasm_assembly : null,
-                    assembly2: it.strategy == "scaffold" && it.assembler2 == "hifiasm" ? it.hifiasm_assembly : null
+    ch_main_assemble_ont_hifiasm
+        .map { it -> it.collect { entry -> [ entry.value, entry ] } }
+        .join( GFA_2_FA_ONT.out.contigs_fasta
+                .map { meta, assembly -> [meta: meta, hifiasm_assembly: assembly ] }
+                .map { it -> it.collect { entry -> [ entry.value, entry ] } }
+        )
+        // After joining re-create the maps from the stored map
+        .map { it -> it.collect { _entry, map -> [ (map.key): map.value ] }.collectEntries() }
+        .map {
+            it -> it -it.subMap("hifiasm_assembly") +
+            [
+                assembly: (it.strategy == "single" || it.strategy == "hybrid") && it.assembler1 == "hifiasm" ? it.hifiasm_assembly : null,
+                assembly1: it.strategy == "scaffold" && it.assembler1 == "hifiasm" ? it.hifiasm_assembly : null,
+                assembly2: it.strategy == "scaffold" && it.assembler2 == "hifiasm" ? it.hifiasm_assembly : null
+            ]
+        }
+        .set { hifiasm_ont_assemblies }
+
+    hifiasm_ont_assemblies.dump(tag: "Assemble: hifiasm HIFI assemblies")
+    // The single and hybrid channels can be mixed and forwarded.
+    // The scaffold channel needs to be joined separately.
+    flye_assemblies
+        .filter { it -> ["single","hybrid"].contains(it.strategy) }
+        .mix(
+            hifiasm_hifi_assemblies
+                .filter { it -> ["single","hybrid"].contains(it.strategy) }
+        )
+        .mix(
+            hifiasm_ont_assemblies
+                .filter { it -> ["single","hybrid"].contains(it.strategy) }
+        )
+        .set { ch_assemblies_no_scaffold }
+
+    ch_assemblies_no_scaffold.dump(tag: "Assemble: Assemblies without scaffolding")
+    // This leaves the scaffold strategy.
+    // scaffolds can be: FLYE-HIFIASM, FLYE-FLYE, HIFIASM-HIFIASM HIFIASM-FLYE or
+    flye_assemblies
+        // Flye-hifiasm
+        .filter { it -> it.strategy == "scaffold" && it.assembler1 == "flye" && it.assembler2 == "hifiasm" }
+        .map { it -> it.collect { entry -> [ entry.value, entry ] } }
+        .join( hifiasm_hifi_assemblies
+                .filter{ it -> it.strategy == "scaffold" && it.assembler1 == "flye" && it.assembler2 == "hifiasm" }
+                .map { it -> [ meta: it.meta, hifiasm_assembly: it.assembly2 ] }
+                .map { it -> it.collect { entry -> [ entry.value, entry ] } }
+        )
+        .map { it -> it.collect { _entry, map -> [ (map.key): map.value ] }.collectEntries() }
+        .map { it -> it - it.subMap("hifiasm_assembly","assembly2") + [assembly2: it.hifiasm_assembly] }
+        .set{ scaffold_flye_hifiasm }
+    // flye-flye
+    flye_assemblies
+        .filter { it -> it.strategy == "scaffold" && it.assembler1 == "flye" && it.assembler2 == "flye" }
+        .map { it -> it.collect { entry -> [ entry.value, entry ] } }
+        .join( flye_assemblies
+                .filter{ it -> it.strategy == "scaffold" && it.assembler1 == "flye" && it.assembler2 == "flye" }
+                .map { it -> [ meta: it.meta, flye_assembly: it.assembly2 ] }
+                .map { it -> it.collect { entry -> [ entry.value, entry ] } }
+        )
+        .map { it -> it.collect { _entry, map -> [ (map.key): map.value ] }.collectEntries() }
+        .map { it -> it - it.subMap("flye_assembly","assembly2") + [assembly2: it.flye_assembly] }
+        .set{ scaffold_flye_flye }
+    // hifiasm_flye
+    hifiasm_ont_assemblies
+        .filter { it -> it.strategy == "scaffold" && it.assembler1 == "hifiasm" && it.assembler2 == "flye" }
+        .map { it -> it.collect { entry -> [ entry.value, entry ] } }
+        .join( flye_assemblies
+                .filter{ it -> it.strategy == "scaffold" && it.assembler1 == "hifiasm" && it.assembler2 == "flye" }
+                .map { it -> [ meta: it.meta, flye_assembly: it.assembly2 ] }
+                .map { it -> it.collect { entry -> [ entry.value, entry ] } }
+        )
+        .map { it -> it.collect { _entry, map -> [ (map.key): map.value ] }.collectEntries() }
+        .map { it -> it - it.subMap("flye_assembly","assembly2") + [assembly2: it.flye_assembly] }
+        .set{ scaffold_hifiasm_flye }
+    // hifiasm_hifiasm
+    hifiasm_ont_assemblies
+        .filter { it -> it.strategy == "scaffold" && it.assembler1 == "hifiasm" && it.assembler2 == "hifiasm" }
+        .map { it -> it.collect { entry -> [ entry.value, entry ] } }
+        .join( hifiasm_hifi_assemblies
+                .filter{ it -> it.strategy == "scaffold" && it.assembler1 == "hifiasm" && it.assembler2 == "hifiasm" }
+                .map { it -> [ meta: it.meta, hifiasm_assembly: it.assembly2 ] }
+                .map { it -> it.collect { entry -> [ entry.value, entry ] } }
+        )
+        .map { it -> it.collect { _entry, map -> [ (map.key): map.value ] }.collectEntries() }
+        .map { it -> it - it.subMap("hifiasm_assembly","assembly2") + [assembly2: it.hifiasm_assembly] }
+        .set{ scaffold_hifiasm_hifiasm }
+    // branch to scaffold those assemblies that need it
+    scaffold_flye_hifiasm
+        .mix(scaffold_flye_flye)
+        .mix(scaffold_hifiasm_flye)
+        .mix(scaffold_hifiasm_hifiasm)
+        .set { ch_to_scaffold }
+
+    ch_to_scaffold.dump(tag: "Assemble: Assemblies with scaffolding - inputs")
+
+    ch_to_scaffold
+        .multiMap {
+            it ->
+            target: [
+                it.meta,
+                it.assembly_scaffolding_order == "ont_on_hifi" ? (it.assembly1) : (it.assembly2)
                 ]
-            }
-            .set { hifiasm_ont_assemblies }
+            query: [
+                it.meta,
+                it.assembly_scaffolding_order == "ont_on_hifi" ? (it.assembly2) : (it.assembly1)
+                ]
+        }
+        .set { ragtag_in }
 
-        // The single and hybrid channels can be mixed and forwarded.
-        // The scaffold channel needs to be joined separately.
-        flye_assemblies
-            .filter { it -> ["single","hybrid"].contains(it.strategy) }
-            .mix(
-                hifiasm_hifi_assemblies
-                    .filter { it -> ["single","hybrid"].contains(it.strategy) }
-            )
-            .mix(
-                hifiasm_ont_assemblies
-                    .filter { it -> ["single","hybrid"].contains(it.strategy) }
-            )
-            .set { ch_assemblies_no_scaffold }
+    RAGTAG_PATCH(ragtag_in.target, ragtag_in.query, [[], []], [[], []] )
+    ch_to_scaffold
+        .map { it -> it - it.subMap("assembly") }
+        .map { it -> it.collect { entry -> [ entry.value, entry ] } }
+        .join(
+            RAGTAG_PATCH.out.patch_fasta
+                .map { it -> [meta: it[0], assembly: it[1]] }
+                .map { it -> it.collect { entry -> [ entry.value, entry ] } }
+        )
+        .map { it -> it.collect { _entry, map -> [ (map.key): map.value ] }.collectEntries() }
+        .set { ch_assemblies_scaffold }
 
-        // This leaves the scaffold strategy.
-        // scaffolds can be: FLYE-HIFIASM, FLYE-FLYE, HIFIASM-HIFIASM HIFIASM-FLYE or
-        flye_assemblies
-            // Flye-hifiasm
-            .filter { it -> it.strategy == "scaffold" && it.assembler1 == "flye" && it.assembler2 == "hifiasm" }
-            .map { it -> it.collect { entry -> [ entry.value, entry ] } }
-            .join( hifiasm_hifi_assemblies
-                    .filter{ it -> it.strategy == "scaffold" && it.assembler1 == "flye" && it.assembler2 == "hifiasm" }
-                    .map { it -> [ meta: it.meta, hifiasm_assembly: it.assembly2 ] }
-                    .map { it -> it.collect { entry -> [ entry.value, entry ] } }
-            )
-            .map { it -> it.collect { _entry, map -> [ (map.key): map.value ] }.collectEntries() }
-            .map { it -> it - it.subMap("hifiasm_assembly","assembly2") + [assembly2: it.hifiasm_assembly] }
-            .set{ scaffold_flye_hifiasm }
+    ch_assemblies_scaffold.dump(tag: "Assemble: Assemblies with scaffolding - outputs")
 
-        // flye-flye
-        flye_assemblies
-            .filter { it -> it.strategy == "scaffold" && it.assembler1 == "flye" && it.assembler2 == "flye" }
-            .map { it -> it.collect { entry -> [ entry.value, entry ] } }
-            .join( flye_assemblies
-                    .filter{ it -> it.strategy == "scaffold" && it.assembler1 == "flye" && it.assembler2 == "flye" }
-                    .map { it -> [ meta: it.meta, flye_assembly: it.assembly2 ] }
-                    .map { it -> it.collect { entry -> [ entry.value, entry ] } }
-            )
-            .map { it -> it.collect { _entry, map -> [ (map.key): map.value ] }.collectEntries() }
-            .map { it -> it - it.subMap("flye_assembly","assembly2") + [assembly2: it.flye_assembly] }
-            .set{ scaffold_flye_flye }
 
-        // hifiasm_flye
-        hifiasm_ont_assemblies
-            .filter { it -> it.strategy == "scaffold" && it.assembler1 == "hifiasm" && it.assembler2 == "flye" }
-            .map { it -> it.collect { entry -> [ entry.value, entry ] } }
-            .join( flye_assemblies
-                    .filter{ it -> it.strategy == "scaffold" && it.assembler1 == "hifiasm" && it.assembler2 == "flye" }
-                    .map { it -> [ meta: it.meta, flye_assembly: it.assembly2 ] }
-                    .map { it -> it.collect { entry -> [ entry.value, entry ] } }
-            )
-            .map { it -> it.collect { _entry, map -> [ (map.key): map.value ] }.collectEntries() }
-            .map { it -> it - it.subMap("flye_assembly","assembly2") + [assembly2: it.flye_assembly] }
-            .set{ scaffold_hifiasm_flye }
+    ch_assemblies_no_scaffold
+        .mix(ch_assemblies_scaffold)
+        .set { ch_main_assembled }
 
-        // hifiasm_hifiasm
-        hifiasm_ont_assemblies
-            .filter { it -> it.strategy == "scaffold" && it.assembler1 == "hifiasm" && it.assembler2 == "hifiasm" }
-            .map { it -> it.collect { entry -> [ entry.value, entry ] } }
-            .join( hifiasm_hifi_assemblies
-                    .filter{ it -> it.strategy == "scaffold" && it.assembler1 == "hifiasm" && it.assembler2 == "hifiasm" }
-                    .map { it -> [ meta: it.meta, hifiasm_assembly: it.assembly2 ] }
-                    .map { it -> it.collect { entry -> [ entry.value, entry ] } }
-            )
-            .map { it -> it.collect { _entry, map -> [ (map.key): map.value ] }.collectEntries() }
-            .map { it -> it - it.subMap("hifiasm_assembly","assembly2") + [assembly2: it.hifiasm_assembly] }
-            .set{ scaffold_hifiasm_hifiasm }
-
-        // branch to scaffold those assemblies that need it
-        scaffold_flye_hifiasm
-            .mix(scaffold_flye_flye)
-            .mix(scaffold_hifiasm_flye)
-            .mix(scaffold_hifiasm_hifiasm)
-            .set { ch_to_scaffold }
-
-        ch_to_scaffold
-            .multiMap {
-                it ->
-                target: [
-                    it.meta,
-                    it.assembly_scaffolding_order == "ont_on_hifi" ? (it.assembly1) : (it.assembly2)
-                    ]
-                query: [
-                    it.meta,
-                    it.assembly_scaffolding_order == "ont_on_hifi" ? (it.assembly2) : (it.assembly1)
-                    ]
-            }
-            .set { ragtag_in }
-
-        RAGTAG_PATCH(ragtag_in.target, ragtag_in.query, [[], []], [[], []] )
-
-        ch_to_scaffold
-            .map { it -> it - it.subMap("assembly") }
-            .map { it -> it.collect { entry -> [ entry.value, entry ] } }
-            .join(
-                RAGTAG_PATCH.out.patch_fasta
-                    .map { it -> [meta: it[0], assembly: it[1]] }
-                    .map { it -> it.collect { entry -> [ entry.value, entry ] } }
-            )
-            .map { it -> it.collect { _entry, map -> [ (map.key): map.value ] }.collectEntries() }
-            .set { ch_assemblies_scaffold }
-
-        ch_assemblies_no_scaffold
-            .mix(ch_assemblies_scaffold)
-            .set { ch_main_assembled }
-
+    ch_main_assembled.dump(tag: "Assemble: Assembled")
 
     ch_versions = ch_versions.mix(RAGTAG_PATCH.out.versions)
 
@@ -294,7 +315,7 @@ workflow ASSEMBLE {
         .mix( ch_main_assembled )
         .set { ch_main_to_mapping }
 
-    //ch_main_to_mapping.view { it -> "TO MAPPING: $it"}
+    ch_main_to_mapping.dump(tag: "Assemble: TO MAPPING")
 
     ch_main_to_mapping
         .branch {

@@ -162,14 +162,6 @@ workflow PREPARE {
             ch_main_prepared
         }
 
-    ch_main_prepared
-        .branch {
-            it ->
-            jellyfish: it.jellyfish
-            no_jelly: !it.jellyfish
-        }
-        .set { ch_main_jellyfish_branched }
-
     // Get average read length of the QC reads from fastplong json report
     def slurp = new groovy.json.JsonSlurper()
 
@@ -205,11 +197,14 @@ workflow PREPARE {
         }
         .set { ch_main_jellyfish_branched }
 
+    // TODO: Jellyfish is currently not grouped
     JELLYFISH(ch_main_jellyfish_branched.jelly)
 
     ch_main_jellyfish_branched.no_jelly
         .mix( JELLYFISH.out.main_out )
         .set { main_out }
+
+    main_out.dump(tag: "Prepare: Combined outputs")
 
     JELLYFISH.out.genomescope_summary.set { genomescope_summary }
 
