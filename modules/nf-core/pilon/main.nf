@@ -9,7 +9,7 @@ process PILON {
 
     input:
     tuple val(meta), path(fasta)
-    tuple val(meta2), path(bam), path(bai)
+    tuple val(meta2), path(bam), path(csi)
     val pilon_mode
 
     output:

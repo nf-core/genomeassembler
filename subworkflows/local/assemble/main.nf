@@ -158,7 +158,7 @@ workflow ASSEMBLE {
     */
     if (params.skip_alignments) {
         // Sample sheet layout when skipping assembly and mapping
-        // sample,ontreads,assembly,ref_fasta,ref_gff,assembly_bam,assembly_bai,ref_bam
+        // sample,ontreads,assembly,ref_fasta,ref_gff,assembly_bam,assembly_csi,ref_bam
         ch_input
             .map { row -> [row.meta, row.ref_bam] }
             .set { ch_ref_bam }

@@ -13,20 +13,20 @@ workflow MAP_TO_ASSEMBLY {
         .join(genome_assembly)
         .set { map_assembly }
 
-    ALIGN(map_assembly, true, 'bai', false, false)
+    ALIGN(map_assembly, true, 'csi', false, false)
 
     ALIGN.out.bam.set { aln_to_assembly_bam }
-    ALIGN.out.index.set { aln_to_assembly_bai }
+    ALIGN.out.index.set { aln_to_assembly_csi }
 
     map_assembly
         .map { meta, _reads, fasta -> [meta, fasta] }
         .set { ch_fasta }
 
     aln_to_assembly_bam
-        .join(aln_to_assembly_bai)
-        .set { aln_to_assembly_bam_bai }
+        .join(aln_to_assembly_csi)
+        .set { aln_to_assembly_bam_csi }
 
-    BAM_STATS(aln_to_assembly_bam_bai, ch_fasta )
+    BAM_STATS(aln_to_assembly_bam_csi, ch_fasta )
 
     versions = ch_versions.mix(ALIGN.out.versions).mix(BAM_STATS.out.versions)
 

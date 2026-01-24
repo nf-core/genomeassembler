@@ -19,7 +19,7 @@ workflow POLISH_PILON {
 
     ch_versions = ch_versions.mix(MAP_SR.out.versions)
 
-    RUN_PILON(assembly, MAP_SR.out.aln_to_assembly_bam_bai)
+    RUN_PILON(assembly, MAP_SR.out.aln_to_assembly_bam_csi)
 
     RUN_PILON.out.improved_assembly.set { pilon_polished }
 

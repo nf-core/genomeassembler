@@ -271,19 +271,19 @@ The files in the alignment folder have the following base name structure:
   - `QC/`
     - `alignments/`: alignments to assemblies
       - `<SampleName>_<stage>.bam` Alignment
-      - `<SampleName>_<stage>.bai` bam index file
+      - `<SampleName>_<stage>.csi` bam index file
       - `<SampleName>_<stage>.stats` comprehensive statistics from alignment file
       - `<SampleName>_<stage>.idxstats` alignment summary statistics
       - `<SampleName>_<stage>.flagstat` number of alignments for each FLAG type
       - `shortreads/`: folder containing short read mapping for pilon
         - `<SampleName>_shortreads.bam` Alignment
-        - `<SampleName>_shortreads.bai` bam index file
+        - `<SampleName>_shortreads.csi` bam index file
         - `<SampleName>_shortreads.stats` comprehensive statistics from alignment file
         - `<SampleName>_shortreads.idxstats` alignment summary statistics
         - `<SampleName>_shortreads.flagstat` number of alignments for each FLAG type
       - `reference/`: folder containing alignment of long reads to reference
         - `<SampleName>_to_reference.bam` Alignment
-        - `<SampleName>_to_reference.bai` bam index file
+        - `<SampleName>_to_reference.csi` bam index file
         - `<SampleName>_to_reference.stats` comprehensive statistics from alignment file
         - `<SampleName>_to_reference.idxstats` alignment summary statistics
         - `<SampleName>_to_reference.flagstat` number of alignments for each FLAG type
