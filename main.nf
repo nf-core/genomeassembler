@@ -38,7 +38,8 @@ workflow NFCORE_GENOMEASSEMBLER {
     // WORKFLOW: Run pipeline
     //
     GENOMEASSEMBLER (
-        samplesheet
+        samplesheet,
+        params.outdir,
     )
 }
 /*
@@ -80,7 +81,6 @@ workflow {
         params.plaintext_email,
         params.outdir,
         params.monochrome_logs,
-        params.hook_url,
     )
 }
 
