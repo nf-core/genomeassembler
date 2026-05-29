@@ -13,7 +13,7 @@ process NANOQ {
     output:
     tuple val(meta), path("*_report.json"), emit: report
     tuple val(meta), path("*_stats.json"), emit: stats
-    tuple val(meta), env(median), emit: median_length
+    tuple val(meta), env('median'), emit: median_length
     path "versions.yml", emit: versions
 
     script:

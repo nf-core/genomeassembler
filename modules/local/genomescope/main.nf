@@ -13,7 +13,7 @@ process GENOMESCOPE {
         tuple val(meta), path("*_genomescope.txt")  , emit: summary
         tuple val(meta), path("*_plot.log.png")     , emit: plot_log
         tuple val(meta), path("*_plot.png")         , emit: plot
-        tuple val(meta), env(est_hap_len)           , emit: estimated_hap_len
+        tuple val(meta), env('est_hap_len')           , emit: estimated_hap_len
         path "versions.yml"                         , emit: versions
 
     script:
