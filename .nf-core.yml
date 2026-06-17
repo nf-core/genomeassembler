@@ -6,6 +6,9 @@ lint:
   files_unchanged:
     - assets/sendmail_template.txt
     - .github/CONTRIBUTING.md
+    - docs/images/*
+    - .prettierignore
+    - .gitignore
   multiqc_config: false
 nf_core_version: 4.0.2
 repository_type: pipeline
