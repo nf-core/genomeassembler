@@ -27,7 +27,7 @@ jobs:
     strategy:
       matrix:
         NXF_VER:
-          - "25.04.0"
+          - "25.10.4"
           - "latest-everything"
         ASSEMBLER:
           - "hifi_flye"
