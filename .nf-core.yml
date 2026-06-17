@@ -6,6 +6,8 @@ lint:
   files_unchanged:
     - assets/sendmail_template.txt
     - .github/CONTRIBUTING.md
+    - .github/PULL_REQUEST_TEMPLATE.md
+    - assets/nf-core-genomeassembler_logo_light.png
     - assets/nf-core-genomeassembler_logo_light.png
     - docs/images/nf-core-genomeassembler_logo_light.png
     - docs/images/nf-core-genomeassembler_logo_dark.png
