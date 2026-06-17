@@ -1,4 +1,5 @@
 lint:
+  multiqc_config: false
   files_exist:
     - conf/igenomes.config
     - conf/igenomes_ignored.config
