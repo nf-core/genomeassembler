@@ -14,3 +14,4 @@ modules/nf-core/
 subworkflows/nf-core/
 *.svg
 tests/
+nf-core-genomeassembler_logo_dark.svg
