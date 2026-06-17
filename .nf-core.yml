@@ -11,7 +11,7 @@ lint:
     - docs/images/nf-core-genomeassembler_logo_dark.png
     - .prettierignore
     - .gitignore
-    - *.svg
+    - nf-core-genomeassembler_logo_dark.svg
   multiqc_config: false
 nf_core_version: 4.0.2
 repository_type: pipeline
