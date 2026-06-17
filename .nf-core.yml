@@ -6,7 +6,9 @@ lint:
   files_unchanged:
     - assets/sendmail_template.txt
     - .github/CONTRIBUTING.md
-    - docs/images/*
+    - assets/nf-core-genomeassembler_logo_light.png
+    - docs/images/nf-core-genomeassembler_logo_light.png
+    - docs/images/nf-core-genomeassembler_logo_dark.png
     - .prettierignore
     - .gitignore
   multiqc_config: false
