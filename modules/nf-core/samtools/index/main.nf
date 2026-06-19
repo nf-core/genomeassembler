@@ -11,7 +11,6 @@ process SAMTOOLS_INDEX {
     tuple val(meta), path(input)
 
     output:
-    tuple val(meta), path("*.bai") , optional:true, emit: bai
     tuple val(meta), path("*.csi") , optional:true, emit: csi
     tuple val(meta), path("*.crai"), optional:true, emit: crai
     path  "versions.yml"           , emit: versions
@@ -37,7 +36,7 @@ process SAMTOOLS_INDEX {
     stub:
     def args = task.ext.args ?: ''
     def extension = file(input).getExtension() == 'cram' ?
-                    "crai" : args.contains("-c") ?  "csi" : "bai"
+                    "crai" : "csi"
     """
     touch ${input}.${extension}
 

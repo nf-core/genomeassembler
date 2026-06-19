@@ -3,15 +3,15 @@ include { PILON } from '../../../../../modules/nf-core/pilon/main'
 workflow RUN_PILON {
     take:
     assembly_in
-    aln_to_assembly_bam_bai
+    aln_to_assembly_bam_csi
 
     main:
     assembly_in
-        .join(aln_to_assembly_bam_bai)
+        .join(aln_to_assembly_bam_csi)
         .set { pilon_in }
     PILON(
-        pilon_in.map { meta, assembly, _bam, _bai -> [meta, assembly] },
-        pilon_in.map { meta, _assembly, bam, bai -> [meta, bam, bai] },
+        pilon_in.map { meta, assembly, _bam, _csi -> [meta, assembly] },
+        pilon_in.map { meta, _assembly, bam, csi -> [meta, bam, csi] },
         "bam",
     )
     versions = PILON.out.versions
