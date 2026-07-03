@@ -289,6 +289,12 @@
             "description": "Polishing options",
             "default": "",
             "properties": {
+                "polish": {
+                    "type": "string",
+                    "description": "String describing the polishing strategy. Takes priority over boolean selectors. If missing will be created from boolean selectors.",
+                    "enum": ["pilon", "dorado", "medaka", "dorado+pilon", "medaka+pilon"],
+                    "meta": ["polish"]
+                },
                 "polish_pilon": {
                     "type": "boolean",
                     "description": "Polish assembly with `pilon`. Requires short reads."
