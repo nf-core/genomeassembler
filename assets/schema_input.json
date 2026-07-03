@@ -54,7 +54,7 @@
             "assembly_scaffolding_order": {
                 "type": "string",
                 "default": "ont_on_hifi",
-                "description": "When strategy is \"scaffold\", which assembly should be scaffolded onto which?",
+                "description": "When strategy is 'scaffold', which assembly should be scaffolded onto which?",
                 "enum": ["ont_on_hifi", "hifi_on_ont"],
                 "meta": ["assembly_scaffolding_order"]
             },
