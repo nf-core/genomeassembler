@@ -2,6 +2,7 @@ channels:
   - conda-forge
   - bioconda
 dependencies:
+  - conda-forge::ca-certificates
   - conda-forge::quarto=1.9.38
   - conda-forge::r-gt=1.0.0
   - conda-forge::r-plotly=4.10.4

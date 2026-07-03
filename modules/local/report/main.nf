@@ -3,8 +3,8 @@ process REPORT {
     label 'process_low'
     conda "${moduleDir}/environment.yml"
     container "${ workflow.containerEngine in ['singularity', 'apptainer'] && !task.ext.singularity_pull_docker_container
-?         'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/c6/c6aa8aa5d530d24a524eafb047d71939e1b3412edb08a92832c4fd8ab43852fb/data'
-:         'community.wave.seqera.io/library/quarto_r-gt_r-plotly_r-quarto_pruned:63d3feee82a6dacb' }"
+?         'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/62/62cee220a91255a09aa10b25f920b6b68febe137c7ed00b527d5891a3e5c7842/data'
+:         'community.wave.seqera.io/library/ca-certificates_quarto_r-gt_r-plotly_pruned:833048f01b6491fc' }"
 
     input:
     path qmdir_files,       stageAs: "*"
@@ -19,7 +19,7 @@ process REPORT {
     val groups
 
     output:
-    tuple path("report.html"), path("report_files/*"), emit: report_html
+    path("report.html"), emit: report_html
     path ("busco_files/reports.csv"), emit: busco_table, optional: true
     path ("quast_files/reports.csv"), emit: quast_table, optional: true
     path ("genomescope_files/*"), emit: genomescope_plots, optional: true
