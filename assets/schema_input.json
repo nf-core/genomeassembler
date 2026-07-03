@@ -156,6 +156,12 @@
                 "description": "Initial hash size used by `jellyfish count`.",
                 "meta": ["jellyfish_size"]
             },
+            "polish": {
+                "type": "string",
+                "description": "String describing the polishing strategy. Takes priority over boolean selectors.",
+                "enum": ["pilon", "dorado", "medaka", "dorado+pilon", "medaka+pilon"],
+                "meta": ["polish"]
+            },
             "polish_pilon": {
                 "type": "boolean",
                 "description": "Polish assembly with `pilon`. Requires short reads.",
