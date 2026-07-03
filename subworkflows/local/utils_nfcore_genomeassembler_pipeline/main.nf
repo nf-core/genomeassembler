@@ -131,7 +131,8 @@ workflow PIPELINE_INITIALISATION {
                                     null
             def merqury         =   it.merqury & !it.shortread_F ? false : it.merqury
             def group           =   it.group ?: null
-            it + [  group: group,
+            it + [
+                    group: group,
                     assembler_ont: assembler_ont,
                     assembler_hifi: assembler_hifi,
                     polish: polish,
