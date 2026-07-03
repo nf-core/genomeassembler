@@ -178,7 +178,7 @@
             },
             "scaffold_longstitch": {
                 "type": "boolean",
-                "description": "Scaffold with longstitch?",
+                "description": "Scaffold with longstitch",
                 "meta": ["scaffold_longstitch"]
             },
             "scaffold_links": {
