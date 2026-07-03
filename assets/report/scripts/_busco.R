@@ -37,7 +37,7 @@ for (i in 1:length(unique(busco_reports$group))) {
                     axis.title.y = element_text(angle = 90),
                     axis.title.x = element_blank()
                 )
-                ggplotly(p)
+                p
                 \n```') |>
     write_lines(glue::glue("busco_files/orthologs/_{ unique(busco_reports$group)[i] }_orthologs.Rmd"))
 }

@@ -241,6 +241,6 @@ workflow PREPARE {
     fastplong_json_reports
     fastp_json_reports      = SHORTREADS.out.fastp_json
     meryl_kmers
-    genomescope_summary
-    genomescope_plot
+    genomescope_summary     = JELLYFISH.out.genomescope_summary
+    genomescope_plot        = JELLYFISH.out.genomescope_plot
 }

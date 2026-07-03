@@ -2,13 +2,10 @@ process REPORT {
     tag "REPORT"
     label 'process_low'
     conda "${moduleDir}/environment.yml"
-    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
-        ? 'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/89/8967e1cb830fdc77ec5b84541a50c74a0a05eaaae557314490809de2fc91e4af/data'
-        : 'community.wave.seqera.io/library/quarto_r-gt_r-plotly_r-quarto_pruned:be4a8863b7b76cf7'}"
-    /* wave builds:
-    https://wave.seqera.io/view/builds/bd-6e20dd9b9b77f359_1 singularity
-    https://wave.seqera.io/view/builds/bd-be4a8863b7b76cf7_1 docker
-    */
+    container "${ workflow.containerEngine in ['singularity', 'apptainer'] && !task.ext.singularity_pull_docker_container
+?         'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/62/62cee220a91255a09aa10b25f920b6b68febe137c7ed00b527d5891a3e5c7842/data'
+:         'community.wave.seqera.io/library/ca-certificates_quarto_r-gt_r-plotly_pruned:833048f01b6491fc' }"
+
     input:
     path qmdir_files,       stageAs: "*"
     path funct_files,       stageAs: "functions/*"
@@ -22,7 +19,7 @@ process REPORT {
     val groups
 
     output:
-    tuple path("report.html"), path("report_files/*"), emit: report_html
+    path("report.html"), emit: report_html
     path ("busco_files/reports.csv"), emit: busco_table, optional: true
     path ("quast_files/reports.csv"), emit: quast_table, optional: true
     path ("genomescope_files/*"), emit: genomescope_plots, optional: true
@@ -72,9 +69,32 @@ process REPORT {
     cat <<- END_YAML_VERSIONS > versions.yml
     ${versions_content}
     END_YAML_VERSIONS
+    # Set environment variables needed for Quarto rendering
+    export XDG_CACHE_HOME="./.xdg_cache_home"
+    export XDG_DATA_HOME="./.xdg_data_home"
+    export HOME="\$PWD"
+    mkdir -p "\$HOME/.cache"
+    mkdir -p "\$HOME/tmp"
+    export TMPDIR="\$HOME/tmp"
+    export TEMP="\$TMPDIR"
+    export TMP="\$TMPDIR"
+
+    # Fix Quarto for Apptainer (see https://community.seqera.io/t/confusion-over-why-a-tool-works-in-docker-but-fails-in-singularity-when-the-installation-doesnt-differ-i-e-using-wave-micromamba/1244)
+    ENV_QUARTO=/opt/conda/etc/conda/activate.d/quarto.sh
+    set +u
+    if [ -z "\${QUARTO_DENO}" ] && [ -f "\${ENV_QUARTO}" ]; then
+        source "\${ENV_QUARTO}"
+    fi
+    set -u
+
+    # Set parallelism for BLAS/MKL etc. to avoid over-booking of resources
+    export MKL_NUM_THREADS="${task.cpus}"
+    export OPENBLAS_NUM_THREADS="${task.cpus}"
+    export OMP_NUM_THREADS="${task.cpus}"
+    export NUMBA_NUM_THREADS="${task.cpus}"
 
     export HOME="\$PWD"
-    quarto render report.qmd \\
+    LC_ALL=C.UTF-8 quarto render report.qmd \\
         ${report_profile} \\
         ${report_params}
     """

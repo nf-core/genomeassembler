@@ -109,7 +109,7 @@ for (i in 1:length(unique(merqury_qv$group))) {
   paste0('```{r echo = F, fig.height = ',plt_height,'}
 p <- merqury_qv |>
     plot_merqury_qv("', cur_group,'")
-ggplotly(p)\n```') |>
+print(p)\n```') |>
     write_lines(glue::glue("merqury_files/qv_plots/_{ cur_group }_qv_plt.Rmd"))
 }
 # This generates stat-plots from merqury; the plot function is stuffed into plot_merqury
@@ -123,7 +123,7 @@ for (i in 1:length(unique(merqury_stats$group))) {
   paste0('```{r echo = F, fig.height = ',plt_height,'}
 p <- merqury_stats |>
     plot_merqury_stats("', cur_group,'")
-ggplotly(p)\n```') |>
+print(p)\n```') |>
     write_lines(glue::glue("merqury_files/stat_plots/_{ cur_group }_completeness_plt.Rmd"))
 }
 

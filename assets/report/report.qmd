@@ -6,6 +6,8 @@ format:
     toc: true
     toc_float: true
     toc-location: left
+    embed-resources: true
+    self-contained: true
     other-links:
       - text: "Github repo"
         icon: github
@@ -28,7 +30,6 @@ params:
 # Load libraries
 library(tidyverse)
 library(magrittr)
-library(plotly)
 
 #library(gt)
 # Load functions
@@ -39,7 +40,7 @@ list.files("functions",
 
 # Set default ggplot theme
 theme_set(theme_bw(base_size = 14,
-                    base_family = gt::google_font("Maven Pro")))
+                   base_family = "Maven Pro"))
 theme_update(strip.background = element_blank(),
              axis.text.x = element_text(angle = 70, hjust = 1))
 ## Colors, these come from the khroma package ("muted")
@@ -144,7 +145,7 @@ QUAST was not included in the pipeline run.
 
 QUAST reports assembly statistics, taking into account the reference, if provided.
 
-```{r prepare quast, message = F}
+```{r prepare quast, message = F, warning = F}
 #| eval: !expr params$quast
 #| include: false
 #| warning: false
@@ -154,7 +155,7 @@ source("scripts/_quast.R")
 
 :::: {.panel-tabset .flow}
 
-```{r quast page}
+```{r quast page, message = F, warning = F}
 #| eval: !expr params$quast
 #| results: asis
 # This produces the contents of the page.
@@ -187,7 +188,7 @@ BUSCO was not included in the pipeline run.
 
 BUSCO assess assembly quality based on the presence / absence of expected single-copy orthologs.
 
-```{r busco data}
+```{r busco data, message = F, warning = F}
 #| eval: !expr params$busco
 #| warning: false
 #| message: false
@@ -198,7 +199,7 @@ source("scripts/_busco.R")
 
 :::: {.panel-tabset .flow}
 
-```{r busco page}
+```{r busco page, message = F, warning = F}
 #| eval: !expr params$busco
 #| results: asis
 #
@@ -211,7 +212,7 @@ source("scripts/_busco_page.R")
 
 :::
 
-```{r include = F}
+```{r include = F, message = F, warning = F}
 #| eval: !expr params$busco
 # Delete temporary files
 unlink("busco_files/orthologs", recursive = T)
@@ -242,7 +243,7 @@ merqury compares k-mer spectra between assemblies and short read libraries to as
 
 :::: {.panel-tabset .flow}
 
-```{r merqury add plots and valueboxes}
+```{r merqury add plots and valueboxes, message = F, warning = F}
 #| eval: !expr params$merqury
 #| results: asis
 source("scripts/_merqury_page.R")
@@ -282,7 +283,7 @@ genomescope_out <- list.files(paste0(data_base, "genomescope"), full.names = T, 
 
 Below are the genomescope estimates based on the provided QC reads:
 
-```{r echo = F}
+```{r echo = F, message = F, warning = F}
 #| eval: !expr params$jellyfish
 #| output: asis
 source("scripts/_genomescope_page.R")
@@ -295,22 +296,30 @@ source("scripts/_genomescope_page.R")
 
 The pipeline was run using the following software versions:
 
-```{r}
+```{r , message = F, warning = F}
 #| message: false
 #| echo: false
 #| output: asis
-versions <- yaml::read_yaml("software_versions.yml")
+versions <- yaml::read_yaml("versions.yml")
 lapply(1:length(versions), \(process) {
-  proc = versions[[process]]
-  proc_name = names(versions[process])
-  tools <- lapply(1:length(proc), \(tool) {
-    tool_name = proc[tool] |> names()
-    tool_version = proc[[tool]] |> as.character()
+  proc  <-  versions[[process]] |> str_split(":\\\n ") |> flatten()
+  proc_name  <-  proc[[1]][1]
+  tools  <-  proc[[2]][1] |>
+    str_split("\\\n ") |>
+    lapply(\(x) trimws(x)) |>
+    flatten()
+  tools_df <- lapply(1:length(tools), \(toolnum) {
+    tool_info  <- tools[[toolnum]][1] |>
+      str_split(": ")  %>%
+      flatten()
+    tool_name = tool_info[[1]]
+    tool_version = tool_info[[2]]
     return(tibble(Process = proc_name,Tool = tool_name, Version = tool_version))
   }) |>
     bind_rows()
 }) |>
   bind_rows() |>
+  dplyr::arrange(Tool) |>
         gt::gt() |>
         gt::fmt_auto() |>
         gt::opt_stylize(color = "gray") |>

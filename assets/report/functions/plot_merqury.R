@@ -39,7 +39,6 @@ plot_merqury_multiplicity <- function(data, groupname) {
       x = "kmer multiplicity",
       y = "Count",
       color = "k-mers from",
-      fill = "k-mers from",
       title = glue::glue("k-mer multiplicity across {groupname} assemblies")
     ) +
     theme(legend.position = "bottom") +
@@ -70,7 +69,6 @@ plot_merqury_copynumber <- function(data, groupname) {
       x = "kmer multiplicity",
       y = "Count",
       color = "k-mers copy number",
-      fill = "k-mers copy number",
       title = glue::glue("k-mer copy number across {groupname} assemblies")
     ) +
     theme(legend.position = "bottom") +

@@ -77,8 +77,8 @@ workflow QC {
                     it.meta,
                     it.meta.qc_target
                 ]
-                use_ref: [it.meta, it.meta.use_ref ? it.meta.ref_fasta : '']
-                use_gff: [it.meta, it.meta.use_ref && it.meta.ref_gff ? it.meta.ref_gff : '']
+                use_ref: [it.meta, it.meta.use_ref ? it.meta.ref_fasta : []]
+                use_gff: [it.meta, it.meta.use_ref && it.meta.ref_gff ? it.meta.ref_gff : []]
             }
 
     QUAST(quast_in.quast_in, quast_in.use_ref, quast_in.use_gff)

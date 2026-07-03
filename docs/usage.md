@@ -38,6 +38,9 @@ Sample parameters take priority over global parameters, if both are provided the
 > [!NOTE]
 > The parameter names will be used in subsequent sections. Since all parameters can be provided per-sample or pipeline wide, no examples will be given.
 
+> [!WARNING]
+> While QC tools can be set per sample, this is generally discouraged and may create difficulties in the report. These should preferentially be set via `params`.
+
 The list of all parameters that can be provided globally is available [here](https://nf-co.re/genomeassembler/parameters/), parameters that can be set per sample are provided at the [end of this page](#sample-parameters).
 
 ## Samples and grouping
@@ -47,7 +50,7 @@ This pipeline is intended to support two main use-cases:
 - either a larger set of samples is assembled using a shared set of parameters and settings set mostly via params,
 - or a single, or few samples, are assembled using different strategies, typically with the goal of comparing strategies to identify the best approach for a given dataset.
 
-In the second case, it is likely that several samples will use the same inputs (i.e. reads). Such samples can be put into one group, by assigning them the same value in the group column of the samplesheet, and for these samples pre-processing of reads will only be done once per group, instead of once per sample. This can be used to avoid unneccessary redundant work on the same set of inputs and will only affect preprocessing and reporting, where these samples will be displayed together.
+In the second case, it is likely that several samples will use the same inputs (i.e. reads, reference). Such samples can be put into one group, by assigning them the same value in the group column of the samplesheet, and for these samples pre-processing of reads will only be done once per group, instead of once per sample. This can be used to avoid unneccessary redundant work on the same set of inputs and will only affect preprocessing and reporting, where these samples will be displayed together.
 
 > [!WARNING]
 > Grouping should **never** be used for samples that use different input files.

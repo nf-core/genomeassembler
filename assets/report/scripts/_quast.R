@@ -2,7 +2,7 @@
 
 # Parse the quast reports from data/quast
 quast_stats <- list.files(paste0(data_base, "quast"),
-                          pattern = "report.tsv",
+                          pattern = "\\.tsv$",
                           full.names = T) |>
   map_dfr(\(x) {
     read_quast_report(x) |>
