@@ -259,7 +259,7 @@
             },
             "csi_index_size": {
                 "type": "integer",
-                "description": "Index size to use for csi index (default: 14), creating and index of size 2^csi_index_size. See samtools index documentation for details. ",
+                "description": "Index size to use for csi index (default: 14), creating and index of size 2^csi_index_size. See [samtools index documentation](https://www.htslib.org/doc/samtools-index.html) for details. ",
                 "default": 14,
                 "meta": ["csi_index_size"]
             },
