@@ -127,7 +127,7 @@ Devcontainer specs:
 
 ## Parameters
 
-Due to the way the pipeline handles parameterization of inputs, if a parameter is added, the corresponding param needs to also be added to the meta-map constructor in `subworkflows/local/utils_nfcore_genomeassembler_pipeline/main.nf`.
+Due to the way the pipeline handles parameterization of inputs, if a parameter is added, the corresponding param needs to also be added to the meta-map constructor in `subworkflows/local/utils_nfcore_genomeassembler_pipeline/main.nf`, and `assets/schema_input.json` and `nextflow_schema.json` need to be updated accordingly.
 
 ## Adding a new step
 

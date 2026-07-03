@@ -16,3 +16,4 @@ test_flye_hifiasm/scaffold/ragtag/test_flye_hifiasm_ragtag.fasta
 test_flye_hifiasm/scaffold/ragtag/test_flye_hifiasm_ragtag.stats
 **/assembly.cut250.tigmint.*
 **/*.assembly.fasta
+**/*MarkDuplicates.metrics.txt

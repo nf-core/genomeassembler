@@ -100,121 +100,47 @@ workflow PIPELINE_INITIALISATION {
     //
     // Create channel from input file provided through params.input
     //
-
-    ch_samplesheet = channel.fromPath(params.input)
-        .splitCsv(header: true)
+    ch_samplesheet = channel.fromList(samplesheetToList(params.input, "assets/schema_input.json"))
         /*
         This is a somewhat crucial step, where the samplesheet and params are used to determine per-sample parameters.
+        This has been greatly simplified thanks to @nvnieuwk
         */
         .map { it ->
-            def strategy        =   it.strategy ?: params.strategy
-            def ontreads        =   it.ontreads ?: params.ontreads
-            def hifireads       =   it.hifireads ?: params.hifireads
-            def assembler       =   it.assembler ?: params.assembler
+            def meta = it[0]
+            // Populate everything that has no value with the value from params
+            return meta.collectEntries { key, val -> key == "group" ? [ key, val ] : [ key, val ?: params.get(key) ] }
+        }
+        .map{
+            it ->
             def assembler_ont   =   it.assembler_ont ?:
-                                    (strategy == "single" && assembler && ontreads && !hifireads) ? assembler :
-                                    params.assembler_ont ?:
-                                    (strategy == "hybrid" && assembler == "hifiasm") ? assembler :
-                                    assembler.contains("_") ? assembler.tokenize("_")[0] :
+                                    (it.strategy == "single" && it.assembler && it.ontreads && !it.hifireads) ? it.assembler :
+                                    (it.strategy == "hybrid" && it.assembler == "hifiasm") ? it.assembler :
+                                    it.assembler.contains("_") ? it.assembler.tokenize("_")[0] :
                                     null
             def assembler_hifi  =   it.assembler_hifi ?:
-                                    (strategy == "single" && assembler && hifireads && !ontreads) ? assembler :
-                                    params.assembler_hifi ?:
-                                    assembler.contains("_") ? assembler.tokenize("_")[1] :
+                                    (it.strategy == "single" && it.assembler && it.hifireads && !it.ontreads) ? it.assembler :
+                                    it.assembler.contains("_") ? it.assembler.tokenize("_")[1] :
                                     null
             def polish          =   it.polish ?:
-                                    (params.polish_medaka && params.polish_dorado) ? error("Both polish_medaka and polish_dorado are set.") :
-                                    (params.polish_medaka && params.polish_pilon && ontreads) ? "medaka+pilon" :
-                                    (params.polish_dorado && params.polish_pilon && ontreads) ? "dorado+pilon" :
-                                    (params.polish_medaka && ontreads) ? "medaka" :
-                                    (params.polish_dorado && ontreads) ? "dorado" :
-                                    (params.polish_pilon && (it.shortread_F || params.shortread_F)) ? "pilon" :
+                                    (it.polish_medaka && it.polish_dorado) ? error("Both polish_medaka and polish_dorado are set.") :
+                                    (it.polish_medaka && it.polish_pilon && it.ontreads) ? "medaka+pilon" :
+                                    (it.polish_dorado && it.polish_pilon && it.ontreads) ? "dorado+pilon" :
+                                    (it.polish_medaka && it.ontreads) ? "medaka" :
+                                    (it.polish_dorado && it.ontreads) ? "dorado" :
+                                    (it.polish_pilon && (it.shortread_F || params.shortread_F)) ? "pilon" :
                                     null
-            def hic_F           =   it.hic_F ?: params.hic_F
-            def scaffold_hic    =   hic_F ? (it.scaffold_hic != null ? it.scaffold_hic : params.scaffold_hic) : false
-            def hic_trim        =   !scaffold_hic ? false :
-                                    (it.hic_trim ?: params.hic_trim)
-            def assembler_ont_args =  it.assembler_ont_args ?: params.assembler_ont_args ?: ''
-            def assembler_hifi_args = it.assembler_hifi_args ?: params.assembler_hifi_args ?: ''
-            // Check if strategy can be inferred
-            strategy == "single" && ontreads && hifireads && !((!assembler_ont && assembler_hifi) || (assembler_ont && !assembler_hifi)) ?
-                error(
-                    """
-                    [$it.sample]: Strategy is 'single', but ONT and HiFi reads are provided.
-                    Please unambigiously define either 'assembler_ont' for ONT or 'assembler_hifi' for HiFi
-                    """
-                ) :
-                null
-            // Build the map. Everything goes into meta.
-            [
-                meta: [
-                    id: it.sample,
-                    // new in refactor-assemblies
-                    group: it.group ?: null,
-                    ontreads: ontreads,
-                    hifireads: hifireads,
-                    // new in refactor-assemblers
-                    strategy: strategy,
-                    // The "assembler" value is mainly to ease input, all actual workflow logic should use assembler_ont/_hifi.
-                    assembler: assembler,
+            def merqury         =   it.merqury & !it.shortread_F ? false : it.merqury
+            it + [
                     assembler_ont: assembler_ont,
                     assembler_hifi: assembler_hifi,
-                    assembly_scaffolding_order: it.assembly_scaffolding_order ?: params.assembly_scaffolding_order ?: "ont_on_hifi",
-                    assembler_ont_args: assembler_ont_args,
-                    assembler_hifi_args: assembler_hifi_args,
-                    hifiasm_args: it.hifiasm_args ?: params.hifiasm_args,
-                    flye_args: it.flye_args ?: params.flye_args,
                     polish: polish,
-                    ont_collect: it.ont_collect ?: params.ont_collect,
-                    ont_adapters: it.ont_adapters ?: params.ont_adapters,
-                    ont_fastplong_args: it.ont_fastplong_args ?: params.ont_fastplong_args,
-                    jellyfish: it.jellyfish ?: params.jellyfish,
-                    jellyfish_k: it.ont_jellyfish_k ?: params.jellyfish_k,
-                    jellyfish_size: it.jellyfish_size ?: params.jellyfish_size,
-                    hifi_adapters: it.hifi_adapters ?: params.hifi_adapters,
-                    hifi_fastplong_args: it.hifi_fastplong_args ?: params.hifi_fastplong_args,
-                    medaka_model: it.medaka_model ?: params.medaka_model,
-                    scaffold_longstitch: it.scaffold_longstitch ?: params.scaffold_longstitch,
-                    scaffold_links: it.scaffold_links ?: params.scaffold_links,
-                    scaffold_ragtag: it.scaffold_ragtag ?: params.scaffold_ragtag,
-                    scaffold_hic: scaffold_hic,
-                    use_ref: it.use_ref ?: params.use_ref,
-                    // hic
-                    hic_aligner: it.hic_aligner ?: params.hic_aligner,
-                    hic_F: scaffold_hic ? (hic_F) : [],
-                    hic_R: scaffold_hic ? (it.hic_R ?: params.hic_R) : [],
-                    hic_trim: hic_trim,
-                    // not new
-                    genome_size: it.genome_size ?: params.genome_size,
-                    ref_fasta: it.ref_fasta ?: params.ref_fasta,
-                    ref_gff: it.ref_gff ?: params.ref_gff,
-                    flye_mode: it.flye_mode ?: params.flye_mode,
-                    // assembly already provided?
-                    assembly: it.assembly ?: params.assembly ?: null,
-                    // ref mapping provided?
-                    ref_map_bam: it.ref_map_bam ?: params.ref_map_bam ?: null,
-                    // assembly mapping provided
-                    assembly_map_bam: it.assembly_map_bam ?: params.ref_map_bam ?: null,
-                    // reads for qc
-                    qc_reads: ((it.qc_reads == "ont" || params.qc_reads == "ont") && ontreads) ? "ont" : "hifi",
-                    qc_reads_path: ((it.qc_reads == "ont" || params.qc_reads == "ont") && ontreads) ? ontreads : hifireads,
-                    quast: it.quast ?: params.quast,
-                    busco: it.busco ?: params.busco,
-                    busco_lineage: it.busco_lineage ?: params.busco_lineage,
-                    busco_db: it.busco_db ?: params.busco_db,
-                    meryl_k: it.meryl_k ?: params.meryl_k,
-                    merqury: it.merqury ?: params.merqury,
-                    lift_annotations: (it.ref_gff || params.ref_gff) ? (it.lift_annotations ?: params.lift_annotations) : false,
-                    shortread_F: it.shortread_F ?: params.shortread_F,
-                    shortread_R: it.shortread_R ?: params.shortread_R,
-                    paired: it.paired ?: params.paired ?: ((it.shortread_F || params.shortread_F) && (it.shortread_R || params.shortread_R)) ? true : false,
-                    // new:
-                    use_short_reads: it.use_short_reads ?: params.use_short_reads ?: params.shortread_F ? true : (it.shortread_F ? true : false),
-                    shortread_trim: it.shortread_trim ?: params.shortread_trim
-            ]
-        ]
+                    merqury: merqury
+                ]
+
         }
-    // Define valid hybrid assemblers
+        .map {
+            it -> [meta: it]
+        }
     ch_samplesheet.dump(tag: "PARSED INPUTS:")
 
     emit:

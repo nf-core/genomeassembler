@@ -63,7 +63,7 @@ workflow PREPARE {
 
     shortreads = ch_main
         .filter {
-            it -> ((it.meta.shortread_F && it.meta.use_short_reads) || it.hic_trim) ? true : false
+            it -> ((it.meta.shortread_F && it.meta.use_short_reads) || (it.meta.hic_trim && it.meta.scaffold_hic) ? true : false)
         }
 
     ontreads = ch_main
@@ -91,9 +91,9 @@ workflow PREPARE {
         .mix(
             ch_main
                 .filter {
-                    it -> !it.meta.shortread_F && !it.meta.hic_F
+                    it -> !(it.meta.shortread_F && it.meta.use_short_reads) && !(it.meta.hic_trim && it.meta.scaffold_hic)
                 }
-                .map { it -> [meta: it.meta - it.meta.subMap("shortread_F","shortread_R", "paired") + [shorteads: null] ]}
+                .map { it -> [meta: it.meta - it.meta.subMap("shortread_F","shortread_R", "paired", "hic_F", "hic_R") + [shorteads: null, hic_reads: null] ]}
                 .mix(SHORTREADS.out.main_out)
         )
 

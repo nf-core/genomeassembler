@@ -96,8 +96,8 @@ workflow GENOMEASSEMBLER {
 
     ch_main_polished_branched = ch_main_polished
         .branch { it ->
-            scaffold: it.meta.scaffold_links || it.meta.scaffold_longstitch || it.meta.scaffold_ragtag
-            no_scaffold: !it.meta.scaffold_links && !it.meta.scaffold_longstitch && !it.meta.scaffold_ragtag
+            scaffold: it.meta.scaffold_links || it.meta.scaffold_longstitch || it.meta.scaffold_ragtag || it.meta.scaffold_hic
+            no_scaffold: !it.meta.scaffold_links && !it.meta.scaffold_longstitch && !it.meta.scaffold_ragtag && !it.meta.scaffold_hic
         }
 
     /*
