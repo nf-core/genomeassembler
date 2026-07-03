@@ -79,14 +79,14 @@ maintainers:
 containers:
   docker:
     linux/amd64:
-      name: community.wave.seqera.io/library/quarto_r-gt_r-plotly_r-quarto_pruned:6ca44959250fa39d
-      build_id: bd-6ca44959250fa39d_1
-      scan_id: sc-607a542712e1de26_1
+      name: community.wave.seqera.io/library/quarto_r-gt_r-plotly_r-quarto_pruned:63d3feee82a6dacb
+      build_id: bd-63d3feee82a6dacb_1
+      scan_id: sc-c79312501c9678f0_1
   singularity:
     linux/amd64:
-      name: oras://community.wave.seqera.io/library/quarto_r-gt_r-plotly_r-quarto_pruned:210f2ce43d70ea08
-      build_id: bd-210f2ce43d70ea08_1
-      https: https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/bf/bfe93e1b53e41d2de7d9119a029a590a003fb2f335d26ef94c2b077bf026873b/data
+      name: oras://community.wave.seqera.io/library/quarto_r-gt_r-plotly_r-quarto_pruned:c2f061c1b9a368cf
+      build_id: bd-c2f061c1b9a368cf_1
+      https: https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/c6/c6aa8aa5d530d24a524eafb047d71939e1b3412edb08a92832c4fd8ab43852fb/data
   conda:
     linux/amd64:
-      lock_file: modules/local/report/.conda-lock/linux_amd64-bd-6ca44959250fa39d_1.txt
+      lock_file: modules/local/report/.conda-lock/linux_amd64-bd-63d3feee82a6dacb_1.txt
