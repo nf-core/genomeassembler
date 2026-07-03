@@ -35,7 +35,7 @@
             },
             "use_ref": {
                 "type": "boolean",
-                "description": "use reference genome",
+                "description": "Use reference genome",
                 "meta": ["use_ref"]
             },
             "strategy": {
