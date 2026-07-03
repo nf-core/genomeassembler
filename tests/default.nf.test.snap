@@ -645,10 +645,10 @@
                 "test_ont_hifiasm_hic_hic_scaffolds_final.fa:md5,3ac2a0232e899bcb28b72e3c4f1c2d79"
             ]
         ],
-        "timestamp": "2026-07-02T15:41:23.009205129",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "25.10.4"
-        }
+        },
+        "timestamp": "2026-07-02T15:41:23.009205129"
     }
 }
