@@ -19,6 +19,12 @@ In addition, v2.0.0 contains these changes:
 
 Pull requests in reverse chronological order since v1.1.0
 
+[#203](https://github.com/nf-core/genomeassembler/pull/203)
+
+- Switched to nf-schema for input parsing
+
+- Added test with HiC dataset.
+
 [#198](https://github.com/nf-core/genomeassembler/pull/198)
 
 - Simplifies changes to ensure bgzipped outputs introduced in #192.

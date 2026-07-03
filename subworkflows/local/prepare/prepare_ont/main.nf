@@ -56,8 +56,6 @@ workflow PREPARE_ONT {
                 }
         )
 
-    ch_collected_reads.dump(tag: "Collected ONT reads")
-
     ch_collected = ch_collected_reads
         .mix(ch_main_collect_branched.no_collect)
 
