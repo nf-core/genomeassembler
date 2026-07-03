@@ -115,6 +115,7 @@ workflow GENOMEASSEMBLER {
         .map { it -> it[1] }
         .unique()
         .collect()
+        .ifEmpty([])
 
     genomescope_files = PREPARE.out.genomescope_summary
         .mix(
@@ -123,6 +124,7 @@ workflow GENOMEASSEMBLER {
         .unique()
         .filter { it -> it != null }
         .collect { it -> it[1] }
+        .ifEmpty([])
 
     def topic_versions = channel.topic("versions")
       .distinct()
@@ -166,6 +168,7 @@ workflow GENOMEASSEMBLER {
         .filter { it -> it[0] != null }
         .unique()
         .collect { reports -> reports[1] }
+        .ifEmpty([])
 
     busco_files = busco_files
         .mix(
@@ -180,6 +183,7 @@ workflow GENOMEASSEMBLER {
         .unique()
         .filter { it -> it != null }
         .collect { reports -> reports[1] }
+        .ifEmpty([])
 
     merqury_files = merqury_files
         .mix(
@@ -197,6 +201,7 @@ workflow GENOMEASSEMBLER {
         .flatten()
         .filter { it -> it != null }
         .collect()
+        .ifEmpty([])
 
     report_files = channel
         .fromPath("${projectDir}/assets/report/*")

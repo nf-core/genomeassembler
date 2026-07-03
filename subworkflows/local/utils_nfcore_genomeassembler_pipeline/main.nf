@@ -130,7 +130,8 @@ workflow PIPELINE_INITIALISATION {
                                     (it.polish_pilon && (it.shortread_F || params.shortread_F)) ? "pilon" :
                                     null
             def merqury         =   it.merqury & !it.shortread_F ? false : it.merqury
-            it + [
+            def group           =   it.group ?: null
+            it + [  group: group,
                     assembler_ont: assembler_ont,
                     assembler_hifi: assembler_hifi,
                     polish: polish,
