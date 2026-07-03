@@ -6,21 +6,39 @@ for (i in 1:length(unique(quast_stats$group))) {
       paste0('#### Tabular \n\n'),
       paste0('::::: {.panel-tabset} \n\n'),
       paste0('##### Overview \n\n'),
+      quast_cols  <-  ifelse(
+        "Reference length" %in% unique(quast_stats$stat),
+          c(
+          "Total length",
+          "Reference length"
+          ),
+          c(
+          "Total length"
+          )
+      ),
+      len_cols  <- ifelse(
+        "Reference length" %in% unique(quast_stats$stat),
+          c(
+          "Largest contig", "Total length", "Reference length"
+          ),
+          c(
+          "Largest contig", "Total length",
+          )
+      ),
       quast_stats |>
         filter(group == unique(quast_stats$group)[i]) |>
         dplyr::select(sample, stage, stat, value) |>
         pivot_wider(names_from = "stat", values_from = "value",id_cols = c(sample, stage)) |>
         dplyr::arrange(stage, sample) |>
         dplyr::select(
-          sample,
-          stage,
-          `# contigs`,
-          `Largest contig`,
+          "sample",
+          "stage",
+          "# contigs",
+          "Largest contig",
           starts_with("# contigs ("),
-          `Total length`,
-          `Reference length` ,
+          paste(quast_cols),
           starts_with("Total length ("),
-          `GC (%)`
+          "GC (%)"
         ) |>
         gt::gt() |>
         gt::cols_nanoplot(columns = starts_with("# contigs ("),
@@ -36,7 +54,7 @@ for (i in 1:length(unique(quast_stats$group))) {
         gt::cols_move(Contigs_by_size, "Largest contig") |>
         gt::cols_move(Total_length, "Total length") |>
         gt::fmt_auto() |>
-        gt::fmt_scientific(columns = c("Largest contig", "Total length", "Reference length")) |>
+        gt::fmt_scientific(columns = len_cols) |>
         gt::opt_stylize(color = "gray") |>
         gt::opt_table_font(
           font = list(
@@ -66,7 +84,8 @@ for (i in 1:length(unique(quast_stats$group))) {
         gt::as_raw_html()
       ,
       paste0('\n\n'),
-      paste0('##### Comparison to ref  \n\n'),
+      if("Reference length" %in% unique(quast_stats$stat)) {
+      paste0('##### Comparison to ref  \n\n')
       quast_stats |>
         filter(group == unique(quast_stats$group)[i]) |>
         filter(
@@ -96,7 +115,8 @@ for (i in 1:length(unique(quast_stats$group))) {
             gt::google_font(name = "Maven Pro"),
             "rounded-sans"
           )) |>
-        gt::as_raw_html(),
+        gt::as_raw_html()
+      },
       paste0(':::::'), # tables tabset
       paste0('\n\n'),
       paste0('#### Visual'),

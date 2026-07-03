@@ -32,6 +32,7 @@ for (i in 1:length(unique(quast_stats$group))) {
   cur_group <- unique(quast_stats$group)[i]
   group_size <- quast_stats |> filter(group == cur_group) |> _$sample |> unique() |> length()
   plt_height <- case_when(group_size < 5 ~ 7, TRUE ~ group_size+3)
+  if("Reference mapped (%)" %in% unique(quast_stats$stat)) {
   paste0('```{r echo = F, fig.height = ',plt_height,'}
       quast_stats |>
         filter(group == "', unique(quast_stats$group)[i], '") |>
@@ -68,6 +69,44 @@ for (i in 1:length(unique(quast_stats$group))) {
           ) +
           labs(y = "Aggregated length of contigs in bin")\n```') |>
     write_lines(glue::glue("quast_files/length/_{ unique(quast_stats$group)[i] }_quast.Rmd"))
+    } else {
+paste0('```{r echo = F, fig.height = ',plt_height,'}
+      quast_stats |>
+        filter(group == "', unique(quast_stats$group)[i], '") |>
+        filter(str_detect(stat, "[L].*[59]0")) |>
+        mutate(stat = fct_relevel(stat, "L50","L90")) |>
+        ggplot(aes(x = stat, y = value)) +
+          geom_point(
+            aes(fill = stage),
+            size = 5,
+            pch = 21,
+            height = 0,
+            width = 0.2,
+            alpha = 0.8,
+            position = position_dodge(width = 0.4)
+          ) +
+          facet_wrap(~ sample, scales = "free_y") +
+          fill_scale_plots +
+          theme_bw(base_size = 14) +
+          theme(
+            axis.title.x = element_blank(),
+            strip.background = element_blank(),
+            legend.position = "bottom",
+            axis.text.x = element_text(angle = 60, hjust = 1)
+          ) +
+          scale_y_continuous(
+            labels = function(x)
+              format(
+                x,
+                scientific = -1,
+                trim = T,
+                digits = 3,
+                drop0trailing = T
+              )
+          ) +
+          labs(y = "Aggregated length of contigs in bin")\n```') |>
+    write_lines(glue::glue("quast_files/length/_{ unique(quast_stats$group)[i] }_quast.Rmd"))
+    }
 }
 
 dir.create("quast_files/contigs")
