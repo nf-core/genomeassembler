@@ -14,14 +14,14 @@ process RAGTAG_PATCH {
     tuple val(meta4), path(skip)
 
     output:
-    tuple val(meta), path("*.patch.fasta"),         emit: patch_fasta
+    tuple val(meta), path("*.patch.fa"),            emit: patch_fasta
     tuple val(meta), path("*.patch.agp"),           emit: patch_agp
-    tuple val(meta), path("*.comps.fasta"),         emit: patch_components_fasta
+    tuple val(meta), path("*.comps.fa"),            emit: patch_components_fasta
     tuple val(meta), path("*.ragtag.patch.asm.*"),  emit: assembly_alignments,      optional: true
     tuple val(meta), path("*.ctg.agp"),             emit: target_splits_agp
-    tuple val(meta), path("*.ctg.fasta"),           emit: target_splits_fasta
+    tuple val(meta), path("*.ctg.fa"),              emit: target_splits_fasta
     tuple val(meta), path("*.rename.agp"),          emit: qry_rename_agp,           optional: true
-    tuple val(meta), path("*.rename.fasta"),        emit: qry_rename_fasta,         optional: true
+    tuple val(meta), path("*.rename.fa"),           emit: qry_rename_fasta,         optional: true
     tuple val(meta), path("*.patch.err"),           emit: stderr
     tuple val("${task.process}"), val('ragtag'), eval("ragtag.py -v | sed 's/v//'"), emit: versions_ragtag, topic: versions
 
@@ -63,16 +63,16 @@ process RAGTAG_PATCH {
     kill -TERM "\$tailpid"
 
     mv ${prefix}/ragtag.patch.agp ${prefix}.patch.agp
-    mv ${prefix}/ragtag.patch.fasta ${prefix}.patch.fasta
-    mv ${prefix}/ragtag.patch.comps.fasta ${prefix}.comps.fasta
+    mv ${prefix}/ragtag.patch.fasta ${prefix}.patch.fa
+    mv ${prefix}/ragtag.patch.comps.fasta ${prefix}.comps.fa
     mv ${prefix}/ragtag.patch.ctg.agp ${prefix}.ctg.agp
-    mv ${prefix}/ragtag.patch.ctg.fasta ${prefix}.ctg.fasta
+    mv ${prefix}/ragtag.patch.ctg.fasta ${prefix}.ctg.fa
     if [ -f ${prefix}/ragtag.patch.rename.agp ]; then
         mv ${prefix}/ragtag.patch.rename.agp ${prefix}.rename.agp
     fi
 
     if [ -f ${prefix}/ragtag.patch.rename.fasta ]; then
-        mv ${prefix}/ragtag.patch.rename.fasta ${prefix}.rename.fasta
+        mv ${prefix}/ragtag.patch.rename.fasta ${prefix}.rename.fa
     fi
     mv ${prefix}/ragtag.patch.err ${prefix}.patch.err
     # Move the assembly files from prefix folder, and add prefix

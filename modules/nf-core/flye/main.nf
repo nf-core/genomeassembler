@@ -12,7 +12,7 @@ process FLYE {
     val mode
 
     output:
-    tuple val(meta), path("*.fasta")   , emit: fasta
+    tuple val(meta), path("*.fa")   , emit: fasta
     tuple val(meta), path("*.gfa.gz")  , emit: gfa
     tuple val(meta), path("*.gv.gz")   , emit: gv
     tuple val(meta), path("*.txt")     , emit: txt
@@ -37,7 +37,7 @@ process FLYE {
         $task.cpus \\
         $args
 
-    mv assembly.fasta ${prefix}.assembly.fasta
+    mv assembly.fasta ${prefix}.assembly.fa
     gzip -c assembly_graph.gfa > ${prefix}.assembly_graph.gfa.gz
     gzip -c assembly_graph.gv > ${prefix}.assembly_graph.gv.gz
     mv assembly_info.txt ${prefix}.assembly_info.txt
