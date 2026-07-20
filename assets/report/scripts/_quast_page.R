@@ -1,12 +1,7 @@
 # This generates a tab-page for each sample
 
 for (i in 1:length(unique(quast_stats$group))) {
-  cat(paste0('### ', unique(quast_stats$group)[i], '\n\n'),
-      paste0('::: {.panel-tabset} \n\n'),
-      paste0('#### Tabular \n\n'),
-      paste0('::::: {.panel-tabset} \n\n'),
-      paste0('##### Overview \n\n'),
-      quast_cols  <-  ifelse(
+  quast_cols <- ifelse(
         "Reference length" %in% unique(quast_stats$stat),
           c(
           "Total length",
@@ -15,20 +10,30 @@ for (i in 1:length(unique(quast_stats$group))) {
           c(
           "Total length"
           )
-      ),
-      len_cols  <- ifelse(
+      )
+  len_cols <- ifelse(
         "Reference length" %in% unique(quast_stats$stat),
           c(
-          "Largest contig", "Total length", "Reference length"
+          "Largest contig",
+          "Total length",
+          "Reference length"
           ),
           c(
-          "Largest contig", "Total length",
+          "Largest contig",
+          "Total length"
           )
-      ),
+      )
+  cat(paste0('### ', unique(quast_stats$group)[i], '\n\n'),
+      paste0('::: {.panel-tabset} \n\n'),
+      paste0('#### Tabular \n\n'),
+      paste0('::::: {.panel-tabset} \n\n'),
+      paste0('##### Overview \n\n'),
       quast_stats |>
         filter(group == unique(quast_stats$group)[i]) |>
         dplyr::select(sample, stage, stat, value) |>
-        pivot_wider(names_from = "stat", values_from = "value",id_cols = c(sample, stage)) |>
+        pivot_wider(names_from = "stat",
+                    values_from = "value",
+                    id_cols = c(sample, stage)) |>
         dplyr::arrange(stage, sample) |>
         dplyr::select(
           "sample",
