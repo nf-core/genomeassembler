@@ -1,0 +1,27 @@
+Changes in component 'nf-core/pilon'
+'modules/nf-core/pilon/environment.yml' is unchanged
+'modules/nf-core/pilon/meta.yml' is unchanged
+Changes in 'pilon/main.nf':
+--- modules/nf-core/pilon/main.nf
++++ modules/nf-core/pilon/main.nf
+@@ -13,7 +13,7 @@
+     val pilon_mode
+ 
+     output:
+-    tuple val(meta), path("*.fasta") , emit: improved_assembly
++    tuple val(meta), path("*.fa")    , emit: improved_assembly
+     tuple val(meta), path("*.vcf")   , emit: vcf               , optional : true
+     tuple val(meta), path("*.change"), emit: change_record     , optional : true
+     tuple val(meta), path("*.bed")   , emit: tracks_bed        , optional : true
+@@ -44,6 +44,7 @@
+         --output ${prefix} \\
+         $args \\
+         --$pilon_mode $bam
++    mv ${prefix}.fasta ${prefix}.fa
+     """
+ 
+     stub:
+
+'modules/nf-core/pilon/tests/main.nf.test' is unchanged
+'modules/nf-core/pilon/tests/main.nf.test.snap' is unchanged
+************************************************************

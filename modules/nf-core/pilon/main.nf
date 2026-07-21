@@ -13,7 +13,7 @@ process PILON {
     val pilon_mode
 
     output:
-    tuple val(meta), path("*.fasta") , emit: improved_assembly
+    tuple val(meta), path("*.fa")    , emit: improved_assembly
     tuple val(meta), path("*.vcf")   , emit: vcf               , optional : true
     tuple val(meta), path("*.change"), emit: change_record     , optional : true
     tuple val(meta), path("*.bed")   , emit: tracks_bed        , optional : true
@@ -44,6 +44,7 @@ process PILON {
         --output ${prefix} \\
         $args \\
         --$pilon_mode $bam
+    mv ${prefix}.fasta ${prefix}.fa
     """
 
     stub:

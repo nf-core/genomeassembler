@@ -127,7 +127,8 @@
                     "pilon": {
                         "branch": "master",
                         "git_sha": "79f27eb566084b865363b634136cfe2256b84051",
-                        "installed_by": ["modules"]
+                        "installed_by": ["modules"],
+                        "patch": "modules/nf-core/pilon/pilon.diff"
                     },
                     "quast": {
                         "branch": "master",
