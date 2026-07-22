@@ -48,7 +48,7 @@ process FLYE {
     stub:
     def prefix = task.ext.prefix ?: "${meta.id}"
     """
-    echo stub | gzip -c > ${prefix}.assembly.fasta.gz
+    echo stub > ${prefix}.assembly.fa
     echo stub | gzip -c > ${prefix}.assembly_graph.gfa.gz
     echo stub | gzip -c > ${prefix}.assembly_graph.gv.gz
     echo contig_1 > ${prefix}.assembly_info.txt

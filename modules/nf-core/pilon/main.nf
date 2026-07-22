@@ -52,7 +52,7 @@ process PILON {
     def valid_mode = ["frags", "jumps", "unpaired", "bam"]
     if ( !valid_mode.contains(pilon_mode) )  { error "Unrecognised mode to run Pilon. Options: ${valid_mode.join(', ')}" }
     """
-    touch ${prefix}.fasta
+    touch ${prefix}.fa
     touch ${prefix}.vcf
     touch ${prefix}.change
     touch ${prefix}.bed

@@ -89,12 +89,12 @@ process RAGTAG_PATCH {
     def _arg_skip = skip ? "-j ${skip}" : ""
     """
     touch ${prefix}.patch.agp
-    touch ${prefix}.patch.fasta
-    touch ${prefix}.comps.fasta
+    touch ${prefix}.patch.fa
+    touch ${prefix}.comps.fa
     touch ${prefix}.ctg.agp
-    touch ${prefix}.ctg.fasta
+    touch ${prefix}.ctg.fa
     touch ${prefix}.rename.agp
-    touch ${prefix}.rename.fasta
+    touch ${prefix}.rename.fa
     touch ${prefix}.ragtag.patch.asm.1
     touch ${prefix}.patch.err
     """

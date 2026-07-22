@@ -66,7 +66,7 @@ process RAGTAG_SCAFFOLD {
     def _arg_skip = skip ? "-j ${skip}" : ""
     def _arg_hard_skip = hard_skip ? "-J ${hard_skip}" : ""
     """
-    touch ${prefix}.fasta
+    touch ${prefix}.fa
     touch ${prefix}.agp
     touch ${prefix}.stats
     """
