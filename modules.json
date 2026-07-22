@@ -127,7 +127,8 @@
                     "pilon": {
                         "branch": "master",
                         "git_sha": "79f27eb566084b865363b634136cfe2256b84051",
-                        "installed_by": ["modules"]
+                        "installed_by": ["modules"],
+                        "patch": "modules/nf-core/pilon/pilon.diff"
                     },
                     "quast": {
                         "branch": "master",
@@ -137,12 +138,14 @@
                     "ragtag/patch": {
                         "branch": "master",
                         "git_sha": "96f35d1a14c9bd453c5cefff865622e43057dbc7",
-                        "installed_by": ["modules"]
+                        "installed_by": ["modules"],
+                        "patch": "modules/nf-core/ragtag/patch/ragtag-patch.diff"
                     },
                     "ragtag/scaffold": {
                         "branch": "master",
                         "git_sha": "96f35d1a14c9bd453c5cefff865622e43057dbc7",
-                        "installed_by": ["modules"]
+                        "installed_by": ["modules"],
+                        "patch": "modules/nf-core/ragtag/scaffold/ragtag-scaffold.diff"
                     },
                     "samtools/faidx": {
                         "branch": "master",

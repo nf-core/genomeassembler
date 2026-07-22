@@ -19,6 +19,12 @@ In addition, v2.0.0 contains these changes:
 
 Pull requests in reverse chronological order since v1.1.0
 
+[#207](https://github.com/nf-core/genomeassembler/pull/207)
+
+- additional tests for QC modules
+
+- Report can now deal with QUAST runs without reference
+
 [#203](https://github.com/nf-core/genomeassembler/pull/203)
 
 - Switched to nf-schema for input parsing

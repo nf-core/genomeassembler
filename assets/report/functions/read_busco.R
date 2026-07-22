@@ -79,5 +79,18 @@ read_busco_batch <- \(x) {read_tsv(x, show_col_types = F) %>%
         str_detect(x, "assembl[ey]") ~ "Assembly",
       ),
       Percent_gaps = Percent_gaps %>% str_remove("%") %>% as.numeric) %>%
-    dplyr::select(-Dataset) %>%
+    #dplyr::select(-Dataset) %>%
+    dplyr::select(sample,
+      stage,
+      Complete,
+     	Single,
+      Duplicated,
+      Fragmented,
+      Missing,
+      n_markers,
+      Internal_stop_codon_percent,
+      Scaffold_N50,
+      Contigs_N50,
+      Percent_gaps,
+      Number_of_scaffolds) %>%
     pivot_longer(Complete:Number_of_scaffolds, names_to = "Var")}

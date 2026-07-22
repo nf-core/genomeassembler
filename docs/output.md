@@ -121,7 +121,7 @@ Annotation `gff3` and `unmapped.txt` files are only created if a reference for a
 - `<SampleName>`
   - `assembly/`
     - `flye/`: output from flye.
-      - `<SampleName>.assembly.fasta.gz`: Assembly in bgzipped fasta format
+      - `<SampleName>.assembly.fa.gz`: Assembly in bgzipped fasta format
       - `<SampleName>.assembly_graph.gfa.gz`: Assembly graph in gzipped gfa format
       - `<SampleName>.assembly_graph.gv.gz`: Assembly graph in gzipped gv format
       - `<SampleName>.assembly_info.txt`: Information on the assembly
