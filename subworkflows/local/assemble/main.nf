@@ -341,7 +341,7 @@ workflow ASSEMBLE {
             ]
         }
         .join(
-            FLYE_HIFI.out.fasta
+            BGZIP_FLYE_HIFI.out.bgzipped
                 .filter{ meta, _fasta -> meta.strategy == "scaffold" && meta.assembler_ont == "hifiasm" && meta.assembler_hifi == "flye" }
                 .map { meta, fasta -> [ meta.id, fasta ] }
         )
