@@ -5,8 +5,11 @@ lint:
     - conf/igenomes_ignored.config
     - assets/sendmail_template.txt
     - assets/multiqc_config.yml
+    - .github/workflows/linting_comment.yml
   files_unchanged:
     - .github/CONTRIBUTING.md
+    - .github/workflows/branch.yml
+    - .github/workflows/linting.yml
 nf_core_version: 3.3.2
 repository_type: pipeline
 template:
