@@ -129,7 +129,7 @@ workflow PIPELINE_INITIALISATION {
                                     (it.polish_dorado && it.ontreads) ? "dorado" :
                                     (it.polish_pilon && it.shortread_F) ? "pilon" :
                                     null
-            def merqury         =   it.merqury & !it.shortread_F ? false : it.merqury
+            def merqury         =   it.merqury && !it.shortread_F ? false : it.merqury
             def group           =   it.group ?: null
             def use_short_reads =   it.shortread_F && !params.use_short_reads ? true : it.use_short_reads
             it + [
