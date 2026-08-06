@@ -1,0 +1,28 @@
+Changes in component 'nf-core/flye'
+'modules/nf-core/flye/environment.yml' is unchanged
+'modules/nf-core/flye/meta.yml' is unchanged
+Changes in 'flye/main.nf':
+--- modules/nf-core/flye/main.nf
++++ modules/nf-core/flye/main.nf
+@@ -12,7 +12,7 @@
+     val mode
+ 
+     output:
+-    tuple val(meta), path("*.fasta.gz"), emit: fasta
++    tuple val(meta), path("*.fasta")   , emit: fasta
+     tuple val(meta), path("*.gfa.gz")  , emit: gfa
+     tuple val(meta), path("*.gv.gz")   , emit: gv
+     tuple val(meta), path("*.txt")     , emit: txt
+@@ -37,7 +37,7 @@
+         $task.cpus \\
+         $args
+ 
+-    gzip -c assembly.fasta > ${prefix}.assembly.fasta.gz
++    mv assembly.fasta ${prefix}.assembly.fasta
+     gzip -c assembly_graph.gfa > ${prefix}.assembly_graph.gfa.gz
+     gzip -c assembly_graph.gv > ${prefix}.assembly_graph.gv.gz
+     mv assembly_info.txt ${prefix}.assembly_info.txt
+
+'modules/nf-core/flye/tests/main.nf.test' is unchanged
+'modules/nf-core/flye/tests/main.nf.test.snap' is unchanged
+************************************************************

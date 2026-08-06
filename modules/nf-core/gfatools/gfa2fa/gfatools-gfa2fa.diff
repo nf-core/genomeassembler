@@ -1,0 +1,28 @@
+Changes in component 'nf-core/gfatools/gfa2fa'
+'modules/nf-core/gfatools/gfa2fa/environment.yml' is unchanged
+'modules/nf-core/gfatools/gfa2fa/meta.yml' is unchanged
+Changes in 'gfatools/gfa2fa/main.nf':
+--- modules/nf-core/gfatools/gfa2fa/main.nf
++++ modules/nf-core/gfatools/gfa2fa/main.nf
+@@ -11,7 +11,7 @@
+     tuple val(meta), path(gfa)
+ 
+     output:
+-    tuple val(meta), path("*.fasta.gz"), emit: fasta
++    tuple val(meta), path("*.fasta"), emit: fasta
+     tuple val("${task.process}"), val('gfatools'), eval("gfatools version | sed '1!d; s/.* //'"), topic: versions, emit: versions_gfatools
+ 
+     when:
+@@ -25,7 +25,7 @@
+         gfa2fa \\
+         $args \\
+         $gfa \\
+-        | gzip -c > ${prefix}.fasta.gz
++        > ${prefix}.fasta
+     """
+ 
+     stub:
+
+'modules/nf-core/gfatools/gfa2fa/tests/main.nf.test' is unchanged
+'modules/nf-core/gfatools/gfa2fa/tests/main.nf.test.snap' is unchanged
+************************************************************

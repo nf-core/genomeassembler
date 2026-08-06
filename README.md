@@ -7,11 +7,11 @@
 
 [![Open in GitHub Codespaces](https://img.shields.io/badge/Open_In_GitHub_Codespaces-black?labelColor=grey&logo=github)](https://github.com/codespaces/new/nf-core/genomeassembler)
 [![GitHub Actions CI Status](https://github.com/nf-core/genomeassembler/actions/workflows/nf-test.yml/badge.svg)](https://github.com/nf-core/genomeassembler/actions/workflows/nf-test.yml)
-[![GitHub Actions Linting Status](https://github.com/nf-core/genomeassembler/actions/workflows/linting.yml/badge.svg)](https://github.com/nf-core/genomeassembler/actions/workflows/linting.yml)[![AWS CI](https://img.shields.io/badge/CI%20tests-full%20size-FF9900?labelColor=000000&logo=Amazon%20AWS)](https://nf-co.re/genomeassembler/results)[![Cite with Zenodo](http://img.shields.io/badge/DOI-10.5281/zenodo.XXXXXXX-1073c8?labelColor=000000)](https://doi.org/10.5281/zenodo.XXXXXXX)
+[![GitHub Actions Linting Status](https://github.com/nf-core/genomeassembler/actions/workflows/linting.yml/badge.svg)](https://github.com/nf-core/genomeassembler/actions/workflows/linting.yml)[![AWS CI](https://img.shields.io/badge/CI%20tests-full%20size-FF9900?labelColor=000000&logo=Amazon%20AWS)](https://nf-co.re/genomeassembler/results)[![Cite with Zenodo](http://img.shields.io/badge/DOI-10.5281/zenodo.XXXXXXX-1073c8?labelColor=000000)](https://doi.org/10.5281/zenodo.14986998)
 [![nf-test](https://img.shields.io/badge/unit_tests-nf--test-337ab7.svg)](https://www.nf-test.com)
 
 [![Nextflow](https://img.shields.io/badge/version-%E2%89%A525.10.4-green?style=flat&logo=nextflow&logoColor=white&color=%230DC09D&link=https%3A%2F%2Fnextflow.io)](https://www.nextflow.io/)
-[![nf-core template version](https://img.shields.io/badge/nf--core_template-4.0.3-green?style=flat&logo=nfcore&logoColor=white&color=%2324B064&link=https%3A%2F%2Fnf-co.re)](https://github.com/nf-core/tools/releases/tag/4.0.3)
+[![nf-core template version](https://img.shields.io/badge/nf--core_template-3.5.1-green?style=flat&logo=nfcore&logoColor=white&color=%2324B064&link=https%3A%2F%2Fnf-co.re)](https://github.com/nf-core/tools/releases/tag/3.5.1)
 [![run with conda](http://img.shields.io/badge/run%20with-conda-3EB049?labelColor=000000&logo=anaconda)](https://docs.conda.io/en/latest/)
 [![run with docker](https://img.shields.io/badge/run%20with-docker-0db7ed?labelColor=000000&logo=docker)](https://www.docker.com/)
 [![run with singularity](https://img.shields.io/badge/run%20with-singularity-1d355c.svg?labelColor=000000)](https://sylabs.io/docs/)
@@ -21,48 +21,26 @@
 
 ## Introduction
 
-**nf-core/genomeassembler** is a bioinformatics pipeline that ...
+**nf-core/genomeassembler** is a bioinformatics pipeline that carries out genome assembly, polishing and scaffolding from long reads (ONT or pacbio). Assembly can be done via `flye` or `hifiasm`, or combinations of both, polishing can be carried out with `medaka` (ONT), `dorado` (ONT only, experimental) or `pilon` (requires short-reads), and scaffolding can be done using `LINKS`, `Longstitch`, both using long-reads, `yahs` if HiC reads are availble, or `RagTag` if a reference is available. Quality control includes `BUSCO`, `QUAST` and `merqury` (requires short-reads).
+Currently, this pipeline does not implement phasing of polyploid genomes.
 
-<!-- TODO nf-core:
-   Complete this sentence with a 2-3 sentence summary of what types of data the pipeline ingests, a brief overview of the
-   major pipeline sections and the types of output it produces. You're giving an overview to someone new
-   to nf-core here, in 15-20 seconds. For an example, see https://github.com/nf-core/rnaseq/blob/master/README.md#introduction
--->
-
-<!-- TODO nf-core: Include a figure that guides the user through the major workflow steps. Many nf-core
-     workflows use the "tube map" design for that. See https://nf-co.re/docs/community/brand/workflow-schematics#examples for examples.   -->
-<!-- TODO nf-core: Fill in short bullet-pointed list of the default steps in the pipeline -->1. Read QC ([`FastQC`](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/))
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/images/genomeassembler.dark.png">
+  <img alt="nf-core/genomeassembler" src="docs/images/genomeassembler_v2.light.png">
+</picture>
 
 ## Usage
 
 > [!NOTE]
 > If you are new to Nextflow and nf-core, please refer to [this page](https://nf-co.re/docs/get_started/environment_setup/overview) on how to set-up Nextflow. Make sure to [test your setup](https://nf-co.re/docs/get_started/run-your-first-pipeline) with `-profile test` before running the workflow on actual data.
 
-<!-- TODO nf-core: Describe the minimum required steps to execute the pipeline, e.g. how to prepare samplesheets.
-     Explain what rows and columns represent. For instance (please edit as appropriate):
+nf-core/genomeassembler can be set up via pipeline parameters, or via a samplesheet, or a combination of both. For more details and further functionality, please refer to the [usage documentation](https://nf-co.re/genomeassembler/usage) and the [parameter documentation](https://nf-co.re/genomeassembler/parameters).
 
-First, prepare a samplesheet with your input data that looks as follows:
-
-`samplesheet.csv`:
-
-```csv
-sample,fastq_1,fastq_2
-CONTROL_REP1,AEG588A1_S1_L002_R1_001.fastq.gz,AEG588A1_S1_L002_R2_001.fastq.gz
-```
-
-Each row represents a fastq file (single-end) or a pair of fastq files (paired end).
-
--->
-
-Now, you can run the pipeline using:
-
-<!-- TODO nf-core: update the following command to include all required parameters for a minimal example -->
+The pipeline can be run with a test-profile via:
 
 ```bash
 nextflow run nf-core/genomeassembler \
-   -profile <docker/singularity/.../institute> \
-   --input samplesheet.csv \
-   --outdir <OUTDIR>
+   -profile test,<docker/singularity/.../institute> \
 ```
 
 > [!WARNING]
@@ -78,11 +56,17 @@ For more details about the output files and reports, please refer to the
 
 ## Credits
 
-nf-core/genomeassembler was originally written by Niklas Schandry.
+nf-core/genomeassembler was written, and is currently maintained by [Niklas Schandry](https://github.com/nschan), of the Faculty of Biology of the Ludwig-Maximilians University (LMU) in Munich, Germany, with funding support from the German Research Foundation (Deutsche Forschungsgemeinschaft [DFG], via Transregional Research Center TRR356 grant 491090170-A05 to Niklas Schandry).
 
-We thank the following people for their extensive assistance in the development of this pipeline:
+I thank the following people for constructive reviews and discussion during the development of this pipeline:
 
-<!-- TODO nf-core: If applicable, make list of people who have also contributed -->
+- [Jim Downie](https://github.com/prototaxites)
+- [Mahesh Binzer-Panchal](https://github.com/mahesh-panchal)
+- [Matthias Hörtenhuber](https://github.com/mashehu)
+- [Evangelos Karatzas](https://github.com/vagkaratzas)
+- [Louis Le Nézet](https://github.com/LouisLeNezet)
+- [Júlia Mir Pedrol](https://github.com/mirpedrol)
+- [Daniel Straub](https://github.com/d4straub)
 
 ## Contributions and Support
 
@@ -92,10 +76,7 @@ For further information or help, don't hesitate to get in touch on the [Slack `#
 
 ## Citations
 
-<!-- TODO nf-core: Add citation for pipeline after first release. Uncomment lines below and update Zenodo doi and badge at the top of this file. -->
-<!-- If you use nf-core/genomeassembler for your analysis, please cite it using the following doi: [10.5281/zenodo.XXXXXX](https://doi.org/10.5281/zenodo.XXXXXX) -->
-
-<!-- TODO nf-core: Add bibliography of tools and data used in your pipeline -->
+If you use nf-core/genomeassembler for your analysis, please cite it using the following doi: [10.5281/zenodo.14986998](https://doi.org/10.5281/zenodo.14986998)
 
 An extensive list of references for the tools used by the pipeline can be found in the [`CITATIONS.md`](CITATIONS.md) file.
 

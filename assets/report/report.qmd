@@ -1,0 +1,323 @@
+---
+title: "nf-core/genomeassembler report"
+format:
+  html:
+    page-layout: full
+    toc: true
+    toc_float: true
+    toc-location: left
+    other-links:
+      - text: "Github repo"
+        icon: github
+        href: https://github.com/nf-core/genomeassembler
+      - text: "Website"
+        icon: small
+        href: https://nf-co.re/genomeassembler
+params:
+    fastplong: false
+    busco: false
+    quast: false
+    jellyfish: false
+    merqury: false
+---
+```{r load libraries and functions}
+#| message: false
+#| output: false
+#| include: false
+
+# Load libraries
+library(tidyverse)
+library(magrittr)
+library(plotly)
+
+#library(gt)
+# Load functions
+list.files("functions",
+           full.names = T,
+           pattern = ".R") |>
+    map(\(x) source(x))
+
+# Set default ggplot theme
+theme_set(theme_bw(base_size = 14,
+                    base_family = gt::google_font("Maven Pro")))
+theme_update(strip.background = element_blank(),
+             axis.text.x = element_text(angle = 70, hjust = 1))
+## Colors, these come from the khroma package ("muted")
+### For <=9 stages:
+colors_9 <- c(
+  "#CC6677",
+  "#332288",
+  "#DDCC77",
+  "#117733",
+  "#88CCEE",
+  "#882255",
+  "#44AA99",
+  "#999933",
+  "#AA4499"
+)
+color_scale_plots <- scale_color_manual(values = colors_9, na.value = "#DDDDDD")
+fill_scale_plots <- scale_fill_manual(values = colors_9, na.value = "#DDDDDD")
+
+
+# Base directory containing reports
+data_base <-  "data/"
+
+# groups
+groups <- yaml::read_yaml("groups.yml") |>
+  map_dfr(\(row)
+          data.frame(sample = pluck(row, 1, "id"), group = pluck(row, 1, "group", .default = "null"))) |>
+  mutate(group = case_when(group %in% c("","null") ~ sample, TRUE ~ group))
+```
+
+# About
+
+This report displays the main information gathered from various QC steps.
+
+These may include:
+
+  - Read Quality control:
+    - [fastplong](https://github.com/OpenGene/fastplong): QC, adaptor removal, barcode removal and trimming for long reads
+    - [fastp](https://github.com/OpenGene/fastp) QC, adaptor removal, barcode removal and trimming for short reads
+  - Assembly Quality control for each stage
+    - [QUAST (QUality ASsessment Tool)](https://github.com/ablab/quast): Computes various statistics of assemblies
+    - [BUSCO](https://busco.ezlab.org/): BUSCO provides a quantitative assessment of the completeness in terms of expected gene content of a genome assembly, transcriptome, or annotated gene set.
+    - [merqury](https://github.com/marbl/merqury): k-mer spectrum based analysis of genomes, completeness, quality and ploidy
+    - [genomescope](https://github.com/schatzlab/genomescope): genome analysis from unassembled reads
+
+# Reads
+
+## fastplong {.tabset}
+
+::: {.content-visible unless-profile="fastplong"}
+[fastplong](https://github.com/OpenGene/fastplong)  was not included in the pipeline run.
+:::
+
+```{r fastplong read inputs}
+#| eval: !expr params$fastplong
+#| include: false
+#| message: false
+#| output: false
+
+# Parse fastplong reports into table
+# Note that for these reports the sample name is the group
+fastplong_reports <- list.files(paste0(data_base, "fastplong"),
+                            pattern = ".json",
+                            full.names = T) |>
+    map_dfr(\(x) read_fastplong(x)) |>
+    left_join(groups, by = join_by(group))
+```
+
+:::: {.content-visible when-profile="fastplong" }
+
+[fastplong](https://github.com/OpenGene/fastplong) is a tool for trimming and quality control of long reads. If groups were provided in the sample sheet, the results are reported for each group, otherwise for each sample.
+
+::: {.panel-tabset}
+
+```{r fastplong add subplots}
+#| eval: !expr params$fastplong
+#| results: asis
+
+source("scripts/_fastplong_page.R")
+```
+
+:::
+
+::::
+
+
+```{r}
+#| eval: !expr params$fastplong
+#| include: false
+# Clean up the intermediate files
+unlink("fastplong_files", recursive = T)
+```
+
+# Assemblies
+
+## QUAST {.tabset}
+
+::: {.content-visible unless-profile="quast"}
+QUAST was not included in the pipeline run.
+:::
+
+::: {.content-visible when-profile="quast" .panel-tabset .flow}
+
+QUAST reports assembly statistics, taking into account the reference, if provided.
+
+```{r prepare quast, message = F}
+#| eval: !expr params$quast
+#| include: false
+#| warning: false
+# This script prepares things required to render the page
+source("scripts/_quast.R")
+```
+
+:::: {.panel-tabset .flow}
+
+```{r quast page}
+#| eval: !expr params$quast
+#| results: asis
+# This produces the contents of the page.
+source("scripts/_quast_page.R")
+```
+
+```{r unlink quast}
+#| eval: !expr params$quast
+#| include: false
+# Remove temporary files, write out collected report (mainly for debugging)
+unlink("quast_files/contigs", recursive = T)
+unlink("quast_files/length", recursive = T)
+unlink("quast_files/NL_plots", recursive = T)
+write_csv(quast_stats,"quast_files/reports.csv")
+```
+
+::::
+
+:::
+
+## BUSCO
+
+::: {.content-visible unless-profile="busco"}
+
+BUSCO was not included in the pipeline run.
+
+:::
+
+::: {.content-visible when-profile="busco"}
+
+BUSCO assess assembly quality based on the presence / absence of expected single-copy orthologs.
+
+```{r busco data}
+#| eval: !expr params$busco
+#| warning: false
+#| message: false
+#| echo: false
+# Parse the reports from busco
+source("scripts/_busco.R")
+```
+
+:::: {.panel-tabset .flow}
+
+```{r busco page}
+#| eval: !expr params$busco
+#| results: asis
+#
+# This generates the tab-page for each group
+
+source("scripts/_busco_page.R")
+```
+
+::::
+
+:::
+
+```{r include = F}
+#| eval: !expr params$busco
+# Delete temporary files
+unlink("busco_files/orthologs", recursive = T)
+
+#| eval: !expr params$busco
+# Export large report table, mainly for debugging
+write_csv(busco_reports,"busco_files/reports.csv")
+```
+
+## merqury
+
+::: {.content-visible unless-profile="merqury"}
+meryl and merqury were not included in the pipeline run.
+:::
+
+```{r}
+#| eval: !expr params$merqury
+#| include: false
+#| message: false
+#| output: false
+
+source("scripts/_merqury.R")
+```
+
+::: {.content-visible when-profile="merqury"}
+
+merqury compares k-mer spectra between assemblies and short read libraries to assess assembly quality and completeness.
+
+:::: {.panel-tabset .flow}
+
+```{r merqury add plots and valueboxes}
+#| eval: !expr params$merqury
+#| results: asis
+source("scripts/_merqury_page.R")
+```
+
+::::
+
+:::
+
+```{r include = F}
+#| eval: !expr params$merqury
+# Delete files.
+unlink("merqury_files/cn_plots")
+unlink("merqury_files/asm_plots")
+unlink("merqury_files")
+```
+
+## genomescope
+
+::: {.content-visible unless-profile="jellyfish"}
+jellyfish / genomescope was not included in the pipeline run.
+:::
+
+```{r}
+#| eval: !expr params$jellyfish
+#| message: false
+#| echo: false
+#| output: false
+#| warning: false
+# Parse the genomescope statistics
+genomescope_out <- list.files(paste0(data_base, "genomescope"), full.names = T, pattern = "genomescope.txt") |>
+    map_dfr(\(x) read_genomescope(x)) |>
+    left_join(groups, by = join_by(sample))
+```
+
+::: {.content-visible when-profile="jellyfish"}
+
+Below are the genomescope estimates based on the provided QC reads:
+
+```{r echo = F}
+#| eval: !expr params$jellyfish
+#| output: asis
+source("scripts/_genomescope_page.R")
+```
+
+:::
+
+
+# Software versions
+
+The pipeline was run using the following software versions:
+
+```{r}
+#| message: false
+#| echo: false
+#| output: asis
+versions <- yaml::read_yaml("software_versions.yml")
+lapply(1:length(versions), \(process) {
+  proc = versions[[process]]
+  proc_name = names(versions[process])
+  tools <- lapply(1:length(proc), \(tool) {
+    tool_name = proc[tool] |> names()
+    tool_version = proc[[tool]] |> as.character()
+    return(tibble(Process = proc_name,Tool = tool_name, Version = tool_version))
+  }) |>
+    bind_rows()
+}) |>
+  bind_rows() |>
+        gt::gt() |>
+        gt::fmt_auto() |>
+        gt::opt_stylize(color = "gray") |>
+        gt::opt_table_font(
+          font = list(
+            gt::google_font(name = "Maven Pro"),
+            "rounded-sans"
+          )) |>
+        gt::as_raw_html()
+```
