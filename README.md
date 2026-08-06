@@ -25,8 +25,8 @@
 Currently, this pipeline does not implement phasing of polyploid genomes.
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/images/genomeassembler.dark.png">
-  <img alt="nf-core/genomeassembler" src="docs/images/genomeassembler_v2.light.png">
+  <source media="(prefers-color-scheme: dark)" srcset="docs/images/genomeassembler_dark.svg">
+  <img alt="nf-core/genomeassembler" src="docs/images/genomeassembler_light.svg">
 </picture>
 
 ## Usage

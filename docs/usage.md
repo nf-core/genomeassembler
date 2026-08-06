@@ -12,7 +12,10 @@ This pipeline can perform assembly, polishing, scaffolding using long-reads, HiC
 > [!NOTE]
 > Phasing is currently not supported.
 
-![Pipeline metromap](images/genomeassembler_v2.light.png)
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/images/genomeassembler_dark.svg">
+  <img alt="nf-core/genomeassembler" src="docs/images/genomeassembler_light.svg">
+</picture>
 
 Since it is often difficult to know which tool, or assembly strategy will perform best on a dataset, `nf-core/genomeassembler` can also be used to compare outcomes of different approaches in one run.
 To compare different samples, a column named `group` is required, which should contain the same value for all samples that should be compared to each other.
