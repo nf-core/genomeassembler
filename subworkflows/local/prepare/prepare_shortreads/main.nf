@@ -24,6 +24,7 @@ workflow PREPARE_SHORTREADS {
                 trim: row.meta.hic_trim && row.meta.scaffold_hic
                 no_trim: !row.meta.hic_trim
         }
+
     hic_trim.trim.dump(tag: "hic trim channel")
 
     trim_in = shortreads
@@ -92,7 +93,6 @@ workflow PREPARE_SHORTREADS {
                 .map { it -> [ meta: it[0] - it[0].subMap("shortreads") + [ shortreads: it[1] ] ] }
         )
 
-
     trimmed_reads.dump(tag: "Trim out")
     // unite branched:
     // add trimmed reads to trim channel, then mix with shortreads.no_trim
@@ -113,11 +113,10 @@ workflow PREPARE_SHORTREADS {
 
     shortreads = trimmed_reads
         .mix( shortreads.no_trim )
-
     // add HiC trimmed to those that need it
 
     shortreads = shortreads
-        .filter { row -> row.meta.hic_trim }
+        .filter { row -> row.meta.hic_trim && row.meta.scaffold_hic }
         .map { row -> [ row.meta.id, row.meta ] }
         .combine(
             hic_trimmed_reads
@@ -137,7 +136,7 @@ workflow PREPARE_SHORTREADS {
         }
         .mix(
             trimmed_reads
-                .filter { row -> !row.meta.hic_trim }
+                .filter { row -> !(row.meta.hic_trim && row.meta.scaffold_hic) }
                 .map { it-> [meta: it.meta - it.meta.subMap("hic_reads") + [hic_reads: null]]}
         )
 

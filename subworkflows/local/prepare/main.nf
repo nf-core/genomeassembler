@@ -63,7 +63,7 @@ workflow PREPARE {
 
     shortreads = ch_main
         .filter {
-            it -> ((it.meta.shortread_F && it.meta.use_short_reads) || (it.meta.hic_trim && it.meta.scaffold_hic) ? true : false)
+            it -> ((it.meta.shortread_F && it.meta.use_short_reads) || (it.meta.hic_F && it.meta.scaffold_hic)) ? true : false
         }
 
     ontreads = ch_main

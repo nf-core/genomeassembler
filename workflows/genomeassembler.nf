@@ -66,7 +66,6 @@ workflow GENOMEASSEMBLER {
     ch_main_prepared = PREPARE.out.ch_main
 
     meryl_kmers = PREPARE.out.meryl_kmers
-
     /*
     Assembly
     */
