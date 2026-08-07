@@ -440,7 +440,8 @@
                 },
                 "paired": {
                     "type": "boolean",
-                    "description": "Are shortreads paired."
+                    "description": "Are shortreads paired.",
+                    "default": false
                 }
             }
         },
@@ -508,7 +509,7 @@
                 "hic_trim": {
                     "type": "boolean",
                     "description": "Trim HiC short reads?",
-                    "default": true
+                    "default": false
                 },
                 "hic_F": {
                     "type": "string",
