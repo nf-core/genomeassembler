@@ -465,61 +465,6 @@
                     "description": "Path to reverse HiC short reads."
                 }
             }
-        },
-        "short_read_options": {
-            "title": "Short read options",
-            "type": "object",
-            "description": "Options for short reads",
-            "default": "",
-            "properties": {
-                "use_short_reads": {
-                    "type": "boolean",
-                    "description": "Use short reads?"
-                },
-                "shortread_trim": {
-                    "type": "boolean",
-                    "description": "Trim short reads?"
-                },
-                "meryl_k": {
-                    "type": "integer",
-                    "description": "kmer length for meryl / merqury",
-                    "default": 21,
-                    "minimum": 1
-                },
-                "shortread_F": {
-                    "type": "string",
-                    "description": "Path to forward short reads"
-                },
-                "shortread_R": {
-                    "type": "string",
-                    "description": "Path to reverse short reads"
-                },
-                "paired": {
-                    "type": "string",
-                    "description": "Are shortreads paired?"
-                }
-            }
-        },
-        "hic_options": {
-            "title": "HiC short read options",
-            "type": "object",
-            "description": "Options for HiC short reads",
-            "default": "",
-            "properties": {
-                "hic_trim": {
-                    "type": "boolean",
-                    "description": "Trim HiC short reads?",
-                    "default": false
-                },
-                "hic_F": {
-                    "type": "string",
-                    "description": "Path to forward HiC short reads"
-                },
-                "hic_R": {
-                    "type": "string",
-                    "description": "Path to reverse HiC short reads"
-                }
-            }
         }
     },
     "allOf": [
