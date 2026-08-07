@@ -9,19 +9,25 @@ Changes in 'gfatools/gfa2fa/main.nf':
  
      output:
 -    tuple val(meta), path("*.fasta.gz"), emit: fasta
-+    tuple val(meta), path("*.fasta"), emit: fasta
++    tuple val(meta), path("*.fa"), emit: fasta
      tuple val("${task.process}"), val('gfatools'), eval("gfatools version | sed '1!d; s/.* //'"), topic: versions, emit: versions_gfatools
  
      when:
-@@ -25,7 +25,7 @@
+@@ -25,12 +25,12 @@
          gfa2fa \\
          $args \\
          $gfa \\
 -        | gzip -c > ${prefix}.fasta.gz
-+        > ${prefix}.fasta
++        > ${prefix}.fa
      """
  
      stub:
+     def prefix = task.ext.prefix ?: "${meta.id}"
+     """
+-    echo | gzip > ${prefix}.fasta.gz
++    echo "" > ${prefix}.fa
+     """
+ }
 
 'modules/nf-core/gfatools/gfa2fa/tests/main.nf.test' is unchanged
 'modules/nf-core/gfatools/gfa2fa/tests/main.nf.test.snap' is unchanged

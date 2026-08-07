@@ -1,7 +1,7 @@
 include { MINIMAP2_ALIGN as ALIGN } from '../../../../modules/nf-core/minimap2/align/main'
 include { BAM_STATS_SAMTOOLS as BAM_STATS } from '../../../nf-core/bam_stats_samtools/main'
 include { SAMTOOLS_FAIDX } from '../../../../modules/nf-core/samtools/faidx/main'
-include { GUNZIP } from '../../../../modules/nf-core/gunzip/main'
+include { HTSLIB_REBGZIP  as BGZIP } from '../../../../modules/local/htslib/rebgzip/main'
 
 workflow MAP_TO_REF {
     take:
@@ -23,9 +23,9 @@ workflow MAP_TO_REF {
             ]
     }
 
-    GUNZIP(ch_index_in)
+    BGZIP(ch_index_in)
 
-    SAMTOOLS_FAIDX(GUNZIP.out.gunzip, false)
+    SAMTOOLS_FAIDX(BGZIP.out.bgzipped, false)
 
     ch_fasta_fai = ch_index_in
         .join(SAMTOOLS_FAIDX.out.fai)

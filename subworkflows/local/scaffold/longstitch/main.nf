@@ -1,8 +1,7 @@
-include { QC                                        } from '../../qc/main'
-include { LIFTOFF                                   } from '../../../../modules/nf-core/liftoff/main'
-include { LONGSTITCH                                } from '../../../../modules/nf-core/longstitch/main'
-include { HTSLIB_BGZIPTABIX as BGZIP                } from '../../../../modules/nf-core/htslib/bgziptabix/main'
-
+include { LONGSTITCH } from '../../../../modules/nf-core/longstitch/main'
+include { QC } from '../../qc/main'
+include { LIFTOFF } from '../../../../modules/nf-core/liftoff/main'
+include { HTSLIB_REBGZIP as BGZIP } from '../../../../modules/local/htslib/rebgzip/main'
 
 workflow RUN_LONGSTITCH {
     take:
@@ -36,19 +35,9 @@ workflow RUN_LONGSTITCH {
 
     LONGSTITCH(longstitch_in.assembly, longstitch_in.reads, longstitch_in.command, longstitch_in.span, longstitch_in.genomesize, longstitch_in.longmap)
 
-    ch_main_to_zip = LONGSTITCH.out.tigmint_ntLink_arcs_fasta.map {
-        meta, scaffold ->
-        [
-            meta,
-            scaffold,
-            [],
-            []
-        ]
-    }
+    BGZIP(LONGSTITCH.out.tigmint_ntLink_arcs_fasta)
 
-    BGZIP(ch_main_to_zip, "compress", false, "fa")
-
-    ch_main_scaffolded = BGZIP.out.output
+    ch_main_scaffolded = BGZIP.out.bgzipped
         .map { meta, scaff_longst -> [meta: meta + [scaffolds_longstitch: scaff_longst] ] }
 
     liftoff_in = ch_main_scaffolded
@@ -66,8 +55,8 @@ workflow RUN_LONGSTITCH {
 
     LIFTOFF(liftoff_in,[])
 
-    QC(ch_main_scaffolded.map { it -> [ meta: it.meta - it.meta.subMap("assembly_map_bam") + [assembly_map_bam: null] ] },
-        BGZIP.out.output.map { meta, scaffold -> [meta.id, scaffold]},
+    QC( ch_main_scaffolded.map { it -> [ meta: it.meta - it.meta.subMap("assembly_map_bam") + [assembly_map_bam: null] ] },
+        BGZIP.out.bgzipped.map { meta, scaffold -> [meta.id, scaffold]},
         meryl_kmers)
 
     emit:

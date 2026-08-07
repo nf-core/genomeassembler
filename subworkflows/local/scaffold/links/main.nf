@@ -1,7 +1,7 @@
 include { LINKS } from '../../../../modules/nf-core/links/main'
 include { QC } from '../../qc/main'
 include { LIFTOFF } from '../../../../modules/nf-core/liftoff/main'
-include { HTSLIB_BGZIPTABIX as BGZIP } from '../../../../modules/nf-core/htslib/bgziptabix/main'
+include { HTSLIB_REBGZIP as BGZIP } from '../../../../modules/local/htslib/rebgzip/main'
 
 workflow RUN_LINKS {
     take:
@@ -21,23 +21,13 @@ workflow RUN_LINKS {
 
     LINKS(links_in.assembly, links_in.reads)
 
-    ch_main_to_zip = LINKS.out.scaffolds_fasta.map {
-        meta, scaffold ->
-        [
-            meta,
-            scaffold,
-            [],
-            []
-        ]
-    }
+    BGZIP(LINKS.out.scaffolds_fasta)
 
-    BGZIP(ch_main_to_zip, "compress", false, "fa")
-
-    ch_main_scaffolded = BGZIP.out.output
+    ch_main_scaffolded = BGZIP.out.bgzipped
         .map { meta, scaff_links -> [meta: meta + [scaffolds_links: scaff_links] ] }
 
     QC(ch_main_scaffolded.map { it -> [meta: it.meta - it.meta.subMap("assembly_map_bam") + [assembly_map_bam: null] ]},
-        BGZIP.out.output.map { meta, scaffold -> [meta.id, scaffold]},
+        BGZIP.out.bgzipped.map { meta, scaffold -> [meta.id, scaffold]},
          meryl_kmers)
 
     liftoff_in = ch_main_scaffolded

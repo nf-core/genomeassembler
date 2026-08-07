@@ -66,7 +66,6 @@ workflow GENOMEASSEMBLER {
     ch_main_prepared = PREPARE.out.ch_main
 
     meryl_kmers = PREPARE.out.meryl_kmers
-
     /*
     Assembly
     */
@@ -96,8 +95,8 @@ workflow GENOMEASSEMBLER {
 
     ch_main_polished_branched = ch_main_polished
         .branch { it ->
-            scaffold: it.meta.scaffold_links || it.meta.scaffold_longstitch || it.meta.scaffold_ragtag
-            no_scaffold: !it.meta.scaffold_links && !it.meta.scaffold_longstitch && !it.meta.scaffold_ragtag
+            scaffold: it.meta.scaffold_links || it.meta.scaffold_longstitch || it.meta.scaffold_ragtag || it.meta.scaffold_hic
+            no_scaffold: !it.meta.scaffold_links && !it.meta.scaffold_longstitch && !it.meta.scaffold_ragtag && !it.meta.scaffold_hic
         }
 
     /*
@@ -115,13 +114,16 @@ workflow GENOMEASSEMBLER {
         .map { it -> it[1] }
         .unique()
         .collect()
+        .ifEmpty([])
 
     genomescope_files = PREPARE.out.genomescope_summary
-        .concat(
+        .mix(
             PREPARE.out.genomescope_plot
         )
         .unique()
+        .filter { it -> it != null }
         .collect { it -> it[1] }
+        .ifEmpty([])
 
     def topic_versions = channel.topic("versions")
       .distinct()
@@ -143,6 +145,7 @@ workflow GENOMEASSEMBLER {
     /*
     Report
     */
+
     ch_collated_versions
         .collectFile(
             storeDir: "${params.outdir}/pipeline_info",
@@ -161,8 +164,10 @@ workflow GENOMEASSEMBLER {
                 SCAFFOLD.out.scaffold_quast_reports
             )
         )
+        .filter { it -> it[0] != null }
         .unique()
-        .collect()
+        .collect { reports -> reports[1] }
+        .ifEmpty([])
 
     busco_files = busco_files
         .mix(
@@ -175,7 +180,9 @@ workflow GENOMEASSEMBLER {
             )
         )
         .unique()
-        .collect { it -> it[1] }
+        .filter { it -> it != null }
+        .collect { reports -> reports[1] }
+        .ifEmpty([])
 
     merqury_files = merqury_files
         .mix(
@@ -187,10 +194,13 @@ workflow GENOMEASSEMBLER {
                 SCAFFOLD.out.scaffold_merqury_reports
             )
         )
-        .collect { it -> [it[1], it[2], it[3], it[4]] }
+        .filter { it -> it != null }
+        .collect { reports -> [reports[1], reports[2], reports[3], reports[4]] }
         .toSet()
         .flatten()
+        .filter { it -> it != null }
         .collect()
+        .ifEmpty([])
 
     report_files = channel
         .fromPath("${projectDir}/assets/report/*")
@@ -212,7 +222,7 @@ workflow GENOMEASSEMBLER {
             quast_files,
             busco_files,
             merqury_files,
-            channel.fromPath("${params.outdir}/pipeline_info/nf_core_pipeline_software_versions.yml"),
+            ch_collated_versions.collect(),
             ch_main.map { it -> [sample: [id: it.meta.id, group: it.meta.group]] }.collect()
     )
 

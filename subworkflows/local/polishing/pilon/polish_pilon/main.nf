@@ -2,8 +2,8 @@ include { PILON } from '../../../../../modules/nf-core/pilon/main'
 include { MAP_SR } from '../../../mapping/map_sr/main'
 include { LIFTOFF } from '../../../../../modules/nf-core/liftoff/main'
 include { QC } from '../../../qc/main.nf'
-include { HTSLIB_BGZIPTABIX as BGZIP } from '../../../../../modules/nf-core/htslib/bgziptabix/main'
 include { HTSLIB_BGZIPTABIX as UNZIP } from '../../../../../modules/nf-core/htslib/bgziptabix/main'
+include { HTSLIB_REBGZIP as BGZIP } from '../../../../../modules/local/htslib/rebgzip/main'
 
 
 workflow POLISH_PILON {
@@ -54,25 +54,15 @@ workflow POLISH_PILON {
         "bam",
     )
 
-    ch_to_zip = PILON.out.improved_assembly.map {
-        meta, polished ->
-        [
-            meta,
-            polished,
-            [],
-            []
-        ]
-    }
+    BGZIP(PILON.out.improved_assembly)
 
-    BGZIP(ch_to_zip, "compress", false, "fa")
-
-    pilon_polished = BGZIP.out.output
+    pilon_polished = BGZIP.out.bgzipped
 
     ch_main = pilon_polished
         .map { meta, polished_pilon -> [ meta: meta + [ polished: [pilon: polished_pilon] ] ]  }
 
     QC(ch_main.map { it -> [meta: it.meta - it.meta.subMap("assembly_map_bam") + [assembly_map_bam: null] ]},
-        BGZIP.out.output.map {meta, polished -> [meta.id, polished ]},
+        pilon_polished.map {meta, polished -> [meta.id, polished ]},
         meryl_kmers)
 
     liftoff_in = ch_main

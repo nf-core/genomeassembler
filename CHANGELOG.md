@@ -19,6 +19,46 @@ In addition, v2.0.0 contains these changes:
 
 Pull requests in reverse chronological order since v1.1.0
 
+[#207](https://github.com/nf-core/genomeassembler/pull/207)
+
+- additional tests for QC modules
+
+- Report can now deal with QUAST runs without reference
+
+[#203](https://github.com/nf-core/genomeassembler/pull/203)
+
+- Switched to nf-schema for input parsing
+
+- Added test with HiC dataset.
+
+[#198](https://github.com/nf-core/genomeassembler/pull/198)
+
+- Simplifies changes to ensure bgzipped outputs introduced in #192.
+
+[#197](https://github.com/nf-core/genomeassembler/pull/197)
+
+- Fix handling of reads for quality control, inputs for jellyfish should be trimmed.
+
+[#196](https://github.com/nf-core/genomeassembler/pull/196)
+
+- bgzip `medaka` outputs
+
+[#195](https://github.com/nf-core/genomeassembler/pull/195)
+
+- Fixed oversight in #171 where hifi reads were not assembled via flye with strategy `single`.
+
+[#194](https://github.com/nf-core/genomeassembler/pull/194)
+
+- Update `CONTRIBUTING.md`.
+
+[#193](https://github.com/nf-core/genomeassembler/pull/193)
+
+- Update `OUTPUT.md` with bgzipped files.
+
+[#192](https://github.com/nf-core/genomeassembler/pull/192)
+
+- BGZIP is now used for all fasta outputs, input for SAMTOOLS_FAIDX is no longer unzipped.
+
 [#171](https://github.com/nf-core/genomeassembler/issues/171)
 
 - fastplong for long-read trimming and qc

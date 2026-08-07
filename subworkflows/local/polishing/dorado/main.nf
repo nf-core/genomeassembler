@@ -21,6 +21,7 @@ workflow POLISH_DORADO {
 
     POLISH(ch_polish_in, [])
 
+    // dorado emits bgzipped file.
     polished_assembly = POLISH.out.polished_alignment
 
     ch_main_out = polished_assembly

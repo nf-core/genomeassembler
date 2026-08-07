@@ -121,14 +121,14 @@ Annotation `gff3` and `unmapped.txt` files are only created if a reference for a
 - `<SampleName>`
   - `assembly/`
     - `flye/`: output from flye.
-      - `<SampleName>.assembly.fasta.gz`: Assembly in gzipped fasta format
+      - `<SampleName>.assembly.fa.gz`: Assembly in bgzipped fasta format
       - `<SampleName>.assembly_graph.gfa.gz`: Assembly graph in gzipped gfa format
       - `<SampleName>.assembly_graph.gv.gz`: Assembly graph in gzipped gv format
       - `<SampleName>.assembly_info.txt`: Information on the assembly
       - `<SampleName>.flye.log`: flye log-file
       - `<SampleName>.params.json`: params used for running flye
     - `hifiasm/`: output from hifiasm.
-      - `<SampleName>.asm.bp.p_ctg.fa.gz`: gzipped fasta file of the primary contigs
+      - `<SampleName>.asm.bp.p_ctg.fa.gz`: bgzipped fasta file of the primary contigs
       - `<SampleName>.asm.bp.p_ctg.gfa`: primary contigs in gfa format
       - `<SampleName>.asm.bp.p_utg.gfa`: processed unitigs in gfa format
       - `<SampleName>.asm.bp.r_utg.gfa`: raw unitigs in gfa format
@@ -138,6 +138,7 @@ Annotation `gff3` and `unmapped.txt` files are only created if a reference for a
       - `<SampleName>_assembly_scaffold/`
         - `<SampleName>_assembly_scaffold.agp`: Scaffolds in agp format
         - `<SampleName>_assembly_scaffold.fasta`: Scaffolds in fasta format
+        - `<SampleName>_assembly_scaffold.fasta.gz`: Scaffolds fasta bgzipped
         - `<SampleName>_assembly_scaffold.stats`: Scaffolding statistics.
     - `<SampleName>_assembly.gff3` annotation liftover
     - `<SampleName>_assembly.unmapped.txt` annotations that could not be lifted over during annotation liftover
@@ -158,6 +159,7 @@ Annotation `gff3` and `unmapped.txt` files are only created if a reference for a
   - `polish/`
     - `pilon/`: output from pilon
       - `<SampleName>_pilon.fasta` Polished assembly
+      - `<SampleName>_pilon.fa.gz` Polished assembly, bgzipped
       - `<SampleName>_pilon.gff3` annotation liftover
       - `<SampleName>_pilon.unnapped.txt` annotations that could not be lifted over during annotation liftover
     - `medaka/`: output from medaka
@@ -191,10 +193,12 @@ Annotation `gff3` and `unmapped.txt` files are only created if a reference for a
       - `<SampleName>_links.log`: log file
       - `<SampleName>_links.scaffolds`: scaffold statistics
       - `<SampleName>_links.scaffolds.fa`: scaffold fasta
+      - `<SampleName>_links.scaffolds.fa.gz`: bgzipped scaffold fasta
       - `<SampleName>_links.gff3` annotation liftover
       - `<SampleName>_links.unnapped.txt` annotations that could not be lifted over during annotation liftover
     - `longstitch/`: output from longstitch
       - `<SampleName>_tigmint-ntLinks.arks.longstitch-scaffolds.fa`: Scaffolds after scaffolding with tigmint, ntLinks, and arks. Annotations are based on this file.
+      - `<SampleName>_longstitch.fa.gz`: Scaffolds after scaffolding with tigmint, ntLinks, and arks, bgzipped.
       - `<SampleName>_tigmint-ntLinks.longstitch-scaffolds.fa`: Scaffolds after scaffolding with tigmint, and ntLinks.
       - `<SampleName>_longstitch.gff3` annotation liftover (onto `*._tigmint-ntLinks.arks.*`)
       - `<SampleName>_longstitch.unnapped.txt` annotations that could not be lifted over during annotation liftover
@@ -202,6 +206,7 @@ Annotation `gff3` and `unmapped.txt` files are only created if a reference for a
       - `<SampleName>_ragtag_<Reference>/`
         - `<SampleName>_ragtag_<Reference>.agp`: agp file, scaffolding results
         - `<SampleName>_ragtag_<Reference>.fasta`: Scaffold fasta file
+        - `<SampleName>_ragtag_<Reference>.fa.gz`: Scaffold fasta file (bgzipped)
         - `<SampleName>_ragtag_<Reference>.stats`: Scaffolding statistics
         - `<SampleName>_ragtag.gff3` annotation liftover
         - `<SampleName>_ragtag.unnapped.txt` annotations that could not be lifted over during annotation liftover

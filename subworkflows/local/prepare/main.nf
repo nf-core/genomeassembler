@@ -63,7 +63,7 @@ workflow PREPARE {
 
     shortreads = ch_main
         .filter {
-            it -> ((it.meta.shortread_F && it.meta.use_short_reads) || it.hic_trim) ? true : false
+            it -> ((it.meta.shortread_F && it.meta.use_short_reads) || (it.meta.hic_F && it.meta.scaffold_hic)) ? true : false
         }
 
     ontreads = ch_main
@@ -91,9 +91,9 @@ workflow PREPARE {
         .mix(
             ch_main
                 .filter {
-                    it -> !it.meta.shortread_F && !it.meta.hic_F
+                    it -> !(it.meta.shortread_F && it.meta.use_short_reads) && !(it.meta.hic_trim && it.meta.scaffold_hic)
                 }
-                .map { it -> [meta: it.meta - it.meta.subMap("shortread_F","shortread_R", "paired") + [shorteads: null] ]}
+                .map { it -> [meta: it.meta - it.meta.subMap("shortread_F","shortread_R", "paired", "hic_F", "hic_R") + [shorteads: null, hic_reads: null] ]}
                 .mix(SHORTREADS.out.main_out)
         )
 
@@ -153,6 +153,19 @@ workflow PREPARE {
                 it -> it.meta.hifireads ? false : true
             }
         )
+        // update the path to QC reads, so that the trimmed reads will be used.
+        .map {
+            it ->
+            [
+                meta: it.meta -
+                    it.meta.subMap("qc_reads_path") +
+                    [
+                        qc_reads_path: it.meta.qc_reads.toLowerCase() == "ont" ?
+                            it.meta.ontreads :
+                            it.meta.hifireads
+                    ]
+            ]
+        }
 
     // Get average read length of the QC reads from fastplong json report
     def slurp = new groovy.json.JsonSlurper()
@@ -177,13 +190,15 @@ workflow PREPARE {
             .filter { it -> it.meta.qc_reads.toLowerCase() == "hifi" }
             .map {
                 it -> [
-                    it.meta.id, it.meta - it.meta.subMap("fastplong_json")]}
+                    it.meta.id, it.meta - it.meta.subMap("fastplong_json")
+                    ]
+                }
             .join(
                 HIFI.out.fastplong_hifi_reports
                     .map { it -> [ it[0].id, it[1] ]}
             )
             .map {
-            _id, meta_old, json -> [meta: meta_old + [fastplong_json: json]]
+                _id, meta_old, json -> [meta: meta_old + [fastplong_json: json]]
             }
         )
         .map { it ->
@@ -212,18 +227,6 @@ workflow PREPARE {
 
     main_out = ch_main_jellyfish_branched.no_jelly
         .mix( JELLYFISH.out.main_out )
-        // At this stage, make sure that qc_read_path for downstream qc is using the prepared reads.
-        .map { it ->
-            [
-                meta:   it.meta -
-                        it.meta.subMap("qc_read_path") +
-                        [
-                            qc_read_path: it.meta.qc_reads.toLowerCase() == "ont" ?
-                            it.meta.ontreads :
-                            it.meta.hifireads
-                        ]
-            ]
-        }
 
     main_out.dump(tag: "Prepare: Combined outputs")
 
@@ -238,6 +241,6 @@ workflow PREPARE {
     fastplong_json_reports
     fastp_json_reports      = SHORTREADS.out.fastp_json
     meryl_kmers
-    genomescope_summary
-    genomescope_plot
+    genomescope_summary     = JELLYFISH.out.genomescope_summary
+    genomescope_plot        = JELLYFISH.out.genomescope_plot
 }

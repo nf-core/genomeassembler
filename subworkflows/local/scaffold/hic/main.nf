@@ -1,7 +1,7 @@
 include { QC                                        } from '../../qc/main'
 include { RUN_LIFTOFF                               } from '../../liftoff/main'
 include { YAHS                                      } from '../../../../modules/nf-core/yahs/main'
-include { HTSLIB_BGZIPTABIX as BGZIP                } from '../../../../modules/nf-core/htslib/bgziptabix/main'
+include { HTSLIB_REBGZIP as BGZIP                   } from '../../../../modules/local/htslib/rebgzip/main'
 include { BWAMEM2_MEM                               } from '../../../../modules/nf-core/bwamem2/mem/main'
 include { BWAMEM2_INDEX                             } from '../../../../modules/nf-core/bwamem2/index/main'
 include { SAMTOOLS_FAIDX                            } from '../../../../modules/nf-core/samtools/faidx/main'
@@ -74,8 +74,7 @@ workflow HIC {
         .map {
             it -> [
             it.meta,
-            it.meta.polished ? (it.meta.polished.pilon ?: it.meta.polished.medaka ?: it.meta.polished.dorado) : it.meta.assembly,
-            []
+            it.meta.polished ? (it.meta.polished.pilon ?: it.meta.polished.medaka ?: it.meta.polished.dorado) : it.meta.assembly
             ]
         }
 
@@ -102,19 +101,9 @@ workflow HIC {
 
     YAHS(yahs_in)
 
-    ch_main_to_zip = YAHS.out.scaffolds_fasta.map {
-        meta, scaffold ->
-        [
-            meta,
-            scaffold,
-            [],
-            []
-        ]
-    }
+    BGZIP(YAHS.out.scaffolds_fasta)
 
-    BGZIP(ch_main_to_zip, "compress", false, "fa")
-
-    ch_main_scaffolded = BGZIP.out.output
+    ch_main_scaffolded = BGZIP.out.bgzipped
         .map { meta, corrected -> [meta: meta + [ scaffolds_hic: corrected] ] }
 
     liftoff_in = ch_main_scaffolded
@@ -133,7 +122,7 @@ workflow HIC {
     RUN_LIFTOFF(liftoff_in)
 
     QC(ch_main_scaffolded.map { it -> [meta: it.meta - it.meta.subMap("assembly_map_bam") + [assembly_map_bam: null] ] },
-        BGZIP.out.output.map { meta, corrected -> [ meta.id, corrected ] },
+        BGZIP.out.bgzipped.map { meta, corrected -> [ meta.id, corrected ] },
         meryl_kmers)
 
     emit:

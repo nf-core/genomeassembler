@@ -35,6 +35,158 @@
                         "branch": "master",
                         "git_sha": "6d46786420b4d7bc88eba026eb389c0c5535d120",
                         "installed_by": ["modules"]
+                    },
+                    "flye": {
+                        "branch": "master",
+                        "git_sha": "1ab453187e9eada07bdd98609ce770971bfe86e4",
+                        "installed_by": ["modules"],
+                        "patch": "modules/nf-core/flye/flye.diff"
+                    },
+                    "genomescope2": {
+                        "branch": "master",
+                        "git_sha": "edc431ff96ebea772cc81ed8b1b15df6928a0ff8",
+                        "installed_by": ["modules"],
+                        "patch": "modules/nf-core/genomescope2/genomescope2.diff"
+                    },
+                    "gfatools/gfa2fa": {
+                        "branch": "master",
+                        "git_sha": "6d46786420b4d7bc88eba026eb389c0c5535d120",
+                        "installed_by": ["modules"],
+                        "patch": "modules/nf-core/gfatools/gfa2fa/gfatools-gfa2fa.diff"
+                    },
+                    "gunzip": {
+                        "branch": "master",
+                        "git_sha": "0902eac3012baaf4f9ab6513c8c55acc9353c96c",
+                        "installed_by": ["modules"]
+                    },
+                    "hifiasm": {
+                        "branch": "master",
+                        "git_sha": "c87519b3c0bfcb0b022b77738cf8164b3af042eb",
+                        "installed_by": ["modules"]
+                    },
+                    "htslib/bgziptabix": {
+                        "branch": "master",
+                        "git_sha": "22edd7ce9462025093b25e3b55006f7720ff0d8e",
+                        "installed_by": ["modules"]
+                    },
+                    "jellyfish/count": {
+                        "branch": "master",
+                        "git_sha": "614004b6a8e752f9f0d362e4fb94d67bb7b7455c",
+                        "installed_by": ["modules"],
+                        "patch": "modules/nf-core/jellyfish/count/jellyfish-count.diff"
+                    },
+                    "liftoff": {
+                        "branch": "master",
+                        "git_sha": "c7659d7353f37c1fb4407aaf013bc7d4b6cec015",
+                        "installed_by": ["modules"],
+                        "patch": "modules/nf-core/liftoff/liftoff.diff"
+                    },
+                    "links": {
+                        "branch": "master",
+                        "git_sha": "61b37255166a4484051e63ebbb1376960a08e73e",
+                        "installed_by": ["modules"],
+                        "patch": "modules/nf-core/links/links.diff"
+                    },
+                    "longstitch": {
+                        "branch": "master",
+                        "git_sha": "e753770db613ce014b3c4bc94f6cba443427b726",
+                        "installed_by": ["modules"]
+                    },
+                    "merqury/merqury": {
+                        "branch": "master",
+                        "git_sha": "43f0c26fd70298d296a27ce3a68f1c0f7530f600",
+                        "installed_by": ["modules"],
+                        "patch": "modules/nf-core/merqury/merqury/merqury-merqury.diff"
+                    },
+                    "meryl/count": {
+                        "branch": "master",
+                        "git_sha": "43f0c26fd70298d296a27ce3a68f1c0f7530f600",
+                        "installed_by": ["modules"]
+                    },
+                    "meryl/unionsum": {
+                        "branch": "master",
+                        "git_sha": "43f0c26fd70298d296a27ce3a68f1c0f7530f600",
+                        "installed_by": ["modules"]
+                    },
+                    "minimap2/align": {
+                        "branch": "master",
+                        "git_sha": "5c9f8d5b7671237c906abadc9ff732b301ca15ca",
+                        "installed_by": ["modules"],
+                        "patch": "modules/nf-core/minimap2/align/minimap2-align.diff"
+                    },
+                    "picard/addorreplacereadgroups": {
+                        "branch": "master",
+                        "git_sha": "74ec93d00bef147da3fb1f2262e8d31c14108f88",
+                        "installed_by": ["modules"]
+                    },
+                    "picard/markduplicates": {
+                        "branch": "master",
+                        "git_sha": "66d5808eaaabd9de8997c4c31a9e8cdd3b56c080",
+                        "installed_by": ["modules"]
+                    },
+                    "pilon": {
+                        "branch": "master",
+                        "git_sha": "79f27eb566084b865363b634136cfe2256b84051",
+                        "installed_by": ["modules"],
+                        "patch": "modules/nf-core/pilon/pilon.diff"
+                    },
+                    "quast": {
+                        "branch": "master",
+                        "git_sha": "6d46786420b4d7bc88eba026eb389c0c5535d120",
+                        "installed_by": ["modules"]
+                    },
+                    "ragtag/patch": {
+                        "branch": "master",
+                        "git_sha": "96f35d1a14c9bd453c5cefff865622e43057dbc7",
+                        "installed_by": ["modules"],
+                        "patch": "modules/nf-core/ragtag/patch/ragtag-patch.diff"
+                    },
+                    "ragtag/scaffold": {
+                        "branch": "master",
+                        "git_sha": "96f35d1a14c9bd453c5cefff865622e43057dbc7",
+                        "installed_by": ["modules"],
+                        "patch": "modules/nf-core/ragtag/scaffold/ragtag-scaffold.diff"
+                    },
+                    "samtools/faidx": {
+                        "branch": "master",
+                        "git_sha": "b2e78932ef01165fd85829513eaca29eff8e640a",
+                        "installed_by": ["modules"],
+                        "patch": "modules/nf-core/samtools/faidx/samtools-faidx.diff"
+                    },
+                    "samtools/fastq": {
+                        "branch": "master",
+                        "git_sha": "1d2fbdcbca677bbe8da0f9d0d2bb7c02f2cab1c9",
+                        "installed_by": ["modules"]
+                    },
+                    "samtools/flagstat": {
+                        "branch": "master",
+                        "git_sha": "6d46786420b4d7bc88eba026eb389c0c5535d120",
+                        "installed_by": ["bam_stats_samtools"]
+                    },
+                    "samtools/idxstats": {
+                        "branch": "master",
+                        "git_sha": "6d46786420b4d7bc88eba026eb389c0c5535d120",
+                        "installed_by": ["bam_stats_samtools"]
+                    },
+                    "samtools/index": {
+                        "branch": "master",
+                        "git_sha": "6d46786420b4d7bc88eba026eb389c0c5535d120",
+                        "installed_by": ["bam_sort_stats_samtools"]
+                    },
+                    "samtools/sort": {
+                        "branch": "master",
+                        "git_sha": "6d46786420b4d7bc88eba026eb389c0c5535d120",
+                        "installed_by": ["bam_sort_stats_samtools"]
+                    },
+                    "samtools/stats": {
+                        "branch": "master",
+                        "git_sha": "6d46786420b4d7bc88eba026eb389c0c5535d120",
+                        "installed_by": ["bam_stats_samtools"]
+                    },
+                    "yahs": {
+                        "branch": "master",
+                        "git_sha": "b9837690be3f0296341829f656347d4662891daa",
+                        "installed_by": ["modules"]
                     }
                 }
             },

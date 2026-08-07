@@ -18,14 +18,13 @@ workflow PREPARE_SHORTREADS {
         }
 
     hic_trim = shortreads_in
-        .map { row -> row.meta.hic_F ? create_hic_shortread_channel(row.meta) : row }
+        .map { row -> (row.meta.hic_F && row.meta.scaffold_hic) ? create_hic_shortread_channel(row.meta) : row }
         .branch {
             row ->
-                trim: row.meta.hic_trim
+                trim: row.meta.hic_trim && row.meta.scaffold_hic
                 no_trim: !row.meta.hic_trim
         }
 
-    shortreads.trim.dump(tag: "shortread trim channel")
     hic_trim.trim.dump(tag: "hic trim channel")
 
     trim_in = shortreads
@@ -94,7 +93,6 @@ workflow PREPARE_SHORTREADS {
                 .map { it -> [ meta: it[0] - it[0].subMap("shortreads") + [ shortreads: it[1] ] ] }
         )
 
-
     trimmed_reads.dump(tag: "Trim out")
     // unite branched:
     // add trimmed reads to trim channel, then mix with shortreads.no_trim
@@ -115,11 +113,10 @@ workflow PREPARE_SHORTREADS {
 
     shortreads = trimmed_reads
         .mix( shortreads.no_trim )
-
     // add HiC trimmed to those that need it
 
     shortreads = shortreads
-        .filter { row -> row.meta.hic_trim }
+        .filter { row -> row.meta.hic_trim && row.meta.scaffold_hic }
         .map { row -> [ row.meta.id, row.meta ] }
         .combine(
             hic_trimmed_reads
@@ -139,7 +136,7 @@ workflow PREPARE_SHORTREADS {
         }
         .mix(
             trimmed_reads
-                .filter { row -> !row.meta.hic_trim }
+                .filter { row -> !(row.meta.hic_trim && row.meta.scaffold_hic) }
                 .map { it-> [meta: it.meta - it.meta.subMap("hic_reads") + [hic_reads: null]]}
         )
 
@@ -193,7 +190,7 @@ workflow PREPARE_SHORTREADS {
 def create_shortread_channel(row) { // This function expects a meta map as input
     // create meta map
     def meta = row
-    meta.paired = row.paired.toBoolean()
+    meta.paired = row.paired
     meta.single_end = !meta.paired
 
     // add path(s) of the fastq file(s) to the meta map
@@ -202,13 +199,13 @@ def create_shortread_channel(row) { // This function expects a meta map as input
         exit(1, "ERROR: shortread_F fastq file does not exist!\n${row.shortread_F}")
     }
     if (!meta.paired) {
-        shortreads = [meta: meta + [shortreads: [file(row.shortread_F)]]]
+        shortreads = [meta: meta + [shortreads: [row.shortread_F]]]
     }
     else {
         if (!file(row.shortread_R).exists()) {
             exit(1, "ERROR: shortread_R fastq file does not exist!\n${row.shortread_R}")
         }
-        shortreads = [ meta: meta + [shortreads:  [file(row.shortread_F), file(row.shortread_R)]] ]
+        shortreads = [ meta: meta + [shortreads:  [row.shortread_F, row.shortread_R]] ]
     }
     return shortreads
 }
@@ -216,22 +213,15 @@ def create_shortread_channel(row) { // This function expects a meta map as input
 def create_hic_shortread_channel(row) { // This function expects a meta map as input
     // create meta map
     def meta = row
-    meta.paired = true
-    meta.single_end = !meta.paired
 
     // add path(s) of the fastq file(s) to the meta map
     def hic_reads = []
     if (!file(row.hic_F).exists()) {
         exit(1, "ERROR: hic_F fastq file does not exist!\n${row.hic_F}")
     }
-    if (!meta.paired) {
-        hic_reads = [meta: meta + [hic_reads: [file(row.hic_F)]]]
+    if (!file(row.hic_R).exists()) {
+        exit(1, "ERROR: hic_R fastq file does not exist!\n${row.hic_R}")
     }
-    else {
-        if (!file(row.hic_R).exists()) {
-            exit(1, "ERROR: shortread_R fastq file does not exist!\n${row.hic_R}")
-        }
-        hic_reads = [ meta: meta + [hic_reads:  [file(row.hic_F), file(row.hic_R)]] ]
-    }
+    hic_reads = [ meta: meta + [hic_reads:  [row.hic_F, row.hic_R]] ]
     return hic_reads
 }

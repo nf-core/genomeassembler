@@ -22,9 +22,7 @@ workflow MAP_SR {
     aln_to_assembly_bam_bai = aln_to_assembly_bam
         .join(aln_to_assembly_bai)
 
-    GUNZIP(genome_assembly)
-
-    SAMTOOLS_FAIDX(GUNZIP.out.gunzip, false)
+    SAMTOOLS_FAIDX(genome_assembly, false)
 
     ch_fasta_fai = genome_assembly
         .join(SAMTOOLS_FAIDX.out.fai)

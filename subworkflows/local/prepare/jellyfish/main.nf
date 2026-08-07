@@ -90,12 +90,8 @@ workflow JELLYFISH {
 
     outputs.dump(tag: "Jellyfish outputs")
 
-    genomescope_summary = GENOMESCOPE.out.summary
-
-    genomescope_plot = GENOMESCOPE.out.plot_log
-
     emit:
-    main_out = outputs
-    genomescope_summary
-    genomescope_plot
+    main_out            = outputs
+    genomescope_summary = GENOMESCOPE.out.summary
+    genomescope_plot    = GENOMESCOPE.out.plot_log
 }

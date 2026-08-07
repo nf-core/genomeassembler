@@ -1,6 +1,7 @@
 include { MEDAKA_PARALLEL as MEDAKA } from '../../../../../modules/local/medaka/medaka_consensus/main'
 include { QC } from '../../../qc/main.nf'
 include { LIFTOFF } from '../../../../../modules/nf-core/liftoff/main'
+include { HTSLIB_REBGZIP as BGZIP } from '../../../../../modules/local/htslib/rebgzip/main'
 
 workflow POLISH_MEDAKA {
     take:
@@ -18,7 +19,9 @@ workflow POLISH_MEDAKA {
 
     MEDAKA(ch_medaka_in)
 
-    polished_assembly = MEDAKA.out.assembly
+    BGZIP(MEDAKA.out.assembly)
+
+    polished_assembly = BGZIP.out.bgzipped
 
     ch_medaka_out = polished_assembly
         .map { meta, polished_medaka -> [meta: meta + [ polished: [medaka: polished_medaka ] ] ]}

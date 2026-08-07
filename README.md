@@ -25,8 +25,8 @@
 Currently, this pipeline does not implement phasing of polyploid genomes.
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/images/genomeassembler.dark.png">
-  <img alt="nf-core/genomeassembler" src="docs/images/genomeassembler_v2.light.png">
+  <source media="(prefers-color-scheme: dark)" srcset="docs/images/genomeassembler_dark.svg">
+  <img alt="nf-core/genomeassembler" src="docs/images/genomeassembler_light.svg">
 </picture>
 
 ## Usage
@@ -44,7 +44,7 @@ nextflow run nf-core/genomeassembler \
 ```
 
 > [!WARNING]
-> Please provide pipeline parameters via the CLI or Nextflow `-params-file` option. Custom config files including those provided by the `-c` Nextflow option can be used to provide any configuration _**except for parameters**_; see [docs](https://nf-co.re/docs/running/run-pipelines#using-parameter-files).
+> Please provide pipeline parameters via the CLI or Nextflow `-params-file` option. Custom config files including those provided by the `-c` Nextflow option can be used to provide any configuration _**except for parameters**_; see [docs](https://nf-co.re/docs/usage/getting_started/configuration#custom-configuration-files).
 
 For more details and further functionality, please refer to the [usage documentation](https://nf-co.re/genomeassembler/usage) and the [parameter documentation](https://nf-co.re/genomeassembler/parameters).
 
