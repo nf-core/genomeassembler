@@ -152,7 +152,6 @@ The following tools are unchanged:
 | coreutils  | 9.5    | 9.5    |
 | jellyfish  | 2.3.1  | 2.3.1  |
 | longstitch | 1.0.5  | 1.0.5  |
-| medaka     | 1.11.3 | 1.11.3 |
 | quast      | 5.3.0  | 5.3.0  |
 | quarto     | 1.7.31 | 1.7.31 |
 | fastqc     | 0.12.1 | 0.12.1 |
