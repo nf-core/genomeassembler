@@ -19,6 +19,10 @@ In addition, v2.0.0 contains these changes:
 
 Pull requests in reverse chronological order since v1.1.0
 
+[#212](https://github.com/nf-core/genomeassembler/pull/212)
+
+- bumped medaka to 2.2.2
+
 [#207](https://github.com/nf-core/genomeassembler/pull/207)
 
 - additional tests for QC modules
@@ -120,6 +124,7 @@ The following tools have been updated to a new version:
 | ------------ | ------ | ------ |
 | genomescope2 | 2.0    | 2.0.0  |
 | busco        | 5.8.3  | 6.0.0  |
+| medaka       | 2.0.1  | 2.2.2  |
 
 #### `Deprecated`
 
@@ -147,7 +152,6 @@ The following tools are unchanged:
 | coreutils  | 9.5    | 9.5    |
 | jellyfish  | 2.3.1  | 2.3.1  |
 | longstitch | 1.0.5  | 1.0.5  |
-| medaka     | 1.11.3 | 1.11.3 |
 | quast      | 5.3.0  | 5.3.0  |
 | quarto     | 1.7.31 | 1.7.31 |
 | fastqc     | 0.12.1 | 0.12.1 |
