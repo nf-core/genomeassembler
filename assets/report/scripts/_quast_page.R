@@ -1,6 +1,7 @@
 # This generates a tab-page for each sample
 
 for (i in 1:length(unique(quast_stats$group))) {
+
   quast_cols <- ifelse(
         "Reference length" %in% unique(quast_stats$stat),
           c(
