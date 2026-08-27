@@ -150,7 +150,7 @@ workflow GENOMEASSEMBLER {
         .mix(topic_versions_string)
         .collectFile(
             storeDir: "${params.outdir}/pipeline_info",
-            name: 'nf_core_' + 'genomeassmbler_software_' + 'versions.yml',
+            name: 'nf_core_' + 'genomeassembler_software_' + 'versions.yml',
             sort: true,
             newLine: true
         )
