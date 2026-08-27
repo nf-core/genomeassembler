@@ -1,4 +1,5 @@
 # Since genomescope produces plots, I am simply including those here instead of recreating them, the proper QC for kmers comes with merqury.
+
 img_files <- list.files(paste0(data_base,"genomescope"), full.names = T, pattern = "plot.log.png")
 dir.create("genomescope_files")
 for (file in img_files) {

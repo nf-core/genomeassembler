@@ -115,7 +115,6 @@ workflow PREPARE_ONT {
             }
         )
 
-
     fastplong_json_out = FASTPLONG_ONT
         .out
         .json
