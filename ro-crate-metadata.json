@@ -341,6 +341,18 @@
             "email": "niklas@bio.lmu.de",
             "name": "Niklas Schandry",
             "url": "https://github.com/nschan"
+        }, 
+        {
+            "@id": "https://orcid.org/0000-0003-1675-0677",
+            "@type": "Person",
+            "email": "mahesh.binzer-panchal@nbis.se",
+            "name": "Mahesh Binzer-Panchal"
+        },
+        {
+            "@id": "https://orcid.org/0000-0002-7860-3560",
+            "@type": "Person",
+            "email": "mm49@sanger.ac.uk",
+            "name": "Matthieu Muffato"
         }
     ]
 }
