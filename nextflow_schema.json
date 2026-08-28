@@ -160,11 +160,11 @@
             "properties": {
                 "ref_fasta": {
                     "type": "string",
-                    "description": "Path to reference genome seqeunce (fasta)."
+                    "description": "Path to reference genome seqeunce (fasta)"
                 },
                 "ref_gff": {
                     "type": "string",
-                    "description": "Path to reference genome annotations (gff)."
+                    "description": "Path to reference genome annotations (gff)"
                 },
                 "use_ref": {
                     "type": "boolean",
@@ -440,7 +440,8 @@
                 },
                 "paired": {
                     "type": "boolean",
-                    "description": "Are shortreads paired."
+                    "description": "Are shortreads paired.",
+                    "default": false
                 }
             }
         },

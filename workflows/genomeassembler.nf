@@ -141,15 +141,18 @@ workflow GENOMEASSEMBLER {
           tool_versions.unique().sort()
           "${process}:\n${tool_versions.join('\n')}"
       }
-    ch_collated_versions = topic_versions_string
+
     /*
     Report
     */
 
+    def ch_collated_versions = softwareVersionsToYAML(topic_versions.versions_file)
+        .mix(topic_versions_string)
+
     ch_collated_versions
         .collectFile(
             storeDir: "${params.outdir}/pipeline_info",
-            name: 'nf_core_' + 'pipeline_software_' + 'versions.yml',
+            name: 'nf_core_' + 'genomeassembler_software_' + 'versions.yml',
             sort: true,
             newLine: true
         )

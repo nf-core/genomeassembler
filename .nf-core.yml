@@ -16,7 +16,7 @@ lint:
     - .gitignore
     - nf-core-genomeassembler_logo_dark.svg
   multiqc_config: false
-nf_core_version: 4.0.2
+nf_core_version: 4.0.3
 repository_type: pipeline
 template:
   author: Niklas Schandry
@@ -29,4 +29,4 @@ template:
   skip_features:
     - multiqc
     - igenomes
-  version: 2.0.0dev
+  version: 2.0.0

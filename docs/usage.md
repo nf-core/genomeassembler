@@ -493,6 +493,264 @@ To change the resource requests, please see the [max resources](https://nf-co.re
 
 In some cases, you may wish to change the container or conda environment used by a pipeline steps for a particular tool. By default, nf-core pipelines use containers and software from the [biocontainers](https://biocontainers.pro/) or [bioconda](https://bioconda.github.io/) projects. However, in some cases the pipeline specified version maybe out of date.
 
+To use a different container from the default container or conda environment specified in a pipeline, please see the [updating tool versions](https://nf-co.re/docs/running/configuration/nextflow-for-your-system#update-tool-versions) section of the nf-core website.
+
+### Custom Tool Arguments
+
+A pipeline might not always support every possible argument or option of a particular tool used in pipeline. Fortunately, nf-core pipelines provide some freedom to users to insert additional parameters that the pipeline does not include by default.
+
+To learn how to provide additional arguments to a particular tool of the pipeline, please see the [customising tool arguments](https://nf-co.re/docs/running/configuration/nextflow-for-your-system#modifying-tool-arguments) section of the nf-core website.
+
+### nf-core/configs
+
+In most cases, you will only need to create a custom config as a one-off but if you and others within your organisation are likely to be running nf-core pipelines regularly and need to use the same settings regularly it may be a good idea to request that your custom config file is uploaded to the `nf-core/configs` git repository. Before you do this please can you test that the config file works with your pipeline of choice using the `-c` parameter. You can then create a pull request to the `nf-core/configs` repository with the addition of your config file, associated documentation file (see examples in [`nf-core/configs/docs`](https://github.com/nf-core/configs/tree/master/docs)), and amending [`nfcore_custom.config`](https://github.com/nf-core/configs/blob/master/nfcore_custom.config) to include your custom profile.
+
+See the main [Nextflow documentation](https://www.nextflow.io/docs/latest/config.html) for more information about creating your own configuration files.
+
+If you have any questions or issues please send us a message on [Slack](https://nf-co.re/join/slack) on the [`#configs` channel](https://nfcore.slack.com/channels/configs).
+
+## Running in the background
+
+Nextflow handles job submissions and supervises the running jobs. The Nextflow process must run until the pipeline is finished.
+
+The Nextflow `-bg` flag launches Nextflow in the background, detached from your terminal so that the workflow does not stop if you log out of your session. The logs are saved to a file.
+
+Alternatively, you can use `screen` / `tmux` or similar tool to create a detached session which you can log back into at a later time.
+Some HPC setups also allow you to run nextflow within a cluster job submitted your job scheduler (from where it submits more jobs).
+
+## Nextflow memory requirements
+
+In some cases, the Nextflow Java virtual machines can start to request a large amount of memory.
+We recommend adding the following line to your environment to limit this (typically in `~/.bashrc` or `~./bash_profile`):
+
+```bash
+NXF_OPTS='-Xms1g -Xmx4g'
+```
+
+# Sample Parameters
+
+This section lists all possible parameters that can be set per sample.
+If parameters are not provided, they are inherited from the pipeline parameters; see params for default settings.
+
+## Sample information
+
+| Parameter | Description  | Type     |
+| --------- | ------------ | -------- |
+| `sample`  | Sample name  | `string` |
+| `group`   | Sample group | `string` |
+
+## Reference Parameters
+
+Options controlling pipeline behavior
+
+| Parameter   | Description                                | Type      |
+| ----------- | ------------------------------------------ | --------- |
+| `ref_fasta` | Path to reference genome seqeunce (fasta)  | `string`  |
+| `ref_gff`   | Path to reference genome annotations (gff) | `string`  |
+| `use_ref`   | Use reference genome                       | `boolean` |
+
+## Assembly options
+
+Options controlling assembly.
+
+> [!NOTE]
+> hifiasm_args and flye_args will be passed to the respective assembler in all cases. If the same assembler is used in different strategies, these need may need to be parameterised per sample.
+
+The difference between `{hifiasm,flye}_args` and `assembler_{ont,hifi}_args` is subtle: the former will be applied for all cases where this particular assembler is used, whereas the latter will apply the args to the assembler used for assembling a specific type of data. `{hifiasm,flye}_args` are generally expected to be used for e.g. system specific configuration via `params`, although they can also be set per-sample, whereas `assembler_{ont,hifi}_args` provide a bit more of an abstract interface, possibly more appropriate to adjust certain parameters per-sample.
+
+| Parameter                                         | Description                                                                                                                                                                                                                                                                              | Type     |
+| ------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- |
+| `strategy`                                        | Assembly strategy to use. Valid choices are `'single'`, `'hybrid'` and `'scaffold'`                                                                                                                                                                                                      | `string` |
+| `assembler`                                       | Assembler to use. Valid choices depend on strategy; for single either `flye` or `hifiasm`, hybrid can be done with `hifiasm` and for scaffolded assembly provide the names of the assemblers separated with an underscore. The first assembler will                                      |
+| be used for ONT reads, the second for HiFi reads. | `string`                                                                                                                                                                                                                                                                                 |
+| `assembler_ont`                                   | Assembler to use for ONT reads. Often determined automatically, but required for complex runs, where both ONT and HiFi reads are provided, but some assemblies should be done using `strategy: "single"` using only ONT reads. Such cases can not unambiguously be resolved otherwise.   | `string` |
+| `assembler_hifi`                                  | Assembler to use for HiFi reads. Often determined automatically, but required for complex runs, where both ONT and HiFi reads are provided, but some assemblies should be done using `strategy: "single"` using only HiFi reads. Such cases can not unambiguously be resolved otherwise. | `string` |
+| `assembly_scaffolding_order`                      | When strategy is "scaffold", which assembly should be scaffolded onto which?                                                                                                                                                                                                             | `string` |
+| `genome_size`                                     | expected genome size, optional                                                                                                                                                                                                                                                           | `string` |
+| `flye_mode`                                       | flye mode                                                                                                                                                                                                                                                                                | `string` |
+| `flye_args`                                       | additional args for flye                                                                                                                                                                                                                                                                 | `string` |
+| `hifiasm_args`                                    | Extra arguments passed to `hifiasm`                                                                                                                                                                                                                                                      | `string` |
+| `assembler_ont_args`                              | Extra arguments passed to assembler_ont, assembling ONT reads and hybrid assemblies                                                                                                                                                                                                      | `string` |
+| `assembler_hifi_args`                             | Extra arguments passed to assembler_hifi; assembling HiFi reads                                                                                                                                                                                                                          | `string` |
+
+## Long-read preprocessing
+
+All long-reads will be passed to `fastplong` for trimming and quality control.
+If reads should not be modified by `fastplong`, adaptor trimming can be disabled using `-A`, quality filtering can be disabled with `-Q`.
+These arguments can be passed via `<hifi/ont>_fastplot_args` for the different read types.
+
+| Parameter             | Description                                                | Type      |
+| --------------------- | ---------------------------------------------------------- | --------- |
+| `ontreads`            | Path to ONT reads                                          | `string`  |
+| `ont_collect`         | Collect ONT reads from several files?                      | `boolean` |
+| `ont_adapters`        | Adaptors for ONT read-trimming                             | `string`  |
+| `ont_fastplong_args`  | Additional args to be passed to `fastplong` for ONT reads  | `string`  |
+| `hifireads`           | Path to HiFi reads                                         | `string`  |
+| `hifi_adapters`       | Adaptors for HiFi read-trimming                            | `string`  |
+| `hifi_fastplong_args` | Additional args to be passed to `fastplong` for HiFi reads | `string`  |
+| `jellyfish`           | Run jellyfish and genomescope (recommended)                | `boolean` |
+| `jellyfish_k`         | Value of k used during k-mer analysis with jellyfish       | `integer` |
+| `jellyfish_k`         | K-mer table size for jellyfish. Default: 200M              | `string`  |
+| `dump`                | dump jellyfish output                                      | `boolean` |
+
+## Short read options
+
+Options for short reads.
+
+| Parameter         | Description                     | Type      |
+| ----------------- | ------------------------------- | --------- |
+| `use_short_reads` | Use short reads?                | `boolean` |
+| `shortread_trim`  | Trim short reads?               | `boolean` |
+| `meryl_k`         | kmer length for meryl / merqury | `integer` |
+| `shortread_F`     | Path to forward short reads     | `string`  |
+| `shortread_R`     | Path to reverse short reads     | `string`  |
+| `paired`          | Are shortreads paired?          | `string`  |
+
+## Polishing options
+
+Polishing options. When using `polish` with either `dorado+pilon` or `medaka+pilon`, the assembly will be polished using ONT reads first, and then the ONT-polished assembly will be polished with short reads using `pilon`. `dorado` and `medaka` are mutually exclusive. `dorado` is not available via conda. **`dorado` is an experimental feature which may not work for all inputs.**
+
+| Parameter       | Description                                                                                                                                                                                            | Type      |
+| --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------- |
+| `polish_pilon`  | Polish assembly with pilon? Requires short reads                                                                                                                                                       | `boolean` |
+| `medaka_model`  | model to use with medaka                                                                                                                                                                               | `string`  |
+| `polish_medaka` | Polish assembly with medaka (ONT only)                                                                                                                                                                 | `boolean` |
+| `polish_dorado` | EXPERIMENTAL: Polish assembly with dorado (ONT only)                                                                                                                                                   | `boolean` |
+| `polish`        | Alternative polish interface: can be 'pilon','medaka', 'dorado', 'dorado+pilon' or 'medaka+pilon', do not include quotation marks. Only available through samplesheet, takes priority over `polish_*`. | `string`  |
+
+## Scaffolding options
+
+Options `_longstitch`, `_links` and `_hic` are mutually exclusive.
+`RagTag` scaffolding can be used to either scaffold the (polished) assembly, or can be combined with `longstitch`, `links` or `hic`, to scaffold the scaffolding results onto a reference. `RagTag` will always scaffold the most "advanced" stage of assembly; meaning that if the assembly was scaffolded, the scaffolded assembly will be used, if the assembly was polished, the polished assembly will be used, if the pipeline only carried out assembly for that sample, the assembly will be scaffolded.
+
+| Parameter             | Description                                | Type      |
+| --------------------- | ------------------------------------------ | --------- |
+| `scaffold_longstitch` | Scaffold with longstitch?                  | `boolean` |
+| `scaffold_links`      | Scaffolding with links?                    | `boolean` |
+| `scaffold_hic`        | Scaffold with yahs (requires hic reads)?   | `boolean` |
+| `scaffold_ragtag`     | Scaffold with ragtag (requires reference)? | `boolean` |
+
+### HiC
+
+HiC scaffolding specific parameters. Supplying HiC reads activates HiC scaffolding, unless explicitly deactivated using `scaffold_hic`.
+`bwa-mem2` generally is more suitable for HiC alignments than `minimap2`, and is the recommended option.
+However, `bwamem2` requires substantial memory for large genomes, which may prohibit use of `bwamem2` in some cases.
+
+| Parameter     | Description                                                 | Type      |
+| ------------- | ----------------------------------------------------------- | --------- |
+| `hic_aligner` | Aligner to use, default "bwa-mem2", alternative: "minimap2" | `string`  |
+| `hic_F`       | Forward / \_1 HiC reads                                     | `path`    |
+| `hic_R`       | Reverse / \_2 HiC reads                                     | `path`    |
+| `hic_trim`    | Trim HiC reads? default: false                              | `boolean` |
+
+## QC options
+
+Options for QC tools
+
+| Parameter          | Description                                                                                                                                         | Type      |
+| ------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------- | --------- |
+| `merqury`          | Run merqury (if short reads are provided)                                                                                                           | `boolean` |
+| `qc_reads`         | Long reads that should be used for QC when both ONT and HiFi reads are provided. Options are `'ont'` or `'hifi'`                                    |
+| `busco`            | Run BUSCO?                                                                                                                                          | `boolean` |
+| `busco_db`         | Path to busco db (optional)                                                                                                                         | `string`  |
+| `busco_lineage`    | Busco lineage to use                                                                                                                                | `string`  |
+| `quast`            | Run quast                                                                                                                                           | `boolean` |
+| `ref_map_bam`      | A mapping (bam) of reads mapped to the reference can be provided for QC. If provided alignment to reference fasta will not run                      | `string`  |
+| `assembly`         | Can be used to proved existing assembly will skip assembly and perform downstream steps including qc                                                | `string`  |
+| `assembly_map_bam` | A mapping (bam) of reads mapped to the provided assembly can be specified for QC. If provided alignment to the provided assembly fasta will not run | `string`  |
+
+## Annotations options
+
+Options controlling annotation liftover
+
+| Parameter          | Description                               | Type      |
+| ------------------ | ----------------------------------------- | --------- |
+| `lift_annotations` | Lift-over annotations (requires ref_gff)? | `boolean` |
+
+### Updating the pipeline
+
+When you run the above command, Nextflow automatically pulls the pipeline code from GitHub and stores it as a cached version. When running the pipeline after this, it will always use the cached version if available - even if the pipeline has been updated since. To make sure that you're running the latest version of the pipeline, make sure that you regularly update the cached version of the pipeline:
+
+```bash
+nextflow pull nf-core/genomeassembler
+```
+
+### Reproducibility
+
+It is a good idea to specify the pipeline version when running the pipeline on your data. This ensures that a specific version of the pipeline code and software are used when you run your pipeline. If you keep using the same tag, you'll be running the same version of the pipeline, even if there have been changes to the code since.
+
+First, go to the [nf-core/genomeassembler releases page](https://github.com/nf-core/genomeassembler/releases) and find the latest pipeline version - numeric only (eg. `1.3.1`). Then specify this when running the pipeline with `-r` (one hyphen) - eg. `-r 1.3.1`. Of course, you can switch to another version by changing the number after the `-r` flag.
+
+This version number will be logged in reports when you run the pipeline, so that you'll know what you used when you look back in the future.
+
+To further assist in reproducibility, you can use share and reuse [parameter files](#running-the-pipeline) to repeat pipeline runs with the same settings without having to write out a command with every single parameter.
+
+> [!TIP]
+> If you wish to share such profile (such as upload as supplementary material for academic publications), make sure to NOT include cluster specific paths to files, nor institutional specific profiles.
+
+## Core Nextflow arguments
+
+> [!NOTE]
+> These options are part of Nextflow and use a _single_ hyphen (pipeline parameters use a double-hyphen).
+
+### `-profile`
+
+Use this parameter to choose a configuration profile. Profiles can give configuration presets for different compute environments.
+
+Several generic profiles are bundled with the pipeline which instruct the pipeline to use software packaged using different methods (Docker, Singularity, Podman, Shifter, Charliecloud, Apptainer, Conda) - see below.
+
+> [!INFO]
+> We highly recommend the use of Docker or Singularity containers for full pipeline reproducibility, however when this is not possible, Conda is also supported.
+
+The pipeline also dynamically loads configurations from [https://github.com/nf-core/configs](https://github.com/nf-core/configs) when it runs, making multiple config profiles for various institutional clusters available at run time. For more information and to check if your system is supported, please see the [nf-core/configs documentation](https://github.com/nf-core/configs#documentation).
+
+Note that multiple profiles can be loaded, for example: `-profile test,docker` - the order of arguments is important!
+They are loaded in sequence, so later profiles can overwrite earlier profiles.
+
+If `-profile` is not specified, the pipeline will run locally and expect all software to be installed and available on the `PATH`. This is _not_ recommended, since it can lead to different results on different machines dependent on the computer environment.
+
+- `test`
+  - A profile with a complete configuration for automated testing
+  - Includes links to test data so needs no other parameters
+- `docker`
+  - A generic configuration profile to be used with [Docker](https://docker.com/)
+- `singularity`
+  - A generic configuration profile to be used with [Singularity](https://sylabs.io/docs/)
+- `podman`
+  - A generic configuration profile to be used with [Podman](https://podman.io/)
+- `shifter`
+  - A generic configuration profile to be used with [Shifter](https://nersc.gitlab.io/development/shifter/how-to-use/)
+- `charliecloud`
+  - A generic configuration profile to be used with [Charliecloud](https://hpc.github.io/charliecloud/)
+- `apptainer`
+  - A generic configuration profile to be used with [Apptainer](https://apptainer.org/)
+- `wave`
+  - A generic configuration profile to enable [Wave](https://seqera.io/wave/) containers. Use together with one of the above (requires Nextflow ` 24.03.0-edge` or later).
+- `conda`
+  - A generic configuration profile to be used with [Conda](https://conda.io/docs/). Please only use Conda as a last resort i.e. when it's not possible to run the pipeline with Docker, Singularity, Podman, Shifter, Charliecloud, or Apptainer.
+
+### `-resume`
+
+Specify this when restarting a pipeline. Nextflow will use cached results from any pipeline steps where the inputs are the same, continuing from where it got to previously. For input to be considered the same, not only the names must be identical but the files' contents as well. For more info about this parameter, see [this blog post](https://www.nextflow.io/blog/2019/demystifying-nextflow-resume.html).
+
+You can also supply a run name to resume a specific run: `-resume [run-name]`. Use the `nextflow log` command to show previous run names.
+
+### `-c`
+
+Specify the path to a specific config file (this is a core Nextflow command). See the [nf-core website documentation](https://nf-co.re/usage/configuration) for more information.
+
+## Custom configuration
+
+### Resource requests
+
+Whilst the default requirements set within the pipeline will hopefully work for most people and with most input data, you may find that you want to customise the compute resources that the pipeline requests. Each step in the pipeline has a default set of requirements for number of CPUs, memory and time. For most of the pipeline steps, if the job exits with any of the error codes specified [here](https://github.com/nf-core/rnaseq/blob/4c27ef5610c87db00c3c5a3eed10b1d161abf575/conf/base.config#L18) it will automatically be resubmitted with higher resources request (2 x original, then 3 x original). If it still fails after the third attempt then the pipeline execution is stopped.
+
+To change the resource requests, please see the [max resources](https://nf-co.re/docs/usage/configuration#max-resources) and [tuning workflow resources](https://nf-co.re/docs/usage/configuration#tuning-workflow-resources) section of the nf-core website.
+
+### Custom Containers
+
+In some cases, you may wish to change the container or conda environment used by a pipeline steps for a particular tool. By default, nf-core pipelines use containers and software from the [biocontainers](https://biocontainers.pro/) or [bioconda](https://bioconda.github.io/) projects. However, in some cases the pipeline specified version maybe out of date.
+
 To use a different container from the default container or conda environment specified in a pipeline, please see the [updating tool versions](https://nf-co.re/docs/usage/configuration#updating-tool-versions) section of the nf-core website.
 
 ### Custom Tool Arguments
