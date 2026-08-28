@@ -22,7 +22,7 @@ Pull requests in reverse chronological order since v1.1.0
 [#215](https://github.com/nf-core/genomeassembler/pull/215)
 
 - Prepare samplesheet for downstream QC with [nf-core/genomeqc](https://nf-co.re/genomeqc)
-- 
+
 [#212](https://github.com/nf-core/genomeassembler/pull/212)
 
 - bumped medaka to 2.2.2
