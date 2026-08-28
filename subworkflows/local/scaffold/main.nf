@@ -60,22 +60,23 @@ workflow SCAFFOLD {
     ragtag_out = RUN_RAGTAG.out.ch_main
 
     // Deal with cases that are single scaffold
+    // !!! The individual sswfs return map-channels, this means that it -> it.meta needs to be used, otherwise there is a nesting
     ch_main = links_out
         .filter {it -> !it.meta.scaffold_longstitch && !it.meta.scaffold_ragtag }
-        .map { meta -> meta - meta.subMap("links_scaffold") + [ scaffolds: [ links: meta.scaffolds_links ] ]  }
+        .map { it -> [meta: it.meta - it.meta.subMap("links_scaffold") + [ scaffolds: [ links: it.meta.scaffolds_links ] ] ]  }
         .mix(
             longstitch_out
                 .filter {it -> !it.meta.scaffold_links && !it.meta.scaffold_ragtag }
-                .map { meta -> meta - meta.subMap("scaffolds_longstitch") + [ scaffolds: [ longstitch: meta.scaffolds_longstitch ] ]  }
+                .map { it -> [meta: it.meta - it.meta.subMap("scaffolds_longstitch") + [ scaffolds: [ longstitch: it.meta.scaffolds_longstitch ] ]]  }
         )
         .mix(
             ragtag_out
                 .filter {it -> !it.meta.scaffold_links && !it.meta.scaffold_longstitch }
-                .map { meta -> meta - meta.subMap("scaffolds_ragtag") + [ scaffolds: [ ragtag: meta.scaffolds_ragtag ] ]  }
+                .map { it -> [meta: it.meta - it.meta.subMap("scaffolds_ragtag") + [ scaffolds: [ ragtag: it.meta.scaffolds_ragtag ] ] ]  }
         )
         .mix(
             hic_out
-                .map { meta -> meta - meta.subMap("scaffolds_hic") + [ scaffolds: [ hic: meta.scaffolds_hic ] ] }
+                .map { it -> [meta: it.meta - it.meta.subMap("scaffolds_hic") + [ scaffolds: [ hic: it.meta.scaffolds_hic ] ] ]}
 
             )
         // mix in those that are double scaffolded: , links-ragtag, longstitch-ragtag
@@ -83,11 +84,11 @@ workflow SCAFFOLD {
         .mix(
             links_out
                 .filter {it -> it.meta.scaffold_longstitch && !it.meta.scaffold_ragtag }
-                .map {meta -> [meta.id, meta]}
+                .map {it -> [it.meta.id, it.meta]}
                 // Join without filtering, inner-join
                 .join(
                     longstitch_out
-                        .map {meta -> [meta.id, meta]}
+                        .map {it -> [it.meta.id, it.meta]}
                 )
                 .map {
                     _id, meta_links, meta_longstitch ->
@@ -100,11 +101,11 @@ workflow SCAFFOLD {
         .mix(
             links_out
                 .filter {it -> !it.meta.scaffold_longstitch && it.meta.scaffold_ragtag }
-                .map {meta -> [meta.id, meta]}
+                .map {it -> [it.meta.id, it.meta]}
                 // Join without filtering, inner-join
                 .join(
                     ragtag_out
-                        .map {meta -> [meta.id, meta]}
+                        .map {it -> [it.meta.id, it.meta]}
                 )
                 .map {
                     _id, meta_links, meta_ragtag ->
@@ -117,11 +118,11 @@ workflow SCAFFOLD {
         .mix(
             longstitch_out
                 .filter {it -> !it.meta.scaffold_links && it.meta.scaffold_ragtag }
-                .map {meta -> [meta.id, meta]}
+                .map {it -> [it.meta.id, it.meta]}
                 // Join without filtering, inner-join
                 .join(
                     ragtag_out
-                        .map {meta -> [meta.id, meta]}
+                        .map {it -> [it.meta.id, it.meta]}
                 )
                 .map {
                     _id, meta_longstitch, meta_ragtag ->
@@ -134,15 +135,15 @@ workflow SCAFFOLD {
         .mix(
             links_out
                 .filter {it -> it.meta.scaffold_longstitch && it.meta.scaffold_ragtag }
-                .map {meta -> [meta.id, meta]}
+                .map {it -> [it.meta.id, it.meta]}
                 // Join without filtering, inner-join
                 .join(
                     longstitch_out
-                        .map {meta -> [meta.id, meta]}
+                        .map {it -> [it.meta.id, it.meta]}
                 )
                 .join(
                     ragtag_out
-                        .map {meta -> [meta.id, meta]}
+                        .map {it -> [it.meta.id, it.meta]}
                 )
                 .map {
                     _id, meta_links, meta_longstitch, meta_ragtag ->
