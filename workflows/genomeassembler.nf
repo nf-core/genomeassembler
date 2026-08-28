@@ -228,6 +228,116 @@ workflow GENOMEASSEMBLER {
 
     _report = REPORT.out.report_html.toList()
 
+    /*
+    Prepare a samplesheet that is ready to use with nf-core/genomeqc.
+    This uses the published output paths, not the workdir files.
+    */
+    /*
+    def ch_assembly_manifest = ch_main_scaffolded
+        .map { it ->
+            def meta = it.meta
+            def candidates = [
+                // A list of filenames, corresponding and the candidate output folder
+                [ meta.scaffolds ? meta.scaffolds.ragtag ?: null : null,           'scaffold/ragtag'     ],
+                [ meta.scaffolds ? meta.scaffolds.hic ?: null : null,              'scaffold/hic/yahs'   ],
+                [ meta.scaffolds ? meta.scaffolds.longstitch ?: null : null,       'scaffold/longstitch' ],
+                [ meta.scaffolds ? meta.scaffolds.links ?: null : null,            'scaffold/links'      ],
+                [ meta.polished ? meta.polished.pilon ?: null : null,            'polish/pilon'        ],
+                [ meta.polished ? meta.polished.medaka ?: null : null,           'polish/medaka'       ],
+                [ meta.polished ? meta.polished.dorado ?: null : null,           'polish/dorado'       ],
+                [ meta.assembly, {
+                    // Assembly publishdirs are a bit more specific
+                    meta.strategy == "single" ? (
+                        meta.assembler_ont == "flye" || meta.assembler_hifi == "flye"
+                            ? 'assembly/flye'
+                            : 'assembly/hifiasm'
+                    ) :
+                    meta.strategy == "hybrid"
+                        ? 'assembly/hifiasm'
+                        : 'assembly/ragtag'
+                    }
+                ],
+            ]
+            def chosen = candidates.find { entry -> entry[0] }
+            if( !chosen )
+                return null
+            def assembly_file = chosen[0]
+            def subdir = chosen[1]
+            def fasta = "${params.outdir}/${meta.id}/${subdir}/${file(assembly_file).name}"
+            def subdir_gff = candidates[1] ==~ "assembly" ? "assembly" : candidates[1]
+            def gff = "${params.outdir}/${meta.id}/${subdir_gff}/*.gff3"
+            def annotation = files(gff) ? files(gff).first() : null
+            [ meta.id, fasta ]
+        }
+        .filter { row -> row != null }
+    ch_assembly_manifest.view {it -> "MANIFEST: $it"}
+    ch_assembly_manifest
+        .filter( { it -> it[2] != null} )
+        .map {sample, fasta, annotation -> [sample,fasta,annotation].join(",")}
+        .map { rows -> "species,fasta,gff\n" + rows + "\n" }
+        .collectFile(
+            name: "nf-core-genomeqc-in-gff.csv",
+            storeDir: "${params.outdir}/genomeqc_samplesheet",
+            keepHeader: true,
+            skip: 1
+        )
+
+
+    */
+    def outdir_uri = file(params.outdir).toUriString()
+
+    def ch_assembly_manifest = ch_main_scaffolded
+        .map { it ->
+            def meta = it.meta
+                // A list of filenames, corresponding and the candidate output folder
+                [
+                [ meta.id, meta.scaffolds ? meta.scaffolds.ragtag ?: null : null,           'scaffold/ragtag'     ],
+                [ meta.id, meta.scaffolds ? meta.scaffolds.hic ?: null : null,              'scaffold/hic/yahs'   ],
+                [ meta.id, meta.scaffolds ? meta.scaffolds.longstitch ?: null : null,       'scaffold/longstitch' ],
+                [ meta.id, meta.scaffolds ? meta.scaffolds.links ?: null : null,            'scaffold/links'      ],
+                [ meta.id, meta.polished ? meta.polished.pilon ?: null : null,            'polish/pilon'        ],
+                [ meta.id, meta.polished ? meta.polished.medaka ?: null : null,           'polish/medaka'       ],
+                [ meta.id, meta.polished ? meta.polished.dorado ?: null : null,           'polish/dorado'       ],
+                [ meta.id, meta.assembly, {
+                    // Assembly publishdirs are a bit more specific
+                    meta.strategy == "single" ? (
+                        meta.assembler_ont == "flye" || meta.assembler_hifi == "flye"
+                            ? 'assembly/flye'
+                            : 'assembly/hifiasm'
+                    ) :
+                    meta.strategy == "hybrid"
+                        ? 'assembly/hifiasm'
+                        : 'assembly/ragtag'
+                    }
+                ]
+                ]
+        }
+        .view( {it -> "Manifest channel: $it"})
+        /*
+        .filter {
+            _id, file, _subdir -> file != null
+        }
+        .map {
+            id, assembly_file, subdir ->
+                [
+                    file(assembly_file).name.baseName(),
+                    {"${outdir_uri}/${id}/${subdir}/${file(assembly_file).name}"}
+                ]
+        }
+
+
+    ch_assembly_manifest
+        .map {sample, fasta -> [sample,fasta].join(",")}
+        .map { rows -> "species,fasta\n" + rows + "\n" }
+        .collectFile(
+            name: "nf-core-genomeqc-in-no-gff.csv",
+            storeDir: "${params.outdir}/genomeqc_samplesheet",
+            keepHeader: true,
+            skip: 1
+        )
+        */
+
+
     emit:
     _report
 }
