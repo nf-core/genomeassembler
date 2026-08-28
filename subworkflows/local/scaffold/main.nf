@@ -62,20 +62,20 @@ workflow SCAFFOLD {
     // Deal with cases that are single scaffold
     ch_main = links_out
         .filter {it -> !it.meta.scaffold_longstitch && !it.meta.scaffold_ragtag }
-        .map { meta -> [ meta: meta - meta.subMap("links_scaffold") + [ scaffolds: [ links: meta.scaffolds_links ] ]  ]}
+        .map { meta -> meta - meta.subMap("links_scaffold") + [ scaffolds: [ links: meta.scaffolds_links ] ]  }
         .mix(
             longstitch_out
                 .filter {it -> !it.meta.scaffold_links && !it.meta.scaffold_ragtag }
-                .map { meta -> [ meta: meta - meta.subMap("scaffolds_longstitch") + [ scaffolds: [ longstitch: meta.scaffolds_longstitch ] ]  ]}
+                .map { meta -> meta - meta.subMap("scaffolds_longstitch") + [ scaffolds: [ longstitch: meta.scaffolds_longstitch ] ]  }
         )
         .mix(
             ragtag_out
                 .filter {it -> !it.meta.scaffold_links && !it.meta.scaffold_longstitch }
-                .map { meta -> [ meta: meta - meta.subMap("scaffolds_ragtag") + [ scaffolds: [ ragtag: meta.scaffolds_ragtag ] ]  ]}
+                .map { meta -> meta - meta.subMap("scaffolds_ragtag") + [ scaffolds: [ ragtag: meta.scaffolds_ragtag ] ]  }
         )
         .mix(
             hic_out
-                .map { meta -> [ meta: meta - meta.subMap("scaffolds_hic") + [ scaffolds: [ hic: meta.scaffolds_hic ] ]  ]}
+                .map { meta -> meta - meta.subMap("scaffolds_hic") + [ scaffolds: [ hic: meta.scaffolds_hic ] ] }
 
             )
         // mix in those that are double scaffolded: , links-ragtag, longstitch-ragtag
@@ -90,10 +90,10 @@ workflow SCAFFOLD {
                         .map {meta -> [meta.id, meta]}
                 )
                 .map {
-                    _id, meta_links, meta_longstitch -> [
-                        meta: meta_links -
+                    _id, meta_links, meta_longstitch ->
+                        meta_links -
                          meta_links.subMap("scaffolds_links") +
-                         [scaffolds: [links: meta_links.scaffolds_links, longstitch: meta_longstitch.scaffolds_longstitch]] ]
+                         [scaffolds: [links: meta_links.scaffolds_links, longstitch: meta_longstitch.scaffolds_longstitch]]
                 }
         )
         //links-ragtag
@@ -107,10 +107,10 @@ workflow SCAFFOLD {
                         .map {meta -> [meta.id, meta]}
                 )
                 .map {
-                    _id, meta_links, meta_ragtag -> [
-                        meta: meta_links -
+                    _id, meta_links, meta_ragtag ->
+                        meta_links -
                          meta_links.subMap("scaffolds_links") +
-                         [scaffolds: [links: meta_links.scaffolds_links, ragtag: meta_ragtag.scaffolds_ragtag]] ]
+                         [ scaffolds: [ links: meta_links.scaffolds_links, ragtag: meta_ragtag.scaffolds_ragtag ] ]
                 }
         )
         //longstitch-ragtag
@@ -124,10 +124,10 @@ workflow SCAFFOLD {
                         .map {meta -> [meta.id, meta]}
                 )
                 .map {
-                    _id, meta_longstitch, meta_ragtag -> [
-                        meta: meta_longstitch -
+                    _id, meta_longstitch, meta_ragtag ->
+                        meta_longstitch -
                          meta_longstitch.subMap("scaffolds_longstitch") +
-                         [scaffolds: [longstitch: meta_longstitch.scaffolds_longstitch, ragtag: meta_ragtag.scaffolds_ragtag]] ]
+                         [scaffolds: [ longstitch: meta_longstitch.scaffolds_longstitch, ragtag: meta_ragtag.scaffolds_ragtag ] ]
                 }
         )
         // mix in triple-scaffolded
@@ -145,8 +145,8 @@ workflow SCAFFOLD {
                         .map {meta -> [meta.id, meta]}
                 )
                 .map {
-                    _id, meta_links, meta_longstitch, meta_ragtag -> [
-                        meta: meta_links -
+                    _id, meta_links, meta_longstitch, meta_ragtag ->
+                         meta_links -
                          meta_links.subMap("scaffolds_links") +
                             [
                                 scaffolds: [
@@ -155,10 +155,8 @@ workflow SCAFFOLD {
                                 ragtag: meta_ragtag.scaffolds_ragtag
                                 ]
                             ]
-                             ]
                 }
         )
-
 
     links_busco = RUN_LINKS.out.busco_out
     links_quast = RUN_LINKS.out.quast_out
