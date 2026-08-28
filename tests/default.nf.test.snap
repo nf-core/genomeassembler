@@ -75,13 +75,16 @@
                 "SAMTOOLS_FAIDX": {
                     "samtools": "1.22.1"
                 },
+                "Workflow": {
+                    "nf-core/genomeassembler": "v2.0.0"
+                },
                 "YAHS": {
                     "yahs": "1.2.2"
                 }
             },
             [
                 "pipeline_info",
-                "pipeline_info/nf_core_pipeline_software_versions.yml",
+                "pipeline_info/nf_core_genomeassembler_software_versions.yml",
                 "report",
                 "report/report.html",
                 "test_flye_hifiasm",
@@ -642,7 +645,7 @@
                 "test_ont_hifiasm_hic_hic_scaffolds_final.fa:md5,3ac2a0232e899bcb28b72e3c4f1c2d79"
             ]
         ],
-        "timestamp": "2026-07-21T11:22:02.206144024",
+        "timestamp": "2026-08-27T11:51:08.257214278",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "25.10.4"
@@ -724,13 +727,16 @@
                 "SAMTOOLS_FAIDX": {
                     "samtools": "1.22.1"
                 },
+                "Workflow": {
+                    "nf-core/genomeassembler": "v2.0.0"
+                },
                 "YAHS": {
                     "yahs": "1.2.2"
                 }
             },
             [
                 "pipeline_info",
-                "pipeline_info/nf_core_pipeline_software_versions.yml",
+                "pipeline_info/nf_core_genomeassembler_software_versions.yml",
                 "report",
                 "report/report.html",
                 "test_flye_hifiasm",
@@ -1291,7 +1297,7 @@
                 "test_ont_hifiasm_hic_hic_scaffolds_final.fa:md5,3ac2a0232e899bcb28b72e3c4f1c2d79"
             ]
         ],
-        "timestamp": "2026-07-21T11:06:30.037902788",
+        "timestamp": "2026-08-27T11:34:33.81252959",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "25.10.4"
@@ -1373,13 +1379,16 @@
                 "SAMTOOLS_FAIDX": {
                     "samtools": "1.22.1"
                 },
+                "Workflow": {
+                    "nf-core/genomeassembler": "v2.0.0"
+                },
                 "YAHS": {
                     "yahs": "1.2.2"
                 }
             },
             [
                 "pipeline_info",
-                "pipeline_info/nf_core_pipeline_software_versions.yml",
+                "pipeline_info/nf_core_genomeassembler_software_versions.yml",
                 "report",
                 "report/report.html",
                 "test_flye_hifiasm",
@@ -1940,7 +1949,7 @@
                 "test_ont_hifiasm_hic_hic_scaffolds_final.fa:md5,3ac2a0232e899bcb28b72e3c4f1c2d79"
             ]
         ],
-        "timestamp": "2026-07-21T11:16:49.003340709",
+        "timestamp": "2026-08-27T11:45:29.31994282",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "25.10.4"
@@ -2022,13 +2031,16 @@
                 "SAMTOOLS_FAIDX": {
                     "samtools": "1.22.1"
                 },
+                "Workflow": {
+                    "nf-core/genomeassembler": "v2.0.0"
+                },
                 "YAHS": {
                     "yahs": "1.2.2"
                 }
             },
             [
                 "pipeline_info",
-                "pipeline_info/nf_core_pipeline_software_versions.yml",
+                "pipeline_info/nf_core_genomeassembler_software_versions.yml",
                 "report",
                 "report/report.html",
                 "test_flye_hifiasm",
@@ -2589,7 +2601,7 @@
                 "test_ont_hifiasm_hic_hic_scaffolds_final.fa:md5,3ac2a0232e899bcb28b72e3c4f1c2d79"
             ]
         ],
-        "timestamp": "2026-07-21T11:11:36.406160676",
+        "timestamp": "2026-08-27T11:39:56.092238324",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "25.10.4"
