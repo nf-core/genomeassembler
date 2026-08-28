@@ -21,7 +21,7 @@ Since it is often difficult to know which tool, or assembly strategy will perfor
 To compare different samples, a column named `group` is required, which should contain the same value for all samples that should be compared to each other.
 
 `nf-core/genomeassembler` performs genome qc and summarizes the results in a report.
-For more in-depth qc, `nf-core/genomeassembler` generates samplesheets that can be used as inputs for [`nf-core/genomeqc`](https://nf-co.re/genomeqc) in `genomeqc_samplesheet/`. There are two samplesheets, one containing only samplename and fasta, the other also containing paths to annotation files (only for samples where annotation liftover was performed).
+For more in-depth qc, `nf-core/genomeassembler` generates a samplesheet that can be used as inputs for [`nf-core/genomeqc`](https://nf-co.re/genomeqc) which can be found in `<resultsdir>/genomeqc_samplesheet/nf-core-genomeqc-in.csv`.
 
 ## Parameterization
 
