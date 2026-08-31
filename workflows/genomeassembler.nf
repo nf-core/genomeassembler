@@ -283,6 +283,7 @@ workflow GENOMEASSEMBLER {
         .map {sample, fasta -> [sample,fasta].join(",")}
         .map { rows -> "assembly,fasta\n" + rows + "\n" }
         .collectFile(
+            sort: true,
             name: "nf-core-genomeqc-in.csv",
             storeDir: "${params.outdir}/genomeqc_samplesheet",
             keepHeader: true,

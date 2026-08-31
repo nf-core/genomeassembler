@@ -516,7 +516,7 @@
                 "test_ont_hifiasm_hic/scaffold/hic/yahs/test_ont_hifiasm_hic_hic_scaffolds_final.fa.gz"
             ],
             [
-                "nf-core-genomeqc-in.csv:md5,ee60673c5c108c08220d3e7a9ad2926c",
+                "nf-core-genomeqc-in.csv:md5,1504281a0bc3142cecc39abe81e7a47f",
                 "test_flye_hifiasm.params.json:md5,afa91c041bce5e190f4a699d11b69db6",
                 "test_flye_hifiasm.bp.hap1.p_ctg.gfa:md5,46ee70869884ad585165bd48081414e9",
                 "test_flye_hifiasm.bp.hap2.p_ctg.gfa:md5,7792865547989d6d284f640425c4e36c",
@@ -635,7 +635,7 @@
                 "test_ont_hifiasm_hic_hic_scaffolds_final.fa:md5,3ac2a0232e899bcb28b72e3c4f1c2d79"
             ]
         ],
-        "timestamp": "2026-08-28T15:31:58.143500933",
+        "timestamp": "2026-08-31T09:06:52.960597627",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "25.10.4"
@@ -1158,7 +1158,7 @@
                 "test_ont_hifiasm_hic/scaffold/hic/yahs/test_ont_hifiasm_hic_hic_scaffolds_final.fa.gz"
             ],
             [
-                "nf-core-genomeqc-in.csv:md5,dfd339a042d4be575d4d61924100de3e",
+                "nf-core-genomeqc-in.csv:md5,298dcf1cce8dcd6dda74bd12c4a86f7f",
                 "test_flye_hifiasm.params.json:md5,afa91c041bce5e190f4a699d11b69db6",
                 "test_flye_hifiasm.bp.hap1.p_ctg.gfa:md5,46ee70869884ad585165bd48081414e9",
                 "test_flye_hifiasm.bp.hap2.p_ctg.gfa:md5,7792865547989d6d284f640425c4e36c",
@@ -1277,7 +1277,7 @@
                 "test_ont_hifiasm_hic_hic_scaffolds_final.fa:md5,3ac2a0232e899bcb28b72e3c4f1c2d79"
             ]
         ],
-        "timestamp": "2026-08-28T15:16:42.348431261",
+        "timestamp": "2026-08-31T08:51:16.105004153",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "25.10.4"
@@ -1800,7 +1800,7 @@
                 "test_ont_hifiasm_hic/scaffold/hic/yahs/test_ont_hifiasm_hic_hic_scaffolds_final.fa.gz"
             ],
             [
-                "nf-core-genomeqc-in.csv:md5,a54f349d2518c3d324e12658b60d1f71",
+                "nf-core-genomeqc-in.csv:md5,8ece939fc6172e4cb687b2f2c854113b",
                 "test_flye_hifiasm.params.json:md5,afa91c041bce5e190f4a699d11b69db6",
                 "test_flye_hifiasm.bp.hap1.p_ctg.gfa:md5,46ee70869884ad585165bd48081414e9",
                 "test_flye_hifiasm.bp.hap2.p_ctg.gfa:md5,7792865547989d6d284f640425c4e36c",
@@ -1919,7 +1919,7 @@
                 "test_ont_hifiasm_hic_hic_scaffolds_final.fa:md5,3ac2a0232e899bcb28b72e3c4f1c2d79"
             ]
         ],
-        "timestamp": "2026-08-28T15:26:50.323204919",
+        "timestamp": "2026-08-31T09:01:35.555117899",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "25.10.4"
@@ -2442,7 +2442,7 @@
                 "test_ont_hifiasm_hic/scaffold/hic/yahs/test_ont_hifiasm_hic_hic_scaffolds_final.fa.gz"
             ],
             [
-                "nf-core-genomeqc-in.csv:md5,fec7340f5774b7a47fda549c99ae1732",
+                "nf-core-genomeqc-in.csv:md5,a9d6b5aa51ea95d0d553a78532dc8aa2",
                 "test_flye_hifiasm.params.json:md5,afa91c041bce5e190f4a699d11b69db6",
                 "test_flye_hifiasm.bp.hap1.p_ctg.gfa:md5,46ee70869884ad585165bd48081414e9",
                 "test_flye_hifiasm.bp.hap2.p_ctg.gfa:md5,7792865547989d6d284f640425c4e36c",
@@ -2561,7 +2561,7 @@
                 "test_ont_hifiasm_hic_hic_scaffolds_final.fa:md5,3ac2a0232e899bcb28b72e3c4f1c2d79"
             ]
         ],
-        "timestamp": "2026-08-28T15:21:45.78029328",
+        "timestamp": "2026-08-31T08:56:25.205437395",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "25.10.4"
