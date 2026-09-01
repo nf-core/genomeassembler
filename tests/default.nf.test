@@ -4,6 +4,7 @@ nextflow_pipeline {
     script "../main.nf"
     tag "pipeline"
 
+
     test("-profile test") {
 
         when {
@@ -18,6 +19,9 @@ nextflow_pipeline {
             // stable_content: All files in ${params.outdir}/ with stable content
             def stable_content = getAllFilesFromDir(params.outdir, ignoreFile: 'tests/.nftignore')
             assert workflow.success
+            def genomeqc_infile = path("$outputDir/genomeqc_samplesheet/nf-core-genomeqc-in.csv").csv
+            assert genomeqc_infile.rowCount == 15
+            assert genomeqc_infile.columnCount == 2
             assertAll(
                 { assert snapshot(
                     // Number of successful tasks
@@ -46,6 +50,9 @@ nextflow_pipeline {
             // stable_content: All files in ${params.outdir}/ with stable content
             def stable_content = getAllFilesFromDir(params.outdir, ignoreFile: 'tests/.nftignore')
             assert workflow.success
+            def genomeqc_infile = path("$outputDir/genomeqc_samplesheet/nf-core-genomeqc-in.csv").csv()
+            assert genomeqc_infile.rowCount == 15
+            assert genomeqc_infile.columnCount == 2
             assertAll(
                 { assert snapshot(
                     // Number of successful tasks
@@ -74,6 +81,9 @@ nextflow_pipeline {
             // stable_content: All files in ${params.outdir}/ with stable content
             def stable_content = getAllFilesFromDir(params.outdir, ignoreFile: 'tests/.nftignore')
             assert workflow.success
+            def genomeqc_infile = path("$outputDir/genomeqc_samplesheet/nf-core-genomeqc-in.csv").csv()
+            assert genomeqc_infile.rowCount == 15
+            assert genomeqc_infile.columnCount == 2
             assertAll(
                 { assert snapshot(
                     // Number of successful tasks
@@ -101,6 +111,9 @@ nextflow_pipeline {
             def stable_path = getAllFilesFromDir(params.outdir, relative: true, includeDir: true, ignore: ['pipeline_info/*.{html,json,txt}'])
             // stable_content: All files in ${params.outdir}/ with stable content
             def stable_content = getAllFilesFromDir(params.outdir, ignoreFile: 'tests/.nftignore')
+            def genomeqc_infile = path("$outputDir/genomeqc_samplesheet/nf-core-genomeqc-in.csv").csv()
+            assert genomeqc_infile.rowCount == 15
+            assert genomeqc_infile.columnCount == 2
             assert workflow.success
             assertAll(
                 { assert snapshot(

@@ -132,6 +132,7 @@ workflow PIPELINE_INITIALISATION {
             def merqury         =   it.merqury && !it.shortread_F ? false : it.merqury
             def group           =   it.group ?: null
             def use_short_reads =   it.shortread_F && !params.use_short_reads ? true : it.use_short_reads
+            def lift_annotations=   it.use_ref && it.ref_gff ? true : false
             it + [
                     group: group,
                     assembler_ont: assembler_ont,
@@ -139,7 +140,8 @@ workflow PIPELINE_INITIALISATION {
                     polish: polish,
                     merqury: merqury,
                     use_short_reads: use_short_reads,
-                    paired: it.shortread_F && it.shortread_R ? true : false
+                    paired: it.shortread_F && it.shortread_R ? true : false,
+                    lift_annotations: lift_annotations
                 ]
 
         }

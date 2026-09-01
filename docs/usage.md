@@ -20,6 +20,9 @@ This pipeline can perform assembly, polishing, scaffolding using long-reads, HiC
 Since it is often difficult to know which tool, or assembly strategy will perform best on a dataset, `nf-core/genomeassembler` can also be used to compare outcomes of different approaches in one run.
 To compare different samples, a column named `group` is required, which should contain the same value for all samples that should be compared to each other.
 
+`nf-core/genomeassembler` performs genome qc and summarizes the results in a report.
+For more in-depth qc, `nf-core/genomeassembler` generates a samplesheet that can be used as inputs for [`nf-core/genomeqc`](https://nf-co.re/genomeqc) which can be found in `<resultsdir>/genomeqc_samplesheet/nf-core-genomeqc-in.csv`.
+
 ## Parameterization
 
 Parameters for this pipeline can either be supplied **globally**, e.g:

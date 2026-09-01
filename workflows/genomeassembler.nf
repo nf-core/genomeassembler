@@ -231,6 +231,66 @@ workflow GENOMEASSEMBLER {
 
     _report = REPORT.out.report_html.toList()
 
+    /*
+    Prepare a samplesheet that is ready to use with nf-core/genomeqc.
+    This uses the published output paths, not the workdir files.
+    */
+
+    def outdir_uri = file(params.outdir).toUriString()
+
+    def ch_assembly_manifest = ch_main_scaffolded
+        .map { it ->
+            def meta = it.meta
+            def subout =
+                    // Assembly publishdirs are a bit more specific
+                    meta.strategy == "single" ? (
+                        meta.assembler_ont == "flye" || meta.assembler_hifi == "flye"
+                            ? 'assembly/flye'
+                            : meta.assembler_ont == 'hifiasm'
+                                ? 'assembly/hifiasm_ont'
+                                : 'assembly/hifiasm'
+                    ) :
+                    meta.strategy == "hybrid"
+                        ? 'assembly/hifiasm'
+                        : 'assembly/ragtag'
+
+                // A list of ids, stage, files (in work), the candidate output folder
+                [
+                [ meta.id, 'scaffold_ragtag', meta.scaffolds ? meta.scaffolds.ragtag ?: null : null,           'scaffold/ragtag'     ],
+                [ meta.id, 'scaffold_hic' , meta.scaffolds ? meta.scaffolds.hic ?: null : null,              'scaffold/hic/yahs'   ],
+                [ meta.id, 'scaffold_longstitch', meta.scaffolds ? meta.scaffolds.longstitch ?: null : null,       'scaffold/longstitch' ],
+                [ meta.id, 'scaffold_links', meta.scaffolds ? meta.scaffolds.links ?: null : null,            'scaffold/links'      ],
+                [ meta.id, 'polish_pilon', meta.polished ? meta.polished.pilon ?: null : null,            'polish/pilon'        ],
+                [ meta.id, 'polish_medaka', meta.polished ? meta.polished.medaka ?: null : null,           'polish/medaka'       ],
+                [ meta.id, 'polish_dorado', meta.polished ? meta.polished.dorado ?: null : null,           'polish/dorado'       ],
+                [ meta.id, 'initial_assembly', meta.assembly, subout
+                ]
+                ]
+        }
+        .flatMap( { it -> it } )
+        .filter {
+            _id, _stage, assembly_file, _subdir -> assembly_file != null
+        }
+        .map {
+            id, stage ,assembly_file, subdir ->
+                [
+                    "${id}-${stage}",
+                    "${outdir_uri}/${id}/${subdir}/${file(assembly_file).name}"
+                ]
+        }
+
+    ch_assembly_manifest
+        .map {sample, fasta -> [sample,fasta].join(",")}
+        .map { rows -> "assembly,fasta\n" + rows + "\n" }
+        .collectFile(
+            sort: true,
+            name: "nf-core-genomeqc-in.csv",
+            storeDir: "${params.outdir}/genomeqc_samplesheet",
+            keepHeader: true,
+            skip: 1
+        )
+
+
     emit:
     _report
 }

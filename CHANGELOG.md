@@ -19,6 +19,10 @@ In addition, v2.0.0 contains these changes:
 
 Pull requests in reverse chronological order since v1.1.0
 
+[#215](https://github.com/nf-core/genomeassembler/pull/215)
+
+- Prepare samplesheet for downstream QC with [nf-core/genomeqc](https://nf-co.re/genomeqc)
+
 [#212](https://github.com/nf-core/genomeassembler/pull/212)
 
 - bumped medaka to 2.2.2
@@ -33,7 +37,7 @@ Pull requests in reverse chronological order since v1.1.0
 
 - Switched to nf-schema for input parsing
 
-- Added test with HiC dataset.
+- Added test with HiC dataset (kindly prepared by @OlivierCoen).
 
 [#198](https://github.com/nf-core/genomeassembler/pull/198)
 
