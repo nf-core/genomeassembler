@@ -5,7 +5,7 @@ Changes in 'minimap2/align/main.nf':
 --- modules/nf-core/minimap2/align/main.nf
 +++ modules/nf-core/minimap2/align/main.nf
 @@ -9,8 +9,7 @@
-         'community.wave.seqera.io/library/minimap2_samtools:33bb43c18d22e29c' }"
+         'community.wave.seqera.io/library/minimap2_samtools:b09096fc890429ce' }"
  
      input:
 -    tuple val(meta), path(reads)
