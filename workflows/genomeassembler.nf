@@ -269,7 +269,7 @@ workflow GENOMEASSEMBLER {
         }
         .flatMap( { it -> it } )
         .filter {
-            _id, _stage,  file, _subdir -> file != null
+            _id, _stage, assembly_file, _subdir -> assembly_file != null
         }
         .map {
             id, stage ,assembly_file, subdir ->
