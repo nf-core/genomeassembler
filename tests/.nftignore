@@ -18,3 +18,12 @@ test_flye_hifiasm/scaffold/ragtag/test_flye_hifiasm_ragtag.stats
 **/*.assembly.fa
 **/*MarkDuplicates.metrics.txt
 **/nf-core-genomeqc-in.csv
+**/*_dedup.metrics.txt
+**/*.html
+**/*.pdf
+**/reports.csv
+**/test_flye_hifiasm_assembly.bam
+**/*transposed_report.*
+**/report.*
+**/all_alignments_test_*
+**/misassemblies_report.*
