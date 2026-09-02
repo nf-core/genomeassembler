@@ -41,6 +41,7 @@ nextflow_pipeline {
         when {
             params {
                 outdir = "$outputDir"
+                quast = true
             }
         }
 
@@ -72,6 +73,7 @@ nextflow_pipeline {
         when {
             params {
                 outdir = "$outputDir"
+                busco = true
             }
         }
 
@@ -103,6 +105,8 @@ nextflow_pipeline {
         when {
             params {
                 outdir = "$outputDir"
+                busco = true
+                quast = true
             }
         }
 
