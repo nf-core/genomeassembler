@@ -32,6 +32,9 @@
                     "@id": "assets/"
                 },
                 {
+                    "@id": "bin/"
+                },
+                {
                     "@id": "conf/"
                 },
                 {
@@ -42,6 +45,9 @@
                 },
                 {
                     "@id": "modules/"
+                },
+                {
+                    "@id": "modules/local/"
                 },
                 {
                     "@id": "modules/nf-core/"
@@ -113,6 +119,7 @@
             "conformsTo": [
                 {
                     "@id": "https://w3id.org/ro/crate/1.2"
+                    "@id": "https://w3id.org/ro/crate/1.2"
                 },
                 {
                     "@id": "https://w3id.org/workflowhub/workflow-ro-crate/1.0"
@@ -121,26 +128,86 @@
         },
         {
             "@id": "main.nf",
-            "@type": ["File", "SoftwareSourceCode", "ComputationalWorkflow"],
-            "contributor": [
+            "@type": [
+                "File",
+                "SoftwareSourceCode",
+                "ComputationalWorkflow"
+            ],
+            "author": [
                 {
                     "@id": "https://orcid.org/0000-0003-3099-7860"
                 }
             ],
+            "contributor": [
+                {
+                    "@id": "https://orcid.org/0000-0003-1675-0677"
+                },
+                {
+                    "@id": "https://orcid.org/0000-0002-7860-3560"
+                },
+                {
+                    "@id": "https://orcid.org/0000-0002-7175-0533"
+                },
+                {
+                    "@id": "https://orcid.org/0009-0001-5317-9927"
+                },
+                {
+                    "@id": "https://orcid.org/0000-0002-8779-6464"
+                },
+                {
+                    "@id": "https://orcid.org/0000-0001-6104-9260"
+                },
+                {
+                    "@id": "https://orcid.org/0009-0000-0202-2703"
+                },
+                {
+                    "@id": "https://orcid.org/0000-0001-5585-6277"
+                },
+                {
+                    "@id": "https://orcid.org/0000-0001-9132-8981"
+                },
+                {
+                    "@id": "https://orcid.org/0009-0001-5317-9927"
+                },
+                {
+                    "@id": "https://orcid.org/0000-0003-2827-9261"
+                },
+                {
+                    "@id": "https://orcid.org/0009-0003-5619-1555"
+                }
+            ],
             "dateCreated": "",
-            "dateModified": "2026-09-01T12:57:56Z",
+            "dateModified": "2026-08-28T11:32:58Z",
             "dct:conformsTo": "https://bioschemas.org/profiles/ComputationalWorkflow/1.0-RELEASE/",
-            "keywords": ["nf-core", "nextflow", "genome-assembly"],
-            "license": ["MIT"],
-            "name": ["nf-core/genomeassembler"],
+            "keywords": [
+                "nf-core",
+                "nextflow",
+                "genome-assembly"
+            ],
+            "license": [
+                "MIT"
+            ],
+            "maintainer": [
+                {
+                    "@id": "https://orcid.org/0000-0003-3099-7860"
+                }
+            ],
+            "name": [
+                "nf-core/genomeassembler"
+            ],
             "programmingLanguage": {
                 "@id": "https://w3id.org/workflowhub/workflow-ro-crate#nextflow"
             },
             "sdPublisher": {
                 "@id": "https://nf-co.re/"
             },
-            "url": ["https://github.com/nf-core/genomeassembler", "https://nf-co.re/genomeassembler/2.0.0/"],
-            "version": ["2.0.0"]
+            "url": [
+                "https://github.com/nf-core/genomeassembler",
+                "https://nf-co.re/genomeassembler/2.0.0/"
+            ],
+            "version": [
+                "2.0.0"
+            ]
         },
         {
             "@id": "https://w3id.org/workflowhub/workflow-ro-crate#nextflow",
@@ -155,11 +222,11 @@
             "version": "!>=25.10.4"
         },
         {
-            "@id": "#e5d8446e-5fde-47d0-ad07-63627c6f9584",
+            "@id": "#96e058a1-b61b-4405-b034-a7ed97e5261e",
             "@type": "TestSuite",
             "instance": [
                 {
-                    "@id": "#6a18823e-aa3f-4fb4-ad8c-f5d635c33d23"
+                    "@id": "#939b85b6-d7af-4406-bc69-40ce7e1d4364"
                 }
             ],
             "mainEntity": {
@@ -168,7 +235,7 @@
             "name": "Test suite for nf-core/genomeassembler"
         },
         {
-            "@id": "#6a18823e-aa3f-4fb4-ad8c-f5d635c33d23",
+            "@id": "#939b85b6-d7af-4406-bc69-40ce7e1d4364",
             "@type": "TestInstance",
             "name": "GitHub Actions workflow for testing nf-core/genomeassembler",
             "resource": "repos/nf-core/genomeassembler/actions/workflows/nf-test.yml",
@@ -191,6 +258,11 @@
             "description": "Additional files"
         },
         {
+            "@id": "bin/",
+            "@type": "Dataset",
+            "description": "Scripts that must be callable from a pipeline process"
+        },
+        {
             "@id": "conf/",
             "@type": "Dataset",
             "description": "Configuration files"
@@ -209,6 +281,11 @@
             "@id": "modules/",
             "@type": "Dataset",
             "description": "Modules used by the pipeline"
+        },
+        {
+            "@id": "modules/local/",
+            "@type": "Dataset",
+            "description": "Pipeline-specific modules"
         },
         {
             "@id": "modules/nf-core/",
@@ -299,7 +376,95 @@
         {
             "@id": "https://orcid.org/0000-0003-3099-7860",
             "@type": "Person",
-            "name": "Niklas Schandry"
+            "affiliation": "LMU Munich, Faculty of Biology, Genetics",
+            "email": "niklas@bio.lmu.de",
+            "name": "Niklas Schandry",
+            "url": "https://github.com/nschan"
+        },
+        {
+            "@id": "https://orcid.org/0000-0003-1675-0677",
+            "@type": "Person",
+            "affiliation": "NBIS, Sweden",
+            "email": "mahesh.binzer-panchal@nbis.se",
+            "name": "Mahesh Binzer-Panchal",
+            "url": "https://github.com/mahesh-panchal"
+        },
+        {
+            "@id": "https://orcid.org/0000-0002-7860-3560",
+            "@type": "Person",
+            "affiliation": "Wellcome Sanger Institute",
+            "email": "mm49@sanger.ac.uk",
+            "name": "Matthieu Muffato",
+            "url": "https://github.com/muffato"
+        },
+        {
+            "@id": "https://orcid.org/0000-0002-7175-0533",
+            "@type": "Person",
+            "affiliation": "Wellcome Sanger Institute",
+            "email": "jd42@sanger.ac.uk",
+            "name": "Jim Downie",
+            "url": "https://github.com/prototaxites"
+        },
+        {
+            "@id": "https://orcid.org/0009-0001-5317-9927",
+            "@type": "Person",
+            "affiliation": "CNRS",
+            "name": "Olivier Coen",
+            "url": "https://github.com/vOlivierCoen"
+        },
+        {
+            "@id": "https://orcid.org/0000-0002-8779-6464",
+            "@type": "Person",
+            "affiliation": "Linnaeus University, Kalmar, Sweden",
+            "email": "matricaria.suaveolens@gmail.com",
+            "name": "Daniel Lundin",
+            "url": "https://github.com/erikrikarddaniel"
+        },
+        {
+            "@id": "https://orcid.org/0000-0001-6104-9260",
+            "@type": "Person",
+            "name": "Júlia Mir Pedrol",
+            "url": "https://github.com/mirpedrol"
+        },
+        {
+            "@id": "https://orcid.org/0009-0000-0202-2703",
+            "@type": "Person",
+            "affiliation": "Univ Rennes, CNRS, IGDR (Institut de Génétique et Développement de Rennes) - UMR6290, F-35000 Rennes, France",
+            "email": "louislenezet@gmail.com",
+            "name": "Louis Le Nézet",
+            "url": "https://github.com/louislenezet"
+        },
+        {
+            "@id": "https://orcid.org/0000-0001-5585-6277",
+            "@type": "Person",
+            "affiliation": "Leibniz Institute for Natural Product Research and Infection Biology - Hans Knöll Institute, Jena, Germany; Max Planck Institute for Evolutionary Anthropology, Leipzig, Germany",
+            "email": "jfy133@gmail.com",
+            "name": "James A. Fellows Yates",
+            "url": "https://github.com/jfy133"
+        },
+        {
+            "@id": "https://orcid.org/0000-0001-9132-8981",
+            "@type": "Person",
+            "affiliation": "EMBL-EBI",
+            "email": "vangelis@ebi.ac.uk",
+            "name": "Evangelos Karatzas",
+            "url": "https://github.com/vagkaratzas"
+        },
+        {
+            "@id": "https://orcid.org/0000-0003-2827-9261",
+            "@type": "Person",
+            "affiliation": "NGI",
+            "email": "maxime.garcia@scilifelab.se",
+            "name": "Maxime U Garcia",
+            "url": "https://github.com/maxulysse"
+        },
+        {
+            "@id": "https://orcid.org/0009-0003-5619-1555",
+            "@type": "Person",
+            "affiliation": "Center For Medical Genetics Ghent",
+            "email": "nicolas.vannieuwkerke@ugent.be",
+            "name": "Nicolas Vannieuwkerke",
+            "url": "https://github.com/nvnieuwk"
         }
     ]
 }

@@ -1,0 +1,20 @@
+Changes in component 'nf-core/samtools/faidx'
+'modules/nf-core/samtools/faidx/environment.yml' is unchanged
+'modules/nf-core/samtools/faidx/meta.yml' is unchanged
+Changes in 'samtools/faidx/main.nf':
+--- modules/nf-core/samtools/faidx/main.nf
++++ modules/nf-core/samtools/faidx/main.nf
+@@ -8,7 +8,7 @@
+         'biocontainers/samtools:1.22.1--h96c455f_0' }"
+ 
+     input:
+-    tuple val(meta), path(fasta), path(fai)
++    tuple val(meta), path(fasta)
+     val get_sizes
+ 
+     output:
+
+'modules/nf-core/samtools/faidx/tests/nextflow.config' is unchanged
+'modules/nf-core/samtools/faidx/tests/main.nf.test' is unchanged
+'modules/nf-core/samtools/faidx/tests/main.nf.test.snap' is unchanged
+************************************************************

@@ -24,11 +24,10 @@ include { UTILS_NEXTFLOW_PIPELINE   } from '../../nf-core/utils_nextflow_pipelin
 */
 
 workflow PIPELINE_INITIALISATION {
-
     take:
-    version           // boolean: Display version and exit
-    validate_params   // boolean: Boolean whether to validate parameters against the schema at runtime
-    monochrome_logs   // boolean: Do not use coloured log outputs
+    version // boolean: Display version and exit
+    validate_params // boolean: Boolean whether to validate parameters against the schema at runtime
+    monochrome_logs // boolean: Do not use coloured log outputs
     nextflow_cli_args //   array: List of positional nextflow CLI args
     outdir            //  string: The output directory where the results will be saved
     input             //  string: Path to input samplesheet
@@ -43,11 +42,11 @@ workflow PIPELINE_INITIALISATION {
     //
     // Print version and exit if required and dump pipeline parameters to JSON file
     //
-    UTILS_NEXTFLOW_PIPELINE (
+    UTILS_NEXTFLOW_PIPELINE(
         version,
         true,
         outdir,
-        workflow.profile.tokenize(',').intersect(['conda', 'mamba']).size() >= 1
+        workflow.profile.tokenize(',').intersect(['conda', 'mamba']).size() >= 1,
     )
 
     //
@@ -95,37 +94,66 @@ workflow PIPELINE_INITIALISATION {
     //
     // Check config provided to the pipeline
     //
-    UTILS_NFCORE_PIPELINE (
+    UTILS_NFCORE_PIPELINE(
         nextflow_cli_args
     )
 
     //
     // Create channel from input file provided through params.input
     //
+    ch_samplesheet = channel.fromList(samplesheetToList(params.input, "assets/schema_input.json"))
+        /*
+        This is a somewhat crucial step, where the samplesheet and params are used to determine per-sample parameters.
+        This has been greatly simplified thanks to @nvnieuwk
+        */
+        .map { it ->
+            def meta = it[0]
+            // Populate everything that has no value with the value from params
+            return meta.collectEntries { key, val -> key == "group" ? [ key, val ] : [ key, val ?: params.get(key) ] }
+        }
+        .map{
+            it ->
+            def assembler_ont   =   it.assembler_ont ?:
+                                    (it.strategy == "single" && it.assembler && it.ontreads && !it.hifireads) ? it.assembler :
+                                    (it.strategy == "hybrid" && it.assembler == "hifiasm") ? it.assembler :
+                                    it.assembler.contains("_") ? it.assembler.tokenize("_")[0] :
+                                    null
+            def assembler_hifi  =   it.assembler_hifi ?:
+                                    (it.strategy == "single" && it.assembler && it.hifireads && !it.ontreads) ? it.assembler :
+                                    it.assembler.contains("_") ? it.assembler.tokenize("_")[1] :
+                                    null
+            def polish          =   it.polish ?:
+                                    (it.polish_medaka && it.polish_dorado) ? error("Both polish_medaka and polish_dorado are set.") :
+                                    (it.polish_medaka && it.polish_pilon && it.ontreads) ? "medaka+pilon" :
+                                    (it.polish_dorado && it.polish_pilon && it.ontreads) ? "dorado+pilon" :
+                                    (it.polish_medaka && it.ontreads) ? "medaka" :
+                                    (it.polish_dorado && it.ontreads) ? "dorado" :
+                                    (it.polish_pilon && it.shortread_F) ? "pilon" :
+                                    null
+            def merqury         =   it.merqury && !it.shortread_F ? false : it.merqury
+            def group           =   it.group ?: null
+            def use_short_reads =   it.shortread_F && !params.use_short_reads ? true : it.use_short_reads
+            def lift_annotations=   it.use_ref && it.ref_gff ? true : false
+            it + [
+                    group: group,
+                    assembler_ont: assembler_ont,
+                    assembler_hifi: assembler_hifi,
+                    polish: polish,
+                    merqury: merqury,
+                    use_short_reads: use_short_reads,
+                    paired: it.shortread_F && it.shortread_R ? true : false,
+                    lift_annotations: lift_annotations
+                ]
 
-    channel
-        .fromList(samplesheetToList(input, "${projectDir}/assets/schema_input.json"))
-        .map {
-            meta, fastq_1, fastq_2 ->
-                if (!fastq_2) {
-                    return [ meta.id, meta + [ single_end:true ], [ fastq_1 ] ]
-                } else {
-                    return [ meta.id, meta + [ single_end:false ], [ fastq_1, fastq_2 ] ]
-                }
-        }
-        .groupTuple()
-        .map { samplesheet ->
-            validateInputSamplesheet(samplesheet)
         }
         .map {
-            meta, fastqs ->
-                return [ meta, fastqs.flatten() ]
+            it -> [meta: it]
         }
-        .set { ch_samplesheet }
+    ch_samplesheet.dump(tag: "PARSED INPUTS:")
 
     emit:
     samplesheet = ch_samplesheet
-    versions    = ch_versions
+    versions = ch_versions
 }
 
 /*
@@ -135,12 +163,11 @@ workflow PIPELINE_INITIALISATION {
 */
 
 workflow PIPELINE_COMPLETION {
-
     take:
-    email           //  string: email address
-    email_on_fail   //  string: email address sent on pipeline failure
+    email //  string: email address
+    email_on_fail //  string: email address sent on pipeline failure
     plaintext_email // boolean: Send plain-text email instead of HTML
-    outdir          //    path: Path to output directory where results will be published
+    outdir //    path: Path to output directory where results will be published
     monochrome_logs // boolean: Disable ANSI colour codes in log output
 
     main:
@@ -184,7 +211,7 @@ def validateInputSamplesheet(input) {
     def (metas, fastqs) = input[1..2]
 
     // Check that multiple runs of the same sample are of the same datatype i.e. single-end / paired-end
-    def endedness_ok = metas.collect{ meta -> meta.single_end }.unique().size == 1
+    def endedness_ok = metas.collect { meta -> meta.single_end }.unique().size == 1
     if (!endedness_ok) {
         error("Please check input samplesheet -> Multiple runs of a sample must be of the same datatype i.e. single-end or paired-end: ${metas[0].id}")
     }
@@ -195,9 +222,6 @@ def validateInputSamplesheet(input) {
 // Generate methods description for MultiQC
 //
 def toolCitationText() {
-    // TODO nf-core: Optionally add in-text citation tools to this list.
-    // Can use ternary operators to dynamically construct based conditions, e.g. params["run_xyz"] ? "Tool (Foo et al. 2023)" : "",
-    // Uncomment function in methodsDescriptionText to render in MultiQC report
     def citation_text = [
             "Tools used in the workflow included:",
             "FastQC (Andrews 2010),",
@@ -208,9 +232,6 @@ def toolCitationText() {
 }
 
 def toolBibliographyText() {
-    // TODO nf-core: Optionally add bibliographic entries to this list.
-    // Can use ternary operators to dynamically construct based conditions, e.g. params["run_xyz"] ? "<li>Author (2023) Pub name, Journal, DOI</li>" : "",
-    // Uncomment function in methodsDescriptionText to render in MultiQC report
     def reference_text = [
             "<li>Andrews S, (2010) FastQC, URL: https://www.bioinformatics.babraham.ac.uk/projects/fastqc/).</li>",
         ].join(' ').trim()
@@ -219,7 +240,7 @@ def toolBibliographyText() {
 }
 
 def methodsDescriptionText(mqc_methods_yaml) {
-    // Convert  to a named map so can be used as with familiar NXF ${workflow} variable syntax in the MultiQC YML file
+    // Convert  to a named map so can be used as with familar NXF ${workflow} variable syntax in the MultiQC YML file
     def meta = [:]
     meta.workflow = workflow.toMap()
     meta["manifest_map"] = workflow.manifest.toMap()
@@ -235,21 +256,19 @@ def methodsDescriptionText(mqc_methods_yaml) {
             temp_doi_ref += "(doi: <a href=\'https://doi.org/${doi_ref.replace("https://doi.org/", "").replace(" ", "")}\'>${doi_ref.replace("https://doi.org/", "").replace(" ", "")}</a>), "
         }
         meta["doi_text"] = temp_doi_ref.substring(0, temp_doi_ref.length() - 2)
-    } else meta["doi_text"] = ""
+    }
+    else {
+        meta["doi_text"] = ""
+    }
     meta["nodoi_text"] = meta.manifest_map.doi ? "" : "<li>If available, make sure to update the text to include the Zenodo DOI of version of the pipeline used. </li>"
 
     // Tool references
     meta["tool_citations"] = ""
     meta["tool_bibliography"] = ""
 
-    // TODO nf-core: Only uncomment below if logic in toolCitationText/toolBibliographyText has been filled!
-    // meta["tool_citations"] = toolCitationText().replaceAll(", \\.", ".").replaceAll("\\. \\.", ".").replaceAll(", \\.", ".")
-    // meta["tool_bibliography"] = toolBibliographyText()
-
-
     def methods_text = mqc_methods_yaml.text
 
-    def engine =  new groovy.text.SimpleTemplateEngine()
+    def engine = new groovy.text.SimpleTemplateEngine()
     def description_html = engine.createTemplate(methods_text).make(meta)
 
     return description_html.toString()

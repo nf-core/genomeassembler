@@ -1,8 +1,8 @@
 {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$id": "https://raw.githubusercontent.com/nf-core/genomeassembler/master/assets/schema_input.json",
-    "title": "nf-core/genomeassembler pipeline - params.input schema",
-    "description": "Schema for the file provided with params.input",
+    "title": "nf-core/genomeassembler pipeline - samplesheet schema",
+    "description": "Assemble genomes from long ONT or pacbio HiFi reads",
     "type": "array",
     "items": {
         "type": "object",
@@ -10,24 +10,328 @@
             "sample": {
                 "type": "string",
                 "pattern": "^\\S+$",
-                "errorMessage": "Sample name must be provided and cannot contain spaces",
+                "errorMessage": "Sample name must be provided, has to be a string value and cannot contain spaces",
                 "meta": ["id"]
             },
-            "fastq_1": {
+            "group": {
                 "type": "string",
-                "format": "file-path",
-                "exists": true,
-                "pattern": "^([\\S\\s]*\\/)?[^\\s\\/]+\\.f(ast)?q\\.gz$",
-                "errorMessage": "FastQ file for reads 1 must be provided, cannot contain spaces and must have extension '.fq.gz' or '.fastq.gz'"
+                "pattern": "^\\S+$",
+                "errorMessage": "Group name, has to be a string value and cannot contain spaces.",
+                "meta": ["group"]
             },
-            "fastq_2": {
+            "ref_fasta": {
+                "type": "string",
+                "description": "Path to reference genome seqeunce (fasta).",
+                "format": "file-path",
+                "default": null,
+                "meta": ["ref_fasta"]
+            },
+            "ref_gff": {
+                "type": "string",
+                "description": "Path to reference genome annotations (gff).",
+                "format": "file-path",
+                "default": null,
+                "meta": ["ref_gff"]
+            },
+            "use_ref": {
+                "type": "boolean",
+                "description": "Use reference genome.",
+                "meta": ["use_ref"]
+            },
+            "strategy": {
+                "type": "string",
+                "default": "single",
+                "description": "Assembly strategy to use. Valid choices are `'single'`, `'hybrid'` and `'scaffold'`.",
+                "meta": ["strategy"]
+            },
+            "assembler": {
+                "type": "string",
+                "description": "Assembler to use. Valid choices depend on strategy; for single either `'flye'` or `'hifiasm'`, hybrid can be done with `'hifiasm'` and for scaffolded assembly provide the names of the assemblers separated with an underscore. The first assembler will be used for ONT reads, the second for HiFi reads see below: `asembler_ont` and `assembler_hifi`.",
+                "enum": ["flye", "hifiasm", "flye_hifiasm", "hifiasm_hifiasm", "flye_flye", "hifiasm_flye"],
+                "default": "hifiasm",
+                "meta": ["assembler"]
+            },
+            "assembly_scaffolding_order": {
+                "type": "string",
+                "default": "ont_on_hifi",
+                "description": "When `strategy` is 'scaffold', which assembly should be scaffolded onto which?",
+                "enum": ["ont_on_hifi", "hifi_on_ont"],
+                "meta": ["assembly_scaffolding_order"]
+            },
+            "genome_size": {
+                "type": "string",
+                "description": "Expected genome size, optional.",
+                "meta": ["genome_size"]
+            },
+            "flye_mode": {
+                "type": "string",
+                "description": "Flye assembly mode.",
+                "default": "--nano-hq",
+                "enum": ["--pacbio-raw", "--pacbio-corr", "--pacbio-hifi", "--nano-raw", "--nano-corr", "--nano-hq"],
+                "meta": ["flye_mode"]
+            },
+            "flye_args": {
+                "type": "string",
+                "description": "Additional args for `flye`.",
+                "meta": ["flye_args"]
+            },
+            "hifiasm_args": {
+                "type": "string",
+                "description": "Extra arguments passed to `hifiasm`",
+                "meta": ["hifiasm_args"]
+            },
+            "assembler_ont": {
+                "type": "string",
+                "description": "`assembler_ont` assembles ONT reads. This option is mainly useful when building more complex samplesheets.",
+                "meta": ["assembler_ont"]
+            },
+            "assembler_ont_args": {
+                "type": "string",
+                "description": "Arguments to be passed to `assembler_ont` (ONT)",
+                "meta": ["assembler_ont_args"]
+            },
+            "assembler_hifi": {
+                "type": "string",
+                "description": "`assembler_hifi` assembles HiFi reads. This option is mainly useful when building more complex samplesheets.",
+                "meta": ["assembler_hifi"]
+            },
+            "assembler_hifi_args": {
+                "type": "string",
+                "description": "Arguments to be passed to `assembler_hifi` (HiFi).",
+                "meta": ["assembler_hifi_args"]
+            },
+            "ontreads": {
                 "type": "string",
                 "format": "file-path",
-                "exists": true,
-                "pattern": "^([\\S\\s]*\\/)?[^\\s\\/]+\\.f(ast)?q\\.gz$",
-                "errorMessage": "FastQ file for reads 2 cannot contain spaces and must have extension '.fq.gz' or '.fastq.gz'"
+                "default": null,
+                "description": "Path to ONT reads.",
+                "meta": ["ontreads"]
+            },
+            "ont_collect": {
+                "type": "boolean",
+                "description": "Collect ONT reads from several files.",
+                "meta": ["ont_collect"]
+            },
+            "ont_adapters": {
+                "type": "string",
+                "description": "Adapters for ONT read-trimming.",
+                "meta": ["ont_adapters"]
+            },
+            "ont_fastplong_args": {
+                "type": "string",
+                "description": "Additional args to be passed to fastplong for ONT reads.",
+                "meta": ["ont_fastplong_args"]
+            },
+            "hifireads": {
+                "type": "string",
+                "format": "file-path",
+                "default": null,
+                "description": "Path to HiFi reads.",
+                "meta": ["hifireads"]
+            },
+            "hifi_adapters": {
+                "type": "string",
+                "description": "Adaptors for HiFi read-trimming.",
+                "meta": ["hifi_adapters"]
+            },
+            "hifi_fastplong_args": {
+                "type": "string",
+                "description": "Additional args to be passed to fastplong for HiFi reads.",
+                "meta": ["hifi_fastplong_args"]
+            },
+            "jellyfish": {
+                "type": "boolean",
+                "description": "Run jellyfish and genomescope (recommended).",
+                "meta": ["jellyfish"]
+            },
+            "jellyfish_k": {
+                "type": "integer",
+                "default": 21,
+                "description": "Value of k used during k-mer analysis with `jellyfish`.",
+                "meta": ["jellyfish_k"]
+            },
+            "jellyfish_size": {
+                "type": "string",
+                "default": "200M",
+                "description": "Initial hash size used by `jellyfish count`.",
+                "meta": ["jellyfish_size"]
+            },
+            "polish": {
+                "type": "string",
+                "description": "String describing the polishing strategy. Takes priority over boolean selectors.",
+                "enum": ["pilon", "dorado", "medaka", "dorado+pilon", "medaka+pilon"],
+                "meta": ["polish"]
+            },
+            "polish_pilon": {
+                "type": "boolean",
+                "description": "Polish assembly with `pilon`. Requires short reads.",
+                "meta": ["polish_pilon"]
+            },
+            "polish_dorado": {
+                "type": "boolean",
+                "description": "Polish assembly with `dorado` (ONT only).",
+                "meta": ["polish_dorado"]
+            },
+            "polish_medaka": {
+                "type": "boolean",
+                "description": "Polish assembly with `medaka` (ONT only).",
+                "meta": ["polish_medaka"]
+            },
+            "medaka_model": {
+                "type": "string",
+                "description": "Model to use with `medaka`.",
+                "meta": ["medaka_model"]
+            },
+            "scaffold_longstitch": {
+                "type": "boolean",
+                "description": "Scaffold with `longstitch`.",
+                "meta": ["scaffold_longstitch"]
+            },
+            "scaffold_links": {
+                "type": "boolean",
+                "description": "Scaffolding with `links`.",
+                "meta": ["scaffold_links"]
+            },
+            "scaffold_ragtag": {
+                "type": "boolean",
+                "description": "Scaffold with `ragtag` (requires reference).",
+                "meta": ["scaffold_ragtag"]
+            },
+            "scaffold_hic": {
+                "type": "boolean",
+                "description": "Scaffold using HiC reads using `yahs` (requires reads).",
+                "meta": ["scaffold_hic"]
+            },
+            "hic_aligner": {
+                "type": "string",
+                "enum": ["bwa-mem2", "minimap2"],
+                "description": "Aligner to use for HiC reads; default: `'bwa-mem2'`.",
+                "default": "bwa-mem2",
+                "meta": ["hic_aligner"]
+            },
+            "merqury": {
+                "type": "boolean",
+                "default": false,
+                "description": "Run `merqury` if short reads are provided.",
+                "meta": ["merqury"]
+            },
+            "qc_reads": {
+                "type": "string",
+                "description": "Long reads that should be used for QC when both ONT and HiFi reads are provided. Options are `'ont'` or `'hifi'`.",
+                "enum": ["ont", "hifi"],
+                "default": "ont",
+                "meta": ["qc_reads"]
+            },
+            "busco": {
+                "type": "boolean",
+                "description": "Run `BUSCO`.",
+                "meta": ["busco"]
+            },
+            "busco_db": {
+                "type": "string",
+                "format": "directory-path",
+                "default": null,
+                "description": "Path to `BUSCO` data-base (optional).",
+                "meta": ["busco_db"]
+            },
+            "busco_lineage": {
+                "type": "string",
+                "description": "`BUSCO` lineage to use.",
+                "default": "auto_euk",
+                "meta": ["busco_lineage"]
+            },
+            "quast": {
+                "type": "boolean",
+                "description": "Run `QUAST`.",
+                "meta": ["quast"]
+            },
+            "ref_map_bam": {
+                "type": "string",
+                "format": "file-path",
+                "description": "A mapping (bam) of reads mapped to the reference can be provided for QC. If provided, alignment to reference fasta will not run.",
+                "meta": ["ref_map_bam"]
+            },
+            "assembly": {
+                "type": "string",
+                "description": "Can be used to provide existing assembly will skip assembly and perform downstream steps including QC.",
+                "meta": ["assembly"]
+            },
+            "assembly_map_bam": {
+                "type": "string",
+                "format": "file-path",
+                "default": null,
+                "description": "A mapping (bam) of reads mapped to the provided assembly can be specified for QC. If provided, alignment to the provided assembly fasta will not run.",
+                "meta": ["assembly_map_bam"]
+            },
+            "csi_index_size": {
+                "type": "integer",
+                "description": "Index size to use for csi index (default: 14), creating and index of size 2^csi_index_size. See [samtools index documentation](https://www.htslib.org/doc/samtools-index.html) for details. ",
+                "default": 14,
+                "meta": ["csi_index_size"]
+            },
+            "lift_annotations": {
+                "type": "boolean",
+                "description": "Lift-over annotations (requires `ref_gff`).",
+                "default": false,
+                "meta": ["lift_annotations"]
+            },
+            "use_short_reads": {
+                "type": "boolean",
+                "description": "Use short reads.",
+                "meta": ["use_short_reads"]
+            },
+            "shortread_trim": {
+                "type": "boolean",
+                "description": "Trim short reads.",
+                "meta": ["shortread_trim"]
+            },
+            "meryl_k": {
+                "type": "integer",
+                "description": "kmer length for `meryl` / `merqury`.",
+                "default": 21,
+                "minimum": 1,
+                "meta": ["meryl_k"]
+            },
+            "shortread_F": {
+                "type": "string",
+                "format": "file-path",
+                "default": null,
+                "description": "Path to forward short reads.",
+                "meta": ["shortread_F"]
+            },
+            "shortread_R": {
+                "type": "string",
+                "format": "file-path",
+                "default": null,
+                "description": "Path to reverse short reads.",
+                "meta": ["shortread_R"]
+            },
+            "paired": {
+                "type": "boolean",
+                "description": "Are shortreads paired.",
+                "meta": ["paired"]
+            },
+            "hic_trim": {
+                "type": "boolean",
+                "description": "Trim HiC short reads.",
+                "default": false,
+                "meta": ["hic_trim"]
+            },
+            "hic_F": {
+                "type": "string",
+                "format": "file-path",
+                "default": null,
+                "description": "Path to forward HiC short reads.",
+                "meta": ["hic_F"]
+            },
+            "hic_R": {
+                "type": "string",
+                "format": "file-path",
+                "default": null,
+                "description": "Path to reverse HiC short reads.",
+                "meta": ["hic_R"]
             }
         },
-        "required": ["sample", "fastq_1"]
+        "required": ["sample"]
     }
 }

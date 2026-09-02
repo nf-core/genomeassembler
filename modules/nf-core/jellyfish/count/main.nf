@@ -1,0 +1,50 @@
+process JELLYFISH_COUNT {
+    tag "$meta.id"
+    label 'process_medium'
+
+    conda "${moduleDir}/environment.yml"
+    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
+        'https://depot.galaxyproject.org/singularity/kmer-jellyfish:2.3.1--py310h184ae93_5':
+        'biocontainers/kmer-jellyfish:2.3.1--py310h184ae93_5' }"
+
+    input:
+    tuple val(meta), path(fasta)
+    val kmer_length
+    val size
+
+    output:
+    tuple val(meta), path("${prefix}.jf"), emit: jf
+    tuple val("${task.process}"), val('jellyfish'), eval("jellyfish --version sed 's/jellyfish //'"), emit: versions_jellyfish, topic: versions
+
+    when:
+    task.ext.when == null || task.ext.when
+
+    script:
+    def args = task.ext.args ?: ''
+    prefix = task.ext.prefix ?: "${meta.id}"
+    """
+    if [[ ${fasta} == *.gz ]]; then
+        zcat ${fasta} > ${fasta.baseName}.fasta
+    fi
+    if [[ ${fasta} == *.fa ]]; then
+        cp ${fasta} ${fasta.baseName}.fasta
+    fi
+    if [[ ${fasta} == *.fastq ]]; then
+        cp ${fasta} ${fasta.baseName}.fasta
+    fi
+    jellyfish \\
+        count \\
+        $args \\
+        -m ${kmer_length} \\
+        -s ${size} \\
+        -t $task.cpus \\
+        -o ${prefix}.jf \\
+        ${fasta.baseName}.fasta
+    """
+
+    stub:
+    prefix = task.ext.prefix ?: "${meta.id}"
+    """
+    touch ${prefix}.jf
+    """
+}
