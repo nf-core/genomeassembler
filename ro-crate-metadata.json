@@ -119,7 +119,6 @@
             "conformsTo": [
                 {
                     "@id": "https://w3id.org/ro/crate/1.2"
-                    "@id": "https://w3id.org/ro/crate/1.2"
                 },
                 {
                     "@id": "https://w3id.org/workflowhub/workflow-ro-crate/1.0"
