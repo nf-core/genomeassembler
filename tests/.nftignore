@@ -22,12 +22,50 @@ test_flye_hifiasm/scaffold/ragtag/test_flye_hifiasm_ragtag.stats
 **/*.html
 *.pdf
 *_reports.csv
-**/QUAST/*.csv
-**/QUAST/*.pdf
-**/QUAST/*.bam
-**/QUAST/*.tsv
-**/QUAST/misassemblies_report.*
-**/QUAST/*transposed_report.*
+**/*.sf
+**/QUAST/**/*.{bam,bai,idxstats}
+**/QUAST/*.{bam,bai,idxstats}
+**/QUAST/**/*flye-assembly.*
+**/QUAST/*flye-assembly.*
+**/QUAST/**/*.csv
+**/QUAST/**/*.pdf
+**/QUAST/**/*.bam
+**/QUAST/**/*.tsv
+**/QUAST/**/report.tsv
+**/QUAST/*report.tsv
+**/QUAST/**/misassemblies_report.*
+**/QUAST/**/*transposed_report.*
 **/*.flagstat
-**/QUAST/*/contigs_reports/*
+**/QUAST/**/contigs_reports/*
 *.log
+**/*glimmer.stderr
+**/*glimmer_genes.gff
+**/*genomic_features_any.txt
+**/QUAST/**/reads_stats/*.bam.header
+**/QUAST/**/reads_stats/*.stat
+**/QUAST/*report.tex
+**/QUAST/**/report.tex
+**/QUAST/*reads_report.*
+**/QUAST/**/reads_report.*
+**QC/alignemnts/*
+reports.csv
+report.txt
+genome_info.txt
+report/quast_files/reports.csv
+reports.csv
+test_flye_hifiasm/QC/QUAST/test_flye_hifiasm_assembly.tsv
+test_flye_hifiasm/QC/QUAST/test_flye_hifiasm_assembly/report.txt
+test_flye_hifiasm/QC/QUAST/test_flye_hifiasm_ragtag.tsv
+test_flye_hifiasm/QC/alignments/test_flye_hifiasm_assembly.{bam, bam.bai, flagstat, idxstats, stats}
+test_flye_hifiasm/QC/alignments/test_flye_hifiasm_assembly_patch.patch.fa.gz.{fai, gzi}
+test_flye_hifiasm/QC/alignments/test_flye_hifiasm_ragtag.fa.gz.{fai, gzi}
+test_flye_hifiasm/QC/alignments/test_flye_hifiasm_ragtag.{bam, bam.bai, flagstat, idxstats, stats}
+test_hifi_hifiasm/QC/alignments/test_hifi_hifiasm_assembly.stats
+test_hifiasm_ul/QC/alignments/test_hifiasm_ul_assembly.stats
+test_ont_flye/QC/QUAST/test_ont_flye_assembly.tsv
+test_ont_flye/QC/QUAST/test_ont_flye_assembly/genome_stats/genome_info.txt
+test_ont_flye/QC/QUAST/test_ont_flye_assembly_misassemblies.tsv
+test_ont_flye/QC/QUAST/test_ont_flye_assembly/report.txt
+test_ont_flye/QC/QUAST/test_ont_flye_assembly_unaligned.tsv
+test_ont_flye/QC/alignments/test_ont_flye.assembly.fa.gz.{fai,gzi}
+test_ont_flye/QC/alignments/test_ont_flye.assembly.{bam, bam.bai, flagstat, idxstats, stats}
