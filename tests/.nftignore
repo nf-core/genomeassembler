@@ -22,9 +22,12 @@ test_flye_hifiasm/scaffold/ragtag/test_flye_hifiasm_ragtag.stats
 **/*.html
 *.pdf
 *_reports.csv
-**/test_flye_hifiasm_assembly.bam
-**/*transposed_report.*
-**/report.*
-**/all_alignments_test_*
-**/misassemblies_report.*
+**/QUAST/*.csv
+**/QUAST/*.pdf
+**/QUAST/*.bam
+**/QUAST/*.tsv
+**/QUAST/misassemblies_report.*
+**/QUAST/*transposed_report.*
+**/*.flagstat
+**/QUAST/*/contigs_reports/*
 *.log
