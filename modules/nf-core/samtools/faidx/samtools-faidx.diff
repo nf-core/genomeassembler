@@ -5,7 +5,7 @@ Changes in 'samtools/faidx/main.nf':
 --- modules/nf-core/samtools/faidx/main.nf
 +++ modules/nf-core/samtools/faidx/main.nf
 @@ -8,7 +8,7 @@
-         'biocontainers/samtools:1.22.1--h96c455f_0' }"
+         : 'community.wave.seqera.io/library/htslib_samtools:1.24--d697cfb9dce007cd'}"
  
      input:
 -    tuple val(meta), path(fasta), path(fai)

@@ -60,9 +60,9 @@ workflow HIC {
 
     add_rg_in = BWAMEM2_MEM.out.bam.mix(MINIMAP2_HIC.out.bam)
 
-    ADD_RG(add_rg_in, [[],[]], [[],[]])
+    ADD_RG(add_rg_in, [[],[],[]])
 
-    MARKDUP(ADD_RG.out.bam, [[],[]], [[],[]])
+    MARKDUP(ADD_RG.out.bam, [[],[],[]])
 
     faidx_in = MARKDUP.out.bam
         .map { meta, bam -> [meta.id, meta, bam] }

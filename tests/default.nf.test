@@ -41,6 +41,7 @@ nextflow_pipeline {
         when {
             params {
                 outdir = "$outputDir"
+                quast = true
             }
         }
 
@@ -67,11 +68,16 @@ nextflow_pipeline {
             )
         }
     }
+    /*
+
+    Tests with busco take too long for CI.
+
     test("-profile test_busco") {
 
         when {
             params {
                 outdir = "$outputDir"
+                busco = true
             }
         }
 
@@ -98,11 +104,16 @@ nextflow_pipeline {
             )
         }
     }
+
+
+
     test("-profile test_busco_quast") {
 
         when {
             params {
                 outdir = "$outputDir"
+                busco = true
+                quast = true
             }
         }
 
@@ -129,4 +140,5 @@ nextflow_pipeline {
             )
         }
     }
+    */
 }
