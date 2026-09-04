@@ -56,10 +56,13 @@ reports.csv
 test_flye_hifiasm/QC/QUAST/test_flye_hifiasm_assembly.tsv
 test_flye_hifiasm/QC/QUAST/test_flye_hifiasm_assembly/report.txt
 test_flye_hifiasm/QC/QUAST/test_flye_hifiasm_ragtag.tsv
-test_flye_hifiasm/QC/alignments/test_flye_hifiasm_assembly.{bam, bam.bai, flagstat, idxstats, stats}
 test_flye_hifiasm/QC/alignments/test_flye_hifiasm_assembly_patch.patch.fa.gz.{fai, gzi}
 test_flye_hifiasm/QC/alignments/test_flye_hifiasm_ragtag.fa.gz.{fai, gzi}
-test_flye_hifiasm/QC/alignments/test_flye_hifiasm_ragtag.{bam, bam.bai, flagstat, idxstats, stats}
+test_flye_hifiasm/QC/alignments/test_flye_hifiasm_ragtag.bam
+test_flye_hifiasm/QC/alignments/test_flye_hifiasm_ragtag.bam.bai
+test_flye_hifiasm/QC/alignments/test_flye_hifiasm_ragtag.flagstat
+test_flye_hifiasm/QC/alignments/test_flye_hifiasm_ragtag.idxstats
+test_flye_hifiasm/QC/alignments/test_flye_hifiasm_ragtag.stats
 test_hifi_hifiasm/QC/alignments/test_hifi_hifiasm_assembly.stats
 test_hifiasm_ul/QC/alignments/test_hifiasm_ul_assembly.stats
 test_ont_flye/QC/QUAST/test_ont_flye_assembly.tsv
@@ -68,4 +71,8 @@ test_ont_flye/QC/QUAST/test_ont_flye_assembly_misassemblies.tsv
 test_ont_flye/QC/QUAST/test_ont_flye_assembly/report.txt
 test_ont_flye/QC/QUAST/test_ont_flye_assembly_unaligned.tsv
 test_ont_flye/QC/alignments/test_ont_flye.assembly.fa.gz.{fai,gzi}
-test_ont_flye/QC/alignments/test_ont_flye.assembly.{bam, bam.bai, flagstat, idxstats, stats}
+test_ont_flye/QC/alignments/test_ont_flye.assembly.bam
+test_ont_flye/QC/alignments/test_ont_flye.assembly.bam.bai
+test_ont_flye/QC/alignments/test_ont_flye.assembly.flagstat
+test_ont_flye/QC/alignments/test_ont_flye.assembly.idxstats
+test_ont_flye/QC/alignments/test_ont_flye.assembly.stats
