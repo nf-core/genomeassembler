@@ -2176,20 +2176,10 @@
                 "test_ont_hifiasm_hic/scaffold/hic/yahs/test_ont_hifiasm_hic_hic_scaffolds_final.fa.gz"
             ],
             [
-                "test_flye_hifiasm_assembly.tsv:md5,60d4dd0213debb2095f38aa3d170ddcf",
                 "reads_stats.err:md5,d41d8cd98f00b204e9800998ecf8427e",
                 "reads_stats.log:md5,d41d8cd98f00b204e9800998ecf8427e",
-                "test_flye_hifiasm_ragtag.tsv:md5,545938c3113deab1d0ad539cf9f83bed",
                 "reads_stats.err:md5,d41d8cd98f00b204e9800998ecf8427e",
                 "reads_stats.log:md5,d41d8cd98f00b204e9800998ecf8427e",
-                "test_flye_hifiasm_assembly_patch.patch.fa.gz.fai:md5,765b1a683fbec8e8c55cb88fb90739b4",
-                "test_flye_hifiasm_assembly_patch.patch.fa.gz.gzi:md5,ea34fab08f7be50dda279ea02ba5a485",
-                "test_flye_hifiasm_ragtag.bam:md5,55cf5759131684167220d34b24d92ef2",
-                "test_flye_hifiasm_ragtag.bam.bai:md5,26f9616b1daf99b914fa617b4f9612a5",
-                "test_flye_hifiasm_ragtag.fa.gz.fai:md5,6f00b07a2545b22993b2c5025a83f4ed",
-                "test_flye_hifiasm_ragtag.fa.gz.gzi:md5,b8659065c66b2a731b6cc342f946054e",
-                "test_flye_hifiasm_ragtag.idxstats:md5,35568bf6a19b8801774c08dcac1b6c85",
-                "test_flye_hifiasm_ragtag.stats:md5,4a6c7f6e5ae831a685e3cd6adb49fb00",
                 "test_flye_hifiasm.params.json:md5,afa91c041bce5e190f4a699d11b69db6",
                 "test_flye_hifiasm.bp.hap1.p_ctg.gfa:md5,46ee70869884ad585165bd48081414e9",
                 "test_flye_hifiasm.bp.hap2.p_ctg.gfa:md5,7792865547989d6d284f640425c4e36c",
@@ -2412,7 +2402,6 @@
                 "test_hifiasm_ul.fa:md5,77e3d5af48175c784bfd217048fe271b",
                 "test_hifiasm_ul_hifi.fastplong.json:md5,7a77e64c435731195dc125e250763c50",
                 "test_hifiasm_ul_ont.fastplong.json:md5,5f77e335500f65bf08f9b4730d5bce8e",
-                "test_ont_flye_assembly.tsv:md5,2bc2a2abb5f069e80e8066ca599342d1",
                 "gc.icarus.txt:md5,38e1861f7ed13757ef633e0de93fe2d0",
                 "Col-CEN_v1.2.Chr1_5MB-7MB.bed:md5,d41d8cd98f00b204e9800998ecf8427e",
                 "Col-CEN_v1.2.Chr1_5MB-7MB.cov:md5,5e5250e698520c3891bef09ae5b39b10",
@@ -2420,8 +2409,6 @@
                 "reads_stats.err:md5,109d237de9d6239490af89980ed4b3a0",
                 "reads_stats.log:md5,d41d8cd98f00b204e9800998ecf8427e",
                 "test_ont_flye_to_reference.sam.header:md5,bd965dd83f056098ef7355842e286fdb",
-                "test_ont_flye_assembly_misassemblies.tsv:md5,5a41e416012d23311de62bfe23958806",
-                "test_ont_flye_assembly_unaligned.tsv:md5,1d267badc2dbcefbbb76a7d39dd8a8a5",
                 "test_ont_flye_to_reference.gz:md5,d17918fcbc3399654f5775c166092425",
                 "test_ont_flye_to_reference.bam:md5,ad95da807bcd97c8e846cf8190ce7f9e",
                 "test_ont_flye_to_reference.bam.bai:md5,97ef2ba0603bab5cc36ad1c2766b92db",
@@ -2429,10 +2416,6 @@
                 "test_ont_flye_to_reference.gz.gzi:md5,16d14dddfa09127fef7f01d3112e8429",
                 "test_ont_flye_to_reference.idxstats:md5,6a70561ef9d9a595a505b6fbf31749d4",
                 "test_ont_flye_to_reference.stats:md5,5b7e51f2b45d54df2867637cb4cbf4e6",
-                "test_ont_flye_assembly.bam:md5,f00a0f454f10afc78dfdb7eef369872a",
-                "test_ont_flye_assembly.bam.bai:md5,8af7280c5c5973b798c883110ca29c85",
-                "test_ont_flye_assembly.idxstats:md5,058984626d199e7a0e93b514f8faf7bb",
-                "test_ont_flye_assembly.stats:md5,5032c976261b71e4bf3560a1a4fc9b90",
                 "test_ont_flye.params.json:md5,afa91c041bce5e190f4a699d11b69db6",
                 "test_ont_flye_assembly.unmapped.txt:md5,d41d8cd98f00b204e9800998ecf8427e",
                 "test_ont_flye_hifi.fastplong.json:md5,bb5178d925be5af0ef328812beaa9458",
@@ -2539,7 +2522,7 @@
                 "test_ont_hifiasm_hic_hic_scaffolds_final.fa:md5,3ac2a0232e899bcb28b72e3c4f1c2d79"
             ]
         ],
-        "timestamp": "2026-09-04T13:59:10.655354367",
+        "timestamp": "2026-09-04T14:59:11.472624752",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "25.10.4"
