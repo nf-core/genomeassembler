@@ -5,7 +5,7 @@ Changes in 'liftoff/main.nf':
 --- modules/nf-core/liftoff/main.nf
 +++ modules/nf-core/liftoff/main.nf
 @@ -8,9 +8,7 @@
-         'biocontainers/liftoff:1.6.3--pyhdfd78af_0' }"
+         'quay.io/biocontainers/liftoff:1.6.3--pyhdfd78af_0' }"
  
      input:
 -    tuple val(meta), path(target_fa)

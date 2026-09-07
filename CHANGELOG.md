@@ -113,11 +113,11 @@ The following modules have been added:
 | --------- | ------ | --------------- |
 | dorado    | -      | 1.3.1+7c84b01de |
 | bwamem2   | -      | 2.3             |
-| fastp     | -      | 1.0.1           |
-| fastplong | -      | 0.3.0           |
+| fastp     | -      | 1.3.6           |
+| fastplong | -      | 0.4.1           |
 | gfatools  | -      | 0.5             |
-| htslib    | -      | 1.23.1          |
-| picard    | -      | 3.4.0           |
+| htslib    | -      | 1.24.           |
+| picard    | -      | 3.5.0           |
 | yahs      | -      | 1.2.2           |
 
 #### Updated
@@ -126,9 +126,10 @@ The following tools have been updated to a new version:
 
 | name         | v1.1.0 | v2.0.0 |
 | ------------ | ------ | ------ |
+| busco        | 5.8.3  | 6.1.0  |
 | genomescope2 | 2.0    | 2.0.0  |
-| busco        | 5.8.3  | 6.0.0  |
 | medaka       | 2.0.1  | 2.2.2  |
+| minimap2     | 2.29   | 2.30   |
 
 #### `Deprecated`
 
@@ -165,7 +166,6 @@ The following tools are unchanged:
 | links      | 2.0.1  | 2.0.1  |
 | merqury    | 1.3    | 1.3    |
 | meryl      | 1.4.1  | 1.4.1  |
-| minimap2   | 2.29   | 2.29   |
 | samtools   | 1.21   | 1.21   |
 | pilon      | 1.24   | 1.24   |
 | ragtag     | 2.1.0  | 2.1.0  |

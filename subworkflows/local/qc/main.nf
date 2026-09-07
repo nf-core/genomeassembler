@@ -66,7 +66,20 @@ workflow QC {
                 meta: meta + [ assembly_map_bam: assembly_map_bam ]
             ]
         }
-        .mix(ch_map_branched.no_map_to_assembly)
+        .mix(
+            ch_map_branched.no_map_to_assembly
+                .map {
+                    it -> [ it.meta.id, it.meta ]
+                }
+                .join(scaffolds)
+                .map {
+                    _id, meta, target_scaffolds ->
+                    [
+                      meta: meta + [qc_target: target_scaffolds] // QC Target only exists in QC channel, and takes the scaffold that should be qc'ed
+                    ]
+                }
+        )
+    ch_qc.dump(tag: "CH_QC after mapping:")
 
     quast_in = ch_qc
         .filter {
@@ -96,6 +109,8 @@ workflow QC {
                 busco_lineage: it.meta.busco_lineage
                 busco_db: it.meta.busco_db ? file(it.meta.busco_db, checkIfExists: true) : []
             }
+
+    busco_in.fasta.dump(tag: "QC: BUSCO FASTA: ")
 
     BUSCO(busco_in.fasta, 'genome', busco_in.busco_lineage, busco_in.busco_db , [], true)
     busco_out = BUSCO.out.batch_summary
