@@ -107,3 +107,4 @@ pipeline_info/*.{html,json,txt,yml}
 **/test_hifiasm_ul_longstitch.bam.bai
 **/test_hifiasm_ul_longstitch.idxstats
 **/test_hifiasm_ul_longstitch.stats
+**/*.stats
