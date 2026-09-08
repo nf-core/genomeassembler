@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 This is a major release, with breaking changes.
 
-The pipeline now implements topics to collect software version, the minimum `nextflow` version is `25.10.0`.
+The pipeline now implements topics to collect software version, the minimum `nextflow` version is `25.10.4`.
 
 v2.0.0 of genomeassembler is a large refactor of the pipeline to facilitate sample-level parameteristation. This allows to either parameterise the _pipeline_ using `params`, or parameterise _samples_ via the `input` samplesheet. In case both types of parameterisations are used, sample parameters will take priority.
 
