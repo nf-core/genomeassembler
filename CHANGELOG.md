@@ -79,7 +79,7 @@ Pull requests in reverse chronological order since v1.1.0
   - mapping with `bwamem2` or `minimap2`
   - duplicate removal with `picard`
   - scaffolding with `yahs`
-- Switched to the versions topic, requires nextflow >=25.10.0
+- Switched to the versions topic, requires nextflow >=25.10.4
 
 [#185](https://github.com/nf-core/genomeassembler/issues/180)
 
