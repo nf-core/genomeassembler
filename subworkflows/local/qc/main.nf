@@ -92,9 +92,11 @@ workflow QC {
                 ]
                 use_ref: [it.meta, it.meta.use_ref ? it.meta.ref_fasta : []]
                 use_gff: [it.meta, it.meta.use_ref && it.meta.ref_gff ? it.meta.ref_gff : []]
+                ref_bam: [it.meta, it.meta.ref_map_bam ?: []]
+                assembly_bam: [it.meta, it.meta.assembly_map_bam ?: []]
             }
 
-    QUAST(quast_in.quast_in, quast_in.use_ref, quast_in.use_gff)
+    QUAST(quast_in.quast_in, quast_in.use_ref, quast_in.use_gff, quast_in.ref_bam, quast_in.assembly_bam)
     quast_out = QUAST.out.tsv
 
     busco_in = ch_qc

@@ -131,7 +131,8 @@
                     "quast": {
                         "branch": "master",
                         "git_sha": "9a034dd2c5df2c9b283e09ddf2667d9118b4ccd7",
-                        "installed_by": ["modules"]
+                        "installed_by": ["modules"],
+                        "patch": "modules/nf-core/quast/quast.diff"
                     },
                     "ragtag/patch": {
                         "branch": "master",
