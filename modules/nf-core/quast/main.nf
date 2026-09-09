@@ -11,6 +11,8 @@ process QUAST {
     tuple val(meta) , path(consensus)
     tuple val(meta2), path(fasta)
     tuple val(meta3), path(gff)
+    tuple val(meta4), path(ref_map_bam)
+    tuple val(meta5), path(assembly_map_bam)
 
     output:
     tuple val(meta), path("${prefix}")                   , emit: results
@@ -24,16 +26,20 @@ process QUAST {
     task.ext.when == null || task.ext.when
 
     script:
-    def args      = task.ext.args   ?: ''
-    prefix        = task.ext.prefix ?: "${meta.id}"
-    def features  = gff             ?  "--features $gff" : ''
-    def reference = fasta           ?  "-r $fasta"       : ''
+    def args      = task.ext.args       ?: ''
+    prefix        = task.ext.prefix     ?: "${meta.id}"
+    def features  = gff                 ?  "--features $gff" : ''
+    def reference = fasta               ?  "-r $fasta"       : ''
+    def ref_bam   = ref_map_bam         ?  "--ref-bam ${ref_map_bam}" : ''
+    def ass_bam   = assembly_map_bam    ?  "--bam ${assembly_map_bam}" : ''
     """
     quast.py \\
         --output-dir $prefix \\
         $reference \\
         $features \\
         --threads $task.cpus \\
+        $ref_bam \\
+        $ass_bam \\
         $args \\
         ${consensus.join(' ')}
 
