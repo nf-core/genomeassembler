@@ -1,16 +1,23 @@
 lint:
-  multiqc_config: false
   files_exist:
     - conf/igenomes.config
     - conf/igenomes_ignored.config
-    - assets/sendmail_template.txt
     - assets/multiqc_config.yml
     - .github/workflows/linting_comment.yml
   files_unchanged:
     - .github/CONTRIBUTING.md
-    - .github/workflows/branch.yml
-    - .github/workflows/linting.yml
-nf_core_version: 3.3.2
+    - assets/sendmail_template.txt
+    - .github/CONTRIBUTING.md
+    - .github/PULL_REQUEST_TEMPLATE.md
+    - assets/nf-core-genomeassembler_logo_light.png
+    - assets/nf-core-genomeassembler_logo_light.png
+    - docs/images/nf-core-genomeassembler_logo_light.png
+    - docs/images/nf-core-genomeassembler_logo_dark.png
+    - .prettierignore
+    - .gitignore
+    - nf-core-genomeassembler_logo_dark.svg
+  multiqc_config: false
+nf_core_version: 4.1.0
 repository_type: pipeline
 template:
   author: Niklas Schandry
@@ -23,4 +30,4 @@ template:
   skip_features:
     - multiqc
     - igenomes
-  version: 1.1.0
+  version: 2.0.0

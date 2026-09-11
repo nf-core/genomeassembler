@@ -10,26 +10,19 @@ process STATS {
 
     output:
     tuple val(meta), path("*.txt"), emit: stats
-    path "versions.yml", emit: versions
+    tuple val("${task.process}"), val('jellyfish'), eval("jellyfish --version sed 's/jellyfish //'"), emit: versions_jellyfish, topic: versions
+
 
 
     script:
     def prefix = task.ext.prefix ?: "${meta.id}"
     """
     jellyfish stats ${kmers} > ${prefix}_stats.txt
-    cat <<-END_VERSIONS > versions.yml
-    "${task.process}":
-        jellyfish: \$(echo \$(jellyfish --version sed 's/jellyfish //'))
-    END_VERSIONS
-    """
+     """
 
     stub:
     def prefix = task.ext.prefix ?: "${meta.id}"
     """
     touch ${prefix}_stats.txt
-    cat <<-END_VERSIONS > versions.yml
-    "${task.process}":
-        jellyfish: \$(echo \$(jellyfish --version sed 's/jellyfish //'))
-    END_VERSIONS
     """
 }

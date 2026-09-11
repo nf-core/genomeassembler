@@ -79,6 +79,7 @@ If you wish to contribute a new step, please use the following coding standards:
 6. Add sanity checks and validation for all relevant parameters.
 7. Perform local tests to validate that the new code works as expected.
 8. If applicable, add a new test in the `tests` directory.
+9. Add a description of the output files and if relevant any appropriate images from the MultiQC report to `docs/output.md`.
 
 ### Default values
 
@@ -121,3 +122,151 @@ To get started:
 Devcontainer specs:
 
 - [DevContainer config](.devcontainer/devcontainer.json)
+
+# Pipeline specific conventions
+
+## Parameters
+
+Due to the way the pipeline handles parameterization of inputs, if a parameter is added, the corresponding param needs to also be added to the meta-map constructor in `subworkflows/local/utils_nfcore_genomeassembler_pipeline/main.nf`, and `assets/schema_input.json` and `nextflow_schema.json` need to be updated accordingly.
+
+## Adding a new step
+
+Any steps added to the pipeline need to be compatible with the overall pipeline.
+During 'transit', this pipeline makes use of a channel (`ch_main`) that consists of a singular item: the `meta` map.
+This is constructed in `subworkflows/local/utils_nfcore_genomeassembler_pipeline/main.nf`.
+This map stores _all_ sample information, which includes every parameter.
+Every subworkflow has to emit `ch_main`, i.e. a channel that only contains the `meta` map.
+All steps that are related to the creation of this map, including handling of conditional execution, need to happen in the subworkflow, to ensure that the full `ch_main` travels through the pipeline.
+
+Below are patterns that are used in this pipeline to do work with `ch_main`.
+
+### Single input
+
+General generation of input for a single input process:
+
+```nextflow
+ch_process_in = ch_main
+    .map { meta -> [meta, meta.reads] }
+SINGLE_INPUT_PROCESS(ch_process_in)
+```
+
+General approach to create output and transit `ch_main` channel:
+
+```nextflow
+ch_main = SINGLE_INPUT_PROCESS.out.output
+    .map{ meta, process_output -> [meta + [process_output_name: process_output]]}
+```
+
+> [!NOTE]
+> Use `meta - meta.subMap["key"] + [key: value]` to remove an existing item in case it should be updated
+
+### Multi input
+
+General generation of input for a multi input process:
+
+```nextflow
+ch_process_multi_in = ch_main
+    .multiMap { meta ->
+        input_reads: [meta, meta.reads]
+        input_ref:   [meta, meta.reference]
+    }
+MULTI_INPUT_PROCESS(ch_process_multi_in.input_reads ch_process_multi_in.input_ref)
+```
+
+### Flow-control
+
+Since the pipeline parameterises per sample, flow control has to be done on channels, via `.branch()`, or `.filter()`.
+`.filter()` offers more flexibility, in complex cases, e.g. where samples can be part of multiple groups, while I personally find `.branch()` easier to handle simpler cases.
+
+```nextflow
+ch_conditional_process =
+    ch_main
+        .branch { meta ->
+            process_in:   meta.run_conditional_process == "yes"
+            process_skip: meta.run_conditional_process != "yes"
+        }
+
+conditional_process_in =
+    ch_conditional_process.process_in
+    //additional modifications via map possible here, see above
+CONDITIONAL_PROCESS(conditional_process_in)
+```
+
+### Output creation
+
+Ouptputs for conditional channels need to be handled to recreate the whole transit channel, via `.mix()`:
+
+```nextflow
+ch_main = ch_conditional_process.process_skip
+    .mix(
+      CONDITIONAL_PROCESS.out.output
+          .map{ meta, process_output ->
+            [
+              meta + [process_output_name: process_output]
+            ]
+          }
+   )
+```
+
+### Grouping
+
+The pipeline implements sample grouping, which is currently only used during read-preprocessing. Samples that share a group will undergo read-preprocessing as a group, i.e. the reads are only processed once.
+Grouping works by generating a new `meta.id`, which corresponds to the group, while the `meta`s of the group members are stored in `meta.metas`:
+
+```nextflow
+ch_ont_in = ch_main
+    // filter for samples that have a group
+    .filter { it -> it.meta.group }
+    // move group, and required inputs into slots:
+    .map { it -> [it.meta, it.meta.group, it.meta.ontreads] }
+    // Group by meta.group
+    .groupTuple(by: 1)
+    // Collect all sample-meta into a group meta slot named metas
+    // Use unique reads; user responsible to group correctly
+    .map {
+         it ->
+                [
+                    [
+                        id: it[1], // the group
+                        metas: it[0]
+                    ],
+                    it[2].unique()[0] // Ontreads
+                ]
+    }
+    // Mix in those samples that are not grouped
+    .mix(
+      ch_main
+          .filter { it -> !it.meta.group }
+          .map {
+              it -> [ it.meta, it.meta.ontreads, [] ]
+          }
+        )
+ONT_PROCESS(ont_in)
+```
+
+After this process has concluded, the group members are regenerated, and ch_main is reconstructed:
+
+```nextflow
+ch_main = ONT_PROCESS
+    .out
+    .output
+    .filter { it -> it[0].metas } // metas only exists when grouped.
+    .flatMap { it -> // it looks like [meta, output_path]
+        it[0].metas
+              .collect { metas -> [ meta: metas + [ ontreads_modified: it[1] ] ] }
+              // it here is the it from flatMap. Every group member receives the same output.
+    }
+    .mix(ONT_PROCESS.out.output
+        .filter { it -> !it[0].metas }
+        .map {
+            it -> [ meta: it[0] + [ ontreads_modified: it[1] ] ]
+        }
+    )
+```
+
+### Naming schemes
+
+Please use the following channel naming schemes, to make it easy to understand what is going where.
+
+- transit channel, subworkfow input and output: `ch_main`
+- intermediate channels: `ch_descriptive_suffix`

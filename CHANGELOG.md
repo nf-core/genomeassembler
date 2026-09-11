@@ -3,6 +3,177 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v2.0.0 - 'Saffron Vulture' - [2026-xx-xx]
+
+This is a major release, with breaking changes.
+
+The pipeline now implements topics to collect software version, the minimum `nextflow` version is `25.10.4`.
+
+v2.0.0 of genomeassembler is a large refactor of the pipeline to facilitate sample-level parameteristation. This allows to either parameterise the _pipeline_ using `params`, or parameterise _samples_ via the `input` samplesheet. In case both types of parameterisations are used, sample parameters will take priority.
+
+Since this workflow follows a sample-centric implementation, nextflow will always render the full pipeline dag, but depending on configuration samples may not travel through the whole pipeline. This may also cause terminal output to show task instances that will never become an active process.
+
+In addition, v2.0.0 contains these changes:
+
+### `Added`
+
+Pull requests in reverse chronological order since v1.1.0
+
+[#215](https://github.com/nf-core/genomeassembler/pull/215)
+
+- Prepare samplesheet for downstream QC with [nf-core/genomeqc](https://nf-co.re/genomeqc)
+
+[#212](https://github.com/nf-core/genomeassembler/pull/212)
+
+- bumped medaka to 2.2.2
+
+[#207](https://github.com/nf-core/genomeassembler/pull/207)
+
+- additional tests for QC modules
+
+- Report can now deal with QUAST runs without reference
+
+[#203](https://github.com/nf-core/genomeassembler/pull/203)
+
+- Switched to nf-schema for input parsing
+
+- Added test with HiC dataset (kindly prepared by @OlivierCoen).
+
+[#198](https://github.com/nf-core/genomeassembler/pull/198)
+
+- Simplifies changes to ensure bgzipped outputs introduced in #192.
+
+[#197](https://github.com/nf-core/genomeassembler/pull/197)
+
+- Fix handling of reads for quality control, inputs for jellyfish should be trimmed.
+
+[#196](https://github.com/nf-core/genomeassembler/pull/196)
+
+- bgzip `medaka` outputs
+
+[#195](https://github.com/nf-core/genomeassembler/pull/195)
+
+- Fixed oversight in #171 where hifi reads were not assembled via flye with strategy `single`.
+
+[#194](https://github.com/nf-core/genomeassembler/pull/194)
+
+- Update `CONTRIBUTING.md`.
+
+[#193](https://github.com/nf-core/genomeassembler/pull/193)
+
+- Update `OUTPUT.md` with bgzipped files.
+
+[#192](https://github.com/nf-core/genomeassembler/pull/192)
+
+- BGZIP is now used for all fasta outputs, input for SAMTOOLS_FAIDX is no longer unzipped.
+
+[#171](https://github.com/nf-core/genomeassembler/issues/171)
+
+- fastplong for long-read trimming and qc
+- fastp for short-read trimming and qc
+- migration to nf-test
+- increased flexibility of the scaffolding strategy
+- added option to group samples
+- `dorado polish` added as an alternative to `medaka` for ONT polishing. This is an **experimental feature**, due to `dorado` being under active development.
+- HiC scaffolding subworkflow:
+  - mapping with `bwamem2` or `minimap2`
+  - duplicate removal with `picard`
+  - scaffolding with `yahs`
+- Switched to the versions topic, requires nextflow >=25.10.4
+
+[#185](https://github.com/nf-core/genomeassembler/issues/180)
+
+- Template update to 4.0.2
+
+[#180](https://github.com/nf-core/genomeassembler/issues/180)
+
+- Template update to 3.5.1
+
+[#177](https://github.com/nf-core/genomeassembler/issues/177)
+
+- Template update to 3.4.1
+
+[#164](https://github.com/nf-core/genomeassembler/issues/164)
+
+- Template update to 3.3.1
+
+### `Fixed`
+
+[#176](https://github.com/nf-core/genomeassembler/issues/176)
+
+- Fixed typo in medaka url (@TomHarrop)
+
+[#223](https://github.com/nf-core/genomeassembler/issues/223)
+
+- Add exitcode `2` as retry code for links in AWS fulltest profile.
+
+### `Dependencies`
+
+#### New
+
+The following modules have been added:
+
+| name      | v1.1.0 | v2.0.0          |
+| --------- | ------ | --------------- |
+| dorado    | -      | 1.3.1+7c84b01de |
+| bwamem2   | -      | 2.3             |
+| fastp     | -      | 1.3.6           |
+| fastplong | -      | 0.4.1           |
+| gfatools  | -      | 0.5             |
+| htslib    | -      | 1.24.           |
+| picard    | -      | 3.5.0           |
+| yahs      | -      | 1.2.2           |
+
+#### Updated
+
+The following tools have been updated to a new version:
+
+| name         | v1.1.0 | v2.0.0 |
+| ------------ | ------ | ------ |
+| busco        | 5.8.3  | 6.1.0  |
+| genomescope2 | 2.0    | 2.0.0  |
+| medaka       | 2.0.1  | 2.2.2  |
+| minimap2     | 2.29   | 2.30   |
+
+#### `Deprecated`
+
+The following tools have been deprecated:
+
+| name       | v1.1.0 | v2.0.0                   |
+| ---------- | ------ | ------------------------ |
+| nanoq      | 0.10.0 | deprecated               |
+| lima       | 2.12.0 | deprecated               |
+| porechop   | 0.2.4  | deprecated               |
+| pigz       | 2.8    | deprecated with porechop |
+| trimgalore | 0.6.10 | deprecated               |
+| cutadapt   | 4.9    | deprecated               |
+
+The following param is no longer implemented:
+
+- `dump`, used to dump jellyfish output.
+
+#### Unchanged
+
+The following tools are unchanged:
+
+| name       | v1.1.0 | v2.0.0 |
+| ---------- | ------ | ------ |
+| coreutils  | 9.5    | 9.5    |
+| jellyfish  | 2.3.1  | 2.3.1  |
+| longstitch | 1.0.5  | 1.0.5  |
+| quast      | 5.3.0  | 5.3.0  |
+| quarto     | 1.7.31 | 1.7.31 |
+| fastqc     | 0.12.1 | 0.12.1 |
+| flye       | 2.9.5  | 2.9.5  |
+| hifiasm    | 0.25.0 | 0.25.0 |
+| liftoff    | 1.6.3  | 1.6.3  |
+| links      | 2.0.1  | 2.0.1  |
+| merqury    | 1.3    | 1.3    |
+| meryl      | 1.4.1  | 1.4.1  |
+| samtools   | 1.21   | 1.21   |
+| pilon      | 1.24   | 1.24   |
+| ragtag     | 2.1.0  | 2.1.0  |
+
 ## v1.1.0 'Brass Pigeon' - [2025-07-21]
 
 ### `Added`
@@ -72,3 +243,5 @@ Initial release of nf-core/genomeassembler, created with the [nf-core](https://n
 ### `Dependencies`
 
 ### `Deprecated`
+
+Codenames for v1.x are various types of metallic pigeons, v2.x are vultures of different colors.

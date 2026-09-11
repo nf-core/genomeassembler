@@ -11,9 +11,9 @@ The directories listed below will be created in the results directory after the 
 The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes data using the following steps:
 
 - [**Read preparation**](#read-preparation)
-  - [**ONT Reads**](#ont-reads):
-  - [**HiFi reads**](#hifi-reads):
-  - [**Short reads**](#short-reads):
+  - [**Long reads**](#long-reads)
+  - [**Short reads**](#short-reads)
+  - [**HiC reads**](#hic-reads)
 - [**Assembly**](#assembly), choice between assemblers
 - [**Polishing**](#polishing)
 - [**Scaffolding**](#scaffolding)
@@ -38,10 +38,10 @@ Within each sample, the files are structured as follows:
 
 The outputs from all read preparation steps are emitted into `<SampleName>/reads/`.
 
-#### ONT reads
+#### Long reads
 
-If the basecalls are scattered across multiple files, `collect` can be used to collect those into a single file.
-[porechop](https://github.com/rrwick/Porechop) is a tool that identifies and trims adapter sequences from ONT reads.
+If the ONT basecalls are scattered across multiple files, `collect` can be used to collect those into a single file.
+[fastplong](https://github.com/OpenGene/fastplong) is a tool for QC and preprocessing of long-reads.
 [genomescope](https://github.com/tbenavi1/genomescope2.0) estimates genome size and ploidy from the k-mer spectrum computed by [jellyfish](https://github.com/gmarcais/Jellyfish).
 
 <details markdown="1">
@@ -50,7 +50,9 @@ If the basecalls are scattered across multiple files, `collect` can be used to c
 - `<SampleName>/`
   - `reads/`
     - `collect/`: single fastq.gz files per sample
-    - `porechop/`: output from porechop, fastq.gz
+    - `fastplong/`: output from fastplong, fastq.gz and report in json and html format.
+      - `ont/`: fastplong output for ONT reads
+      - `hifi/`: fastplong output for HiFi reads
     - `genomescope/`: output from jellyfish and genomescope
       - `jellyfish/`
         - `count/`: output from jellyfish count
@@ -61,38 +63,46 @@ If the basecalls are scattered across multiple files, `collect` can be used to c
 
 </details>
 
-#### HiFi reads
-
-[lima](https://lima.how/) performs trimming of adapters from pacbio HiFi reads.
-
-<details markdown="1">
-<summary>Output files</summary>
-
-- `<SampleName>/`
-  - `reads/`
-    - `lima/`: hifi reads after adapter removal with lima.
-      - `fastq/`: hifi reads after adapter remval with lima converted to fastq format.
-
-</details>
-
 #### Short reads
 
-[TrimGalore!](https://github.com/FelixKrueger/TrimGalore) can remove adapters from illumina short-reads.
+[fastp](https://github.com/OpenGene/fastp) performs shortread QC and trimming.
 [meryl](https://github.com/marbl/meryl) calculates the k-mer spectrum of short reads.
+If a group was provided, the group name will be used instead of SampleName below.
 
 <details markdown="1">
 <summary>Output files</summary>
 
 - `<SampleName>/`
   - `reads/`
-    - `trimgalore/`:
-      - `<SampleName>_val_1.fq.gz`: Trimmed forward reads
-      - `<SampleName>_val_2.fq.gz`: Trimmed reverse reads (if included)
-      - `<SampleName>_1.fastq.gz.trimming_report.txt`: Trimming report forward
-      - `<SampleName>_2.fastq.gz.trimming_report.txt`: Trimming report reverse (if included)
+    - `fastp/`:
+      - `<SampleName>_1.fastp.fastq.gz`: Trimmed forward reads
+      - `<SampleName>_2.fastp.fastq.gz`: Trimmed reverse reads (if included)
+      - `<SampleName>.fastp.html`: html report
+      - `<SampleName>.fastp.json`: json report
+      - `<SampleName>.fastp.log`: logfile
     - `meryl/`: output from meryl
       - `count/`: k-mer counts per file
       - `unionsum/`: union of k-mer counts per sample
+
+</details>
+
+#### HiC reads
+
+[fastp](https://github.com/OpenGene/fastp) performs shortread QC and trimming.
+
+If a group was provided, the group name will be used instead of SampleName below.
+
+<details markdown="1">
+<summary>Output files</summary>
+
+- `<SampleName>/`
+  - `hic_reads/`
+    - `fastp/`:
+      - `<SampleName>_1.fastp.fastq.gz`: Trimmed forward reads
+      - `<SampleName>_2.fastp.fastq.gz`: Trimmed reverse reads (if included)
+      - `<SampleName>.fastp.html`: html report
+      - `<SampleName>.fastp.json`: json report
+      - `<SampleName>.fastp.log`: logfile
 
 </details>
 
@@ -101,7 +111,7 @@ If the basecalls are scattered across multiple files, `collect` can be used to c
 This folder contains the initial assemblies of the provided reads.
 Depending on the assembly strategy chosen, different assemblers are used.
 [flye](https://github.com/mikolmogorov/Flye) performs assembly of ONT reads
-[hifiasm](https://github.com/chhylp123/hifiasm) performs assembly of HiFi reads, or combinations of HiFi reads and ONT reads in `--ul` mode.
+[hifiasm](https://github.com/chhylp123/hifiasm) performs assembly of HiFi or ONT reads, or combinations of HiFi reads and ONT reads in `--ul` mode.
 [ragtag](https://github.com/malonge/RagTag) performs scaffolding and can be used to scaffold assemblies of ONT onto assemblies of HiFi reads.
 Annotation `gff3` and `unmapped.txt` files are only created if a reference for annotation liftover is provided and `lift_annotations` is enabled.
 
@@ -111,26 +121,27 @@ Annotation `gff3` and `unmapped.txt` files are only created if a reference for a
 - `<SampleName>`
   - `assembly/`
     - `flye/`: output from flye.
-      - `<SampleName>.assembly.fasta.gz`: Assembly in gzipped fasta format
+      - `<SampleName>.assembly.fa.gz`: Assembly in bgzipped fasta format
       - `<SampleName>.assembly_graph.gfa.gz`: Assembly graph in gzipped gfa format
       - `<SampleName>.assembly_graph.gv.gz`: Assembly graph in gzipped gv format
       - `<SampleName>.assembly_info.txt`: Information on the assembly
       - `<SampleName>.flye.log`: flye log-file
       - `<SampleName>.params.json`: params used for running flye
     - `hifiasm/`: output from hifiasm.
-      - `<SampleName>.asm.bp.p_ctg.fa.gz`: gzipped fasta file of the primary contigs
+      - `<SampleName>.asm.bp.p_ctg.fa.gz`: bgzipped fasta file of the primary contigs
       - `<SampleName>.asm.bp.p_ctg.gfa`: primary contigs in gfa format
       - `<SampleName>.asm.bp.p_utg.gfa`: processed unitigs in gfa format
       - `<SampleName>.asm.bp.r_utg.gfa`: raw unitigs in gfa format
-      - `<SampleName>.stderr.log`: Any output form hifiasm to stderr
+      - `<SampleName>.stderr.log`: Any output from hifiasm to stderr
       - `gfa2_fasta/`: hifiasm assembly in fasta format.
-    - `ragtag/`: output from RagTag, only if `'flye_on_hifiasm'` was used as the assembler. Contains one folder per sample.
+    - `ragtag/`: output from RagTag, only if `'scaffold'` was used as the strategy.
       - `<SampleName>_assembly_scaffold/`
         - `<SampleName>_assembly_scaffold.agp`: Scaffolds in agp format
         - `<SampleName>_assembly_scaffold.fasta`: Scaffolds in fasta format
+        - `<SampleName>_assembly_scaffold.fasta.gz`: Scaffolds fasta bgzipped
         - `<SampleName>_assembly_scaffold.stats`: Scaffolding statistics.
     - `<SampleName>_assembly.gff3` annotation liftover
-    - `<SampleName>_assembly.unnapped.txt` annotations that could not be lifted over during annotation liftover
+    - `<SampleName>_assembly.unmapped.txt` annotations that could not be lifted over during annotation liftover
 
 </details>
 
@@ -148,12 +159,20 @@ Annotation `gff3` and `unmapped.txt` files are only created if a reference for a
   - `polish/`
     - `pilon/`: output from pilon
       - `<SampleName>_pilon.fasta` Polished assembly
+      - `<SampleName>_pilon.fa.gz` Polished assembly, bgzipped
       - `<SampleName>_pilon.gff3` annotation liftover
       - `<SampleName>_pilon.unnapped.txt` annotations that could not be lifted over during annotation liftover
     - `medaka/`: output from medaka
       - `<SampleName>_medaka.fa.gz` Polished assembly
       - `<SampleName>_medaka.gff3` annotation liftover
       - `<SampleName>_medaka.unnapped.txt` annotations that could not be lifted over during annotation liftover
+    - `dorado/`: output from dorado
+      - `<SampleName>_dorado.fa.gz` Polished assembly
+      - `<SampleName>_dorado.gff3` annotation liftover
+      - `<SampleName>_dorado.unnapped.txt` annotations that could not be lifted over during annotation liftover
+      - `alignments/` output from dorado aligner
+        - `<SampleName>_dorado_aligned.bam` Alignment
+        - `<SampleName>_dorado_aligned.bai` Alignment index
 
 </details>
 
@@ -161,7 +180,7 @@ Annotation `gff3` and `unmapped.txt` files are only created if a reference for a
 
 The (polished) assembly can be scaffolded using different tools.
 [links](https://github.com/bcgsc/LINKS) performs scaffolding of the assembly using long-reads
-[longstitch](https://github.com/bcgsc/longstitch) performs correction via [Tigmint](https://github.com/bcgsc/tigmint) and scaffolding using long reads via [ntLink](https://github.com/bcgsc/ntLink) and [ARKS](https://github.com/bcgsc/arcs).
+[longstitch](https://github.com/bcgsc/longstitch) performs correction via [Tigmint](https://github.com/bcgsc/tigmint) and scaffolding using long reads via [ntLink](https://github.com/bcgsc/ntLink) and [ARKS](https://github.com/bcgsc/arcs). [yahs](https://github.com/c-zhou/yahs) is used to perform scaffolding using HiC reads.
 Annotation `gff3` and `unmapped.txt` files are only created if a reference for annotation liftover is provided and `lift_annotations` is enabled.
 
 <details markdown="1">
@@ -174,10 +193,12 @@ Annotation `gff3` and `unmapped.txt` files are only created if a reference for a
       - `<SampleName>_links.log`: log file
       - `<SampleName>_links.scaffolds`: scaffold statistics
       - `<SampleName>_links.scaffolds.fa`: scaffold fasta
+      - `<SampleName>_links.scaffolds.fa.gz`: bgzipped scaffold fasta
       - `<SampleName>_links.gff3` annotation liftover
       - `<SampleName>_links.unnapped.txt` annotations that could not be lifted over during annotation liftover
     - `longstitch/`: output from longstitch
       - `<SampleName>_tigmint-ntLinks.arks.longstitch-scaffolds.fa`: Scaffolds after scaffolding with tigmint, ntLinks, and arks. Annotations are based on this file.
+      - `<SampleName>_longstitch.fa.gz`: Scaffolds after scaffolding with tigmint, ntLinks, and arks, bgzipped.
       - `<SampleName>_tigmint-ntLinks.longstitch-scaffolds.fa`: Scaffolds after scaffolding with tigmint, and ntLinks.
       - `<SampleName>_longstitch.gff3` annotation liftover (onto `*._tigmint-ntLinks.arks.*`)
       - `<SampleName>_longstitch.unnapped.txt` annotations that could not be lifted over during annotation liftover
@@ -185,9 +206,18 @@ Annotation `gff3` and `unmapped.txt` files are only created if a reference for a
       - `<SampleName>_ragtag_<Reference>/`
         - `<SampleName>_ragtag_<Reference>.agp`: agp file, scaffolding results
         - `<SampleName>_ragtag_<Reference>.fasta`: Scaffold fasta file
+        - `<SampleName>_ragtag_<Reference>.fa.gz`: Scaffold fasta file (bgzipped)
         - `<SampleName>_ragtag_<Reference>.stats`: Scaffolding statistics
         - `<SampleName>_ragtag.gff3` annotation liftover
         - `<SampleName>_ragtag.unnapped.txt` annotations that could not be lifted over during annotation liftover
+    - `hic/`: output from HiC scaffolding workflow
+      - `bwamem2/`: bwamem2 outputs
+        - `index/`: outputs from bwamem2 index
+        - `mem/`: outputs from bwamem2 mem
+      - `minimap/`: minimap2 outputs
+      - `markdup/`: output from picard markduplicates
+      - `yahs/`: output from yahs
+        - `index/`: alignment index used with yahs
 
 </details>
 
@@ -195,9 +225,7 @@ Annotation `gff3` and `unmapped.txt` files are only created if a reference for a
 
 All quality control files end up in `QC`. Below is the tree assuming that all steps of the pipeline were run:
 
-- [`nanoq`](https://github.com/esteinig/nanoq) generates descriptive statistics of the nanopore reads.
-  For each step three quality control tools can be run.
-- [`QUAST`](https://github.com/ablab/quast) provides assembly statistics (e.g. size, N50, etc. )
+- [`QUAST`](https://github.com/ablab/quast) provides assembly statistics (e.g. size, N50, etc.)
 - [`BUSCO`](https://busco.ezlab.org/) assess genome quality based on the presence of lineage-specific single-copy orthologs
 - [`merqury`](https://github.com/marbl/merqury) compares the genome k-mer spectrum to the short-read k-mer spectrum to assess base-accuracy of the assembly.
 
@@ -229,11 +257,8 @@ The files and folders in the different QC folders are named based on
       - `<SampleName>_<stage>.assembly_only.bed` : bp errors in assembly (bed)
       - `<SampleName>_<stage>.assembly_only.wig` : bp errors in assembly (wig)
       - `<SampleName>_<stage>.unionsum.hist.ploidy` : ploidy estimates from short-reads
-    - `nanoq/`: nanoq results
-      - `<SampleName>_report.json`: nanoq report in json format
-      - `<SampleName>_stats.json`: nanoq stats in json format
     - `QUAST/`: QUAST analysis
-      - `<Sample Name>_<stage>/`: QUAST results, cp. [QUAST Docs](https://github.com/ablab/quast?tab=readme-ov-file#output)
+      - `<SampleName>_<stage>/`: QUAST results, cp. [QUAST Docs](https://github.com/ablab/quast?tab=readme-ov-file#output)
         - `report.txt`: summary table
         - `report.tsv`: tab-separated version, for parsing, or for spreadsheets (Google Docs, Excel, etc)
         - `report.tex`: Latex version
@@ -245,7 +270,7 @@ The files and folders in the different QC folders are named based on
           - `unaligned_report`: detailed report on unaligned and partially unaligned contigs
         - `reads_stats/`: [only if reads are provided]
           - `reads_report`: detailed report on mapped reads statistics
-      - `<Sample Name>_<stage_report>.tsv`: QUAST summary report
+      - `<SampleName>_<stage>_report.tsv`: QUAST summary report
 
 </details>
 
@@ -271,19 +296,19 @@ The files in the alignment folder have the following base name structure:
   - `QC/`
     - `alignments/`: alignments to assemblies
       - `<SampleName>_<stage>.bam` Alignment
-      - `<SampleName>_<stage>.bai` bam index file
+      - `<SampleName>_<stage>.csi` bam index file
       - `<SampleName>_<stage>.stats` comprehensive statistics from alignment file
       - `<SampleName>_<stage>.idxstats` alignment summary statistics
       - `<SampleName>_<stage>.flagstat` number of alignments for each FLAG type
       - `shortreads/`: folder containing short read mapping for pilon
         - `<SampleName>_shortreads.bam` Alignment
-        - `<SampleName>_shortreads.bai` bam index file
+        - `<SampleName>_shortreads.csi` bam index file
         - `<SampleName>_shortreads.stats` comprehensive statistics from alignment file
         - `<SampleName>_shortreads.idxstats` alignment summary statistics
         - `<SampleName>_shortreads.flagstat` number of alignments for each FLAG type
       - `reference/`: folder containing alignment of long reads to reference
         - `<SampleName>_to_reference.bam` Alignment
-        - `<SampleName>_to_reference.bai` bam index file
+        - `<SampleName>_to_reference.csi` bam index file
         - `<SampleName>_to_reference.stats` comprehensive statistics from alignment file
         - `<SampleName>_to_reference.idxstats` alignment summary statistics
         - `<SampleName>_to_reference.flagstat` number of alignments for each FLAG type
@@ -318,4 +343,4 @@ The pipeline collects the quality control outputs into an html report. Below is 
 
 </details>
 
-[Nextflow](https://www.nextflow.io/docs/latest/tracing.html) provides excellent functionality for generating various reports relevant to the running and execution of the pipeline. This will allow you to troubleshoot errors with the running of the pipeline, and also provide you with other information such as launch commands, run times and resource usage.
+[Nextflow](https://docs.seqera.io/platform-cloud/reports/overview) provides excellent functionality for generating various reports relevant to the running and execution of the pipeline. This will allow you to troubleshoot errors with the running of the pipeline, and also provide you with other information such as launch commands, run times and resource usage.

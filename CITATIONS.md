@@ -12,19 +12,11 @@
 
 ### Preprocessing
 
-- [lima](https://github.com/pacificbiosciences/barcoding/)
+- [fastp](https://github.com/OpenGene/fastp/) and [fastplong](https://github.com/OpenGene/fastplong/)
 
-- [nanoq](https://github.com/esteinig/nanoq)
+  > Shifu Chen. 2023. Ultrafast one-pass FASTQ data preprocessing, quality control, and deduplication using fastp. iMeta 2: e107. https://doi.org/10.1002/imt2.107
 
-  > Steinig and Coin (2022). Nanoq: ultra-fast quality control for nanopore reads. Journal of Open Source Software, 7(69), 2991, https://doi.org/10.21105/joss.02991
-
-- [porechop](https://github.com/rrwick/Porechop)
-
-  > Wick RR, Judd LM, Gorrie CL, Holt KE. Completing bacterial genome assemblies with multiplex MinION sequencing. Microb Genom. 2017;3(10):e000132. Published 2017 Sep 14. doi:10.1099/mgen.0.000132
-
-- [TrimGalore](https://github.com/FelixKrueger/TrimGalore)
-
-  > Felix Krueger, Frankie James, Phil Ewels, Ebrahim Afyounian, Michael Weinstein, Benjamin Schuster-Boeckler, Gert Hulselmans, & sclamons. (2023). FelixKrueger/TrimGalore. Zenodo. https://doi.org/10.5281/zenodo.7598955
+  > Shifu Chen, Yanqing Zhou, Yaru Chen, Jia Gu; fastp: an ultra-fast all-in-one FASTQ preprocessor, Bioinformatics, Volume 34, Issue 17, 1 September 2018, Pages i884–i890, https://doi.org/10.1093/bioinformatics/bty560
 
 ### Assembly
 
@@ -52,6 +44,8 @@
 
 - [medaka](https://github.com/nanoporetech/medaka)
 
+- [dorado](https://github.com/nanoporetech/dorado)
+
 ### Scaffolding
 
 - [LINKS](https://github.com/bcgsc/LINKS)
@@ -61,6 +55,10 @@
 - [longstitch](https://github.com/bcgsc/longstitch)
 
   > Coombe L, Li JX, Lo T, Wong J, Nikolic V, Warren RL and Birol I. LongStitch: high-quality genome assembly correction and scaffolding using long reads. BMC Bioinformatics 22, 534 (2021). https://doi.org/10.1186/s12859-021-04451-7
+
+- [yahs](https://github.com/c-zhou/yahs)
+
+  > Chenxi Zhou, Shane A. McCarthy, Richard Durbin. YaHS: yet another Hi-C scaffolding tool. Bioinformatics, 39(1), btac808.
 
 - [RagTag](https://github.com/malonge/RagTag)
 
@@ -107,6 +105,16 @@
 - [samtools](https://github.com/samtools/samtools)
 
 > Petr Danecek, James K Bonfield, Jennifer Liddle, John Marshall, Valeriu Ohan, Martin O Pollard, Andrew Whitwham, Thomas Keane, Shane A McCarthy, Robert M Davies, Heng Li (2021) Twelve years of SAMtools and BCFtools. GigaScience, Volume 10, Issue 2, February 2021, giab008, https://doi.org/10.1093/gigascience/giab008
+
+- [bwa-mem2](https://github.com/bwa-mem2/bwa-mem2)
+
+  > Vasimuddin Md, Sanchit Misra, Heng Li, Srinivas Aluru. Efficient Architecture-Aware Acceleration of BWA-MEM for Multicore Systems. IEEE Parallel and Distributed Processing Symposium (IPDPS), 2019.
+
+  > Li H. (2013) Aligning sequence reads, clone sequences and assembly contigs with BWA-MEM. arXiv:1303.3997v2 [q-bio.GN]. (if you use the BWA-MEM algorithm or the fastmap command, or want to cite the whole BWA package)
+
+- [picard](https://broadinstitute.github.io/picard/)
+
+  > “Picard Toolkit.” 2019. Broad Institute, GitHub Repository. https://broadinstitute.github.io/picard/; Broad Institute
 
 ## Software packaging/containerisation tools
 
