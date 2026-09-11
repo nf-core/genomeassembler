@@ -92,9 +92,16 @@ workflow SCAFFOLD {
                 )
                 .map {
                     _id, meta_links, meta_longstitch ->
-                        meta_links -
-                         meta_links.subMap("scaffolds_links") +
-                         [scaffolds: [links: meta_links.scaffolds_links, longstitch: meta_longstitch.scaffolds_longstitch]]
+                    [
+                        meta:   meta_links -
+                                meta_links.subMap("scaffolds_links") +
+                                [
+                                    scaffolds: [
+                                        links: meta_links.scaffolds_links,
+                                        longstitch: meta_longstitch.scaffolds_longstitch
+                                        ]
+                                ]
+                    ]
                 }
         )
         //links-ragtag
@@ -109,9 +116,16 @@ workflow SCAFFOLD {
                 )
                 .map {
                     _id, meta_links, meta_ragtag ->
-                        meta_links -
-                         meta_links.subMap("scaffolds_links") +
-                         [ scaffolds: [ links: meta_links.scaffolds_links, ragtag: meta_ragtag.scaffolds_ragtag ] ]
+                    [
+                     meta:  meta_links -
+                            meta_links.subMap("scaffolds_links") +
+                            [
+                                scaffolds: [
+                                    links: meta_links.scaffolds_links,
+                                    ragtag: meta_ragtag.scaffolds_ragtag
+                                ]
+                            ]
+                    ]
                 }
         )
         //longstitch-ragtag
@@ -125,10 +139,16 @@ workflow SCAFFOLD {
                         .map {it -> [it.meta.id, it.meta]}
                 )
                 .map {
-                    _id, meta_longstitch, meta_ragtag ->
-                        meta_longstitch -
-                         meta_longstitch.subMap("scaffolds_longstitch") +
-                         [scaffolds: [ longstitch: meta_longstitch.scaffolds_longstitch, ragtag: meta_ragtag.scaffolds_ragtag ] ]
+                    _id, meta_longstitch, meta_ragtag -> [
+                        meta:   meta_longstitch -
+                                meta_longstitch.subMap("scaffolds_longstitch") +
+                                [
+                                    scaffolds: [
+                                        longstitch: meta_longstitch.scaffolds_longstitch,
+                                        ragtag: meta_ragtag.scaffolds_ragtag
+                                    ]
+                                ]
+                    ]
                 }
         )
         // mix in triple-scaffolded
@@ -146,16 +166,17 @@ workflow SCAFFOLD {
                         .map {it -> [it.meta.id, it.meta]}
                 )
                 .map {
-                    _id, meta_links, meta_longstitch, meta_ragtag ->
-                         meta_links -
-                         meta_links.subMap("scaffolds_links") +
-                            [
-                                scaffolds: [
-                                links: meta_links.scaffolds_links,
-                                longstitch: meta_longstitch.scaffolds_longstitch,
-                                ragtag: meta_ragtag.scaffolds_ragtag
+                    _id, meta_links, meta_longstitch, meta_ragtag -> [
+                        meta:   meta_links -
+                                meta_links.subMap("scaffolds_links") +
+                                [
+                                    scaffolds: [
+                                        links: meta_links.scaffolds_links,
+                                        longstitch: meta_longstitch.scaffolds_longstitch,
+                                        ragtag: meta_ragtag.scaffolds_ragtag
+                                    ]
                                 ]
-                            ]
+                    ]
                 }
         )
 
