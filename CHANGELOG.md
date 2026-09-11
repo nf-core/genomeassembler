@@ -103,6 +103,10 @@ Pull requests in reverse chronological order since v1.1.0
 
 - Fixed typo in medaka url (@TomHarrop)
 
+[#223](https://github.com/nf-core/genomeassembler/issues/223)
+
+- Add exitcode `2` as retry code for links in AWS fulltest profile.
+
 ### `Dependencies`
 
 #### New
