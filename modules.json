@@ -13,7 +13,8 @@
                     "bwamem2/index": {
                         "branch": "master",
                         "git_sha": "62ce917fd775aaef732eb82019de069c765adfd3",
-                        "installed_by": ["modules"]
+                        "installed_by": ["modules"],
+                        "patch": "modules/nf-core/bwamem2/index/bwamem2-index.diff"
                     },
                     "bwamem2/mem": {
                         "branch": "master",

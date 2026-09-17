@@ -2,7 +2,8 @@ process BWAMEM2_INDEX {
     tag "$fasta"
     // NOTE Requires 28N GB memory where N is the size of the reference sequence, floor of 280M
     // source: https://github.com/bwa-mem2/bwa-mem2/issues/9
-    memory { 280.MB * Math.ceil(fasta.size() / 10000000) * task.attempt }
+    // patch for bgzipped input by assuming a 3x compression.
+    memory { 3 * 280.MB * Math.ceil(fasta.size() / 10000000) * task.attempt }
 
     conda "${moduleDir}/environment.yml"
     container "${ workflow.containerEngine in ['singularity', 'apptainer'] && !task.ext.singularity_pull_docker_container ?
