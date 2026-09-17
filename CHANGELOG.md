@@ -107,6 +107,10 @@ Pull requests in reverse chronological order since v1.1.0
 
 - Add exitcode `2` as retry code for links in AWS fulltest profile.
 
+[#230](https://github.com/nf-core/genomeassembler/issues/230)
+
+- Increase estimated memory for bwa-mem2 since inputs are bgzipped.
+
 ### `Dependencies`
 
 #### New
