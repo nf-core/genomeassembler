@@ -128,13 +128,6 @@
                     "fa_icon": "fas fa-palette",
                     "hidden": true
                 },
-                "hook_url": {
-                    "type": "string",
-                    "description": "Incoming hook URL for messaging service",
-                    "fa_icon": "fas fa-people-group",
-                    "help_text": "Incoming hook URL for messaging service. Currently, MS Teams and Slack are supported.",
-                    "hidden": true
-                },
                 "validate_params": {
                     "type": "boolean",
                     "description": "Boolean whether to validate parameters against the schema at runtime",
@@ -146,96 +139,40 @@
                     "type": "string",
                     "fa_icon": "far fa-check-circle",
                     "description": "Base URL or local path to location of pipeline test dataset files",
-                    "default": "https://raw.githubusercontent.com/nf-core/test-datasets/",
+                    "default": "https://raw.githubusercontent.com/nf-core/test-datasets/refs/heads/genomeassembler/",
                     "hidden": true
+                },
+                "help_full": {
+                    "type": "boolean",
+                    "description": "Display the full detailed help message."
+                },
+                "show_hidden": {
+                    "type": "boolean",
+                    "description": "Display hidden parameters in the help message (only works when --help or --help_full are provided)."
                 }
             }
         },
-        "general_parameters": {
-            "title": "General parameters",
+        "reference_parameters": {
+            "title": "Reference Parameters",
             "type": "object",
             "description": "Options controlling pipeline behavior",
             "default": "",
             "properties": {
+                "ref_fasta": {
+                    "type": "string",
+                    "description": "Path to reference genome seqeunce (fasta)"
+                },
+                "ref_gff": {
+                    "type": "string",
+                    "description": "Path to reference genome annotations (gff)"
+                },
                 "use_ref": {
                     "type": "boolean",
-                    "description": "use reference genome",
-                    "default": true
-                },
-                "skip_assembly": {
-                    "type": "boolean",
-                    "description": "skip assembly steps",
-                    "help_text": "Skip assembly and perform only qc. Requires 'assembly' column in the samplesheet"
-                },
-                "skip_alignments": {
-                    "type": "boolean",
-                    "description": "skip alignments during qc"
+                    "description": "Use reference genome.",
+                    "hidden": true
                 }
             },
             "fa_icon": "fas fa-bacon"
-        },
-        "ont_options": {
-            "title": "ONT options",
-            "type": "object",
-            "description": "Options for ONT reads",
-            "default": "",
-            "properties": {
-                "ont": {
-                    "type": "boolean",
-                    "description": "ONT reads available?"
-                },
-                "collect": {
-                    "type": "boolean",
-                    "description": "collect ONT reads into a single file"
-                },
-                "porechop": {
-                    "type": "boolean",
-                    "description": "run porechop on ONT reads"
-                },
-                "read_length": {
-                    "type": "integer",
-                    "description": "read length for genomescope (ONT only)",
-                    "minimum": 1
-                },
-                "jellyfish": {
-                    "type": "boolean",
-                    "description": "run jellyfish on ONT reads to compute k-mer distribution and estimate genome size",
-                    "default": true
-                },
-                "dump": {
-                    "type": "boolean",
-                    "description": "dump jellyfish output"
-                },
-                "kmer_length": {
-                    "type": "integer",
-                    "description": "kmer length to be used for jellyfish",
-                    "default": 21,
-                    "minimum": 1
-                }
-            }
-        },
-        "hifi_options": {
-            "title": "HiFi options",
-            "type": "object",
-            "description": "Options for HiFi reads",
-            "default": "",
-            "properties": {
-                "hifi": {
-                    "type": "boolean",
-                    "description": "HiFi reads available?"
-                },
-                "lima": {
-                    "type": "boolean",
-                    "description": "run lima on HiFi reads?"
-                },
-                "pacbio_primers": {
-                    "type": "string",
-                    "format": "file-path",
-                    "exists": true,
-                    "pattern": "^\\S+\\.fn?a(sta)?$",
-                    "description": "file containing pacbio primers for trimming with lima"
-                }
-            }
         },
         "assembly_options": {
             "title": "Assembly options",
@@ -243,57 +180,106 @@
             "description": "Options controlling assembly",
             "default": "",
             "properties": {
+                "strategy": {
+                    "type": "string",
+                    "default": "single",
+                    "description": "Assembly strategy to use. Valid choices are `'single'`, `'hybrid'` and `'scaffold'`."
+                },
                 "assembler": {
                     "type": "string",
-                    "description": "Assembler to use. Valid choices are: `'hifiasm'`, `'flye'`,  `'flye_on_hifiasm'` or `hifiasm_on_hifiasm`. `flye_on_hifiasm` will scaffold flye assembly (ont) on hifiasm (hifi) assembly using ragtag. `hifiasm_on_hifiasm` will scaffold hifiasm (ont) onto hifiasm (HiFi) using ragtag",
-                    "enum": ["flye", "hifiasm", "flye_on_hifiasm", "hifiasm_on_hifiasm"],
-                    "default": "flye"
+                    "description": "Assembler to use. Valid choices depend on strategy; for single either `'flye'` or `'hifiasm'`, hybrid can be done with `'hifiasm'` and for scaffolded assembly provide the names of the assemblers separated with an underscore. The first assembler will be used for ONT reads, the second for HiFi reads see below: `asembler_ont` and `assembler_hifi`.",
+                    "enum": ["flye", "hifiasm", "flye_hifiasm", "hifiasm_hifiasm", "flye_flye", "hifiasm_flye"],
+                    "default": "hifiasm"
+                },
+                "assembly_scaffolding_order": {
+                    "type": "string",
+                    "default": "ont_on_hifi",
+                    "description": "When `strategy` is 'scaffold', which assembly should be scaffolded onto which?",
+                    "enum": ["ont_on_hifi", "hifi_on_ont"]
                 },
                 "genome_size": {
-                    "type": "integer",
-                    "description": "expected genome size, optional",
-                    "minimum": 1
+                    "type": "string",
+                    "description": "Expected genome size, optional."
                 },
                 "flye_mode": {
                     "type": "string",
-                    "description": "flye mode",
+                    "description": "Flye assembly mode.",
                     "default": "--nano-hq",
                     "enum": ["--pacbio-raw", "--pacbio-corr", "--pacbio-hifi", "--nano-raw", "--nano-corr", "--nano-hq"]
                 },
                 "flye_args": {
                     "type": "string",
-                    "description": "additional args for flye"
-                },
-                "hifiasm_ont": {
-                    "type": "boolean",
-                    "description": "Use hifi and ONT reads with `hifiasm --ul`"
+                    "description": "Additional args for `flye`."
                 },
                 "hifiasm_args": {
                     "type": "string",
                     "description": "Extra arguments passed to `hifiasm`"
+                },
+                "assembler_ont": {
+                    "type": "string",
+                    "description": "`assembler_ont` assembles ONT reads. This option is mainly useful when building more complex samplesheets."
+                },
+                "assembler_ont_args": {
+                    "type": "string",
+                    "description": "Arguments to be passed to `assembler_ont` (ONT)"
+                },
+                "assembler_hifi": {
+                    "type": "string",
+                    "description": "`assembler_hifi` assembles HiFi reads. This option is mainly useful when building more complex samplesheets."
+                },
+                "assembler_hifi_args": {
+                    "type": "string",
+                    "description": "Arguments to be passed to `assembler_hifi` (HiFi)."
                 }
             }
         },
-        "short_read_options": {
-            "title": "Short read options",
+        "long_read_preprocessing": {
+            "title": "Long-read preprocessing",
             "type": "object",
-            "description": "Options for short reads",
+            "description": "",
             "default": "",
             "properties": {
-                "short_reads": {
-                    "type": "boolean",
-                    "description": "Short reads available?"
+                "ontreads": {
+                    "type": "string",
+                    "description": "Path to ONT reads."
                 },
-                "trim_short_reads": {
+                "ont_collect": {
                     "type": "boolean",
-                    "description": "trim short reads with trimgalore",
-                    "default": true
+                    "description": "Collect ONT reads from several files."
                 },
-                "meryl_k": {
+                "ont_adapters": {
+                    "type": "string",
+                    "description": "Adapters for ONT read-trimming."
+                },
+                "ont_fastplong_args": {
+                    "type": "string",
+                    "description": "Additional args to be passed to fastplong for ONT reads."
+                },
+                "hifireads": {
+                    "type": "string",
+                    "description": "Path to HiFi reads."
+                },
+                "hifi_adapters": {
+                    "type": "string",
+                    "description": "Adapters for HiFi read-trimming."
+                },
+                "hifi_fastplong_args": {
+                    "type": "string",
+                    "description": "Additional args to be passed to fastplong for HiFi reads."
+                },
+                "jellyfish": {
+                    "type": "boolean",
+                    "description": "Run jellyfish and genomescope (recommended)."
+                },
+                "jellyfish_k": {
                     "type": "integer",
-                    "description": "kmer length for meryl / merqury",
                     "default": 21,
-                    "minimum": 1
+                    "description": "Value of k used during k-mer analysis with `jellyfish`."
+                },
+                "jellyfish_size": {
+                    "type": "string",
+                    "default": "200M",
+                    "description": "Initial hash size used by `jellyfish count`."
                 }
             }
         },
@@ -303,17 +289,27 @@
             "description": "Polishing options",
             "default": "",
             "properties": {
+                "polish": {
+                    "type": "string",
+                    "description": "String describing the polishing strategy. Takes priority over boolean selectors. If missing will be created from boolean selectors.",
+                    "enum": ["pilon", "dorado", "medaka", "dorado+pilon", "medaka+pilon"],
+                    "meta": ["polish"]
+                },
                 "polish_pilon": {
                     "type": "boolean",
-                    "description": "Polish assembly with pilon? Requires short reads"
+                    "description": "Polish assembly with `pilon`. Requires short reads."
+                },
+                "polish_dorado": {
+                    "type": "boolean",
+                    "description": "Polish assembly with `dorado` (ONT only)."
                 },
                 "polish_medaka": {
                     "type": "boolean",
-                    "description": "Polish assembly with medaka (ONT only)"
+                    "description": "Polish assembly with `medaka` (ONT only)."
                 },
                 "medaka_model": {
                     "type": "string",
-                    "description": "model to use with medaka"
+                    "description": "Model to use with `medaka`."
                 }
             }
         },
@@ -325,15 +321,25 @@
             "properties": {
                 "scaffold_longstitch": {
                     "type": "boolean",
-                    "description": "Scaffold with longstitch?"
+                    "description": "Scaffold with `longstitch`."
                 },
                 "scaffold_links": {
                     "type": "boolean",
-                    "description": "Scaffolding with links?"
+                    "description": "Scaffolding with `links`."
                 },
                 "scaffold_ragtag": {
                     "type": "boolean",
-                    "description": "Scaffold with ragtag (requires reference)?"
+                    "description": "Scaffold with `ragtag` (requires reference)."
+                },
+                "scaffold_hic": {
+                    "type": "boolean",
+                    "description": "Scaffold using HiC reads using `yahs` (requires reads)."
+                },
+                "hic_aligner": {
+                    "type": "string",
+                    "enum": ["bwa-mem2", "minimap2"],
+                    "description": "Aligner to use for HiC reads; default: `'bwa-mem2'`.",
+                    "default": "bwa-mem2"
                 }
             }
         },
@@ -345,34 +351,49 @@
             "properties": {
                 "merqury": {
                     "type": "boolean",
-                    "default": true,
-                    "description": "Run merqury"
+                    "default": false,
+                    "description": "Run `merqury` if short reads are provided."
                 },
                 "qc_reads": {
                     "type": "string",
-                    "description": "Long reads that should be used for QC when both ONT and HiFi reads are provided. Options are `'ONT'` or `'HIFI'`",
-                    "enum": ["ONT", "HIFI"],
-                    "default": "ONT"
+                    "description": "Long reads that should be used for QC when both ONT and HiFi reads are provided. Options are `'ont'` or `'hifi'`.",
+                    "enum": ["ont", "hifi"],
+                    "default": "ont"
                 },
                 "busco": {
                     "type": "boolean",
-                    "description": "Run BUSCO?",
-                    "default": true
+                    "description": "Run `BUSCO`."
                 },
                 "busco_db": {
                     "type": "string",
                     "format": "directory-path",
-                    "description": "Path to busco db (optional)"
+                    "description": "Path to `BUSCO` data-base (optional)."
                 },
                 "busco_lineage": {
                     "type": "string",
-                    "description": "Busco lineage to use",
-                    "default": "brassicales_odb10"
+                    "description": "`BUSCO` lineage to use.",
+                    "default": "auto_euk"
                 },
                 "quast": {
                     "type": "boolean",
-                    "description": "Run quast",
-                    "default": true
+                    "description": "Run `QUAST`."
+                },
+                "ref_map_bam": {
+                    "type": "string",
+                    "description": "A mapping (bam) of reads mapped to the reference can be provided for QC. If provided, alignment to reference fasta will not run."
+                },
+                "assembly": {
+                    "type": "string",
+                    "description": "Can be used to provide existing assembly will skip assembly and perform downstream steps including QC."
+                },
+                "assembly_map_bam": {
+                    "type": "string",
+                    "description": "A mapping (bam) of reads mapped to the provided assembly can be specified for QC. If provided, alignment to the provided assembly fasta will not run,"
+                },
+                "csi_index_size": {
+                    "type": "integer",
+                    "description": "Index size to use for csi index (default: 14), creating and index of size 2^csi_index_size. See [samtools index documentation](https://www.htslib.org/doc/samtools-index.html) for details. ",
+                    "default": 14
                 }
             }
         },
@@ -384,8 +405,64 @@
             "properties": {
                 "lift_annotations": {
                     "type": "boolean",
-                    "description": "Lift-over annotations (requires reference)?",
-                    "default": true
+                    "description": "Lift-over annotations (requires `ref_gff`).",
+                    "default": false
+                }
+            }
+        },
+        "short_read_options": {
+            "title": "Short read options",
+            "type": "object",
+            "description": "Options for short reads",
+            "default": "",
+            "properties": {
+                "use_short_reads": {
+                    "type": "boolean",
+                    "description": "Use short reads."
+                },
+                "shortread_trim": {
+                    "type": "boolean",
+                    "description": "Trim short reads."
+                },
+                "meryl_k": {
+                    "type": "integer",
+                    "description": "kmer length for `meryl` / `merqury`.",
+                    "default": 21,
+                    "minimum": 1
+                },
+                "shortread_F": {
+                    "type": "string",
+                    "description": "Path to forward short reads."
+                },
+                "shortread_R": {
+                    "type": "string",
+                    "description": "Path to reverse short reads."
+                },
+                "paired": {
+                    "type": "boolean",
+                    "description": "Are shortreads paired.",
+                    "default": false
+                }
+            }
+        },
+        "hic_options": {
+            "title": "HiC short read options",
+            "type": "object",
+            "description": "Options for HiC short reads",
+            "default": "",
+            "properties": {
+                "hic_trim": {
+                    "type": "boolean",
+                    "description": "Trim HiC short reads.",
+                    "default": false
+                },
+                "hic_F": {
+                    "type": "string",
+                    "description": "Path to forward HiC short reads."
+                },
+                "hic_R": {
+                    "type": "string",
+                    "description": "Path to reverse HiC short reads."
                 }
             }
         }
@@ -401,19 +478,13 @@
             "$ref": "#/$defs/generic_options"
         },
         {
-            "$ref": "#/$defs/general_parameters"
-        },
-        {
-            "$ref": "#/$defs/ont_options"
-        },
-        {
-            "$ref": "#/$defs/hifi_options"
+            "$ref": "#/$defs/reference_parameters"
         },
         {
             "$ref": "#/$defs/assembly_options"
         },
         {
-            "$ref": "#/$defs/short_read_options"
+            "$ref": "#/$defs/long_read_preprocessing"
         },
         {
             "$ref": "#/$defs/polishing_options"
@@ -426,6 +497,12 @@
         },
         {
             "$ref": "#/$defs/annotations_options"
+        },
+        {
+            "$ref": "#/$defs/short_read_options"
+        },
+        {
+            "$ref": "#/$defs/hic_options"
         }
     ]
 }

@@ -1,81 +1,79 @@
-include { POLISH_MEDAKA } from './medaka/polish_medaka/main'
-include { POLISH_PILON } from './pilon/polish_pilon/main'
+include { POLISH_MEDAKA } from './medaka/polish_medaka/main.nf'
+include { POLISH_PILON } from './pilon/polish_pilon/main.nf'
+include { POLISH_DORADO } from './dorado/main.nf'
 
 workflow POLISH {
     take:
-    inputs
-    ch_ont_reads
-    ch_longreads
-    ch_shortreads
-    ch_polished_genome
-    reference_bam
+    ch_main
     meryl_kmers
 
     main:
+    polish_busco_reports = channel.empty()
+    polish_quast_reports = channel.empty()
+    polish_merqury_reports = channel.empty()
 
-    Channel.empty().set { ch_versions }
-    Channel.empty().set { polish_busco_reports }
-    Channel.empty().set { polish_quast_reports }
-    Channel.empty().set { polish_merqury_reports }
-
-    if (params.polish_medaka) {
-
-        if (params.hifiasm_ont) {
-            error('Medaka should not be used on ONT-HiFi hybrid assemblies')
-        }
-        if (params.hifi && !params.ont) {
-            error('Medaka should not be used on HiFi assemblies')
+    ch_main_polish = ch_main
+        .branch { it ->
+            def medaka_polishers = ["medaka","medaka+pilon"]
+            def dorado_polishers = ["dorado","dorado+pilon"]
+            medaka: medaka_polishers.contains(it.meta.polish)
+            dorado: dorado_polishers.contains(it.meta.polish)
+            no_ont_polish: !medaka_polishers.contains(it.meta.polish) && !dorado_polishers.contains(it.meta.polish)
         }
 
-        POLISH_MEDAKA(inputs, ch_ont_reads, ch_polished_genome, reference_bam, meryl_kmers)
+    POLISH_MEDAKA(ch_main_polish.medaka, meryl_kmers)
 
-        POLISH_MEDAKA.out.polished_assembly.set { ch_polished_genome }
+    POLISH_DORADO(ch_main_polish.dorado, meryl_kmers)
 
-        POLISH_MEDAKA.out.busco_out.set { polish_busco_reports }
+    polish_busco_reports = POLISH_MEDAKA.out.busco_out
+        .mix(POLISH_DORADO.out.busco_out)
 
-        POLISH_MEDAKA.out.quast_out.set { polish_quast_reports }
 
-        POLISH_MEDAKA.out.merqury_report_files.set { polish_merqury_reports }
+    polish_quast_reports = POLISH_MEDAKA.out.quast_out
+        .mix(POLISH_DORADO.out.quast_out)
 
-        ch_versions = ch_versions.mix(POLISH_MEDAKA.out.versions)
-    }
+    polish_merqury_reports = POLISH_MEDAKA.out.merqury_report_files
+        .mix(POLISH_DORADO.out.merqury_report_files)
+
+    ch_main_polish_pilon = POLISH_MEDAKA.out.ch_main
+        .mix(POLISH_DORADO.out.ch_main)
+        .mix(ch_main_polish.no_ont_polish)
 
     /*
     Polishing with short reads using pilon
     */
 
-    if (params.polish_pilon) {
-        POLISH_PILON(inputs, ch_shortreads, ch_longreads, ch_polished_genome, reference_bam, meryl_kmers)
+    ch_main_polish_pilon_in = ch_main_polish_pilon
+        .branch {
+            it ->
+            def pilon_polishers = ["pilon","medaka+pilon", "dorado+pilon"]
+            pilon: pilon_polishers.contains(it.meta.polish)
+            no_pilon: true
+        }
 
-        POLISH_PILON.out.pilon_polished.set { ch_polished_genome }
+    POLISH_PILON(ch_main_polish_pilon_in.pilon, meryl_kmers)
 
-        polish_busco_reports
-            .concat(
-                POLISH_PILON.out.busco_out
-            )
-            .set { polish_busco_reports }
+    ch_out = ch_main_polish_pilon_in.no_pilon
+        .mix(POLISH_PILON.out.ch_main)
 
-        polish_quast_reports
-            .concat(
-                POLISH_PILON.out.quast_out
-            )
-            .set { polish_quast_reports }
+    polish_busco_reports = polish_busco_reports
+        .concat(
+            POLISH_PILON.out.busco_out
+        )
 
-        polish_merqury_reports
-            .concat(
-                POLISH_PILON.out.merqury_report_files
-            )
-            .set { polish_merqury_reports }
+    polish_quast_reports = polish_quast_reports
+        .concat(
+            POLISH_PILON.out.quast_out
+        )
 
-        ch_versions = ch_versions.mix(POLISH_PILON.out.versions)
-    }
-
-    versions = ch_versions
+    polish_merqury_reports = polish_merqury_reports
+        .concat(
+            POLISH_PILON.out.merqury_report_files
+        )
 
     emit:
-    ch_polished_genome
+    ch_main = ch_out
     polish_busco_reports
     polish_quast_reports
     polish_merqury_reports
-    versions
 }

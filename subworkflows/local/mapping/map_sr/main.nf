@@ -1,5 +1,7 @@
 include { MINIMAP2_ALIGN as ALIGN_SHORT } from '../../../../modules/nf-core/minimap2/align/main'
 include { BAM_STATS_SAMTOOLS as BAM_STATS } from '../../../nf-core/bam_stats_samtools/main'
+include { SAMTOOLS_FAIDX } from '../../../../modules/nf-core/samtools/faidx/main'
+include { GUNZIP } from '../../../../modules/nf-core/gunzip/main'
 
 workflow MAP_SR {
     take:
@@ -7,40 +9,31 @@ workflow MAP_SR {
     genome_assembly
 
     main:
-    Channel.empty().set { ch_versions }
     // map reads to assembly
-    in_reads
-        .map { meta, reads -> [[id: meta.id], reads] }
+    map_assembly = in_reads
         .join(genome_assembly)
-        .set { map_assembly }
 
     ALIGN_SHORT(map_assembly, true, 'bai', false, false)
 
-    versions = ch_versions.mix(ALIGN_SHORT.out.versions)
+    aln_to_assembly_bam = ALIGN_SHORT.out.bam
 
-    ALIGN_SHORT.out.bam.set { aln_to_assembly_bam }
+    aln_to_assembly_bai = ALIGN_SHORT.out.index
 
-    ALIGN_SHORT.out.index.set { aln_to_assembly_bai }
-
-    aln_to_assembly_bam
+    aln_to_assembly_bam_bai = aln_to_assembly_bam
         .join(aln_to_assembly_bai)
-        .set { aln_to_assembly_bam_bai }
 
-    map_assembly
-        .map { meta, _reads, fasta -> [ meta, fasta ] }
-        .set { ch_fasta }
+    SAMTOOLS_FAIDX(genome_assembly, false)
 
-    BAM_STATS(aln_to_assembly_bam_bai, ch_fasta)
+    ch_fasta_fai = genome_assembly
+        .join(SAMTOOLS_FAIDX.out.fai)
 
-    versions = ch_versions.mix(BAM_STATS.out.versions)
+    BAM_STATS(aln_to_assembly_bam_bai, ch_fasta_fai)
 
-    aln_to_assembly_bam
+    aln_to_assembly_bam_bai = aln_to_assembly_bam
         .join(aln_to_assembly_bai)
-        .set { aln_to_assembly_bam_bai }
 
     emit:
     aln_to_assembly_bam
     aln_to_assembly_bai
     aln_to_assembly_bam_bai
-    versions
 }

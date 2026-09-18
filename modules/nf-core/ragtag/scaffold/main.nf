@@ -3,9 +3,9 @@ process RAGTAG_SCAFFOLD {
     label 'process_medium'
 
     conda "${moduleDir}/environment.yml"
-    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
+    container "${workflow.containerEngine in ['singularity', 'apptainer'] && !task.ext.singularity_pull_docker_container
         ? 'https://depot.galaxyproject.org/singularity/ragtag:2.1.0--pyhb7b1952_0'
-        : 'biocontainers/ragtag:2.1.0--pyhb7b1952_0'}"
+        : 'quay.io/biocontainers/ragtag:2.1.0--pyhb7b1952_0'}"
 
     input:
     tuple val(meta), path(assembly, name: 'assembly/*')
@@ -14,10 +14,10 @@ process RAGTAG_SCAFFOLD {
     tuple val(meta4), path(skip), path(hard_skip)
 
     output:
-    tuple val(meta), path("*.fasta"),   emit: corrected_assembly
+    tuple val(meta), path("*.fa"),      emit: corrected_assembly
     tuple val(meta), path("*.agp"),     emit: corrected_agp
     tuple val(meta), path("*.stats"),   emit: corrected_stats
-    path "versions.yml",                emit: versions
+    tuple val("${task.process}"), val('ragtag'), eval("ragtag.py -v | sed 's/v//'"), emit: versions_ragtag, topic: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -31,19 +31,19 @@ process RAGTAG_SCAFFOLD {
     """
     if [[ ${assembly} == *.gz ]]
     then
-        zcat ${assembly} > assembly.fa
+        zcat ${assembly} > assembly.fasta
     else
-        ln -s ${assembly} assembly.fa
+        ln -s ${assembly} assembly.fasta
     fi
 
     if [[ ${reference} == *.gz ]]
     then
-        zcat ${reference} > reference.fa
+        zcat ${reference} > reference.fasta
     else
-        ln -s ${reference} reference.fa
+        ln -s ${reference} reference.fasta
     fi
 
-    ragtag.py scaffold reference.fa assembly.fa \\
+    ragtag.py scaffold reference.fasta assembly.fasta \\
         -o "${prefix}" \\
         -t ${task.cpus} \\
         -C \\
@@ -51,17 +51,12 @@ process RAGTAG_SCAFFOLD {
         ${arg_skip} \\
         ${arg_hard_skip} \\
         ${args} \\
-        2> >( tee ${prefix}.stderr.log >&2 ) \\
+        2>| >( tee ${prefix}.stderr.log >&2 ) \\
         | tee ${prefix}.stdout.log
 
-    mv ${prefix}/ragtag.scaffold.fasta ${prefix}.fasta
+    mv ${prefix}/ragtag.scaffold.fasta ${prefix}.fa
     mv ${prefix}/ragtag.scaffold.agp ${prefix}.agp
     mv ${prefix}/ragtag.scaffold.stats ${prefix}.stats
-
-    cat <<-END_VERSIONS > versions.yml
-    "${task.process}":
-        ragtag: \$(echo \$(ragtag.py -v | sed 's/v//'))
-    END_VERSIONS
     """
 
     stub:
@@ -71,12 +66,8 @@ process RAGTAG_SCAFFOLD {
     def _arg_skip = skip ? "-j ${skip}" : ""
     def _arg_hard_skip = hard_skip ? "-J ${hard_skip}" : ""
     """
-    touch ${prefix}.fasta
+    touch ${prefix}.fa
     touch ${prefix}.agp
     touch ${prefix}.stats
-
-    cat <<-END_VERSIONS > versions.yml
-        ragtag: \$(echo \$(ragtag.py -v | sed 's/v//'))
-    END_VERSIONS
     """
 }

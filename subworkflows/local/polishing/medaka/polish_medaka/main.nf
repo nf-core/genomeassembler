@@ -1,41 +1,58 @@
-include { RUN_MEDAKA } from '../run_medaka/main'
+include { MEDAKA_PARALLEL as MEDAKA } from '../../../../../modules/local/medaka/medaka_consensus/main'
 include { QC } from '../../../qc/main.nf'
-include { RUN_LIFTOFF } from '../../../liftoff/main'
+include { LIFTOFF } from '../../../../../modules/nf-core/liftoff/main'
+include { HTSLIB_REBGZIP as BGZIP } from '../../../../../modules/local/htslib/rebgzip/main'
 
 workflow POLISH_MEDAKA {
     take:
-    ch_input
-    in_reads
-    assembly
-    ch_aln_to_ref
+    ch_main
     meryl_kmers
 
     main:
-    Channel.empty().set { ch_versions }
-    Channel.empty().set { quast_out }
-    Channel.empty().set { busco_out }
-    Channel.empty().set { merqury_report_files }
 
-    RUN_MEDAKA(in_reads, assembly)
-    RUN_MEDAKA.out.medaka_out.set { polished_assembly }
+    ch_medaka_in = ch_main
+        .map {
+            it ->
+            [ it.meta, it.meta.ontreads, it.meta.assembly ]
 
-    ch_versions = ch_versions.mix(RUN_MEDAKA.out.versions)
+        }
 
-    QC(ch_input, in_reads, polished_assembly, ch_aln_to_ref, meryl_kmers)
+    MEDAKA(ch_medaka_in)
 
-    ch_versions = ch_versions.mix(QC.out.versions)
+    BGZIP(MEDAKA.out.assembly)
 
-    if (params.lift_annotations) {
-        RUN_LIFTOFF(polished_assembly, ch_input)
-        ch_versions = ch_versions.mix(RUN_LIFTOFF.out.versions)
-    }
+    polished_assembly = BGZIP.out.bgzipped
 
-    versions = ch_versions
+    ch_medaka_out = polished_assembly
+        .map { meta, polished_medaka -> [meta: meta + [ polished: [medaka: polished_medaka ] ] ]}
+
+    ch_main_out = ch_medaka_out
+
+    QC(
+        ch_medaka_out.map { it -> [meta: it.meta - it.meta.subMap("assembly_map_bam") + [ assembly_map_bam: null] ] },
+        polished_assembly.map { meta, polished -> [meta.id, polished] },
+        meryl_kmers
+    )
+
+
+    liftoff_in = ch_medaka_out
+        .filter {
+            it -> it.meta.lift_annotations
+        }
+        .map { it ->
+                [
+                it.meta,
+                it.meta.polished.medaka,
+                it.meta.ref_fasta,
+                it.meta.ref_gff
+                ]
+        }
+
+    LIFTOFF(liftoff_in, [])
 
     emit:
-    polished_assembly
+    ch_main                 = ch_main_out
     quast_out               = QC.out.quast_out
     busco_out               = QC.out.busco_out
     merqury_report_files    = QC.out.merqury_report_files
-    versions
 }
