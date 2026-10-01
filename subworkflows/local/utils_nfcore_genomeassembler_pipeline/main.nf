@@ -108,8 +108,12 @@ workflow PIPELINE_INITIALISATION {
         */
         .map { it ->
             def meta = it[0]
-            // Populate everything that has no value with the value from params
-            return meta.collectEntries { key, val -> key == "group" ? [ key, val ] : [ key, val ?: params.get(key) ] }
+            /*
+            Populate everything that has no value with the value from params
+            Without defaults set in the schema, for the keys where there is no value in the samplesheet
+            we get an empty list. If we got an empty list, use the param setting, which is initialized to a default
+            */
+            return meta.collectEntries { key, val -> key == "group" ? [ key, val ] : [ key, val != [] ? val : params.get(key) ] }
         }
         .map{
             it ->
