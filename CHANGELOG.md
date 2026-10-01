@@ -3,9 +3,13 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## v2.0.1 - 'Pink Vulture' - [2026-XX-XX]
+## v2.0.1 - 'I was a Teenage Hand Model' - [2026-XX-XX]
+
+codenamegenerator.com stopped working. Codenames from now on will be songtitles.
 
 ### `Added`
+
+- [#233]https://github.com/nf-core/genomeassembler/pull/233) Updated. `tower.yml`
 
 ### `Fixed`
 
