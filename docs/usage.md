@@ -13,8 +13,8 @@ This pipeline can perform assembly, polishing, scaffolding using long-reads, HiC
 > Phasing is currently not supported.
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/images/genomeassembler_dark.svg">
-  <img alt="nf-core/genomeassembler" src="docs/images/genomeassembler_light.svg">
+  <source media="(prefers-color-scheme: dark)" srcset="images/genomeassembler_dark.svg">
+  <img alt="nf-core/genomeassembler" src="images/genomeassembler_light.svg">
 </picture>
 
 Since it is often difficult to know which tool, or assembly strategy will perform best on a dataset, `nf-core/genomeassembler` can also be used to compare outcomes of different approaches in one run.
