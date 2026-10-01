@@ -13,7 +13,7 @@ codenamegenerator.com stopped working. Codenames from now on will be songtitles.
 
 ### `Fixed`
 
-- [#235]https://github.com/nf-core/genomeassembler/pull/235) witch qc_reads to hifi if there are no ontreads, see issue #234
+- [#235]https://github.com/nf-core/genomeassembler/pull/235) switch qc_reads to hifi if there are no ontreads, see issue #234
 
 ### `Dependencies`
 
