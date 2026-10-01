@@ -5,7 +5,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## v2.0.1 - 'I was a Teenage Hand Model' - [2026-XX-XX]
 
-codenamegenerator.com stopped working. Codenames from now on will be songtitles.
+codenamegenerator.com stopped working. Codenames from now on will be song titles.
 
 ### `Added`
 
