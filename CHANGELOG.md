@@ -13,6 +13,8 @@ codenamegenerator.com stopped working. Codenames from now on will be song titles
 
 ### `Fixed`
 
+- [#241]https://github.com/nf-core/genomeassembler/pull/241) Prevent the function `create_shortread_channel()` in `subworkflows/prepare/prepare_shortreads/main.nf` from causing concurrent modification exceptions, by creating a fresh map.
+
 - [#235]https://github.com/nf-core/genomeassembler/pull/235) switch qc_reads to hifi if there are no ontreads, see issue #234. Updated handling of parameters not set via samplesheet: the schema no longer sets any defaults, and returns `[]` for missing keys.
 
 ### `Dependencies`
