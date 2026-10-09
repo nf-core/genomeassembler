@@ -9,13 +9,15 @@ codenamegenerator.com stopped working. Codenames from now on will be song titles
 
 ### `Added`
 
-- [#233]https://github.com/nf-core/genomeassembler/pull/233) Updated. `tower.yml`
+- [#233](https://github.com/nf-core/genomeassembler/pull/233) Updated. `tower.yml`
 
 ### `Fixed`
 
-- [#241]https://github.com/nf-core/genomeassembler/pull/241) Prevent the function `create_shortread_channel()` in `subworkflows/prepare/prepare_shortreads/main.nf` from causing concurrent modification exceptions, by creating a fresh map.
+- [#245](https://github.com/nf-core/genomeassembler/pull/245) Use per-sample models with medaka, instead of params setting.
 
-- [#235]https://github.com/nf-core/genomeassembler/pull/235) switch qc_reads to hifi if there are no ontreads, see issue #234. Updated handling of parameters not set via samplesheet: the schema no longer sets any defaults, and returns `[]` for missing keys.
+- [#241](https://github.com/nf-core/genomeassembler/pull/241) Prevent the function `create_shortread_channel()` in `subworkflows/prepare/prepare_shortreads/main.nf` from causing concurrent modification exceptions, by creating a fresh map.
+
+- [#235](https://github.com/nf-core/genomeassembler/pull/235) switch qc_reads to hifi if there are no ontreads, see issue #234. Updated handling of parameters not set via samplesheet: the schema no longer sets any defaults, and returns `[]` for missing keys.
 
 ### `Dependencies`
 
