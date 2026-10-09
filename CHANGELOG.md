@@ -13,6 +13,8 @@ codenamegenerator.com stopped working. Codenames from now on will be song titles
 
 ### `Fixed`
 
+- [#246](https://github.com/nf-core/genomeassembler/pull/246) Fixed typo in map creating useless extra field
+
 - [#245](https://github.com/nf-core/genomeassembler/pull/245) Use per-sample models with medaka, instead of params setting.
 
 - [#241](https://github.com/nf-core/genomeassembler/pull/241) Prevent the function `create_shortread_channel()` in `subworkflows/prepare/prepare_shortreads/main.nf` from causing concurrent modification exceptions, by creating a fresh map.
