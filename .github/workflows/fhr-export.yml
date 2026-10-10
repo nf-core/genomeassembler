@@ -12,6 +12,7 @@ on:
       - "subworkflows/local/prepare/**"
       - "subworkflows/local/assemble/**"
       - "subworkflows/local/utils_nfcore_genomeassembler_pipeline/**"
+      - "conf/modules.config"
       - "conf/modules/fhr.config"
       - "workflows/genomeassembler.nf"
       - "nextflow.config"
