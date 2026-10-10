@@ -66,6 +66,10 @@ workflow GENOMEASSEMBLER {
     ch_main_prepared = PREPARE.out.ch_main
 
     meryl_kmers = PREPARE.out.meryl_kmers
+        .combine(ch_main_prepared.map { row -> [row.meta.id, row.meta.hifiasm_hic_phasing] }, by: 0)
+        .flatMap { id, kmers, phased ->
+            phased ? [["${id}-hap1", kmers], ["${id}-hap2", kmers]] : [[id, kmers]]
+        }
     /*
     Assembly
     */
@@ -226,7 +230,7 @@ workflow GENOMEASSEMBLER {
             busco_files,
             merqury_files,
             ch_collated_versions.collect(),
-            ch_main.map { it -> [sample: [id: it.meta.id, group: it.meta.group]] }.collect()
+            ch_main_scaffolded.map { it -> [sample: [id: it.meta.id, group: it.meta.group]] }.collect()
     )
 
     _report = REPORT.out.report_html.toList()
