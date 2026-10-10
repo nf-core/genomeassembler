@@ -44,16 +44,16 @@ measure switch errors or parental phase accuracy. The aggregate report lists the
 
 ## Other OTB ideas
 
-| OTB idea | Decision |
-| --- | --- |
-| Stage-wise assembly assessment | Keep existing BUSCO, QUAST and Merqury integration. |
-| GenomeScope profiling | Keep existing Jellyfish/GenomeScope integration. |
-| YaHS scaffolding and RagTag reference scaffolding | Reuse existing subworkflows for each haplotype. |
-| Trio phasing with parental yak databases | Valuable next addition; needs parental input validation and dedicated tests. |
-| FCS-adaptor screening | Valuable future addition; requires a versioned supported module and clear cleaned-assembly provenance. |
-| HiFiAdapterFilt | Evaluate against existing HiFi fastplong preparation before adding another filtering option. |
-| Merfin / DeepVariant HiFi polishing | Defer until supported models and evidence demonstrate improvement without collapsing haplotypes. |
-| Shhquis contact-driven reorientation | Defer pending comparison with the existing YaHS path. |
+| OTB idea                                          | Decision                                                                                               |
+| ------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| Stage-wise assembly assessment                    | Keep existing BUSCO, QUAST and Merqury integration.                                                    |
+| GenomeScope profiling                             | Keep existing Jellyfish/GenomeScope integration.                                                       |
+| YaHS scaffolding and RagTag reference scaffolding | Reuse existing subworkflows for each haplotype.                                                        |
+| Trio phasing with parental yak databases          | Valuable next addition; needs parental input validation and dedicated tests.                           |
+| FCS-adaptor screening                             | Valuable future addition; requires a versioned supported module and clear cleaned-assembly provenance. |
+| HiFiAdapterFilt                                   | Evaluate against existing HiFi fastplong preparation before adding another filtering option.           |
+| Merfin / DeepVariant HiFi polishing               | Defer until supported models and evidence demonstrate improvement without collapsing haplotypes.       |
+| Shhquis contact-driven reorientation              | Defer pending comparison with the existing YaHS path.                                                  |
 
 The phased assembly routing has an nf-test stub regression and a standalone
 container-backed routing harness covering two samples
