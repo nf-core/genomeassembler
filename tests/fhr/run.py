@@ -46,33 +46,33 @@ with tempfile.TemporaryDirectory(prefix='genomeassembler-fhr-') as temporary:
     (work / 'b').mkdir()
     (work / 'a/genome.fa').write_bytes(body)
     (work / 'b/genome.fa.gz').write_bytes(gzip.compress(body))
-    (work / 'nextflow.config').write_text(f'''
+    (work / 'nextflow.config').write_text('''
 nextflow.enable.dsl = 2
 trace.overwrite = true
-params.outdir = '{work}/results'
+params.outdir = '@WORK@/results'
 params.publish_dir_mode = 'copy'
 params.fhr_container = 'fhr-nextflow:0.1.0'
-includeConfig '{root}/conf/modules/fhr.config'
-profiles {{ docker {{ docker.enabled = true }} }}
-''')
-    (work / 'main.nf').write_text(f'''
-include {{ FHR_EXPORT; loadFhrConfig; fhrRecord; assemblyOutputs }} from '{root}/subworkflows/local/fhr/main'
-workflow {{
+includeConfig '@ROOT@/conf/modules/fhr.config'
+profiles { docker { docker.enabled = true } }
+'''.replace('@ROOT@', str(root)).replace('@WORK@', str(work)))
+    (work / 'main.nf').write_text('''
+include { FHR_EXPORT; loadFhrConfig; fhrRecord; assemblyOutputs } from '@ROOT@/subworkflows/local/fhr/main'
+workflow {
     config = loadFhrConfig(params.metadata)
     assert assemblyOutputs([strategy: 'single', assembler_hifi: 'hifiasm',
         assembly: file('a/genome.fa'), polished: [polished_dorado: file('b/genome.fa.gz')]])
-        .any {{ it[1] == 'polish_dorado' }}
+        .any { it[1] == 'polish_dorado' }
     samples = Channel.of(
         [id: params.unsafe_id.toString() == 'true' ? '../bad' : 'alpha-hap1', source_sample: 'alpha', strategy: 'single',
          assembler_hifi: 'hifiasm', assembly: file('a/genome.fa'),
          scaffolds: [hic: file('b/genome.fa.gz')]],
         [id: 'beta', strategy: 'single', assembler_hifi: 'flye', assembly: file('b/genome.fa.gz')]
     )
-    records = samples.flatMap {{ meta -> assemblyOutputs(meta) }}
-        .map {{ meta, stage, assembly, subdir -> fhrRecord(meta, stage, assembly, config) }}
+    records = samples.flatMap { meta -> assemblyOutputs(meta) }
+        .map { meta, stage, assembly, subdir -> fhrRecord(meta, stage, assembly, config) }
     FHR_EXPORT(params.disable_export.toString() == 'true' ? Channel.empty() : records)
-}}
-''')
+}
+'''.replace('@ROOT@', str(root)).replace('@WORK@', str(work)))
     config = {
         'defaults': {
             'schema': 'https://raw.githubusercontent.com/FAIR-bioHeaders/FHR-Specification/v0.3.0/fhr.json',

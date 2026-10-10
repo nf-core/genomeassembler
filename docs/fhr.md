@@ -18,23 +18,23 @@ in JSON lets Nextflow load metadata natively without another parsing dependency.
 
 ```json
 {
-    "defaults": {
-        "schema": "https://raw.githubusercontent.com/FAIR-bioHeaders/FHR-Specification/v0.3.0/fhr.json",
-        "schemaVersion": 1,
-        "version": "1.0",
-        "metadataAuthor": [{ "name": "Your metadata author" }],
-        "assemblyAuthor": [{ "name": "Your assembly author" }],
-        "masking": "not-masked"
-    },
-    "samples": {
-        "individual": {
-            "genome": "Your assembly name",
-            "taxon": {
-                "name": "Your organism name",
-                "uri": "https://identifiers.org/taxonomy:YOUR_TAXON_ID"
-            }
-        }
+  "defaults": {
+    "schema": "https://raw.githubusercontent.com/FAIR-bioHeaders/FHR-Specification/v0.3.0/fhr.json",
+    "schemaVersion": 1,
+    "version": "1.0",
+    "metadataAuthor": [{ "name": "Your metadata author" }],
+    "assemblyAuthor": [{ "name": "Your assembly author" }],
+    "masking": "not-masked"
+  },
+  "samples": {
+    "individual": {
+      "genome": "Your assembly name",
+      "taxon": {
+        "name": "Your organism name",
+        "uri": "https://identifiers.org/taxonomy:YOUR_TAXON_ID"
+      }
     }
+  }
 }
 ```
 
@@ -125,7 +125,7 @@ preservation, metadata quoting, source-sample inheritance, haplotype overrides,
 matching YAML/FASTA checksums, and rejection of missing metadata, unknown fields
 and unsafe IDs. It also checks the automatic creation date and that a disabled
 export schedules no tasks. The dedicated CI workflow runs native and Docker
-variants plus samplesheet and read-routing regressions. It does not run the full genome assembly pipeline or benchmark
+variants. It does not run the full genome assembly pipeline or benchmark
 large-genome memory requirements. The converter loads complete files in memory;
 increase the `fhr` process memory through a custom Nextflow config for large
 assemblies. Container and conda execution need their own environment verification.
