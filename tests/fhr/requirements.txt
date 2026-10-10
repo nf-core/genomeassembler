@@ -1,0 +1,4 @@
+jsonschema[format]==4.26.0
+PyYAML==6.0.3
+pytest==8.4.2
+https://github.com/FAIR-bioHeaders/FHR-File-Converter/releases/download/v0.3.0/fhr-0.3.0-py3-none-any.whl#sha256=6cbd55f3fa8dc9fe5f7e0f1fb07c431589518eaa0fe50e7b381b3505d2625e62
