@@ -1,0 +1,44 @@
+nextflow_workflow {
+    name "Phased assemblies retain source-specific Merqury databases"
+    script "../genomeassembler.nf"
+    workflow "GENOMEASSEMBLER"
+    config "workflows/tests/phasing_merqury.config"
+    tag "workflows"
+    tag "hic_phasing"
+
+    test("Two samples produce Merqury results for all four haplotypes") {
+        options "-stub-run"
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+            workflow {
+                """
+                input[0] = Channel.of('sampleA', 'sampleB').map { id ->
+                    [meta: [
+                        id: id, strategy: 'single', assembler_hifi: 'hifiasm',
+                        hifiasm_hic_phasing: true, scaffold_hic: false,
+                        hifireads: file("${projectDir}/subworkflows/local/assemble/tests/data/hifi.fastq"),
+                        phasing_reads: [file("${projectDir}/subworkflows/local/assemble/tests/data/hic_R1.fastq"), file("${projectDir}/subworkflows/local/assemble/tests/data/hic_R2.fastq")],
+                        shortread_F: file("${projectDir}/subworkflows/local/assemble/tests/data/hic_R1.fastq"),
+                        shortread_R: file("${projectDir}/subworkflows/local/assemble/tests/data/hic_R2.fastq"),
+                        shortread_trim: true, paired: true, hic_trim: false,
+                        qc_reads: 'hifi', jellyfish: false, meryl_k: 21,
+                        quast: false, busco: false, merqury: true,
+                        use_short_reads: true, lift_annotations: false
+                    ]]
+                }
+                """
+            }
+        }
+        then {
+            assert workflow.success
+            def reports = []
+            new File("$outputDir").eachFileRecurse { f ->
+                if (f.name.endsWith('.completeness.stats')) reports << f
+            }
+            assert reports*.name.sort() == ['sampleA-hap1_assembly.completeness.stats', 'sampleA-hap2_assembly.completeness.stats', 'sampleB-hap1_assembly.completeness.stats', 'sampleB-hap2_assembly.completeness.stats']
+            assert reports.every { it.text.trim() == it.name.split('-hap')[0] }
+        }
+    }
+}

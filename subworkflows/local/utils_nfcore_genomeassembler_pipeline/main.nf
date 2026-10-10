@@ -175,6 +175,9 @@ workflow PIPELINE_INITIALISATION {
                 if (phasing_args =~ /(^|\s)--(primary|ont)(\s|$|=)/) {
                     error("Sample ${meta.id}: --primary and --ont are incompatible with hifiasm_hic_phasing.")
                 }
+                if (phasing_args =~ /(^|\s)-[12]/) {
+                    error("Sample ${meta.id}: trio inputs -1 and -2 are incompatible with hifiasm_hic_phasing.")
+                }
                 // Keep the pair across read preparation, which removes hic_F/hic_R.
                 meta = meta + [phasing_reads: [file(meta.hic_F, checkIfExists: true), file(meta.hic_R, checkIfExists: true)]]
             }
