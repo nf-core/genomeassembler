@@ -1,0 +1,37 @@
+nextflow_workflow {
+    name "Supplied assembly preparation"
+    script "../main.nf"
+    workflow "PREPARE"
+    tag "subworkflows"
+    tag "prepare"
+
+    test("Supplied assembly without long reads is retained") {
+        when {
+            workflow {
+                """
+                input[0] = Channel.of([meta: [id: 'supplied', assembly: file("${projectDir}/assets/test-assembly.fasta"), qc_reads: 'ont', jellyfish: false]])
+                """
+            }
+        }
+        then {
+            assert workflow.success
+            assert workflow.out.ch_main.size() == 1
+            assert workflow.out.ch_main[0].meta.id == 'supplied'
+            assert path(workflow.out.ch_main[0].meta.assembly).getFileName().toString() == 'test-assembly.fasta'
+        }
+    }
+    test("Supplied assembly without reads rejects Jellyfish") {
+        when {
+            workflow {
+                """
+                input[0] = Channel.of([meta: [id: 'supplied', assembly: file("${projectDir}/assets/test-assembly.fasta"), qc_reads: 'ont', jellyfish: true]])
+                """
+            }
+        }
+        then {
+            assert workflow.failed
+            assert workflow.stdout.any { it.contains('Jellyfish requires long reads') }
+        }
+    }
+
+}
