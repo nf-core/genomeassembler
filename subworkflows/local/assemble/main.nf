@@ -1,3 +1,5 @@
+include { HIFIASM as HIFIASM_HIC } from '../../../modules/nf-core/hifiasm/main'
+include { GFATOOLS_GFA2FA as GFA2FA_HAP } from '../../../modules/nf-core/gfatools/gfa2fa/main'
 include { FLYE as FLYE_ONT} from '../../../modules/nf-core/flye/main'
 include { FLYE as FLYE_HIFI} from '../../../modules/nf-core/flye/main'
 include { HIFIASM } from '../../../modules/nf-core/hifiasm/main'
@@ -169,15 +171,37 @@ workflow ASSEMBLE {
 
     //ch_main_assemble_hifi_hifiasm.view { "Assemble: hifiasm HIFI inputs: $it" }
 
-    HIFIASM(ch_main_assemble_hifi_hifiasm,
+    HIFIASM(ch_main_assemble_hifi_hifiasm.filter { meta, reads, ul -> !meta.hifiasm_hic_phasing },
             [[], [], []],
             [[], [], []],
             [[], []])
 
+    // multiMap keeps each HiFi input and Hi-C pair aligned across samples.
+    phased_inputs = ch_main_assemble_hifi_hifiasm
+        .filter { meta, reads, ul -> meta.hifiasm_hic_phasing }
+        .multiMap { meta, reads, ul ->
+            long_reads: [meta, reads, ul]
+            hic_reads: [meta, meta.phasing_reads[0], meta.phasing_reads[1]]
+        }
+    HIFIASM_HIC(phased_inputs.long_reads, [[], [], []], phased_inputs.hic_reads, [[], []])
+
+    // Require both haplotypes for every requested sample before emitting either.
+    phased_contigs = phased_inputs.long_reads
+        .map { meta, reads, ul -> [meta.id, meta] }
+        .join(HIFIASM_HIC.out.hap1_contigs.map { meta, gfa -> [meta.id, gfa] }, failOnMismatch: true, failOnDuplicate: true)
+        .join(HIFIASM_HIC.out.hap2_contigs.map { meta, gfa -> [meta.id, gfa] }, failOnMismatch: true, failOnDuplicate: true)
+        .flatMap { id, meta, hap1, hap2 ->
+            [
+                [meta + [id: "${id}-hap1".toString(), source_sample: id, haplotype: 1, hic_reads: meta.scaffold_hic ? meta.phasing_reads : null, assembly_map_bam: null], hap1],
+                [meta + [id: "${id}-hap2".toString(), source_sample: id, haplotype: 2, hic_reads: meta.scaffold_hic ? meta.phasing_reads : null, assembly_map_bam: null], hap2]
+            ]
+        }
+    GFA2FA_HAP(phased_contigs)
+
     // hifiasm produces GFA files
     GFA2FA_HIFI( HIFIASM.out.primary_contigs )
 
-    BGZIP_HIFI(GFA2FA_HIFI.out.fasta)
+    BGZIP_HIFI(GFA2FA_HIFI.out.fasta.mix(GFA2FA_HAP.out.fasta))
 
     /*
     hifiasm with ONLY ont reads.
