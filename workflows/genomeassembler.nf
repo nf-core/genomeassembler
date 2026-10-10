@@ -113,6 +113,7 @@ workflow GENOMEASSEMBLER {
 
     // Enumerate retained assembly stages for optional FHR export.
     ch_assembly_outputs = ch_main_scaffolded.flatMap { row -> assemblyOutputs(row.meta) }
+        .unique { meta, stage, assembly, subdir -> [meta.id, stage] }
     def fhr_config = params.fhr_config ? loadFhrConfig(params.fhr_config) : null
     ch_fhr_records = fhr_config
         ? ch_assembly_outputs.map { meta, stage, assembly, subdir -> fhrRecord(meta, stage, assembly, fhr_config) }

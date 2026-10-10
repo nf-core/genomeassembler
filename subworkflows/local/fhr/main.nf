@@ -11,13 +11,18 @@ workflow FHR_EXPORT {
     records // tuple(meta, FHR fields map, assembly path)
 
     main:
-    FHR_PREPARE_SEQUENCE(records)
+    // Parallel scaffolding paths can repeat the same sample/stage record.
+    unique_records = records.unique { meta, fields, assembly -> meta.id }
+    FHR_PREPARE_SEQUENCE(unique_records)
+    sequences = FHR_PREPARE_SEQUENCE.out.sequence.map { meta, fields, fasta ->
+        tuple(meta + [fhr_sequence_bytes: fasta.size()], fields, fasta)
+    }
     // Attachment computes the checksum before validating metadata. No placeholder
     // checksum is required in the user's config or exposed as a validated output.
-    FHR_WRITE_JSON(FHR_PREPARE_SEQUENCE.out.sequence.map { meta, fields, fasta -> tuple(meta, fields) })
+    FHR_WRITE_JSON(sequences.map { meta, fields, fasta -> tuple(meta, fields) })
     paired = FHR_WRITE_JSON.out.json
         .map { meta, json -> tuple(meta.id, meta, json) }
-        .join(FHR_PREPARE_SEQUENCE.out.sequence.map { meta, fields, fasta -> tuple(meta.id, fasta) })
+        .join(sequences.map { meta, fields, fasta -> tuple(meta.id, fasta) }, failOnDuplicate: true, failOnMismatch: true)
         .map { id, meta, json, fasta -> tuple(meta, json, fasta, 'fasta') }
     FHR_ATTACH(paired)
     FHR_YAML(FHR_ATTACH.out.json.map { meta, json -> tuple(meta, json, 'yaml') })
@@ -25,7 +30,7 @@ workflow FHR_EXPORT {
 
     validated_pairs = FHR_ATTACH.out.sequence
         .map { meta, fasta -> tuple(meta.id, meta, fasta) }
-        .join(FHR_CHECK_YAML.out.validated.map { meta, yaml -> tuple(meta.id, yaml) })
+        .join(FHR_CHECK_YAML.out.validated.map { meta, yaml -> tuple(meta.id, yaml) }, failOnDuplicate: true, failOnMismatch: true)
         .map { id, meta, fasta, yaml -> tuple(meta, fasta, yaml) }
     FHR_FINALIZE(validated_pairs)
 
@@ -58,9 +63,18 @@ def fhrRecord(meta, stage, assembly, config) {
     def fields = config.defaults + config.samples[key] + [
         dateCreated: java.time.LocalDate.now(java.time.ZoneId.of('America/Detroit')).toString()
     ]
-    def id = "${sample}-${stage}".toString()
+    def safe_sample = fhrSampleId(sample)
+    def id = "${safe_sample}-${stage}".toString()
     sampleId([id: id])
-    return tuple([id: id, sample: sample, source_sample: source, stage: stage], fields, assembly)
+    return tuple([id: id, sample: safe_sample, original_sample: sample, source_sample: source, stage: stage], fields, assembly)
+}
+
+// Reserve the encoding prefix so an encoded ID cannot collide with a literal ID.
+// Metadata lookup continues to use the original samplesheet ID.
+def fhrSampleId(sample) {
+    def value = sample.toString()
+    return value ==~ /[A-Za-z0-9][A-Za-z0-9_.-]*/ && !value.startsWith('fhr-encoded-')
+        ? value : 'fhr-encoded-' + value.getBytes('UTF-8').encodeHex().toString()
 }
 
 // Assembly stages have parallel outputs; no arbitrary "final" precedence is applied.

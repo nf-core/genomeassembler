@@ -1,3 +1,4 @@
+include { addPolishedAssembly } from '../../utils'
 include { MEDAKA_PARALLEL as MEDAKA } from '../../../../../modules/local/medaka/medaka_consensus/main'
 include { QC } from '../../../qc/main.nf'
 include { LIFTOFF } from '../../../../../modules/nf-core/liftoff/main'
@@ -24,7 +25,7 @@ workflow POLISH_MEDAKA {
     polished_assembly = BGZIP.out.bgzipped
 
     ch_medaka_out = polished_assembly
-        .map { meta, polished_medaka -> [meta: meta + [ polished: [medaka: polished_medaka ] ] ]}
+        .map { meta, polished_medaka -> [meta: addPolishedAssembly(meta, 'medaka', polished_medaka) ]}
 
     ch_main_out = ch_medaka_out
 

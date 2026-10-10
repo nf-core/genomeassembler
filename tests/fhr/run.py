@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Exercise the real FHR-Nextflow composition without running genome assembly."""
 import argparse
+import csv
+import shutil
 import gzip
 import json
 import os
@@ -17,11 +19,12 @@ args = parser.parse_args()
 root = Path(__file__).resolve().parents[2]
 
 
-def run(directory, config, *, success=True, unsafe_id=False, disabled=False):
+def run(directory, config, *, success=True, sample_id=None, disabled=False):
     (directory / 'metadata.json').write_text(json.dumps(config), encoding='utf-8')
     completed = subprocess.run(
         [args.nextflow, 'run', 'main.nf', '-ansi-log', 'false',
-         '--metadata', str(directory / 'metadata.json'), '--unsafe_id', str(unsafe_id).lower(),
+         '--metadata', str(directory / 'metadata.json'),
+         *(['--sample_id', sample_id] if sample_id else []),
          '--disable_export', str(disabled).lower(), '-with-trace', 'trace.txt',
          *(['-profile', args.profile] if args.profile else [])],
         cwd=directory, env=os.environ, text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
@@ -49,6 +52,7 @@ with tempfile.TemporaryDirectory(prefix='genomeassembler-fhr-') as temporary:
     (work / 'nextflow.config').write_text('''
 nextflow.enable.dsl = 2
 trace.overwrite = true
+params.sample_id = null
 params.outdir = '@WORK@/results'
 params.publish_dir_mode = 'copy'
 params.fhr_container = 'fhr-nextflow:0.1.0'
@@ -56,21 +60,33 @@ includeConfig '@ROOT@/conf/modules/fhr.config'
 profiles { docker { docker.enabled = true } }
 '''.replace('@ROOT@', str(root)).replace('@WORK@', str(work)))
     (work / 'main.nf').write_text('''
-include { FHR_EXPORT; loadFhrConfig; fhrRecord; assemblyOutputs } from '@ROOT@/subworkflows/local/fhr/main'
+include { FHR_EXPORT; loadFhrConfig; fhrRecord; assemblyOutputs; fhrSampleId } from '@ROOT@/subworkflows/local/fhr/main'
+include { addPolishedAssembly } from '@ROOT@/subworkflows/local/polishing/utils'
 workflow {
     config = loadFhrConfig(params.metadata)
     assert assemblyOutputs([strategy: 'single', assembler_hifi: 'hifiasm',
         assembly: file('a/genome.fa'), polished: [polished_dorado: file('b/genome.fa.gz')]])
         .any { it[1] == 'polish_dorado' }
+    // Exercise the same helper used by Medaka, Dorado and Pilon production paths.
+    first = addPolishedAssembly([polished: [:]], 'medaka', file('a/genome.fa'))
+    second = addPolishedAssembly(first, 'pilon', file('b/genome.fa.gz'))
+    third = addPolishedAssembly(second, 'dorado', file('a/genome.fa'))
+    assert first.polished.keySet() == ['medaka'] as Set
+    assert third.polished.keySet() == ['medaka', 'pilon', 'dorado'] as Set
+    legacy = addPolishedAssembly([polished: [polished_dorado: file('a/genome.fa')]], 'pilon', file('b/genome.fa.gz'))
+    assert legacy.polished.keySet() == ['dorado', 'pilon'] as Set
+    ids = ['sample+1', 'sample:1', '../bad', 'fhr-encoded-73616d706c652b31']
+    assert ids.collect { fhrSampleId(it) }.toSet().size() == ids.size()
     samples = Channel.of(
-        [id: params.unsafe_id.toString() == 'true' ? '../bad' : 'alpha-hap1', source_sample: 'alpha', strategy: 'single',
+        [id: params.sample_id ?: 'alpha-hap1', source_sample: 'alpha', strategy: 'single',
          assembler_hifi: 'hifiasm', assembly: file('a/genome.fa'),
-         scaffolds: [hic: file('b/genome.fa.gz')]],
+         scaffolds: [hic: file('b/genome.fa.gz')], polished: third.polished],
         [id: 'beta', strategy: 'single', assembler_hifi: 'flye', assembly: file('b/genome.fa.gz')]
     )
     records = samples.flatMap { meta -> assemblyOutputs(meta) }
         .map { meta, stage, assembly, subdir -> fhrRecord(meta, stage, assembly, config) }
-    FHR_EXPORT(params.disable_export.toString() == 'true' ? Channel.empty() : records)
+    // Duplicate stage records mimic parallel Hi-C/RagTag final rows.
+    FHR_EXPORT(params.disable_export.toString() == 'true' ? Channel.empty() : records.flatMap { record -> [record, record] })
 }
 '''.replace('@ROOT@', str(root)).replace('@WORK@', str(work)))
     config = {
@@ -90,9 +106,12 @@ workflow {
     config['defaults']['dateCreated'] = '2000-01-01'
     run(work, config)
     yaml_files = sorted((work / 'results').rglob('*.fhr.yaml'))
-    assert len(yaml_files) == 3, yaml_files
-    expected = {'alpha-hap1-initial_assembly', 'alpha-hap1-scaffold_hic', 'beta-initial_assembly'}
+    assert len(yaml_files) == 6, yaml_files
+    expected = {'alpha-hap1-' + stage for stage in ['initial_assembly', 'scaffold_hic', 'polish_medaka', 'polish_pilon', 'polish_dorado']} | {'beta-initial_assembly'}
     assert {path.name.removesuffix('.fhr.yaml') for path in yaml_files} == expected
+    with (work / 'trace.txt').open() as trace:
+        tasks = list(csv.DictReader(trace, delimiter='\t'))
+    assert sum('FHR_PREPARE_SEQUENCE' in task['name'] for task in tasks) == 6
     from fhr.cli import checksum, read_metadata, strip_header
     for yaml_path in yaml_files:
         fasta = yaml_path.with_suffix('.fasta')
@@ -105,7 +124,7 @@ workflow {
         assert data.genome == config['samples']['alpha' if yaml_path.name.startswith('alpha') else 'beta']['genome']
         result = subprocess.run(['fhr-fasta-validate', str(fasta)], capture_output=True, text=True)
         assert result.returncode == 0, result.stderr
-    print('PASS: three YAML/FASTA pairs, compressed/plain input, CRLF preservation, per-sample metadata, haplotype inheritance and real checksums')
+    print('PASS: six unique YAML/FASTA pairs including all retained polish stages, compressed/plain input, CRLF preservation, per-sample metadata, haplotype inheritance and real checksums')
     # Derived sample overrides replace whole top-level fields without altering defaults.
     config['samples']['alpha-hap1'] = {'genome': 'Haplotype override', 'taxon': config['samples']['alpha']['taxon']}
     run(work, config)
@@ -120,9 +139,18 @@ workflow {
     invalid = json.loads(json.dumps(config))
     invalid['defaults']['made_up_field'] = True
     assert 'made_up_field' in run(work, invalid, success=False)
-    rejected_id = run(work, config, success=False, unsafe_id=True)
-    assert 'meta.id' in rejected_id, rejected_id
-    print('PASS: missing sample, required field, unknown FHR field and unsafe output ID are rejected')
+    print('PASS: missing sample, required field and unknown FHR field are rejected')
+    # Preserve the samplesheet-ID contract while keeping internal filenames safe.
+    for sample in ['sample+1', 'sample:1', '../bad', 'fhr-encoded-73616d706c652b31']:
+        shutil.rmtree(work / 'results')
+        config['samples'][sample] = {'genome': sample, 'taxon': config['samples']['alpha']['taxon']}
+        run(work, config, sample_id=sample)
+        encoded = 'fhr-encoded-' + sample.encode('utf-8').hex()
+        outputs = list((work / 'results' / encoded).rglob('*.fhr.yaml'))
+        assert len(outputs) == 5, outputs
+        assert all(path.name.startswith(encoded + '-') for path in outputs)
+        assert all(read_metadata(path).genome == sample for path in outputs)
+    print('PASS: punctuation, traversal-like IDs and encoding-prefix collisions are safely encoded')
     run(work, config, disabled=True)
     assert len((work / 'trace.txt').read_text().splitlines()) == 1
     print('PASS: disabled export schedules no FHR tasks')

@@ -7,6 +7,7 @@ on:
       - ".github/workflows/fhr-export.yml"
       - "modules/local/fhr/**"
       - "subworkflows/local/fhr/**"
+      - "subworkflows/local/polishing/**"
       - "tests/fhr/**"
       - "subworkflows/local/prepare/**"
       - "subworkflows/local/assemble/**"
