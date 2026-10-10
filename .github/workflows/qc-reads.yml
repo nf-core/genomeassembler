@@ -1,0 +1,28 @@
+name: QC read selection regression
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/qc-reads.yml"
+      - "tests/qc_reads/**"
+      - "subworkflows/local/utils_nfcore_genomeassembler_pipeline/**"
+      - "assets/schema_input.json"
+      - "nextflow.config"
+      - "nextflow_schema.json"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  qc-reads:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - name: Use runner Java 21
+        run: echo "JAVA_HOME=$JAVA_HOME_21_X64" >> "$GITHUB_ENV"
+      - uses: nf-core/setup-nextflow@893c28b667aedeba26e37f296d260ccc5bc4d914 # v3
+        with:
+          version: "26.04.6"
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
+        with:
+          python-version: "3.13"
+      - name: Verify samplesheet QC read selection
+        run: python tests/qc_reads/run.py
