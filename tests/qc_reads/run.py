@@ -18,19 +18,19 @@ with tempfile.TemporaryDirectory(prefix='qc-reads-') as temporary:
         f'ont,,{work}/ont.fastq.gz,hifi\n'
         f'mixed,{work}/hifi.fastq.gz,{work}/ont.fastq.gz,hifi\n')
     (work/'nextflow.config').write_text(f"includeConfig '{root}/nextflow.config'\nparams.input = '{work}/samples.csv'\nparams.outdir = '{work}/results'\n")
-    (work/'main.nf').write_text(f'''
-include {{ PIPELINE_INITIALISATION }} from '{root}/subworkflows/local/utils_nfcore_genomeassembler_pipeline/main'
-workflow {{
+    (work/'main.nf').write_text('''
+include { PIPELINE_INITIALISATION } from '@ROOT@/subworkflows/local/utils_nfcore_genomeassembler_pipeline/main'
+workflow {
     PIPELINE_INITIALISATION(false, false, true, [], params.outdir, params.input, false, false, false)
-    PIPELINE_INITIALISATION.out.samplesheet.toList().subscribe {{ rows ->
+    PIPELINE_INITIALISATION.out.samplesheet.toList().subscribe { rows ->
         assert rows.size() == 3
-        assert rows.find {{ it.meta.id == 'hifi' }}.meta.qc_reads == 'hifi'
-        assert rows.find {{ it.meta.id == 'ont' }}.meta.qc_reads == 'ont'
-        assert rows.find {{ it.meta.id == 'mixed' }}.meta.qc_reads == 'hifi'
+        assert rows.find { it.meta.id == 'hifi' }.meta.qc_reads == 'hifi'
+        assert rows.find { it.meta.id == 'ont' }.meta.qc_reads == 'ont'
+        assert rows.find { it.meta.id == 'mixed' }.meta.qc_reads == 'hifi'
         println 'PASS: single-read correction and mixed-read explicit selection'
-    }}
-}}
-''')
+    }
+}
+'''.replace('@ROOT@', str(root)))
     result = subprocess.run([args.nextflow, 'run', 'main.nf', '-ansi-log', 'false'], cwd=work,
                             env=os.environ, text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     print(result.stdout)
