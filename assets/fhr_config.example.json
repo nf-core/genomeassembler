@@ -1,0 +1,19 @@
+{
+    "defaults": {
+        "schema": "https://raw.githubusercontent.com/FAIR-bioHeaders/FHR-Specification/v0.3.0/fhr.json",
+        "schemaVersion": 1,
+        "version": "REPLACE_WITH_ASSEMBLY_VERSION",
+        "metadataAuthor": [{ "name": "REPLACE_WITH_METADATA_AUTHOR" }],
+        "assemblyAuthor": [{ "name": "REPLACE_WITH_ASSEMBLY_AUTHOR" }],
+        "masking": "not-masked"
+    },
+    "samples": {
+        "REPLACE_WITH_SAMPLESHEET_ID": {
+            "genome": "REPLACE_WITH_ASSEMBLY_NAME",
+            "taxon": {
+                "name": "REPLACE_WITH_TAXON_NAME",
+                "uri": "https://identifiers.org/taxonomy:REPLACE_WITH_TAXON_ID"
+            }
+        }
+    }
+}
