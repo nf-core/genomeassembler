@@ -8,9 +8,7 @@ nextflow_workflow {
     test("Supplied assembly without long reads is retained") {
         when {
             workflow {
-                """
                 input[0] = Channel.of([meta: [id: 'supplied', assembly: file("${projectDir}/assets/test-assembly.fasta"), qc_reads: 'ont', jellyfish: false]])
-                """
             }
         }
         then {
