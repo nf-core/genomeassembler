@@ -1,0 +1,48 @@
+name: FHR export integration
+on:
+  push:
+    branches: [master]
+  pull_request:
+    paths:
+      - ".github/workflows/fhr-export.yml"
+      - "modules/local/fhr/**"
+      - "subworkflows/local/fhr/**"
+      - "subworkflows/local/polishing/**"
+      - "tests/fhr/**"
+      - "subworkflows/local/prepare/**"
+      - "subworkflows/local/assemble/**"
+      - "subworkflows/local/utils_nfcore_genomeassembler_pipeline/**"
+      - "conf/modules/fhr.config"
+      - "workflows/genomeassembler.nf"
+      - "nextflow.config"
+      - "nextflow_schema.json"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  fhr-export:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        runtime: [native, docker]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - name: Use runner Java 21
+        run: echo "JAVA_HOME=$JAVA_HOME_21_X64" >> "$GITHUB_ENV"
+      - uses: nf-core/setup-nextflow@893c28b667aedeba26e37f296d260ccc5bc4d914 # v3
+        with:
+          version: "26.04.6"
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
+        with:
+          python-version: "3.13"
+      - name: Install pinned converter
+        run: python -m pip install -r tests/fhr/requirements.txt
+      - name: Build FHR image
+        if: matrix.runtime == 'docker'
+        run: docker build -t fhr-nextflow:0.1.0 modules/local/fhr
+      - name: Verify native export
+        if: matrix.runtime == 'native'
+        run: python tests/fhr/run.py
+      - name: Verify container export
+        if: matrix.runtime == 'docker'
+        run: python tests/fhr/run.py --profile docker

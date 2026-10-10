@@ -29,6 +29,18 @@
                     "description": "The output directory where the results will be saved. You have to use absolute paths to storage on Cloud infrastructure.",
                     "fa_icon": "fas fa-folder-open"
                 },
+                "fhr_config": {
+                    "type": "string",
+                    "format": "file-path",
+                    "exists": true,
+                    "mimetype": "application/json",
+                    "description": "FHR metadata config JSON with defaults and per-sample overrides. Enables validated YAML and annotated FASTA exports."
+                },
+                "fhr_container": {
+                    "type": "string",
+                    "default": "fhr-nextflow:0.1.0",
+                    "description": "FHR converter container. Build the bundled Dockerfile or supply an accessible image containing FHR-File-Converter 0.3.0."
+                },
                 "email": {
                     "type": "string",
                     "description": "Email address for completion summary.",
