@@ -18,7 +18,7 @@ nextflow_workflow {
                 input[0] = Channel.of('sampleA', 'sampleB').map { id ->
                     [meta: [
                         id: id, strategy: 'single', assembler_hifi: 'hifiasm',
-                        hifiasm_hic_phasing: true,
+                        hifiasm_hic_phasing: true, scaffold_hic: id == 'sampleB', scaffold_ragtag: id == 'sampleA',
                         hifireads: file("${projectDir}/subworkflows/local/assemble/tests/data/hifi.fastq"),
                         phasing_reads: [file("${projectDir}/subworkflows/local/assemble/tests/data/hic_R1.fastq"), file("${projectDir}/subworkflows/local/assemble/tests/data/hic_R2.fastq")],
                         quast: false, busco: false, merqury: false,
@@ -35,8 +35,71 @@ nextflow_workflow {
             assert metas*.id.sort() == ['sampleA-hap1', 'sampleA-hap2', 'sampleB-hap1', 'sampleB-hap2']
             assert metas.every { path(it.assembly).getFileName().toString() == "${it.id}.fa.gz" }
             assert metas.every { it.id == "${it.source_sample}-hap${it.haplotype}" }
-            assert metas.every { it.hic_reads.size() == 2 }
+            assert metas.findAll { it.source_sample == 'sampleB' }.every { it.hic_reads.size() == 2 }
+            assert metas.findAll { it.source_sample == 'sampleA' }.every { !it.hic_reads && it.scaffold_ragtag }
             assert metas.every { it.assembly_map_bam == null }
         }
     }
+    test("Mixed phased and unphased samples retain independent outputs") {
+        options "-stub-run"
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+            workflow {
+                """
+                input[0] = Channel.of('sampleA', 'sampleB', 'unphased').map { id ->
+                    [meta: [
+                        id: id, strategy: 'single', assembler_hifi: 'hifiasm',
+                        hifiasm_hic_phasing: id != 'unphased', scaffold_hic: id == 'sampleB', scaffold_ragtag: id == 'sampleA',
+                        hifireads: file("${projectDir}/subworkflows/local/assemble/tests/data/hifi.fastq"),
+                        phasing_reads: [file("${projectDir}/subworkflows/local/assemble/tests/data/hic_R1.fastq"), file("${projectDir}/subworkflows/local/assemble/tests/data/hic_R2.fastq")],
+                        quast: false, busco: false, merqury: false,
+                        use_short_reads: false, lift_annotations: false
+                    ]]
+                }
+                input[1] = Channel.empty()
+                """
+            }
+        }
+        then {
+            assert workflow.success
+            def metas = workflow.out.ch_main.collect { it.meta }
+            assert metas*.id.sort() == ['sampleA-hap1', 'sampleA-hap2', 'sampleB-hap1', 'sampleB-hap2', 'unphased']
+            assert metas.every { path(it.assembly).getFileName().toString() == "${it.id}.fa.gz" }
+            assert metas.findAll { it.haplotype }.every { it.id == "${it.source_sample}-hap${it.haplotype}" }
+            assert metas.findAll { it.source_sample == 'sampleB' }.every { it.hic_reads.size() == 2 }
+            assert metas.findAll { it.source_sample == 'sampleA' }.every { !it.hic_reads && it.scaffold_ragtag }
+            assert metas.every { it.assembly_map_bam == null }
+        }
+    }
+    test("Missing phased outputs fail instead of dropping samples") {
+        options "-stub-run"
+        when {
+            params {
+                outdir = "$outputDir"
+                omit_haplotypes = true
+            }
+            workflow {
+                """
+                input[0] = Channel.of('sampleA', 'sampleB').map { id ->
+                    [meta: [
+                        id: id, strategy: 'single', assembler_hifi: 'hifiasm',
+                        hifiasm_hic_phasing: true, scaffold_hic: id == 'sampleB', scaffold_ragtag: id == 'sampleA',
+                        hifireads: file("${projectDir}/subworkflows/local/assemble/tests/data/hifi.fastq"),
+                        phasing_reads: [file("${projectDir}/subworkflows/local/assemble/tests/data/hic_R1.fastq"), file("${projectDir}/subworkflows/local/assemble/tests/data/hic_R2.fastq")],
+                        quast: false, busco: false, merqury: false,
+                        use_short_reads: false, lift_annotations: false
+                    ]]
+                }
+                input[1] = Channel.empty()
+                """
+            }
+        }
+        then {
+            assert workflow.failed
+            assert (workflow.stdout + workflow.stderr).any { it.toLowerCase().contains('mismatch') }
+        }
+    }
+
 }

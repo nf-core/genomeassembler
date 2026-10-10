@@ -192,8 +192,8 @@ workflow ASSEMBLE {
         .join(HIFIASM_HIC.out.hap2_contigs.map { meta, gfa -> [meta.id, gfa] }, failOnMismatch: true, failOnDuplicate: true)
         .flatMap { id, meta, hap1, hap2 ->
             [
-                [meta + [id: "${id}-hap1".toString(), source_sample: id, haplotype: 1, hic_reads: meta.phasing_reads, assembly_map_bam: null], hap1],
-                [meta + [id: "${id}-hap2".toString(), source_sample: id, haplotype: 2, hic_reads: meta.phasing_reads, assembly_map_bam: null], hap2]
+                [meta + [id: "${id}-hap1".toString(), source_sample: id, haplotype: 1, hic_reads: meta.scaffold_hic ? meta.phasing_reads : null, assembly_map_bam: null], hap1],
+                [meta + [id: "${id}-hap2".toString(), source_sample: id, haplotype: 2, hic_reads: meta.scaffold_hic ? meta.phasing_reads : null, assembly_map_bam: null], hap2]
             ]
         }
     GFA2FA_HAP(phased_contigs)
