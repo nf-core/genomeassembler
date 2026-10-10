@@ -20,4 +20,18 @@ nextflow_workflow {
             assert path(workflow.out.ch_main[0].meta.assembly).getFileName().toString() == 'test-assembly.fasta'
         }
     }
+    test("Supplied assembly without reads rejects Jellyfish") {
+        when {
+            workflow {
+                """
+                input[0] = Channel.of([meta: [id: 'supplied', assembly: file("${projectDir}/assets/test-assembly.fasta"), qc_reads: 'ont', jellyfish: true]])
+                """
+            }
+        }
+        then {
+            assert workflow.failed
+            assert workflow.stdout.any { it.contains('Jellyfish requires long reads') }
+        }
+    }
+
 }
