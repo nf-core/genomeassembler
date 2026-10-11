@@ -96,7 +96,7 @@ Other stages use `polish_pilon`, `polish_medaka`, `polish_dorado`,
 when the pipeline retains those outputs. If a phasing integration supplies derived records, they use the derived
 sample directory. Stage IDs follow the existing genomeqc manifest's naming.
 
-Parallel scaffold outputs are deduplicated by sample and stage before export.
+Repeated export records sharing a sample and stage identity are deduplicated. RagTag can produce different results from different upstream scaffold paths, so its export stage is `scaffold_ragtag-<SHA-256 of the assembly path>`. Every distinct RagTag path is exported; repeats of the same path share an export identity. Path digests depend on the input path, not sequence contents.
 Ordinary alphanumeric sample IDs retain their names. IDs containing punctuation
 outside letters, digits, dot, underscore and hyphen (or starting with a non-alphanumeric
 character), and IDs longer than 100 characters, are encoded as `fhr-encoded-` followed by the SHA-256 digest of their UTF-8 bytes. This keeps filenames bounded even after stage names and extensions are appended.

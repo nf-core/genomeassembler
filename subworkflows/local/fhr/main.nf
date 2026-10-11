@@ -54,6 +54,13 @@ def loadFhrConfig(path) {
 }
 
 def fhrRecord(meta, stage, assembly, config) {
+    // RagTag can run once per upstream scaffold path. Keep each result while
+    // giving repeat records for the same path the same export identity.
+    if (stage == 'scaffold_ragtag') {
+        def path_digest = java.security.MessageDigest.getInstance('SHA-256')
+            .digest(assembly.toString().getBytes('UTF-8')).encodeHex().toString()
+        stage = "${stage}-${path_digest}".toString()
+    }
     def sample = meta.id.toString()
     def source = (meta.source_sample ?: sample).toString()
     def key = config.samples.containsKey(sample) ? sample : source

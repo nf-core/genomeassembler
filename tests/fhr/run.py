@@ -54,6 +54,9 @@ with tempfile.TemporaryDirectory(prefix='genomeassembler-fhr-') as temporary:
     body = b'>contig1\r\nACGTACGT\r\n>contig2\r\nGCGC\r\n'
     (work / 'a').mkdir()
     (work / 'b').mkdir()
+    (work / 'c').mkdir()
+    alternate_body = b'>contig1\nTTTTACGT\n'
+    (work / 'c/genome.fa').write_bytes(alternate_body)
     (work / 'a/genome.fa').write_bytes(body)
     (work / 'b/genome.fa.gz').write_bytes(gzip.compress(body))
     (work / 'nextflow.config').write_text('''
@@ -94,8 +97,12 @@ workflow {
          scaffolds: [hic: file('b/genome.fa.gz')], polished: third.polished],
         [id: 'beta', strategy: 'single', assembler_hifi: 'flye', assembly: file('b/genome.fa.gz')]
     )
+    ragtag_paths = Channel.of(file('a/genome.fa'), file('c/genome.fa')).map { assembly ->
+        fhrRecord([id: params.sample_id ?: 'alpha-hap1', source_sample: 'alpha'], 'scaffold_ragtag', assembly, config)
+    }
     records = samples.flatMap { meta -> assemblyOutputs(meta) }
         .map { meta, stage, assembly, subdir -> fhrRecord(meta, stage, assembly, config) }
+        .mix(ragtag_paths)
     // Duplicate stage records mimic parallel Hi-C/RagTag final rows.
     FHR_EXPORT(params.disable_export.toString() == 'true' ? Channel.empty() : records.flatMap { record -> [record, record] })
 }
@@ -115,14 +122,20 @@ workflow {
     }
     # A supplied historical date must be replaced by today's date.
     config['defaults']['dateCreated'] = '2000-01-01'
+    date_before = datetime.now(ZoneInfo('America/Detroit')).date().isoformat()
     run(work, config)
+    date_after = datetime.now(ZoneInfo('America/Detroit')).date().isoformat()
     yaml_files = sorted((work / 'results').rglob('*.fhr.yaml'))
-    assert len(yaml_files) == 6, yaml_files
+    assert len(yaml_files) == 8, yaml_files
     expected = {'alpha-hap1-' + stage for stage in ['initial_assembly', 'scaffold_hic', 'polish_medaka', 'polish_pilon', 'polish_dorado']} | {'beta-initial_assembly'}
-    assert {path.name.removesuffix('.fhr.yaml') for path in yaml_files} == expected
+    assert {path.name.removesuffix('.fhr.yaml') for path in yaml_files if 'scaffold_ragtag-' not in path.name} == expected
+    ragtag_files = [p for p in yaml_files if 'scaffold_ragtag-' in p.name]
+    assert len(ragtag_files) == 2
+    from fhr.cli import strip_header
+    assert {strip_header(p.with_suffix('.fasta').read_bytes(), 'fasta') for p in ragtag_files} == {body, alternate_body}
     with (work / 'trace.txt').open() as trace:
         tasks = list(csv.DictReader(trace, delimiter='\t'))
-    assert sum('FHR_PREPARE_SEQUENCE' in task['name'] for task in tasks) == 6
+    assert sum('FHR_PREPARE_SEQUENCE' in task['name'] for task in tasks) == 8
     if args.profile == 'docker':
         assert all(task['container'] == ('-' if 'FHR_WRITE_JSON' in task['name'] else fhr_container)
                    for task in tasks), tasks
@@ -130,15 +143,15 @@ workflow {
     for yaml_path in yaml_files:
         fasta = yaml_path.with_suffix('.fasta')
         assert fasta.is_file(), fasta
-        assert strip_header(fasta.read_bytes(), 'fasta') == body
+        assert strip_header(fasta.read_bytes(), 'fasta') in ({body, alternate_body} if 'scaffold_ragtag-' in fasta.name else {body})
         data = read_metadata(yaml_path)
         data.fhr_validate()
-        assert data.dateCreated == datetime.now(ZoneInfo('America/Detroit')).date().isoformat()
+        assert data.dateCreated in {date_before, date_after}
         assert data.checksum == checksum(fasta.read_bytes(), 'fasta')
         assert data.genome == config['samples']['alpha' if yaml_path.name.startswith('alpha') else 'beta']['genome']
         result = subprocess.run(['fhr-fasta-validate', str(fasta)], capture_output=True, text=True)
         assert result.returncode == 0, result.stderr
-    print('PASS: six unique YAML/FASTA pairs including all retained polish stages, compressed/plain input, CRLF preservation, per-sample metadata, haplotype inheritance and real checksums')
+    print('PASS: eight unique YAML/FASTA pairs including distinct RagTag paths and all retained polish stages, compressed/plain input, CRLF preservation, per-sample metadata, haplotype inheritance and real checksums')
     # Derived sample overrides replace whole top-level fields without altering defaults.
     config['samples']['alpha-hap1'] = {'genome': 'Haplotype override', 'taxon': config['samples']['alpha']['taxon']}
     run(work, config)
@@ -161,7 +174,7 @@ workflow {
         run(work, config, sample_id=sample)
         encoded = 'fhr-encoded-' + hashlib.sha256(sample.encode('utf-8')).hexdigest()
         outputs = list((work / 'results' / encoded).rglob('*.fhr.yaml'))
-        assert len(outputs) == 5, outputs
+        assert len(outputs) == 7, outputs
         assert all(path.name.startswith(encoded + '-') for path in outputs)
         assert all(read_metadata(path).genome == sample for path in outputs)
     print('PASS: punctuation, traversal-like IDs, encoding-prefix collisions and long IDs use bounded filenames')
