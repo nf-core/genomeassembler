@@ -55,13 +55,13 @@ measure switch errors or parental phase accuracy. The aggregate report lists the
 | Merfin / DeepVariant HiFi polishing               | Defer until supported models and evidence demonstrate improvement without collapsing haplotypes.       |
 | Shhquis contact-driven reorientation              | Defer pending comparison with the existing YaHS path.                                                  |
 
-The phased assembly routing has an nf-test stub regression and a standalone
-container-backed routing harness covering two samples
-and four distinct haplotypes. Run it in a configured Nextflow/nf-test environment:
+Two separate checks cover initialization and routing:
+
+- `python tests/phasing/validation.py` runs samplesheet-driven initialization checks for ID collisions, invalid prerequisites and incompatible hifiasm arguments. It runs without containers and does not assemble or route haplotypes.
+- The nf-test below uses stubbed tool tasks to check routing and naming for two samples and four haplotypes. Docker supplies the tool environments, but the stub tasks do not perform real assembly.
 
 ```bash
-nf-test test subworkflows/local/assemble/tests/hic_phasing.nf.test --profile docker
+nf-test test subworkflows/local/assemble/tests/hic_phasing.nf.test --profile +docker
 ```
 
-Stub tests check routing and naming. A real HiFi + Hi-C dataset run is still
-needed to validate assembly quality and downstream biological results.
+A real HiFi + Hi-C dataset run is still needed to validate assembly quality and downstream biological results.
