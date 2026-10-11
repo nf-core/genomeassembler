@@ -136,9 +136,29 @@ matching YAML/FASTA checksums, rejection of missing metadata and unknown fields,
 safe encoding of punctuation/traversal-like IDs, duplicate-stage records and
 preservation of earlier polishing stages. It also checks the automatic creation date and that a disabled
 export schedules no tasks. The dedicated CI workflow runs native and Docker
-variants. It does not run the full genome assembly pipeline or benchmark
-large-genome memory requirements. The converter loads complete files in memory. FHR tasks use a 6 GB minimum;
+variants. It does not run the full genome assembly pipeline. The converter loads complete files in memory. FHR tasks use a 6 GB minimum;
 after decompression, conversion tasks request at least 12 times the FASTA byte size.
 Memory also scales with the retry attempt. This is a conservative estimate rather
 than a measured bound; use a custom `fhr` memory setting for your assemblies and executor.
 Decompression uses the 6 GB floor because the decompressed size is not yet known. Container and conda execution need their own environment verification.
+
+## Native converter memory benchmark
+
+`tests/fhr/benchmark.py` measures the same five converter commands used by export: FASTA attachment/checksum, FASTA validation, JSON extraction, YAML conversion and YAML validation. It streams synthetic FASTA fixtures with 1,000 contigs, runs commands sequentially in fresh processes, and records each command's peak resident memory and elapsed time. Peak RSS comes from `resource.getrusage`; the script handles the different macOS/Linux units. This is a native converter benchmark, excluding Nextflow, containers, file cache and concurrent tasks.
+
+Reproduce it in the pinned converter environment:
+
+```bash
+python tests/fhr/benchmark.py --sizes-mib 16 64 256 --repeats 3 \
+    --output fhr-memory-benchmark.json
+```
+
+Measured on 2026-10-11 with FHR-File-Converter 0.3.0, Python 3.13.16 and macOS arm64 on a 16 GiB host. Each input size had three repetitions. FASTA headers add a small amount to the nominal sizes below. Peak RSS is the largest value across all commands/repetitions; elapsed time is the median sum of the five sequential commands.
+
+| Nominal FASTA size (MiB) | Maximum converter RSS (MiB) | Median elapsed time (s) |
+| ------------------------ | --------------------------- | ----------------------- |
+| 16                       | 126.9                       | 1.17                    |
+| 64                       | 411.6                       | 2.37                    |
+| 256                      | 1540.2                      | 7.02                    |
+
+[Raw per-command measurements](fhr-memory-benchmark.json) are included. Attachment had the highest memory use. These observations fit within the current 6 GB floor and 12-times-decompressed-size allocation for these fixtures; they do **not** establish a memory bound for multi-gigabase genomes. Large real assemblies, other contig distributions, Linux/container execution, scheduler limits and concurrent exports still need representative validation. The converter remains a whole-file implementation and FHR-Nextflow remains a development prototype.

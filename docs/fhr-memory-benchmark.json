@@ -1,0 +1,414 @@
+{
+    "converter_version": "0.3.0",
+    "python_version": "3.13.16",
+    "system": "Darwin",
+    "machine": "arm64",
+    "measured_at": "2026-10-11T11:11:40.319208-04:00",
+    "results": [
+        {
+            "input_bytes": 16788890,
+            "requested_mib": 16,
+            "contigs": 1000,
+            "repeat": 1,
+            "step": "combine",
+            "seconds": 0.3615463330061175,
+            "peak_rss_bytes": 132923392
+        },
+        {
+            "input_bytes": 16788890,
+            "requested_mib": 16,
+            "contigs": 1000,
+            "repeat": 1,
+            "step": "validate_fasta",
+            "seconds": 0.31242591701447964,
+            "peak_rss_bytes": 96976896
+        },
+        {
+            "input_bytes": 16788890,
+            "requested_mib": 16,
+            "contigs": 1000,
+            "repeat": 1,
+            "step": "extract_json",
+            "seconds": 0.2038257920066826,
+            "peak_rss_bytes": 96862208
+        },
+        {
+            "input_bytes": 16788890,
+            "requested_mib": 16,
+            "contigs": 1000,
+            "repeat": 1,
+            "step": "convert_yaml",
+            "seconds": 0.14557183301076293,
+            "peak_rss_bytes": 34799616
+        },
+        {
+            "input_bytes": 16788890,
+            "requested_mib": 16,
+            "contigs": 1000,
+            "repeat": 1,
+            "step": "validate_yaml",
+            "seconds": 0.15463912504492328,
+            "peak_rss_bytes": 34832384
+        },
+        {
+            "input_bytes": 16788890,
+            "requested_mib": 16,
+            "contigs": 1000,
+            "repeat": 2,
+            "step": "combine",
+            "seconds": 0.3100914999959059,
+            "peak_rss_bytes": 132923392
+        },
+        {
+            "input_bytes": 16788890,
+            "requested_mib": 16,
+            "contigs": 1000,
+            "repeat": 2,
+            "step": "validate_fasta",
+            "seconds": 0.3621493749669753,
+            "peak_rss_bytes": 97173504
+        },
+        {
+            "input_bytes": 16788890,
+            "requested_mib": 16,
+            "contigs": 1000,
+            "repeat": 2,
+            "step": "extract_json",
+            "seconds": 0.20292862498899922,
+            "peak_rss_bytes": 96845824
+        },
+        {
+            "input_bytes": 16788890,
+            "requested_mib": 16,
+            "contigs": 1000,
+            "repeat": 2,
+            "step": "convert_yaml",
+            "seconds": 0.14825520903104916,
+            "peak_rss_bytes": 34766848
+        },
+        {
+            "input_bytes": 16788890,
+            "requested_mib": 16,
+            "contigs": 1000,
+            "repeat": 2,
+            "step": "validate_yaml",
+            "seconds": 0.15003954101121053,
+            "peak_rss_bytes": 34897920
+        },
+        {
+            "input_bytes": 16788890,
+            "requested_mib": 16,
+            "contigs": 1000,
+            "repeat": 3,
+            "step": "combine",
+            "seconds": 0.30741758295334876,
+            "peak_rss_bytes": 133103616
+        },
+        {
+            "input_bytes": 16788890,
+            "requested_mib": 16,
+            "contigs": 1000,
+            "repeat": 3,
+            "step": "validate_fasta",
+            "seconds": 0.3139258329756558,
+            "peak_rss_bytes": 97058816
+        },
+        {
+            "input_bytes": 16788890,
+            "requested_mib": 16,
+            "contigs": 1000,
+            "repeat": 3,
+            "step": "extract_json",
+            "seconds": 0.20971962495241314,
+            "peak_rss_bytes": 96878592
+        },
+        {
+            "input_bytes": 16788890,
+            "requested_mib": 16,
+            "contigs": 1000,
+            "repeat": 3,
+            "step": "convert_yaml",
+            "seconds": 0.1475486250128597,
+            "peak_rss_bytes": 34668544
+        },
+        {
+            "input_bytes": 16788890,
+            "requested_mib": 16,
+            "contigs": 1000,
+            "repeat": 3,
+            "step": "validate_yaml",
+            "seconds": 0.15007754100952297,
+            "peak_rss_bytes": 34848768
+        },
+        {
+            "input_bytes": 67119890,
+            "requested_mib": 64,
+            "contigs": 1000,
+            "repeat": 1,
+            "step": "combine",
+            "seconds": 0.8470462500117719,
+            "peak_rss_bytes": 431603712
+        },
+        {
+            "input_bytes": 67119890,
+            "requested_mib": 64,
+            "contigs": 1000,
+            "repeat": 1,
+            "step": "validate_fasta",
+            "seconds": 0.828428958018776,
+            "peak_rss_bytes": 291586048
+        },
+        {
+            "input_bytes": 67119890,
+            "requested_mib": 64,
+            "contigs": 1000,
+            "repeat": 1,
+            "step": "extract_json",
+            "seconds": 0.40816083300160244,
+            "peak_rss_bytes": 284852224
+        },
+        {
+            "input_bytes": 67119890,
+            "requested_mib": 64,
+            "contigs": 1000,
+            "repeat": 1,
+            "step": "convert_yaml",
+            "seconds": 0.14774683298310265,
+            "peak_rss_bytes": 34684928
+        },
+        {
+            "input_bytes": 67119890,
+            "requested_mib": 64,
+            "contigs": 1000,
+            "repeat": 1,
+            "step": "validate_yaml",
+            "seconds": 0.1427190409740433,
+            "peak_rss_bytes": 34848768
+        },
+        {
+            "input_bytes": 67119890,
+            "requested_mib": 64,
+            "contigs": 1000,
+            "repeat": 2,
+            "step": "combine",
+            "seconds": 1.7982762500178069,
+            "peak_rss_bytes": 431636480
+        },
+        {
+            "input_bytes": 67119890,
+            "requested_mib": 64,
+            "contigs": 1000,
+            "repeat": 2,
+            "step": "validate_fasta",
+            "seconds": 1.7493237500311807,
+            "peak_rss_bytes": 291766272
+        },
+        {
+            "input_bytes": 67119890,
+            "requested_mib": 64,
+            "contigs": 1000,
+            "repeat": 2,
+            "step": "extract_json",
+            "seconds": 0.3844092090148479,
+            "peak_rss_bytes": 284753920
+        },
+        {
+            "input_bytes": 67119890,
+            "requested_mib": 64,
+            "contigs": 1000,
+            "repeat": 2,
+            "step": "convert_yaml",
+            "seconds": 0.14614349999465048,
+            "peak_rss_bytes": 34881536
+        },
+        {
+            "input_bytes": 67119890,
+            "requested_mib": 64,
+            "contigs": 1000,
+            "repeat": 2,
+            "step": "validate_yaml",
+            "seconds": 0.14225466700736433,
+            "peak_rss_bytes": 34783232
+        },
+        {
+            "input_bytes": 67119890,
+            "requested_mib": 64,
+            "contigs": 1000,
+            "repeat": 3,
+            "step": "combine",
+            "seconds": 0.827926958038006,
+            "peak_rss_bytes": 431570944
+        },
+        {
+            "input_bytes": 67119890,
+            "requested_mib": 64,
+            "contigs": 1000,
+            "repeat": 3,
+            "step": "validate_fasta",
+            "seconds": 0.8287187499809079,
+            "peak_rss_bytes": 291553280
+        },
+        {
+            "input_bytes": 67119890,
+            "requested_mib": 64,
+            "contigs": 1000,
+            "repeat": 3,
+            "step": "extract_json",
+            "seconds": 0.3775374999968335,
+            "peak_rss_bytes": 284721152
+        },
+        {
+            "input_bytes": 67119890,
+            "requested_mib": 64,
+            "contigs": 1000,
+            "repeat": 3,
+            "step": "convert_yaml",
+            "seconds": 0.1457434159819968,
+            "peak_rss_bytes": 34865152
+        },
+        {
+            "input_bytes": 67119890,
+            "requested_mib": 64,
+            "contigs": 1000,
+            "repeat": 3,
+            "step": "validate_yaml",
+            "seconds": 0.15903320797951892,
+            "peak_rss_bytes": 35061760
+        },
+        {
+            "input_bytes": 268446890,
+            "requested_mib": 256,
+            "contigs": 1000,
+            "repeat": 1,
+            "step": "combine",
+            "seconds": 3.0850840830244124,
+            "peak_rss_bytes": 1445740544
+        },
+        {
+            "input_bytes": 268446890,
+            "requested_mib": 256,
+            "contigs": 1000,
+            "repeat": 1,
+            "step": "validate_fasta",
+            "seconds": 2.781177834025584,
+            "peak_rss_bytes": 1054834688
+        },
+        {
+            "input_bytes": 268446890,
+            "requested_mib": 256,
+            "contigs": 1000,
+            "repeat": 1,
+            "step": "extract_json",
+            "seconds": 1.043989291996695,
+            "peak_rss_bytes": 1027702784
+        },
+        {
+            "input_bytes": 268446890,
+            "requested_mib": 256,
+            "contigs": 1000,
+            "repeat": 1,
+            "step": "convert_yaml",
+            "seconds": 0.14618516596965492,
+            "peak_rss_bytes": 34701312
+        },
+        {
+            "input_bytes": 268446890,
+            "requested_mib": 256,
+            "contigs": 1000,
+            "repeat": 1,
+            "step": "validate_yaml",
+            "seconds": 0.1495750000467524,
+            "peak_rss_bytes": 34865152
+        },
+        {
+            "input_bytes": 268446890,
+            "requested_mib": 256,
+            "contigs": 1000,
+            "repeat": 2,
+            "step": "combine",
+            "seconds": 2.8296927909832448,
+            "peak_rss_bytes": 1613889536
+        },
+        {
+            "input_bytes": 268446890,
+            "requested_mib": 256,
+            "contigs": 1000,
+            "repeat": 2,
+            "step": "validate_fasta",
+            "seconds": 2.811358665989246,
+            "peak_rss_bytes": 1054851072
+        },
+        {
+            "input_bytes": 268446890,
+            "requested_mib": 256,
+            "contigs": 1000,
+            "repeat": 2,
+            "step": "extract_json",
+            "seconds": 1.0803733749780804,
+            "peak_rss_bytes": 1028046848
+        },
+        {
+            "input_bytes": 268446890,
+            "requested_mib": 256,
+            "contigs": 1000,
+            "repeat": 2,
+            "step": "convert_yaml",
+            "seconds": 0.14907191699603572,
+            "peak_rss_bytes": 34668544
+        },
+        {
+            "input_bytes": 268446890,
+            "requested_mib": 256,
+            "contigs": 1000,
+            "repeat": 2,
+            "step": "validate_yaml",
+            "seconds": 0.15286062500672415,
+            "peak_rss_bytes": 34848768
+        },
+        {
+            "input_bytes": 268446890,
+            "requested_mib": 256,
+            "contigs": 1000,
+            "repeat": 3,
+            "step": "combine",
+            "seconds": 2.816614000010304,
+            "peak_rss_bytes": 1615020032
+        },
+        {
+            "input_bytes": 268446890,
+            "requested_mib": 256,
+            "contigs": 1000,
+            "repeat": 3,
+            "step": "validate_fasta",
+            "seconds": 2.834325040981639,
+            "peak_rss_bytes": 1054720000
+        },
+        {
+            "input_bytes": 268446890,
+            "requested_mib": 256,
+            "contigs": 1000,
+            "repeat": 3,
+            "step": "extract_json",
+            "seconds": 1.050802250043489,
+            "peak_rss_bytes": 1027964928
+        },
+        {
+            "input_bytes": 268446890,
+            "requested_mib": 256,
+            "contigs": 1000,
+            "repeat": 3,
+            "step": "convert_yaml",
+            "seconds": 0.15000229101860896,
+            "peak_rss_bytes": 34652160
+        },
+        {
+            "input_bytes": 268446890,
+            "requested_mib": 256,
+            "contigs": 1000,
+            "repeat": 3,
+            "step": "validate_yaml",
+            "seconds": 0.15098050003871322,
+            "peak_rss_bytes": 34668544
+        }
+    ]
+}
