@@ -640,6 +640,33 @@
             "nextflow": "25.10.4"
         }
     },
+    "Single-read samples select available reads and mixed samples retain their choice": {
+        "content": [
+            [
+                [
+                    "hifi",
+                    "hifi"
+                ],
+                [
+                    "mixed_hifi",
+                    "hifi"
+                ],
+                [
+                    "mixed_ont",
+                    "ont"
+                ],
+                [
+                    "ont",
+                    "ont"
+                ]
+            ]
+        ],
+        "timestamp": "2026-10-12T08:07:12.313306",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
+    },
     "-profile test_quast": {
         "content": [
             208,
