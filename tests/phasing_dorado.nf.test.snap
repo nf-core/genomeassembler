@@ -1,0 +1,28 @@
+{
+    "Dorado outputs retain haplotype identity through scaffolding and export": {
+        "content": [
+            [
+                "sampleA_hap1-initial_assembly",
+                "sampleA_hap1-polish_dorado",
+                "sampleA_hap1-scaffold_ragtag",
+                "sampleA_hap2-initial_assembly",
+                "sampleA_hap2-polish_dorado",
+                "sampleA_hap2-scaffold_ragtag",
+                "sampleB_hap1-initial_assembly",
+                "sampleB_hap1-polish_dorado",
+                "sampleB_hap1-scaffold_ragtag",
+                "sampleB_hap2-initial_assembly",
+                "sampleB_hap2-polish_dorado",
+                "sampleB_hap2-scaffold_ragtag",
+                "unphased-initial_assembly",
+                "unphased-polish_dorado",
+                "unphased-scaffold_ragtag"
+            ]
+        ],
+        "timestamp": "2026-10-12T15:14:10.638091",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
+    }
+}

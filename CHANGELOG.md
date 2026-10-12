@@ -15,6 +15,8 @@ codenamegenerator.com stopped working. Codenames from now on will be song titles
 
 ### `Fixed`
 
+- [#249](https://github.com/nf-core/genomeassembler/pull/249) Keep Dorado polishing metadata, filenames and published outputs consistent across haplotypes and downstream scaffolding.
+
 - [#249](https://github.com/nf-core/genomeassembler/pull/249) Publish compressed Pilon assemblies in the directory referenced by the genomeqc samplesheet.
 
 - [#246](https://github.com/nf-core/genomeassembler/pull/246) Fixed typo in map creating useless extra field
