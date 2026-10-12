@@ -389,7 +389,8 @@ nextflow_workflow {
         }
     }
 
-    test("derived hap1 collision") {
+    test("hap1 output prefix collision") {
+        tag "phasing_output_names"
         when {
             params {
                 input = "${projectDir}/tests/data/phasing_18.csv"
@@ -415,13 +416,14 @@ nextflow_workflow {
         }
         then {
             assert workflow.failed
-            def message = 'derived haplotype IDs collide with another samplesheet sample.'
+            def message = 'haplotype output prefixes collide with another samplesheet sample.'
             assert (workflow.stdout + workflow.stderr).any { it.contains(message) }
             assert snapshot(message).match()
         }
     }
 
-    test("derived hap2 collision") {
+    test("hap2 output prefix collision") {
+        tag "phasing_output_names"
         when {
             params {
                 input = "${projectDir}/tests/data/phasing_19.csv"
@@ -447,7 +449,7 @@ nextflow_workflow {
         }
         then {
             assert workflow.failed
-            def message = 'derived haplotype IDs collide with another samplesheet sample.'
+            def message = 'haplotype output prefixes collide with another samplesheet sample.'
             assert (workflow.stdout + workflow.stderr).any { it.contains(message) }
             assert snapshot(message).match()
         }
@@ -768,6 +770,43 @@ nextflow_workflow {
         then {
             assert workflow.success
             def meta = workflow.out.samplesheet[0].meta
+            assert meta.hic_trim
+            assert meta.phasing_reads.keySet() == ['f', 'r'] as Set
+            assert path(meta.phasing_reads.f).getFileName().toString() == 'SRR22354810_1.sampled.fq.gz'
+            assert path(meta.phasing_reads.r).getFileName().toString() == 'SRR22354810_2.sampled.fq.gz'
+            assert snapshot([meta.id, meta.hic_trim, meta.phasing_reads.keySet().sort(), meta.assembler_hifi_args]).match()
+        }
+    }
+
+    test("Previously derived sample IDs remain valid original sample IDs") {
+        tag "phasing_output_names"
+        when {
+            params {
+                input = "${projectDir}/tests/data/phasing_original_ids.csv"
+                outdir = "$outputDir"
+                hifireads = null
+                ontreads = null
+                hic_F = null
+                hic_R = null
+            }
+            workflow {
+                """
+                input[0] = false
+                input[1] = false
+                input[2] = true
+                input[3] = []
+                input[4] = params.outdir
+                input[5] = params.input
+                input[6] = false
+                input[7] = false
+                input[8] = false
+                """
+            }
+        }
+        then {
+            assert workflow.success
+            assert workflow.out.samplesheet*.meta*.id.sort() == ['sample', 'sample-hap1']
+            def meta = workflow.out.samplesheet.find { it.meta.id == 'sample' }.meta
             assert meta.hic_trim
             assert meta.phasing_reads.keySet() == ['f', 'r'] as Set
             assert path(meta.phasing_reads.f).getFileName().toString() == 'SRR22354810_1.sampled.fq.gz'

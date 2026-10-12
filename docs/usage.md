@@ -6,7 +6,7 @@
 
 ## Introduction
 
-This pipeline is designed to assemble haploid (or diploid inbred) genomes from long-reads. `nf-core/genomeassembler` can take ONT and HiFi reads, and supports different assembly strategies. The pipeline can also integrate information on a reference genome (e.g. closely related individual) and short-reads for quality control.
+This pipeline assembles haploid (or diploid inbred) genomes from long reads, with optional diploid HiFi + Hi-C phasing. `nf-core/genomeassembler` can take ONT and HiFi reads, and supports different assembly strategies. The pipeline can also integrate information on a reference genome (e.g. closely related individual) and short-reads for quality control.
 This pipeline can perform assembly, polishing, scaffolding using long-reads, HiC data, or a reference, and annotation lift-over from a reference genome.
 
 > [!NOTE]
@@ -342,20 +342,30 @@ avoid output-changing arguments such as `--primary`.
 The workflow stages each sample's HiFi reads and Hi-C pair together, invokes
 hifiasm's `--h1` and `--h2` mode, and converts both phased GFA outputs to FASTA.
 The original hifiasm graphs and logs are published under the source sample.
-Haplotypes become separate downstream samples named `individual-hap1` and
-`individual-hap2`, retaining `source_sample` and `haplotype` metadata. Reserve
-these derived sample names: the pipeline rejects collisions with other input sample names.
+The sample keeps its original `meta.id`. Both compressed assemblies are stored
+in `meta.haplotypes`, keyed by `hap1` and `hap2`. Steps that process one assembly
+at a time use `meta.haplotype` to distinguish them without changing the sample ID.
+Per-haplotype polishing and scaffolding outputs are retained in
+`meta.haplotype_results` under the matching haplotype key. Parallel stage records
+are merged; distinct results for the same stage and haplotype raise an explicit
+conflict rather than overwriting grouped metadata.
 
 Compressed assemblies are published at:
 
-- `results/individual-hap1/assembly/hifiasm/individual-hap1.fa.gz`
-- `results/individual-hap2/assembly/hifiasm/individual-hap2.fa.gz`
+- `results/individual/assembly/hifiasm/individual_hap1.fa.gz`
+- `results/individual/assembly/hifiasm/individual_hap2.fa.gz`
 
-Each haplotype follows the existing QC, polishing and scaffolding settings,
-and receives its own genomeqc manifest rows. `scaffold_hic` independently enables
-YaHS scaffolding for both haplotypes using the same original Hi-C pair. Merqury
-uses the source sample's read k-mer database for each haplotype; this does not
-measure switch errors or parental phase accuracy. The aggregate report lists the derived haplotype samples.
+Each haplotype follows the existing QC, polishing and scaffolding settings and
+receives its own genomeqc manifest rows. `scaffold_hic` independently enables
+YaHS scaffolding for both haplotypes. Merqury shares the original sample's read
+k-mer database between its haplotypes; this does not measure switch errors or
+parental phase accuracy. Reports display `individual_hap1` and `individual_hap2`,
+while retaining their original sample ID and group for read-level reports.
+
+Because aggregate reports stage assembly outputs together, sample names must
+not collide with another sample's haplotype filename prefix (for example,
+`individual_hap1` alongside phased `individual`). Initialization rejects these
+output-name collisions; `individual-hap1` remains an ordinary valid sample ID.
 
 Arguments in `hifiasm_args` and `assembler_hifi_args` apply to phased assembly.
 Trio inputs (`-1`/`-2`),

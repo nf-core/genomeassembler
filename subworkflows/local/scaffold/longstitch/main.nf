@@ -1,3 +1,4 @@
+include { assemblyKey } from '../../assembly_haplotypes/main'
 include { LONGSTITCH } from '../../../../modules/nf-core/longstitch/main'
 include { QC } from '../../qc/main'
 include { LIFTOFF } from '../../../../modules/nf-core/liftoff/main'
@@ -56,7 +57,7 @@ workflow RUN_LONGSTITCH {
     LIFTOFF(liftoff_in,[])
 
     QC( ch_main_scaffolded.map { it -> [ meta: it.meta - it.meta.subMap("assembly_map_bam") + [assembly_map_bam: null] ] },
-        BGZIP.out.bgzipped.map { meta, scaffold -> [meta.id, scaffold]},
+        BGZIP.out.bgzipped.map { meta, scaffold -> [assemblyKey(meta), scaffold]},
         meryl_kmers)
 
     emit:

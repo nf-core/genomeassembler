@@ -9,11 +9,11 @@ nextflow_workflow {
             workflow {
                 """
                 input[0] = Channel.of(
-                    [meta: [id: 'sampleA-hap1', group: 'family', scaffolds: [hic: 'hic.fa']]],
-                    [meta: [id: 'sampleA-hap2', group: 'family', scaffolds: [hic: 'hic.fa']]],
-                    [meta: [id: 'sampleA-hap1', group: 'family', scaffolds: [ragtag: 'ragtag.fa']]],
+                    [meta: [id: 'sampleA', haplotype: 'hap1', group: 'family', scaffolds: [hic: 'hic.fa']]],
+                    [meta: [id: 'sampleA', haplotype: 'hap2', group: 'family', scaffolds: [hic: 'hic.fa']]],
+                    [meta: [id: 'sampleA', haplotype: 'hap1', group: 'family', scaffolds: [ragtag: 'ragtag.fa']]],
                     [meta: [id: 'sampleB', group: null]],
-                    [meta: [id: 'sampleA-hap2', group: 'family', scaffolds: [ragtag: 'ragtag.fa']]]
+                    [meta: [id: 'sampleA', haplotype: 'hap2', group: 'family', scaffolds: [ragtag: 'ragtag.fa']]]
                 )
                 """
             }
@@ -21,10 +21,10 @@ nextflow_workflow {
         then {
             assert workflow.success
             def samples = workflow.out.groups[0]*.sample
-            assert samples*.id.sort() == ['sampleA-hap1', 'sampleA-hap2', 'sampleB']
-            assert samples.findAll { it.id.startsWith('sampleA') }.every { it.group == 'family' }
+            assert samples*.id.sort() == ['sampleA_hap1', 'sampleA_hap2', 'sampleB']
+            assert samples.findAll { it.id.startsWith('sampleA') }.every { it.group == 'family' && it.sample_id == 'sampleA' && it.haplotype in ['hap1', 'hap2'] }
             assert samples.find { it.id == 'sampleB' }.group == null
-            assert snapshot(samples.collect { [it.id, it.group] }.sort { it[0] }).match()
+            assert snapshot(samples.collect { [it.id, it.sample_id, it.haplotype, it.group] }.sort { it[0] }).match()
         }
     }
 }

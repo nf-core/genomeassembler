@@ -1,0 +1,60 @@
+nextflow_function {
+    name "Haplotype assembly identity"
+    script "../subworkflows/local/assembly_haplotypes/main.nf"
+    tag "pipeline"
+    tag "phasing_metadata"
+
+    test("Expansion preserves the sample ID and restores independent per-haplotype stages") {
+        function "expandHaplotypes"
+        when {
+            function {
+                """
+                input[0] = [meta: [id: 'sample', group: 'family', haplotypes: [hap1: 'h1.fa', hap2: 'h2.fa'],
+                    haplotype_results: [hap1: [polished: [pilon: 'p1.fa']], hap2: [scaffolds: [hic: 's2.fa']]]]]
+                """
+            }
+        }
+        then {
+            assert function.success
+            def rows = function.result
+            assert rows*.meta*.id == ['sample', 'sample']
+            assert rows*.meta*.haplotype == ['hap1', 'hap2']
+            assert rows[0].meta.assembly == 'h1.fa' && rows[0].meta.polished.pilon == 'p1.fa'
+            assert !rows[0].meta.scaffolds && !rows[1].meta.polished
+            assert rows[1].meta.assembly == 'h2.fa' && rows[1].meta.scaffolds.hic == 's2.fa'
+            assert snapshot(rows).match()
+        }
+    }
+
+    test("Join keys distinguish haplotypes without inventing sample IDs") {
+        function "assemblyKey"
+        when {
+            function {
+                """
+                input[0] = [id: 'sample', haplotype: 'hap2']
+                """
+            }
+        }
+        then {
+            assert function.success
+            assert function.result == ['sample', 'hap2']
+            assert snapshot(function.result).match()
+        }
+    }
+
+    test("Unphased filenames retain the original sample prefix") {
+        function "assemblyPrefix"
+        when {
+            function {
+                """
+                input[0] = [id: 'unphased']
+                """
+            }
+        }
+        then {
+            assert function.success
+            assert function.result == 'unphased'
+            assert snapshot(function.result).match()
+        }
+    }
+}

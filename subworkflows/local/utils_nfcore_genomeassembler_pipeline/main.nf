@@ -167,8 +167,8 @@ workflow PIPELINE_INITIALISATION {
             error('Samplesheet sample IDs must be unique.')
         }
         if (meta.hifiasm_hic_phasing) {
-            if (["${meta.id}-hap1".toString(), "${meta.id}-hap2".toString()].any { input_ids.contains(it) }) {
-                error("Sample ${meta.id}: derived haplotype IDs collide with another samplesheet sample.")
+            if (["${meta.id}_hap1".toString(), "${meta.id}_hap2".toString()].any { input_ids.contains(it) }) {
+                error("Sample ${meta.id}: haplotype output prefixes collide with another samplesheet sample.")
             }
             if (meta.strategy != 'single' || meta.assembler_hifi != 'hifiasm' || !meta.hifireads || meta.ontreads || meta.assembly) {
                 error("Sample ${meta.id}: hifiasm_hic_phasing requires single-strategy hifiasm assembly with HiFi reads only and no supplied assembly.")

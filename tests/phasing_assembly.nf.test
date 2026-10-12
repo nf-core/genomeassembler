@@ -33,13 +33,15 @@ nextflow_workflow {
         then {
             assert workflow.success
             def metas = workflow.out.ch_main.collect { it.meta }
-            assert metas*.id.sort() == ['sampleA-hap1', 'sampleA-hap2', 'sampleB-hap1', 'sampleB-hap2']
-            assert metas.every { path(it.assembly).getFileName().toString() == "${it.id}.fa.gz" }
-            assert metas.every { it.id == "${it.source_sample}-hap${it.haplotype}" }
-            assert metas.findAll { it.source_sample == 'sampleB' }.every { it.hic_reads.size() == 2 }
-            assert metas.findAll { it.source_sample == 'sampleA' }.every { !it.hic_reads && it.scaffold_ragtag }
+            assert metas*.id.sort() == ['sampleA', 'sampleB']
+            assert metas.findAll { it.haplotypes }.every { it.haplotypes.keySet() == ['hap1', 'hap2'] as Set }
+            assert metas.findAll { it.haplotypes }.every { meta -> meta.haplotypes.every { hap, fasta -> path(fasta).getFileName().toString() == "${meta.id}_${hap}.fa.gz" } }
+            assert metas.findAll { !it.haplotypes }.every { path(it.assembly).getFileName().toString() == "${it.id}.fa.gz" }
+            assert metas.every { !it.haplotype && !it.source_sample }
+            assert metas.findAll { it.id == 'sampleB' }.every { it.hic_reads.size() == 2 }
+            assert metas.findAll { it.id == 'sampleA' }.every { !it.hic_reads && it.scaffold_ragtag }
             assert metas.every { it.assembly_map_bam == null }
-            assert snapshot(metas.collect { [it.id, it.source_sample, it.haplotype, path(it.assembly).getFileName().toString()] }.sort { it[0] }).match()
+            assert snapshot(metas.collect { meta -> [meta.id, meta.haplotypes ? meta.haplotypes.collectEntries { hap, fasta -> [(hap): path(fasta).getFileName().toString()] } : path(meta.assembly).getFileName().toString()] }.sort { it[0] }).match()
         }
     }
     test("Mixed phased and unphased samples retain independent outputs") {
@@ -68,13 +70,15 @@ nextflow_workflow {
         then {
             assert workflow.success
             def metas = workflow.out.ch_main.collect { it.meta }
-            assert metas*.id.sort() == ['sampleA-hap1', 'sampleA-hap2', 'sampleB-hap1', 'sampleB-hap2', 'unphased']
-            assert metas.every { path(it.assembly).getFileName().toString() == "${it.id}.fa.gz" }
-            assert metas.findAll { it.haplotype }.every { it.id == "${it.source_sample}-hap${it.haplotype}" }
-            assert metas.findAll { it.source_sample == 'sampleB' }.every { it.hic_reads.size() == 2 }
-            assert metas.findAll { it.source_sample == 'sampleA' }.every { !it.hic_reads && it.scaffold_ragtag }
+            assert metas*.id.sort() == ['sampleA', 'sampleB', 'unphased']
+            assert metas.findAll { it.haplotypes }.every { it.haplotypes.keySet() == ['hap1', 'hap2'] as Set }
+            assert metas.findAll { it.haplotypes }.every { meta -> meta.haplotypes.every { hap, fasta -> path(fasta).getFileName().toString() == "${meta.id}_${hap}.fa.gz" } }
+            assert metas.findAll { !it.haplotypes }.every { path(it.assembly).getFileName().toString() == "${it.id}.fa.gz" }
+            assert metas.every { !it.haplotype && !it.source_sample }
+            assert metas.findAll { it.id == 'sampleB' }.every { it.hic_reads.size() == 2 }
+            assert metas.findAll { it.id == 'sampleA' }.every { !it.hic_reads && it.scaffold_ragtag }
             assert metas.every { it.assembly_map_bam == null }
-            assert snapshot(metas.collect { [it.id, it.source_sample, it.haplotype, path(it.assembly).getFileName().toString()] }.sort { it[0] }).match()
+            assert snapshot(metas.collect { meta -> [meta.id, meta.haplotypes ? meta.haplotypes.collectEntries { hap, fasta -> [(hap): path(fasta).getFileName().toString()] } : path(meta.assembly).getFileName().toString()] }.sort { it[0] }).match()
         }
     }
     test("Missing phased outputs fail instead of dropping samples") {

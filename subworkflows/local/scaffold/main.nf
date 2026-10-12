@@ -1,3 +1,4 @@
+include { assemblyKey } from '../assembly_haplotypes/main'
 include { RUN_LINKS         } from './links/main'
 include { RUN_LONGSTITCH    } from './longstitch/main'
 include { RUN_RAGTAG        } from './ragtag/main'
@@ -84,11 +85,11 @@ workflow SCAFFOLD {
         .mix(
             links_out
                 .filter {it -> it.meta.scaffold_longstitch && !it.meta.scaffold_ragtag }
-                .map {it -> [it.meta.id, it.meta]}
+                .map {it -> [assemblyKey(it.meta), it.meta]}
                 // Join without filtering, inner-join
                 .join(
                     longstitch_out
-                        .map {it -> [it.meta.id, it.meta]}
+                        .map {it -> [assemblyKey(it.meta), it.meta]}
                 )
                 .map {
                     _id, meta_links, meta_longstitch ->
@@ -108,11 +109,11 @@ workflow SCAFFOLD {
         .mix(
             links_out
                 .filter {it -> !it.meta.scaffold_longstitch && it.meta.scaffold_ragtag }
-                .map {it -> [it.meta.id, it.meta]}
+                .map {it -> [assemblyKey(it.meta), it.meta]}
                 // Join without filtering, inner-join
                 .join(
                     ragtag_out
-                        .map {it -> [it.meta.id, it.meta]}
+                        .map {it -> [assemblyKey(it.meta), it.meta]}
                 )
                 .map {
                     _id, meta_links, meta_ragtag ->
@@ -132,11 +133,11 @@ workflow SCAFFOLD {
         .mix(
             longstitch_out
                 .filter {it -> !it.meta.scaffold_links && it.meta.scaffold_ragtag }
-                .map {it -> [it.meta.id, it.meta]}
+                .map {it -> [assemblyKey(it.meta), it.meta]}
                 // Join without filtering, inner-join
                 .join(
                     ragtag_out
-                        .map {it -> [it.meta.id, it.meta]}
+                        .map {it -> [assemblyKey(it.meta), it.meta]}
                 )
                 .map {
                     _id, meta_longstitch, meta_ragtag -> [
@@ -155,15 +156,15 @@ workflow SCAFFOLD {
         .mix(
             links_out
                 .filter {it -> it.meta.scaffold_longstitch && it.meta.scaffold_ragtag }
-                .map {it -> [it.meta.id, it.meta]}
+                .map {it -> [assemblyKey(it.meta), it.meta]}
                 // Join without filtering, inner-join
                 .join(
                     longstitch_out
-                        .map {it -> [it.meta.id, it.meta]}
+                        .map {it -> [assemblyKey(it.meta), it.meta]}
                 )
                 .join(
                     ragtag_out
-                        .map {it -> [it.meta.id, it.meta]}
+                        .map {it -> [assemblyKey(it.meta), it.meta]}
                 )
                 .map {
                     _id, meta_links, meta_longstitch, meta_ragtag -> [

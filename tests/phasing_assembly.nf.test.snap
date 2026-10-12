@@ -13,38 +13,26 @@
         "content": [
             [
                 [
-                    "sampleA-hap1",
                     "sampleA",
-                    1,
-                    "sampleA-hap1.fa.gz"
+                    {
+                        "hap1": "sampleA_hap1.fa.gz",
+                        "hap2": "sampleA_hap2.fa.gz"
+                    }
                 ],
                 [
-                    "sampleA-hap2",
-                    "sampleA",
-                    2,
-                    "sampleA-hap2.fa.gz"
-                ],
-                [
-                    "sampleB-hap1",
                     "sampleB",
-                    1,
-                    "sampleB-hap1.fa.gz"
-                ],
-                [
-                    "sampleB-hap2",
-                    "sampleB",
-                    2,
-                    "sampleB-hap2.fa.gz"
+                    {
+                        "hap1": "sampleB_hap1.fa.gz",
+                        "hap2": "sampleB_hap2.fa.gz"
+                    }
                 ],
                 [
                     "unphased",
-                    null,
-                    null,
                     "unphased.fa.gz"
                 ]
             ]
         ],
-        "timestamp": "2026-10-12T08:13:41.56211",
+        "timestamp": "2026-10-12T10:36:35.575401",
         "meta": {
             "nf-test": "0.9.4",
             "nextflow": "25.10.4"
@@ -54,32 +42,22 @@
         "content": [
             [
                 [
-                    "sampleA-hap1",
                     "sampleA",
-                    1,
-                    "sampleA-hap1.fa.gz"
+                    {
+                        "hap1": "sampleA_hap1.fa.gz",
+                        "hap2": "sampleA_hap2.fa.gz"
+                    }
                 ],
                 [
-                    "sampleA-hap2",
-                    "sampleA",
-                    2,
-                    "sampleA-hap2.fa.gz"
-                ],
-                [
-                    "sampleB-hap1",
                     "sampleB",
-                    1,
-                    "sampleB-hap1.fa.gz"
-                ],
-                [
-                    "sampleB-hap2",
-                    "sampleB",
-                    2,
-                    "sampleB-hap2.fa.gz"
+                    {
+                        "hap1": "sampleB_hap1.fa.gz",
+                        "hap2": "sampleB_hap2.fa.gz"
+                    }
                 ]
             ]
         ],
-        "timestamp": "2026-10-12T08:13:13.104686",
+        "timestamp": "2026-10-12T10:35:54.075893",
         "meta": {
             "nf-test": "0.9.4",
             "nextflow": "25.10.4"

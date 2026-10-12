@@ -37,8 +37,12 @@ nextflow_workflow {
             new File("$outputDir").eachFileRecurse { f ->
                 if (f.name.endsWith('.completeness.stats')) reports << f
             }
-            assert reports*.name.sort() == ['sampleA-hap1_assembly.completeness.stats', 'sampleA-hap2_assembly.completeness.stats', 'sampleB-hap1_assembly.completeness.stats', 'sampleB-hap2_assembly.completeness.stats']
-            assert reports.every { it.text.trim() == it.name.split('-hap')[0] }
+            assert reports*.name.sort() == ['sampleA_hap1_assembly.completeness.stats', 'sampleA_hap2_assembly.completeness.stats', 'sampleB_hap1_assembly.completeness.stats', 'sampleB_hap2_assembly.completeness.stats']
+            assert reports.every { it.text.trim() == it.name.split('_hap')[0] }
+            def samples = workflow.out.assemblies.collect { it.meta }
+            assert samples*.id.sort() == ['sampleA', 'sampleB']
+            assert samples.every { it.haplotypes.keySet() == ['hap1', 'hap2'] as Set }
+            assert samples.every { !it.haplotype && !it.source_sample }
             assert snapshot(reports.collect { [it.name, it.text.trim()] }.sort { it[0] }).match()
         }
     }
@@ -73,8 +77,54 @@ nextflow_workflow {
             new File("$outputDir").eachFileRecurse { f ->
                 if (f.name.endsWith('.completeness.stats')) reports << f
             }
-            assert reports*.name.sort() == ['sampleA-hap1_assembly.completeness.stats', 'sampleA-hap2_assembly.completeness.stats', 'sampleB-hap1_assembly.completeness.stats', 'sampleB-hap2_assembly.completeness.stats']
-            assert reports.every { it.text.trim() == it.name.split('-hap')[0] }
+            assert reports*.name.sort() == ['sampleA_hap1_assembly.completeness.stats', 'sampleA_hap2_assembly.completeness.stats', 'sampleB_hap1_assembly.completeness.stats', 'sampleB_hap2_assembly.completeness.stats']
+            assert reports.every { it.text.trim() == it.name.split('_hap')[0] }
+            def samples = workflow.out.assemblies.collect { it.meta }
+            assert samples*.id.sort() == ['sampleA', 'sampleB']
+            assert samples.every { it.haplotypes.keySet() == ['hap1', 'hap2'] as Set }
+            assert samples.every { !it.haplotype && !it.source_sample }
+            assert snapshot(reports.collect { [it.name, it.text.trim()] }.sort { it[0] }).match()
+        }
+    }
+    test("Phased and unphased samples retain their own QC databases and filenames") {
+        tag "phasing_mixed"
+        options "-stub-run"
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+            workflow {
+                """
+                input[0] = Channel.of('sampleA', 'sampleB', 'unphased').map { id ->
+                    [meta: [
+                        id: id, strategy: 'single', assembler_hifi: 'hifiasm',
+                        hifiasm_hic_phasing: id != 'unphased', scaffold_hic: false,
+                        hifireads: file("https://raw.githubusercontent.com/nf-core/test-datasets/genomeassembler/A_thaliana_Col-0_2mb/HiFi-Col-0_test_data.fastq.gz"),
+                        phasing_reads: [f: file("https://raw.githubusercontent.com/nf-core/test-datasets/genomeassembler/A_thaliana_Col-0_2mb/SRR22354810_1.sampled.fq.gz"), r: file("https://raw.githubusercontent.com/nf-core/test-datasets/genomeassembler/A_thaliana_Col-0_2mb/SRR22354810_2.sampled.fq.gz")],
+                        shortread_F: file("https://raw.githubusercontent.com/nf-core/test-datasets/genomeassembler/A_thaliana_Col-0_2mb/SRR22354810_1.sampled.fq.gz"),
+                        shortread_R: file("https://raw.githubusercontent.com/nf-core/test-datasets/genomeassembler/A_thaliana_Col-0_2mb/SRR22354810_2.sampled.fq.gz"),
+                        shortread_trim: true, paired: true, hic_trim: false,
+                        qc_reads: 'hifi', jellyfish: false, meryl_k: 21,
+                        quast: false, busco: false, merqury: true,
+                        use_short_reads: true, lift_annotations: false
+                    ]]
+                }
+                """
+            }
+        }
+        then {
+            assert workflow.success
+            def reports = []
+            new File("$outputDir").eachFileRecurse { f ->
+                if (f.name.endsWith('.completeness.stats')) reports << f
+            }
+            assert reports*.name.sort() == ['sampleA_hap1_assembly.completeness.stats', 'sampleA_hap2_assembly.completeness.stats', 'sampleB_hap1_assembly.completeness.stats', 'sampleB_hap2_assembly.completeness.stats', 'unphased_assembly.completeness.stats']
+            assert reports.every { it.text.trim() == (it.name.startsWith('unphased_') ? 'unphased' : it.name.split('_hap')[0]) }
+            def samples = workflow.out.assemblies.collect { it.meta }
+            assert samples*.id.sort() == ['sampleA', 'sampleB', 'unphased']
+            assert samples.findAll { it.id != 'unphased' }.every { it.haplotypes.keySet() == ['hap1', 'hap2'] as Set }
+            assert samples.every { !it.haplotype && !it.source_sample }
+            assert path(samples.find { it.id == 'unphased' }.assembly).getFileName().toString() == 'unphased.fa.gz'
             assert snapshot(reports.collect { [it.name, it.text.trim()] }.sort { it[0] }).match()
         }
     }

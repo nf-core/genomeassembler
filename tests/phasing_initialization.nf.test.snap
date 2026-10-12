@@ -67,16 +67,6 @@
             "nextflow": "25.10.4"
         }
     },
-    "derived hap1 collision": {
-        "content": [
-            "derived haplotype IDs collide with another samplesheet sample."
-        ],
-        "timestamp": "2026-10-12T08:16:20.164353",
-        "meta": {
-            "nf-test": "0.9.4",
-            "nextflow": "25.10.4"
-        }
-    },
     "hifiasm_args rejects --primary": {
         "content": [
             "--primary and --ont are incompatible with hifiasm_hic_phasing."
@@ -185,6 +175,24 @@
             "nextflow": "25.10.4"
         }
     },
+    "Previously derived sample IDs remain valid original sample IDs": {
+        "content": [
+            [
+                "sample",
+                true,
+                [
+                    "f",
+                    "r"
+                ],
+                ""
+            ]
+        ],
+        "timestamp": "2026-10-12T10:51:24.71088",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
+    },
     "hifiasm_args rejects -2 maternal.yak": {
         "content": [
             "trio inputs -1 and -2 are incompatible with hifiasm_hic_phasing."
@@ -225,6 +233,16 @@
             "nextflow": "25.10.4"
         }
     },
+    "hap1 output prefix collision": {
+        "content": [
+            "haplotype output prefixes collide with another samplesheet sample."
+        ],
+        "timestamp": "2026-10-12T10:46:12.854974",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
+    },
     "missing Hi-C reverse": {
         "content": [
             "hifiasm_hic_phasing requires both hic_F and hic_R."
@@ -255,11 +273,11 @@
             "nextflow": "25.10.4"
         }
     },
-    "derived hap2 collision": {
+    "hap2 output prefix collision": {
         "content": [
-            "derived haplotype IDs collide with another samplesheet sample."
+            "haplotype output prefixes collide with another samplesheet sample."
         ],
-        "timestamp": "2026-10-12T08:16:30.733564",
+        "timestamp": "2026-10-12T10:46:33.65673",
         "meta": {
             "nf-test": "0.9.4",
             "nextflow": "25.10.4"

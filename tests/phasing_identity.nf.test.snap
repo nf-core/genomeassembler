@@ -1,0 +1,92 @@
+{
+    "Unphased filenames retain the original sample prefix": {
+        "content": [
+            "unphased"
+        ],
+        "timestamp": "2026-10-12T10:42:04.895853",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
+    },
+    "Expansion preserves the sample ID and restores independent per-haplotype stages": {
+        "content": [
+            [
+                {
+                    "meta": {
+                        "id": "sample",
+                        "group": "family",
+                        "haplotypes": {
+                            "hap1": "h1.fa",
+                            "hap2": "h2.fa"
+                        },
+                        "haplotype_results": {
+                            "hap1": {
+                                "polished": {
+                                    "pilon": "p1.fa"
+                                }
+                            },
+                            "hap2": {
+                                "scaffolds": {
+                                    "hic": "s2.fa"
+                                }
+                            }
+                        },
+                        "polished": {
+                            "pilon": "p1.fa"
+                        },
+                        "haplotype": "hap1",
+                        "assembly": "h1.fa",
+                        "assembly_map_bam": null
+                    }
+                },
+                {
+                    "meta": {
+                        "id": "sample",
+                        "group": "family",
+                        "haplotypes": {
+                            "hap1": "h1.fa",
+                            "hap2": "h2.fa"
+                        },
+                        "haplotype_results": {
+                            "hap1": {
+                                "polished": {
+                                    "pilon": "p1.fa"
+                                }
+                            },
+                            "hap2": {
+                                "scaffolds": {
+                                    "hic": "s2.fa"
+                                }
+                            }
+                        },
+                        "scaffolds": {
+                            "hic": "s2.fa"
+                        },
+                        "haplotype": "hap2",
+                        "assembly": "h2.fa",
+                        "assembly_map_bam": null
+                    }
+                }
+            ]
+        ],
+        "timestamp": "2026-10-12T10:40:49.292578",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
+    },
+    "Join keys distinguish haplotypes without inventing sample IDs": {
+        "content": [
+            [
+                "sample",
+                "hap2"
+            ]
+        ],
+        "timestamp": "2026-10-12T10:41:34.871647",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
+    }
+}

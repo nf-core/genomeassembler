@@ -1,3 +1,4 @@
+include { assemblyKey } from '../../assembly_haplotypes/main'
 include { QC                                        } from '../../qc/main'
 include { RUN_LIFTOFF                               } from '../../liftoff/main'
 include { YAHS                                      } from '../../../../modules/nf-core/yahs/main'
@@ -65,10 +66,10 @@ workflow HIC {
     MARKDUP(ADD_RG.out.bam, [[],[],[]])
 
     faidx_in = MARKDUP.out.bam
-        .map { meta, bam -> [meta.id, meta, bam] }
+        .map { meta, bam -> [assemblyKey(meta), meta, bam] }
         .join(
             MARKDUP.out.bai
-                .map { meta, bai -> [meta.id, bai] }
+                .map { meta, bai -> [assemblyKey(meta), bai] }
         )
         .map {_id, meta, bam, bai -> [meta:meta + [hic_dedup_bam: bam, hic_dedup_bai: bai] ]}
         .map {
@@ -122,7 +123,7 @@ workflow HIC {
     RUN_LIFTOFF(liftoff_in)
 
     QC(ch_main_scaffolded.map { it -> [meta: it.meta - it.meta.subMap("assembly_map_bam") + [assembly_map_bam: null] ] },
-        BGZIP.out.bgzipped.map { meta, corrected -> [ meta.id, corrected ] },
+        BGZIP.out.bgzipped.map { meta, corrected -> [ assemblyKey(meta), corrected ] },
         meryl_kmers)
 
     emit:

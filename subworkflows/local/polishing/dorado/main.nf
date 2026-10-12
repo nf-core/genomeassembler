@@ -1,3 +1,4 @@
+include { assemblyKey } from '../../assembly_haplotypes/main'
 include { DORADO_ALIGNER as ALIGN } from '../../../../modules/local/dorado/aligner/main.nf'
 include { DORADO_POLISH as POLISH } from '../../../../modules/local/dorado/polish/main.nf'
 include { QC } from '../../qc/main.nf'
@@ -29,7 +30,7 @@ workflow POLISH_DORADO {
 
     QC(
         ch_main_out.map { it -> [meta: it.meta - it.meta.subMap("assembly_map_bam") + [ assembly_map_bam: null] ] },
-        polished_assembly.map { meta, polished -> [meta.id, polished] },
+        polished_assembly.map { meta, polished -> [assemblyKey(meta), polished] },
         meryl_kmers
     )
 
