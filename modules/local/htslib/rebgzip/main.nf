@@ -39,6 +39,7 @@ process HTSLIB_REBGZIP {
     in_cmd = in_ext == "gz" ? "zcat" : ( in_ext == "xz" ? "xzcat" : ( in_ext == "bz2" ? "bzcat" : "cat" ) )
     outfile = "${prefix}.gz"
     """
+    mkdir -p out
     echo "$in_cmd" | bgzip -c ${args} -@ ${task.cpus} > "out/${outfile}"
     """
 }
