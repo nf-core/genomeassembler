@@ -1,0 +1,814 @@
+nextflow_workflow {
+    name "Hi-C phasing samplesheet initialization"
+    script "../subworkflows/local/utils_nfcore_genomeassembler_pipeline/main.nf"
+    workflow "PIPELINE_INITIALISATION"
+    tag "pipeline"
+    tag "phasing_initialization"
+
+    test("hifiasm_args rejects -1 paternal.yak") {
+        when {
+            params {
+                input = "${projectDir}/tests/data/phasing_00.csv"
+                outdir = "$outputDir"
+                hifireads = null
+                ontreads = null
+                hic_F = null
+                hic_R = null
+            }
+            workflow {
+                """
+                input[0] = false
+                input[1] = false
+                input[2] = true
+                input[3] = []
+                input[4] = params.outdir
+                input[5] = params.input
+                input[6] = false
+                input[7] = false
+                input[8] = false
+                """
+            }
+        }
+        then {
+            assert workflow.failed
+            def message = 'trio inputs -1 and -2 are incompatible with hifiasm_hic_phasing.'
+            assert (workflow.stdout + workflow.stderr).any { it.contains(message) }
+            assert snapshot(message).match()
+        }
+    }
+
+    test("hifiasm_args rejects -2 maternal.yak") {
+        when {
+            params {
+                input = "${projectDir}/tests/data/phasing_01.csv"
+                outdir = "$outputDir"
+                hifireads = null
+                ontreads = null
+                hic_F = null
+                hic_R = null
+            }
+            workflow {
+                """
+                input[0] = false
+                input[1] = false
+                input[2] = true
+                input[3] = []
+                input[4] = params.outdir
+                input[5] = params.input
+                input[6] = false
+                input[7] = false
+                input[8] = false
+                """
+            }
+        }
+        then {
+            assert workflow.failed
+            def message = 'trio inputs -1 and -2 are incompatible with hifiasm_hic_phasing.'
+            assert (workflow.stdout + workflow.stderr).any { it.contains(message) }
+            assert snapshot(message).match()
+        }
+    }
+
+    test("hifiasm_args rejects -1paternal.yak") {
+        when {
+            params {
+                input = "${projectDir}/tests/data/phasing_02.csv"
+                outdir = "$outputDir"
+                hifireads = null
+                ontreads = null
+                hic_F = null
+                hic_R = null
+            }
+            workflow {
+                """
+                input[0] = false
+                input[1] = false
+                input[2] = true
+                input[3] = []
+                input[4] = params.outdir
+                input[5] = params.input
+                input[6] = false
+                input[7] = false
+                input[8] = false
+                """
+            }
+        }
+        then {
+            assert workflow.failed
+            def message = 'trio inputs -1 and -2 are incompatible with hifiasm_hic_phasing.'
+            assert (workflow.stdout + workflow.stderr).any { it.contains(message) }
+            assert snapshot(message).match()
+        }
+    }
+
+    test("hifiasm_args rejects -2=maternal.yak") {
+        when {
+            params {
+                input = "${projectDir}/tests/data/phasing_03.csv"
+                outdir = "$outputDir"
+                hifireads = null
+                ontreads = null
+                hic_F = null
+                hic_R = null
+            }
+            workflow {
+                """
+                input[0] = false
+                input[1] = false
+                input[2] = true
+                input[3] = []
+                input[4] = params.outdir
+                input[5] = params.input
+                input[6] = false
+                input[7] = false
+                input[8] = false
+                """
+            }
+        }
+        then {
+            assert workflow.failed
+            def message = 'trio inputs -1 and -2 are incompatible with hifiasm_hic_phasing.'
+            assert (workflow.stdout + workflow.stderr).any { it.contains(message) }
+            assert snapshot(message).match()
+        }
+    }
+
+    test("hifiasm_args rejects --primary") {
+        when {
+            params {
+                input = "${projectDir}/tests/data/phasing_04.csv"
+                outdir = "$outputDir"
+                hifireads = null
+                ontreads = null
+                hic_F = null
+                hic_R = null
+            }
+            workflow {
+                """
+                input[0] = false
+                input[1] = false
+                input[2] = true
+                input[3] = []
+                input[4] = params.outdir
+                input[5] = params.input
+                input[6] = false
+                input[7] = false
+                input[8] = false
+                """
+            }
+        }
+        then {
+            assert workflow.failed
+            def message = '--primary and --ont are incompatible with hifiasm_hic_phasing.'
+            assert (workflow.stdout + workflow.stderr).any { it.contains(message) }
+            assert snapshot(message).match()
+        }
+    }
+
+    test("hifiasm_args rejects --ont") {
+        when {
+            params {
+                input = "${projectDir}/tests/data/phasing_05.csv"
+                outdir = "$outputDir"
+                hifireads = null
+                ontreads = null
+                hic_F = null
+                hic_R = null
+            }
+            workflow {
+                """
+                input[0] = false
+                input[1] = false
+                input[2] = true
+                input[3] = []
+                input[4] = params.outdir
+                input[5] = params.input
+                input[6] = false
+                input[7] = false
+                input[8] = false
+                """
+            }
+        }
+        then {
+            assert workflow.failed
+            def message = '--primary and --ont are incompatible with hifiasm_hic_phasing.'
+            assert (workflow.stdout + workflow.stderr).any { it.contains(message) }
+            assert snapshot(message).match()
+        }
+    }
+
+    test("assembler_hifi_args rejects -1 paternal.yak") {
+        when {
+            params {
+                input = "${projectDir}/tests/data/phasing_06.csv"
+                outdir = "$outputDir"
+                hifireads = null
+                ontreads = null
+                hic_F = null
+                hic_R = null
+            }
+            workflow {
+                """
+                input[0] = false
+                input[1] = false
+                input[2] = true
+                input[3] = []
+                input[4] = params.outdir
+                input[5] = params.input
+                input[6] = false
+                input[7] = false
+                input[8] = false
+                """
+            }
+        }
+        then {
+            assert workflow.failed
+            def message = 'trio inputs -1 and -2 are incompatible with hifiasm_hic_phasing.'
+            assert (workflow.stdout + workflow.stderr).any { it.contains(message) }
+            assert snapshot(message).match()
+        }
+    }
+
+    test("assembler_hifi_args rejects -2 maternal.yak") {
+        when {
+            params {
+                input = "${projectDir}/tests/data/phasing_07.csv"
+                outdir = "$outputDir"
+                hifireads = null
+                ontreads = null
+                hic_F = null
+                hic_R = null
+            }
+            workflow {
+                """
+                input[0] = false
+                input[1] = false
+                input[2] = true
+                input[3] = []
+                input[4] = params.outdir
+                input[5] = params.input
+                input[6] = false
+                input[7] = false
+                input[8] = false
+                """
+            }
+        }
+        then {
+            assert workflow.failed
+            def message = 'trio inputs -1 and -2 are incompatible with hifiasm_hic_phasing.'
+            assert (workflow.stdout + workflow.stderr).any { it.contains(message) }
+            assert snapshot(message).match()
+        }
+    }
+
+    test("assembler_hifi_args rejects -1paternal.yak") {
+        when {
+            params {
+                input = "${projectDir}/tests/data/phasing_08.csv"
+                outdir = "$outputDir"
+                hifireads = null
+                ontreads = null
+                hic_F = null
+                hic_R = null
+            }
+            workflow {
+                """
+                input[0] = false
+                input[1] = false
+                input[2] = true
+                input[3] = []
+                input[4] = params.outdir
+                input[5] = params.input
+                input[6] = false
+                input[7] = false
+                input[8] = false
+                """
+            }
+        }
+        then {
+            assert workflow.failed
+            def message = 'trio inputs -1 and -2 are incompatible with hifiasm_hic_phasing.'
+            assert (workflow.stdout + workflow.stderr).any { it.contains(message) }
+            assert snapshot(message).match()
+        }
+    }
+
+    test("assembler_hifi_args rejects -2=maternal.yak") {
+        when {
+            params {
+                input = "${projectDir}/tests/data/phasing_09.csv"
+                outdir = "$outputDir"
+                hifireads = null
+                ontreads = null
+                hic_F = null
+                hic_R = null
+            }
+            workflow {
+                """
+                input[0] = false
+                input[1] = false
+                input[2] = true
+                input[3] = []
+                input[4] = params.outdir
+                input[5] = params.input
+                input[6] = false
+                input[7] = false
+                input[8] = false
+                """
+            }
+        }
+        then {
+            assert workflow.failed
+            def message = 'trio inputs -1 and -2 are incompatible with hifiasm_hic_phasing.'
+            assert (workflow.stdout + workflow.stderr).any { it.contains(message) }
+            assert snapshot(message).match()
+        }
+    }
+
+    test("assembler_hifi_args rejects --primary") {
+        when {
+            params {
+                input = "${projectDir}/tests/data/phasing_10.csv"
+                outdir = "$outputDir"
+                hifireads = null
+                ontreads = null
+                hic_F = null
+                hic_R = null
+            }
+            workflow {
+                """
+                input[0] = false
+                input[1] = false
+                input[2] = true
+                input[3] = []
+                input[4] = params.outdir
+                input[5] = params.input
+                input[6] = false
+                input[7] = false
+                input[8] = false
+                """
+            }
+        }
+        then {
+            assert workflow.failed
+            def message = '--primary and --ont are incompatible with hifiasm_hic_phasing.'
+            assert (workflow.stdout + workflow.stderr).any { it.contains(message) }
+            assert snapshot(message).match()
+        }
+    }
+
+    test("assembler_hifi_args rejects --ont") {
+        when {
+            params {
+                input = "${projectDir}/tests/data/phasing_11.csv"
+                outdir = "$outputDir"
+                hifireads = null
+                ontreads = null
+                hic_F = null
+                hic_R = null
+            }
+            workflow {
+                """
+                input[0] = false
+                input[1] = false
+                input[2] = true
+                input[3] = []
+                input[4] = params.outdir
+                input[5] = params.input
+                input[6] = false
+                input[7] = false
+                input[8] = false
+                """
+            }
+        }
+        then {
+            assert workflow.failed
+            def message = '--primary and --ont are incompatible with hifiasm_hic_phasing.'
+            assert (workflow.stdout + workflow.stderr).any { it.contains(message) }
+            assert snapshot(message).match()
+        }
+    }
+
+    test("derived hap1 collision") {
+        when {
+            params {
+                input = "${projectDir}/tests/data/phasing_18.csv"
+                outdir = "$outputDir"
+                hifireads = null
+                ontreads = null
+                hic_F = null
+                hic_R = null
+            }
+            workflow {
+                """
+                input[0] = false
+                input[1] = false
+                input[2] = true
+                input[3] = []
+                input[4] = params.outdir
+                input[5] = params.input
+                input[6] = false
+                input[7] = false
+                input[8] = false
+                """
+            }
+        }
+        then {
+            assert workflow.failed
+            def message = 'derived haplotype IDs collide with another samplesheet sample.'
+            assert (workflow.stdout + workflow.stderr).any { it.contains(message) }
+            assert snapshot(message).match()
+        }
+    }
+
+    test("derived hap2 collision") {
+        when {
+            params {
+                input = "${projectDir}/tests/data/phasing_19.csv"
+                outdir = "$outputDir"
+                hifireads = null
+                ontreads = null
+                hic_F = null
+                hic_R = null
+            }
+            workflow {
+                """
+                input[0] = false
+                input[1] = false
+                input[2] = true
+                input[3] = []
+                input[4] = params.outdir
+                input[5] = params.input
+                input[6] = false
+                input[7] = false
+                input[8] = false
+                """
+            }
+        }
+        then {
+            assert workflow.failed
+            def message = 'derived haplotype IDs collide with another samplesheet sample.'
+            assert (workflow.stdout + workflow.stderr).any { it.contains(message) }
+            assert snapshot(message).match()
+        }
+    }
+
+    test("duplicate sample IDs") {
+        when {
+            params {
+                input = "${projectDir}/tests/data/phasing_20.csv"
+                outdir = "$outputDir"
+                hifireads = null
+                ontreads = null
+                hic_F = null
+                hic_R = null
+            }
+            workflow {
+                """
+                input[0] = false
+                input[1] = false
+                input[2] = true
+                input[3] = []
+                input[4] = params.outdir
+                input[5] = params.input
+                input[6] = false
+                input[7] = false
+                input[8] = false
+                """
+            }
+        }
+        then {
+            assert workflow.failed
+            def message = 'Samplesheet sample IDs must be unique.'
+            assert (workflow.stdout + workflow.stderr).any { it.contains(message) }
+            assert snapshot(message).match()
+        }
+    }
+
+    test("hybrid strategy") {
+        when {
+            params {
+                input = "${projectDir}/tests/data/phasing_21.csv"
+                outdir = "$outputDir"
+                hifireads = null
+                ontreads = null
+                hic_F = null
+                hic_R = null
+            }
+            workflow {
+                """
+                input[0] = false
+                input[1] = false
+                input[2] = true
+                input[3] = []
+                input[4] = params.outdir
+                input[5] = params.input
+                input[6] = false
+                input[7] = false
+                input[8] = false
+                """
+            }
+        }
+        then {
+            assert workflow.failed
+            def message = 'hifiasm_hic_phasing requires single-strategy hifiasm assembly with HiFi reads only and no supplied assembly.'
+            assert (workflow.stdout + workflow.stderr).any { it.contains(message) }
+            assert snapshot(message).match()
+        }
+    }
+
+    test("scaffold strategy") {
+        when {
+            params {
+                input = "${projectDir}/tests/data/phasing_22.csv"
+                outdir = "$outputDir"
+                hifireads = null
+                ontreads = null
+                hic_F = null
+                hic_R = null
+            }
+            workflow {
+                """
+                input[0] = false
+                input[1] = false
+                input[2] = true
+                input[3] = []
+                input[4] = params.outdir
+                input[5] = params.input
+                input[6] = false
+                input[7] = false
+                input[8] = false
+                """
+            }
+        }
+        then {
+            assert workflow.failed
+            def message = 'hifiasm_hic_phasing requires single-strategy hifiasm assembly with HiFi reads only and no supplied assembly.'
+            assert (workflow.stdout + workflow.stderr).any { it.contains(message) }
+            assert snapshot(message).match()
+        }
+    }
+
+    test("wrong assembler") {
+        when {
+            params {
+                input = "${projectDir}/tests/data/phasing_23.csv"
+                outdir = "$outputDir"
+                hifireads = null
+                ontreads = null
+                hic_F = null
+                hic_R = null
+            }
+            workflow {
+                """
+                input[0] = false
+                input[1] = false
+                input[2] = true
+                input[3] = []
+                input[4] = params.outdir
+                input[5] = params.input
+                input[6] = false
+                input[7] = false
+                input[8] = false
+                """
+            }
+        }
+        then {
+            assert workflow.failed
+            def message = 'hifiasm_hic_phasing requires single-strategy hifiasm assembly with HiFi reads only and no supplied assembly.'
+            assert (workflow.stdout + workflow.stderr).any { it.contains(message) }
+            assert snapshot(message).match()
+        }
+    }
+
+    test("missing HiFi") {
+        when {
+            params {
+                input = "${projectDir}/tests/data/phasing_24.csv"
+                outdir = "$outputDir"
+                hifireads = null
+                ontreads = null
+                hic_F = null
+                hic_R = null
+            }
+            workflow {
+                """
+                input[0] = false
+                input[1] = false
+                input[2] = true
+                input[3] = []
+                input[4] = params.outdir
+                input[5] = params.input
+                input[6] = false
+                input[7] = false
+                input[8] = false
+                """
+            }
+        }
+        then {
+            assert workflow.failed
+            def message = 'hifiasm_hic_phasing requires single-strategy hifiasm assembly with HiFi reads only and no supplied assembly.'
+            assert (workflow.stdout + workflow.stderr).any { it.contains(message) }
+            assert snapshot(message).match()
+        }
+    }
+
+    test("ONT present") {
+        when {
+            params {
+                input = "${projectDir}/tests/data/phasing_25.csv"
+                outdir = "$outputDir"
+                hifireads = null
+                ontreads = null
+                hic_F = null
+                hic_R = null
+            }
+            workflow {
+                """
+                input[0] = false
+                input[1] = false
+                input[2] = true
+                input[3] = []
+                input[4] = params.outdir
+                input[5] = params.input
+                input[6] = false
+                input[7] = false
+                input[8] = false
+                """
+            }
+        }
+        then {
+            assert workflow.failed
+            def message = 'hifiasm_hic_phasing requires single-strategy hifiasm assembly with HiFi reads only and no supplied assembly.'
+            assert (workflow.stdout + workflow.stderr).any { it.contains(message) }
+            assert snapshot(message).match()
+        }
+    }
+
+    test("supplied assembly") {
+        when {
+            params {
+                input = "${projectDir}/tests/data/phasing_26.csv"
+                outdir = "$outputDir"
+                hifireads = null
+                ontreads = null
+                hic_F = null
+                hic_R = null
+            }
+            workflow {
+                """
+                input[0] = false
+                input[1] = false
+                input[2] = true
+                input[3] = []
+                input[4] = params.outdir
+                input[5] = params.input
+                input[6] = false
+                input[7] = false
+                input[8] = false
+                """
+            }
+        }
+        then {
+            assert workflow.failed
+            def message = 'hifiasm_hic_phasing requires single-strategy hifiasm assembly with HiFi reads only and no supplied assembly.'
+            assert (workflow.stdout + workflow.stderr).any { it.contains(message) }
+            assert snapshot(message).match()
+        }
+    }
+
+    test("missing Hi-C forward") {
+        when {
+            params {
+                input = "${projectDir}/tests/data/phasing_27.csv"
+                outdir = "$outputDir"
+                hifireads = null
+                ontreads = null
+                hic_F = null
+                hic_R = null
+            }
+            workflow {
+                """
+                input[0] = false
+                input[1] = false
+                input[2] = true
+                input[3] = []
+                input[4] = params.outdir
+                input[5] = params.input
+                input[6] = false
+                input[7] = false
+                input[8] = false
+                """
+            }
+        }
+        then {
+            assert workflow.failed
+            def message = 'hifiasm_hic_phasing requires both hic_F and hic_R.'
+            assert (workflow.stdout + workflow.stderr).any { it.contains(message) }
+            assert snapshot(message).match()
+        }
+    }
+
+    test("missing Hi-C reverse") {
+        when {
+            params {
+                input = "${projectDir}/tests/data/phasing_28.csv"
+                outdir = "$outputDir"
+                hifireads = null
+                ontreads = null
+                hic_F = null
+                hic_R = null
+            }
+            workflow {
+                """
+                input[0] = false
+                input[1] = false
+                input[2] = true
+                input[3] = []
+                input[4] = params.outdir
+                input[5] = params.input
+                input[6] = false
+                input[7] = false
+                input[8] = false
+                """
+            }
+        }
+        then {
+            assert workflow.failed
+            def message = 'hifiasm_hic_phasing requires both hic_F and hic_R.'
+            assert (workflow.stdout + workflow.stderr).any { it.contains(message) }
+            assert snapshot(message).match()
+        }
+    }
+
+    test("Trimming is independent of phasing") {
+        when {
+            params {
+                input = "${projectDir}/tests/data/phasing_29.csv"
+                outdir = "$outputDir"
+                hifireads = null
+                ontreads = null
+                hic_F = null
+                hic_R = null
+            }
+            workflow {
+                """
+                input[0] = false
+                input[1] = false
+                input[2] = true
+                input[3] = []
+                input[4] = params.outdir
+                input[5] = params.input
+                input[6] = false
+                input[7] = false
+                input[8] = false
+                """
+            }
+        }
+        then {
+            assert workflow.success
+            def meta = workflow.out.samplesheet[0].meta
+            assert meta.hic_trim
+            assert meta.phasing_reads.keySet() == ['f', 'r'] as Set
+            assert path(meta.phasing_reads.f).getFileName().toString() == 'SRR22354810_1.sampled.fq.gz'
+            assert path(meta.phasing_reads.r).getFileName().toString() == 'SRR22354810_2.sampled.fq.gz'
+            assert snapshot([meta.id, meta.hic_trim, meta.phasing_reads.keySet().sort(), meta.assembler_hifi_args]).match()
+        }
+    }
+
+    test("Compatible assembly phasing arguments") {
+        tag "phasing_compatible"
+        when {
+            params {
+                input = "${projectDir}/tests/data/phasing_30.csv"
+                outdir = "$outputDir"
+                hifireads = null
+                ontreads = null
+                hic_F = null
+                hic_R = null
+            }
+            workflow {
+                """
+                input[0] = false
+                input[1] = false
+                input[2] = true
+                input[3] = []
+                input[4] = params.outdir
+                input[5] = params.input
+                input[6] = false
+                input[7] = false
+                input[8] = false
+                """
+            }
+        }
+        then {
+            assert workflow.success
+            def meta = workflow.out.samplesheet[0].meta
+            assert meta.hic_trim
+            assert meta.phasing_reads.keySet() == ['f', 'r'] as Set
+            assert path(meta.phasing_reads.f).getFileName().toString() == 'SRR22354810_1.sampled.fq.gz'
+            assert path(meta.phasing_reads.r).getFileName().toString() == 'SRR22354810_2.sampled.fq.gz'
+            assert snapshot([meta.id, meta.hic_trim, meta.phasing_reads.keySet().sort(), meta.assembler_hifi_args]).match()
+        }
+    }
+}

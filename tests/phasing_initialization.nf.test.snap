@@ -1,0 +1,268 @@
+{
+    "hybrid strategy": {
+        "content": [
+            "hifiasm_hic_phasing requires single-strategy hifiasm assembly with HiFi reads only and no supplied assembly."
+        ],
+        "timestamp": "2026-10-12T08:16:48.970723",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
+    },
+    "hifiasm_args rejects --ont": {
+        "content": [
+            "--primary and --ont are incompatible with hifiasm_hic_phasing."
+        ],
+        "timestamp": "2026-10-12T08:13:34.959136",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
+    },
+    "assembler_hifi_args rejects -1 paternal.yak": {
+        "content": [
+            "trio inputs -1 and -2 are incompatible with hifiasm_hic_phasing."
+        ],
+        "timestamp": "2026-10-12T08:13:46.016565",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
+    },
+    "assembler_hifi_args rejects -2=maternal.yak": {
+        "content": [
+            "trio inputs -1 and -2 are incompatible with hifiasm_hic_phasing."
+        ],
+        "timestamp": "2026-10-12T08:14:21.599224",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
+    },
+    "assembler_hifi_args rejects -2 maternal.yak": {
+        "content": [
+            "trio inputs -1 and -2 are incompatible with hifiasm_hic_phasing."
+        ],
+        "timestamp": "2026-10-12T08:13:56.544254",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
+    },
+    "Compatible assembly phasing arguments": {
+        "content": [
+            [
+                "sample",
+                true,
+                [
+                    "f",
+                    "r"
+                ],
+                "-f 0"
+            ]
+        ],
+        "timestamp": "2026-10-12T08:18:07.896331",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
+    },
+    "derived hap1 collision": {
+        "content": [
+            "derived haplotype IDs collide with another samplesheet sample."
+        ],
+        "timestamp": "2026-10-12T08:16:20.164353",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
+    },
+    "hifiasm_args rejects --primary": {
+        "content": [
+            "--primary and --ont are incompatible with hifiasm_hic_phasing."
+        ],
+        "timestamp": "2026-10-12T08:13:21.806712",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
+    },
+    "wrong assembler": {
+        "content": [
+            "hifiasm_hic_phasing requires single-strategy hifiasm assembly with HiFi reads only and no supplied assembly."
+        ],
+        "timestamp": "2026-10-12T08:17:05.467824",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
+    },
+    "missing Hi-C forward": {
+        "content": [
+            "hifiasm_hic_phasing requires both hic_F and hic_R."
+        ],
+        "timestamp": "2026-10-12T08:17:39.550524",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
+    },
+    "hifiasm_args rejects -1 paternal.yak": {
+        "content": [
+            "trio inputs -1 and -2 are incompatible with hifiasm_hic_phasing."
+        ],
+        "timestamp": "2026-10-12T08:12:36.182694",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
+    },
+    "supplied assembly": {
+        "content": [
+            "hifiasm_hic_phasing requires single-strategy hifiasm assembly with HiFi reads only and no supplied assembly."
+        ],
+        "timestamp": "2026-10-12T08:17:30.844503",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
+    },
+    "hifiasm_args rejects -2=maternal.yak": {
+        "content": [
+            "trio inputs -1 and -2 are incompatible with hifiasm_hic_phasing."
+        ],
+        "timestamp": "2026-10-12T08:13:08.909575",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
+    },
+    "assembler_hifi_args rejects -1paternal.yak": {
+        "content": [
+            "trio inputs -1 and -2 are incompatible with hifiasm_hic_phasing."
+        ],
+        "timestamp": "2026-10-12T08:14:09.354999",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
+    },
+    "hifiasm_args rejects -1paternal.yak": {
+        "content": [
+            "trio inputs -1 and -2 are incompatible with hifiasm_hic_phasing."
+        ],
+        "timestamp": "2026-10-12T08:12:55.602939",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
+    },
+    "assembler_hifi_args rejects --primary": {
+        "content": [
+            "--primary and --ont are incompatible with hifiasm_hic_phasing."
+        ],
+        "timestamp": "2026-10-12T08:14:34.409364",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
+    },
+    "Trimming is independent of phasing": {
+        "content": [
+            [
+                "sample",
+                true,
+                [
+                    "f",
+                    "r"
+                ],
+                ""
+            ]
+        ],
+        "timestamp": "2026-10-12T08:17:58.816738",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
+    },
+    "hifiasm_args rejects -2 maternal.yak": {
+        "content": [
+            "trio inputs -1 and -2 are incompatible with hifiasm_hic_phasing."
+        ],
+        "timestamp": "2026-10-12T08:12:44.747435",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
+    },
+    "scaffold strategy": {
+        "content": [
+            "hifiasm_hic_phasing requires single-strategy hifiasm assembly with HiFi reads only and no supplied assembly."
+        ],
+        "timestamp": "2026-10-12T08:16:57.17903",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
+    },
+    "missing HiFi": {
+        "content": [
+            "hifiasm_hic_phasing requires single-strategy hifiasm assembly with HiFi reads only and no supplied assembly."
+        ],
+        "timestamp": "2026-10-12T08:17:14.101553",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
+    },
+    "ONT present": {
+        "content": [
+            "hifiasm_hic_phasing requires single-strategy hifiasm assembly with HiFi reads only and no supplied assembly."
+        ],
+        "timestamp": "2026-10-12T08:17:22.592385",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
+    },
+    "missing Hi-C reverse": {
+        "content": [
+            "hifiasm_hic_phasing requires both hic_F and hic_R."
+        ],
+        "timestamp": "2026-10-12T08:17:49.157261",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
+    },
+    "duplicate sample IDs": {
+        "content": [
+            "Samplesheet sample IDs must be unique."
+        ],
+        "timestamp": "2026-10-12T08:16:39.500965",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
+    },
+    "assembler_hifi_args rejects --ont": {
+        "content": [
+            "--primary and --ont are incompatible with hifiasm_hic_phasing."
+        ],
+        "timestamp": "2026-10-12T08:14:48.03245",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
+    },
+    "derived hap2 collision": {
+        "content": [
+            "derived haplotype IDs collide with another samplesheet sample."
+        ],
+        "timestamp": "2026-10-12T08:16:30.733564",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
+    }
+}

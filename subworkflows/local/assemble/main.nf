@@ -171,29 +171,33 @@ workflow ASSEMBLE {
 
     //ch_main_assemble_hifi_hifiasm.view { "Assemble: hifiasm HIFI inputs: $it" }
 
-    HIFIASM(ch_main_assemble_hifi_hifiasm.filter { meta, reads, ul -> !meta.hifiasm_hic_phasing },
+    hifiasm_inputs = ch_main_assemble_hifi_hifiasm.branch { meta, _hifireads, _ontreads ->
+        hic: meta.hifiasm_hic_phasing
+        no_hic: true
+    }
+
+    HIFIASM(hifiasm_inputs.no_hic,
             [[], [], []],
             [[], [], []],
             [[], []])
 
     // multiMap keeps each HiFi input and Hi-C pair aligned across samples.
-    phased_inputs = ch_main_assemble_hifi_hifiasm
-        .filter { meta, reads, ul -> meta.hifiasm_hic_phasing }
-        .multiMap { meta, reads, ul ->
-            long_reads: [meta, reads, ul]
-            hic_reads: [meta, meta.phasing_reads[0], meta.phasing_reads[1]]
+    phased_inputs = hifiasm_inputs.hic
+        .multiMap { meta, hifireads, ontreads ->
+            hifireads: [meta, hifireads, ontreads]
+            hic_reads: [meta, meta.phasing_reads.f, meta.phasing_reads.r]
         }
-    HIFIASM_HIC(phased_inputs.long_reads, [[], [], []], phased_inputs.hic_reads, [[], []])
+    HIFIASM_HIC(phased_inputs.hifireads, [[], [], []], phased_inputs.hic_reads, [[], []])
 
     // Require both haplotypes for every requested sample before emitting either.
-    phased_contigs = phased_inputs.long_reads
-        .map { meta, reads, ul -> [meta.id, meta] }
+    phased_contigs = phased_inputs.hifireads
+        .map { meta, _hifireads, _ontreads -> [meta.id, meta] }
         .join(HIFIASM_HIC.out.hap1_contigs.map { meta, gfa -> [meta.id, gfa] }, failOnMismatch: true, failOnDuplicate: true)
         .join(HIFIASM_HIC.out.hap2_contigs.map { meta, gfa -> [meta.id, gfa] }, failOnMismatch: true, failOnDuplicate: true)
         .flatMap { id, meta, hap1, hap2 ->
             [
-                [meta + [id: "${id}-hap1".toString(), source_sample: id, haplotype: 1, hic_reads: meta.scaffold_hic ? meta.phasing_reads : null, assembly_map_bam: null], hap1],
-                [meta + [id: "${id}-hap2".toString(), source_sample: id, haplotype: 2, hic_reads: meta.scaffold_hic ? meta.phasing_reads : null, assembly_map_bam: null], hap2]
+                [meta + [id: "${id}-hap1".toString(), source_sample: id, haplotype: 1, hic_reads: meta.scaffold_hic ? (meta.hic_reads ?: [meta.phasing_reads.f, meta.phasing_reads.r]) : null, assembly_map_bam: null], hap1],
+                [meta + [id: "${id}-hap2".toString(), source_sample: id, haplotype: 2, hic_reads: meta.scaffold_hic ? (meta.hic_reads ?: [meta.phasing_reads.f, meta.phasing_reads.r]) : null, assembly_map_bam: null], hap2]
             ]
         }
     GFA2FA_HAP(phased_contigs)

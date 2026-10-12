@@ -1,0 +1,56 @@
+{
+    "Untrimmed short reads produce Merqury results for all four haplotypes": {
+        "content": [
+            [
+                [
+                    "sampleA-hap1_assembly.completeness.stats",
+                    "sampleA"
+                ],
+                [
+                    "sampleA-hap2_assembly.completeness.stats",
+                    "sampleA"
+                ],
+                [
+                    "sampleB-hap1_assembly.completeness.stats",
+                    "sampleB"
+                ],
+                [
+                    "sampleB-hap2_assembly.completeness.stats",
+                    "sampleB"
+                ]
+            ]
+        ],
+        "timestamp": "2026-10-12T08:16:14.7338",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
+    },
+    "Two samples produce Merqury results for all four haplotypes": {
+        "content": [
+            [
+                [
+                    "sampleA-hap1_assembly.completeness.stats",
+                    "sampleA"
+                ],
+                [
+                    "sampleA-hap2_assembly.completeness.stats",
+                    "sampleA"
+                ],
+                [
+                    "sampleB-hap1_assembly.completeness.stats",
+                    "sampleB"
+                ],
+                [
+                    "sampleB-hap2_assembly.completeness.stats",
+                    "sampleB"
+                ]
+            ]
+        ],
+        "timestamp": "2026-10-12T08:15:06.221665",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
+    }
+}

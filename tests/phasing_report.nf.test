@@ -1,8 +1,8 @@
 nextflow_workflow {
     name "Report sample metadata"
-    script "../report_samples.nf"
+    script "../workflows/report_samples.nf"
     workflow "REPORT_SAMPLES"
-    tag "workflows"
+    tag "pipeline"
 
     test("Parallel scaffold outputs retain one report row per haplotype") {
         when {
@@ -24,6 +24,7 @@ nextflow_workflow {
             assert samples*.id.sort() == ['sampleA-hap1', 'sampleA-hap2', 'sampleB']
             assert samples.findAll { it.id.startsWith('sampleA') }.every { it.group == 'family' }
             assert samples.find { it.id == 'sampleB' }.group == null
+            assert snapshot(samples.collect { [it.id, it.group] }.sort { it[0] }).match()
         }
     }
 }

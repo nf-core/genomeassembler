@@ -66,11 +66,15 @@ In the second case, it is likely that several samples will use the same inputs (
 Assembly strategy is controlled via `strategy` (either pipeline parameter or sample-setting), and assembler(s) used are chosen via `assembler` (either pipeline parameter or sample-setting)
 `nf-core/genomeassembler` currently supports the following assembly strategies:
 
-- single (default): Use a single assembler for a single type of read. The assembler should be provided via `assembler` and can be `hifiasm` (default) or `flye`.
-- hybrid: Use a single assembler for a combined assembly of ONT and HiFi reads. The assembler should be provided via `assembler`. Currently, only `hifiasm` supports hybrid assembly.
-- scaffold: Assemble ONT reads and HiFi indepently and scaffold one assembly onto the other. `assembler` has to be provided as `"ontAssembler_hifiAssembler"` and could for example be: "`flye_hifiasm"` to assemble ont reads with `flye` and HiFi reads with `hifiasm` or "hifiasm_hifiasm" to assemble both ont and hifi reads indepently with `hifiasm`. When running in "scaffold" mode, `assembly_scaffolding_order` can be used to control which assembly gets scaffolded onto which, the default being "ont_on_hifi" where ONT assembly is scaffolded onto HifI assembly.
+- single (default): Use a single assembler for a single type of read. The assembler should be provided via `assembler` and can be `hifiasm` (default) or `flye`
+  .
+- hybrid: Use a single assembler for a combined assembly of ONT and HiFi reads. The assembler should be provided via `assembler`. Currently, only `hifiasm` supports hybrid assembly.
 
-Assembler specific arguments can be provided for the assembler via `hifiasm_args` or `flye_args`, or with more fine-grained control via `assembler_ont_args` and `assembler_hifi_args` for scaffolding.
+- scaffold: Assemble ONT reads and HiFi indepently and scaffold one assembly onto the other. `assembler` has to be provided as `"ontAssembler_hifiAssembler"` and could for example be: "`flye_hifiasm"` to assemble ont reads with `flye` and HiFi reads with `hifiasm` or "hifiasm_hifiasm" to assemble both ont and hifi reads indepently with `hifiasm
+`. When running in "scaffold" mode, `assembly_scaffolding_order` can be used to control which assembly gets scaffolded onto which, the default being "ont_on_hifi" where ONT assembly is scaffolded onto HifI assembly.
+
+Assembler specific arguments can be provided for the assembler via `hifiasm_args` or `flye_args`,
+or with more fine-grained control via `assembler_ont_args` and `assembler_hifi_args` for scaffolding.
 `assembler_ont_args` controls the parameters for the assembler used with ONT-reads in `single` and `hybrid` strategies, or for the assembler used for ONT reads when using `scaffold`. `assembler_hifi_args` can be used to pass arguments to the assembler used for HiFi reads in `single`, or `scaffold` mode.
 
 ## Samplesheet input
@@ -317,9 +321,49 @@ The difference between `{hifiasm,flye}_args` and `assembler_{ont,hifi}_args` is 
 
 ### Hi-C phasing
 
-Set `hifiasm_hic_phasing=true` globally or in the samplesheet to retain two diploid haplotypes. This requires `strategy=single`, HiFi reads, hifiasm, paired `hic_F`/`hic_R` reads and `hic_trim=false`. Supplied assemblies, ONT reads, trio inputs (`-1`/`-2`) and `--primary`/`--ont` arguments are incompatible with this mode. Hi-C scaffolding remains independently optional.
+Enable `hifiasm_hic_phasing` in a samplesheet row or pass
+`--hifiasm_hic_phasing` to enable it globally. The default is false.
 
-Outputs use `<sample>-hap1` and `<sample>-hap2`, with `source_sample` and `haplotype` metadata. See [phasing configuration and output examples](otb-integration.md).
+```csv
+sample,strategy,assembler,hifireads,hic_F,hic_R,hifiasm_hic_phasing,hic_trim
+individual,single,hifiasm,/data/hifi.fastq.gz,/data/hic_R1.fastq.gz,/data/hic_R2.fastq.gz,true,true
+```
+
+```bash
+nextflow run . -profile docker --input samplesheet.csv --outdir results
+```
+
+This mode requires HiFi reads, both Hi-C mates, the single assembly strategy and
+hifiasm. It rejects ONT inputs and pre-existing assemblies. Phasing always uses the original, untrimmed Hi-C mates. `hic_trim` controls
+only the independent scaffolding read preparation. HiFi preparation remains the pipeline's
+existing fastplong preparation. Choose diploid-compatible hifiasm arguments and
+avoid output-changing arguments such as `--primary`.
+
+The workflow stages each sample's HiFi reads and Hi-C pair together, invokes
+hifiasm's `--h1` and `--h2` mode, and converts both phased GFA outputs to FASTA.
+The original hifiasm graphs and logs are published under the source sample.
+Haplotypes become separate downstream samples named `individual-hap1` and
+`individual-hap2`, retaining `source_sample` and `haplotype` metadata. Reserve
+these derived sample names: the pipeline rejects collisions with other input sample names.
+
+Compressed assemblies are published at:
+
+- `results/individual-hap1/assembly/hifiasm/individual-hap1.fa.gz`
+- `results/individual-hap2/assembly/hifiasm/individual-hap2.fa.gz`
+
+Each haplotype follows the existing QC, polishing and scaffolding settings,
+and receives its own genomeqc manifest rows. `scaffold_hic` independently enables
+YaHS scaffolding for both haplotypes using the same original Hi-C pair. Merqury
+uses the source sample's read k-mer database for each haplotype; this does not
+measure switch errors or parental phase accuracy. The aggregate report lists the derived haplotype samples.
+
+Arguments in `hifiasm_args` and `assembler_hifi_args` apply to phased assembly.
+Trio inputs (`-1`/`-2`),
+`--primary` and `--ont` are rejected in this mode.
+
+Initialization tests validate samplesheet prerequisites and argument compatibility.
+Routing tests use Docker-backed tool stubs; they do not perform real assembly.
+A real HiFi + Hi-C dataset run is still needed to validate biological results.
 
 ## Long-read preprocessing
 
