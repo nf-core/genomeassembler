@@ -334,7 +334,7 @@ nextflow run . -profile docker --input samplesheet.csv --outdir results
 ```
 
 This mode requires HiFi reads, both Hi-C mates, the single assembly strategy and
-hifiasm. It rejects ONT inputs and pre-existing assemblies. Phasing always uses the original, untrimmed Hi-C mates. `hic_trim` controls
+hifiasm. It rejects pre-existing assemblies. ONT reads can be supplied as auxiliary input for Medaka or Dorado polishing; they are not passed to hifiasm in this single-strategy mode. Phasing always uses the original, untrimmed Hi-C mates. `hic_trim` controls
 only the independent scaffolding read preparation. HiFi preparation remains the pipeline's
 existing fastplong preparation. Choose diploid-compatible hifiasm arguments and
 avoid output-changing arguments such as `--primary`.

@@ -15,6 +15,8 @@ codenamegenerator.com stopped working. Codenames from now on will be song titles
 
 ### `Fixed`
 
+- [#249](https://github.com/nf-core/genomeassembler/pull/249) Allow auxiliary ONT polishing reads for phased HiFi assembly and retain Medaka/Dorado results when adding Pilon.
+
 - [#249](https://github.com/nf-core/genomeassembler/pull/249) Keep Dorado polishing metadata, filenames and published outputs consistent across haplotypes and downstream scaffolding.
 
 - [#249](https://github.com/nf-core/genomeassembler/pull/249) Publish compressed Pilon assemblies in the directory referenced by the genomeqc samplesheet.

@@ -513,7 +513,7 @@ nextflow_workflow {
         }
         then {
             assert workflow.failed
-            def message = 'hifiasm_hic_phasing requires single-strategy hifiasm assembly with HiFi reads only and no supplied assembly.'
+            def message = 'hifiasm_hic_phasing requires single-strategy hifiasm assembly with HiFi reads and no supplied assembly.'
             assert (workflow.stdout + workflow.stderr).any { it.contains(message) }
             assert snapshot(message).match()
         }
@@ -545,7 +545,7 @@ nextflow_workflow {
         }
         then {
             assert workflow.failed
-            def message = 'hifiasm_hic_phasing requires single-strategy hifiasm assembly with HiFi reads only and no supplied assembly.'
+            def message = 'hifiasm_hic_phasing requires single-strategy hifiasm assembly with HiFi reads and no supplied assembly.'
             assert (workflow.stdout + workflow.stderr).any { it.contains(message) }
             assert snapshot(message).match()
         }
@@ -577,7 +577,7 @@ nextflow_workflow {
         }
         then {
             assert workflow.failed
-            def message = 'hifiasm_hic_phasing requires single-strategy hifiasm assembly with HiFi reads only and no supplied assembly.'
+            def message = 'hifiasm_hic_phasing requires single-strategy hifiasm assembly with HiFi reads and no supplied assembly.'
             assert (workflow.stdout + workflow.stderr).any { it.contains(message) }
             assert snapshot(message).match()
         }
@@ -609,13 +609,13 @@ nextflow_workflow {
         }
         then {
             assert workflow.failed
-            def message = 'hifiasm_hic_phasing requires single-strategy hifiasm assembly with HiFi reads only and no supplied assembly.'
+            def message = 'hifiasm_hic_phasing requires single-strategy hifiasm assembly with HiFi reads and no supplied assembly.'
             assert (workflow.stdout + workflow.stderr).any { it.contains(message) }
             assert snapshot(message).match()
         }
     }
 
-    test("ONT present") {
+    test("ONT reads are auxiliary input for phased HiFi assembly") {
         when {
             params {
                 input = "${projectDir}/tests/data/phasing_25.csv"
@@ -640,10 +640,11 @@ nextflow_workflow {
             }
         }
         then {
-            assert workflow.failed
-            def message = 'hifiasm_hic_phasing requires single-strategy hifiasm assembly with HiFi reads only and no supplied assembly.'
-            assert (workflow.stdout + workflow.stderr).any { it.contains(message) }
-            assert snapshot(message).match()
+            assert workflow.success
+            def meta = workflow.out.samplesheet[0].meta
+            assert meta.assembler_hifi == 'hifiasm' && !meta.assembler_ont
+            assert meta.hifireads && meta.ontreads && meta.phasing_reads
+            assert snapshot([meta.id, meta.assembler_hifi, meta.strategy, meta.hifiasm_hic_phasing]).match()
         }
     }
 
@@ -673,7 +674,7 @@ nextflow_workflow {
         }
         then {
             assert workflow.failed
-            def message = 'hifiasm_hic_phasing requires single-strategy hifiasm assembly with HiFi reads only and no supplied assembly.'
+            def message = 'hifiasm_hic_phasing requires single-strategy hifiasm assembly with HiFi reads and no supplied assembly.'
             assert (workflow.stdout + workflow.stderr).any { it.contains(message) }
             assert snapshot(message).match()
         }
@@ -850,4 +851,37 @@ nextflow_workflow {
             assert snapshot([meta.id, meta.hic_trim, meta.phasing_reads.keySet().sort(), meta.assembler_hifi_args]).match()
         }
     }
+    test("Auxiliary ONT reads cannot enable a second assembler") {
+        tag "phasing_aux_validation"
+        when {
+            params {
+                input = "${projectDir}/tests/data/phasing_ont_assembler.csv"
+                outdir = "$outputDir"
+                hifireads = null
+                ontreads = null
+                hic_F = null
+                hic_R = null
+            }
+            workflow {
+                """
+                input[0] = false
+                input[1] = false
+                input[2] = true
+                input[3] = []
+                input[4] = params.outdir
+                input[5] = params.input
+                input[6] = false
+                input[7] = false
+                input[8] = false
+                """
+            }
+        }
+        then {
+            assert workflow.failed
+            def message = 'hifiasm_hic_phasing requires single-strategy hifiasm assembly with HiFi reads and no supplied assembly.'
+            assert (workflow.stdout + workflow.stderr).any { it.contains(message) }
+            assert snapshot(message).match()
+        }
+    }
+
 }
