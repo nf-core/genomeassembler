@@ -155,6 +155,11 @@ workflow PIPELINE_INITIALISATION {
         .map {
             it -> [meta: it]
         }
+    ch_samplesheet.subscribe { row ->
+        if (row.meta.jellyfish && !row.meta.hifireads && !row.meta.ontreads) {
+            error("Sample ${row.meta.id}: Jellyfish requires long reads.")
+        }
+    }
     ch_samplesheet.dump(tag: "PARSED INPUTS:")
 
     emit:
