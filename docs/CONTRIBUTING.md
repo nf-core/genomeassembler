@@ -179,4 +179,8 @@ If you update images or graphics, follow the nf-core [style guidelines](https://
 
 ## Pipeline specific contribution guidelines
 
-<!-- TODO nf-core: Add any pipeline specific contribution guidelines here, such as coding styles, procedures, checklists etc. -->
+### The Meta map
+
+nf-core/genomeassembler makes extensive use of the `Meta map`, to the point where all sample information is stored inside this map. This is because nf-core/genomeassembler parameterises by sample, and not per run, and thus all pipepline params become key/value pairs in the `Meta map`. The `Meta map` therefore contains all fields that are described in `docs/usage.md`, in addition the `Meta map` contains a `group` field, which can only be set via the samplesheet.
+The input-samplesheet is specified in `assets/schema_input.json`. Parsing of the samplesheet happens in `subworkflows/local/utils_nfcore_genomeassembler_pipeline/main.nf`, and this workflow ensures that all samplesheet fields are populated, either with the per-sample value provided via the samplesheet, or the respective value from `params` map. Fields in the `Meta map`, which reflect `params` must have an identical key to the `param`.
+All checks that validate if a per-sample combination is valid should be added to `subworkflows/local/utils_nfcore_genomeassembler_pipeline/main.nf`, using the `subscribe` operator to throw errors.

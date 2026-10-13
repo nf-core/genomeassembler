@@ -9,11 +9,15 @@ codenamegenerator.com stopped working. Codenames from now on will be song titles
 
 ### `Added`
 
+- [#252](https://github.com/nf-core/genomeassembler/pull/252) Added `AGENTS.md`
+
 - [#233](https://github.com/nf-core/genomeassembler/pull/233) Updated. `tower.yml`
 
 ### `Fixed`
 
 - [#248](https://github.com/nf-core/genomeassembler/pull/248) Retain supplied assemblies without long reads and reject unsupported Jellyfish requests during initialization ([@molikd](https://github.com/molikd)).
+
+- [#251](https://github.com/nf-core/genomeassembler/pull/251) Create the rebgzip output directory in stub runs ([@molikd](https://github.com/molikd)).
 
 - [#246](https://github.com/nf-core/genomeassembler/pull/246) Fixed typo in map creating useless extra field
 
