@@ -21,6 +21,7 @@ lint:
   nf_test_content:
     - tests/supplied_assembly.nf.test
     - tests/supplied_assembly_initialization.nf.test
+    - tests/qc_reads.nf.test
   multiqc_config: false
 nf_core_version: 4.1.0
 repository_type: pipeline

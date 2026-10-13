@@ -138,7 +138,7 @@ workflow PIPELINE_INITIALISATION {
             def group           =   it.group ?: null
             def use_short_reads =   it.shortread_F && !params.use_short_reads ? true : it.use_short_reads
             def lift_annotations=   it.use_ref && it.ref_gff ? true : false
-            def qc_reads        =   it.qc_reads == "ont" && !it.ontreads ? "hifi" : it.qc_reads
+            def qc_reads        =   it.hifireads && !it.ontreads ? 'hifi' : it.ontreads && !it.hifireads ? 'ont' : it.qc_reads
             it + [
                     group: group,
                     assembler_ont: assembler_ont,
