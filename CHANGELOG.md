@@ -13,6 +13,8 @@ codenamegenerator.com stopped working. Codenames from now on will be song titles
 
 ### `Fixed`
 
+- [#248](https://github.com/nf-core/genomeassembler/pull/248) Retain supplied assemblies without long reads and reject unsupported Jellyfish requests during initialization ([@molikd](https://github.com/molikd)).
+
 - [#246](https://github.com/nf-core/genomeassembler/pull/246) Fixed typo in map creating useless extra field
 
 - [#245](https://github.com/nf-core/genomeassembler/pull/245) Use per-sample models with medaka, instead of params setting.

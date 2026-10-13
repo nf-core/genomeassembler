@@ -16,6 +16,11 @@ lint:
     - .prettierignore
     - .gitignore
     - nf-core-genomeassembler_logo_dark.svg
+  # These focused tests run no tools: preparation passes through an assembly,
+  # and initialization deliberately fails before any versions.yml can be emitted.
+  nf_test_content:
+    - tests/supplied_assembly.nf.test
+    - tests/supplied_assembly_initialization.nf.test
   multiqc_config: false
 nf_core_version: 4.1.0
 repository_type: pipeline
