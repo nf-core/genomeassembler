@@ -9,9 +9,13 @@ codenamegenerator.com stopped working. Codenames from now on will be song titles
 
 ### `Added`
 
+- [#252](https://github.com/nf-core/genomeassembler/pull/252) Added `AGENTS.md`
+
 - [#233](https://github.com/nf-core/genomeassembler/pull/233) Updated. `tower.yml`
 
 ### `Fixed`
+
+- [#251](https://github.com/nf-core/genomeassembler/pull/251) Create the rebgzip output directory in stub runs ([@molikd](https://github.com/molikd)).
 
 - [#247](https://github.com/nf-core/genomeassembler/pull/247) Select available long reads for ONT-only QC while preserving mixed-read choices ([@molikd](https://github.com/molikd)).
 
