@@ -18,6 +18,8 @@ codenamegenerator.com stopped working. Codenames from now on will be song titles
 
 ### `Fixed`
 
+- [#249](https://github.com/nf-core/genomeassembler/pull/249) Prevent duplicate Hi-C preparation records and give Dorado Merqury and Liftoff outputs distinct haplotype filenames ([@molikd](https://github.com/molikd)).
+
 - [#249](https://github.com/nf-core/genomeassembler/pull/249) Retain untrimmed Hi-C scaffold reads during preparation, independently of raw phasing inputs ([@molikd](https://github.com/molikd)).
 
 - [#249](https://github.com/nf-core/genomeassembler/pull/249) Allow auxiliary ONT polishing reads for phased HiFi assembly and retain Medaka/Dorado results when adding Pilon ([@molikd](https://github.com/molikd)).

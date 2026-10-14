@@ -27,8 +27,9 @@ nextflow_workflow {
                         shortread_R: file("https://raw.githubusercontent.com/nf-core/test-datasets/genomeassembler/A_thaliana_Col-0_2mb/SRR22354810_2.sampled.fq.gz"),
                         shortread_trim: true, paired: true, hic_trim: false,
                         qc_reads: 'hifi', jellyfish: false, meryl_k: 21,
-                        quast: false, busco: false, merqury: false,
-                        use_short_reads: false, lift_annotations: false
+                        quast: false, busco: false, merqury: true,
+                        use_short_reads: true, lift_annotations: true,
+                        ref_gff: file("https://raw.githubusercontent.com/nf-core/test-datasets/genomeassembler/A_thaliana_Col-0_2mb/Col-CEN_v1.2_genes_araport11.Chr1_5MB-7MB.gff3.gz")
                     ]]
                 }
                 """
@@ -57,6 +58,15 @@ nextflow_workflow {
             def alignments = []
             new File("$outputDir").eachFileRecurse { f -> if (f.name.endsWith('_dorado_aligned.bam')) alignments << f.name }
             assert alignments.sort() == prefixes.collect { "${it}_dorado_aligned.bam".toString() }.sort()
+            prefixes.each { prefix ->
+                def id = prefix.replaceFirst(/_hap[12]$/, '')
+                assert new File("$outputDir/${id}/QC/merqury/${prefix}_dorado.qv").exists()
+                assert new File("$outputDir/${id}/polish/dorado/${prefix}_dorado.gff3").exists()
+                assert new File("$outputDir/${id}/polish/dorado/${prefix}_dorado.unmapped.txt").exists()
+            }
+            def doradoQv = []
+            new File("$outputDir").eachFileRecurse { f -> if (f.name.endsWith('_dorado.qv')) doradoQv << f.name }
+            assert doradoQv.sort() == prefixes.collectMany { ["${it}_dorado.qv".toString(), "${it}_dorado.${it}_dorado.qv".toString()] }.sort()
             assert snapshot(rows.collect { it.split(',')[0] }.sort()).match()
         }
     }
