@@ -140,7 +140,7 @@ workflow PIPELINE_INITIALISATION {
             def group           =   it.group ?: null
             def use_short_reads =   it.shortread_F && !params.use_short_reads ? true : it.use_short_reads
             def lift_annotations=   it.use_ref && it.ref_gff ? true : false
-            def qc_reads        =   it.qc_reads == "ont" && !it.ontreads ? "hifi" : it.qc_reads
+            def qc_reads        =   it.hifireads && !it.ontreads ? 'hifi' : it.ontreads && !it.hifireads ? 'ont' : it.qc_reads
             it + [
                     group: group,
                     assembler_ont: assembler_ont,
@@ -161,11 +161,13 @@ workflow PIPELINE_INITIALISATION {
             }
             [meta: meta]
         }
+        
+    if (input_ids.size() != samplesheet_rows.size()) {
+            error('Samplesheet sample IDs must be unique.')
+    }
+        
     ch_samplesheet.subscribe { row ->
         def meta = row.meta
-        if (input_ids.size() != samplesheet_rows.size()) {
-            error('Samplesheet sample IDs must be unique.')
-        }
         if (meta.hifiasm_hic_phasing) {
             if (["${meta.id}_hap1".toString(), "${meta.id}_hap2".toString()].any { input_ids.contains(it) }) {
                 error("Sample ${meta.id}: haplotype output prefixes collide with another samplesheet sample.")
@@ -183,6 +185,9 @@ workflow PIPELINE_INITIALISATION {
             if (assembly_phasing_args =~ /(^|\s)-[12]/) {
                 error("Sample ${meta.id}: trio inputs -1 and -2 are incompatible with hifiasm_hic_phasing.")
             }
+        }
+        if (row.meta.jellyfish && !row.meta.hifireads && !row.meta.ontreads) {
+            error("Sample ${row.meta.id}: Jellyfish requires long reads.")
         }
     }
     ch_samplesheet.dump(tag: "PARSED INPUTS:")
