@@ -27,6 +27,8 @@ codenamegenerator.com stopped working. Codenames from now on will be song titles
 
 - [#251](https://github.com/nf-core/genomeassembler/pull/251) Create the rebgzip output directory in stub runs ([@molikd](https://github.com/molikd)).
 
+- [#247](https://github.com/nf-core/genomeassembler/pull/247) Select available long reads for ONT-only QC while preserving mixed-read choices ([@molikd](https://github.com/molikd)).
+
 - [#246](https://github.com/nf-core/genomeassembler/pull/246) Fixed typo in map creating useless extra field
 
 - [#245](https://github.com/nf-core/genomeassembler/pull/245) Use per-sample models with medaka, instead of params setting.
