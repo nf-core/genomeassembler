@@ -25,6 +25,8 @@ codenamegenerator.com stopped working. Codenames from now on will be song titles
 
 - [#249](https://github.com/nf-core/genomeassembler/pull/249) Publish compressed Pilon assemblies in the directory referenced by the genomeqc samplesheet ([@molikd](https://github.com/molikd)).
 
+- [#248](https://github.com/nf-core/genomeassembler/pull/248) Retain supplied assemblies without long reads and reject unsupported Jellyfish requests during initialization ([@molikd](https://github.com/molikd)).
+
 - [#251](https://github.com/nf-core/genomeassembler/pull/251) Create the rebgzip output directory in stub runs ([@molikd](https://github.com/molikd)).
 
 - [#247](https://github.com/nf-core/genomeassembler/pull/247) Select available long reads for ONT-only QC while preserving mixed-read choices ([@molikd](https://github.com/molikd)).

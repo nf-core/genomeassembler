@@ -116,6 +116,7 @@ workflow PREPARE {
         .map { it ->
             [meta: it.meta + [qc_read_mean: slurp.parse(it.meta.fastplong_json).summary.after_filtering.read_mean_length ?: slurp.parse(it.meta.fastplong_json).summary.before_filtering.read_mean_length]]
         }
+        .mix(ch_main_prepared.filter { row -> row.meta.assembly && !row.meta.ontreads && !row.meta.hifireads })
         .branch { it ->
             jelly: it.meta.jellyfish
             no_jelly: !it.meta.jellyfish

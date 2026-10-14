@@ -153,11 +153,13 @@ workflow PIPELINE_INITIALISATION {
             }
             [meta: meta]
         }
+
+    if (input_ids.size() != samplesheet_rows.size()) {
+        error('Samplesheet sample IDs must be unique.')
+    }
+
     ch_samplesheet.subscribe { row ->
         def meta = row.meta
-        if (input_ids.size() != samplesheet_rows.size()) {
-            error('Samplesheet sample IDs must be unique.')
-        }
         if (meta.hifiasm_hic_phasing) {
             if (["${meta.id}_hap1".toString(), "${meta.id}_hap2".toString()].any { prefix -> input_ids.contains(prefix) }) {
                 error("Sample ${meta.id}: haplotype output prefixes collide with another samplesheet sample.")
@@ -175,6 +177,9 @@ workflow PIPELINE_INITIALISATION {
             if (assembly_phasing_args =~ /(^|\s)-[12]/) {
                 error("Sample ${meta.id}: trio inputs -1 and -2 are incompatible with hifiasm_hic_phasing.")
             }
+        }
+        if (row.meta.jellyfish && !row.meta.hifireads && !row.meta.ontreads) {
+            error("Sample ${row.meta.id}: Jellyfish requires long reads.")
         }
     }
     ch_samplesheet.dump(tag: "PARSED INPUTS:")
