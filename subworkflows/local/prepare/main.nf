@@ -216,6 +216,8 @@ workflow PREPARE {
                     ]
             ]
         }
+        // Supplied assemblies may have no long reads or fastplong report.
+        .mix(ch_main_prepared.filter { it.meta.assembly && !it.meta.ontreads && !it.meta.hifireads })
         // branch this channel for jellyfish
         .branch {
             it ->
