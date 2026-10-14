@@ -11,17 +11,21 @@ codenamegenerator.com stopped working. Codenames from now on will be song titles
 
 - [#249](https://github.com/nf-core/genomeassembler/pull/249) Retain both Hi-C-phased haplotypes under the original sample ID, with haplotype-aware QC, polishing, scaffolding and output naming.
 
+- [#252](https://github.com/nf-core/genomeassembler/pull/252) Added `AGENTS.md`
+
 - [#233](https://github.com/nf-core/genomeassembler/pull/233) Updated. `tower.yml`
 
 ### `Fixed`
 
-- [#249](https://github.com/nf-core/genomeassembler/pull/249) Retain untrimmed Hi-C scaffold reads during preparation, independently of raw phasing inputs.
+- [#249](https://github.com/nf-core/genomeassembler/pull/249) Retain untrimmed Hi-C scaffold reads during preparation, independently of raw phasing inputs ([@molikd](https://github.com/molikd)).
 
-- [#249](https://github.com/nf-core/genomeassembler/pull/249) Allow auxiliary ONT polishing reads for phased HiFi assembly and retain Medaka/Dorado results when adding Pilon.
+- [#249](https://github.com/nf-core/genomeassembler/pull/249) Allow auxiliary ONT polishing reads for phased HiFi assembly and retain Medaka/Dorado results when adding Pilon ([@molikd](https://github.com/molikd)).
 
-- [#249](https://github.com/nf-core/genomeassembler/pull/249) Keep Dorado polishing metadata, filenames and published outputs consistent across haplotypes and downstream scaffolding.
+- [#249](https://github.com/nf-core/genomeassembler/pull/249) Keep Dorado polishing metadata, filenames and published outputs consistent across haplotypes and downstream scaffolding ([@molikd](https://github.com/molikd)).
 
-- [#249](https://github.com/nf-core/genomeassembler/pull/249) Publish compressed Pilon assemblies in the directory referenced by the genomeqc samplesheet.
+- [#249](https://github.com/nf-core/genomeassembler/pull/249) Publish compressed Pilon assemblies in the directory referenced by the genomeqc samplesheet ([@molikd](https://github.com/molikd)).
+
+- [#251](https://github.com/nf-core/genomeassembler/pull/251) Create the rebgzip output directory in stub runs ([@molikd](https://github.com/molikd)).
 
 - [#246](https://github.com/nf-core/genomeassembler/pull/246) Fixed typo in map creating useless extra field
 

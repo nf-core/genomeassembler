@@ -1,20 +1,20 @@
 include { createHaplotypeKey } from '../assembly_haplotypes/main'
 include { HIFIASM as HIFIASM_HIC } from '../../../modules/nf-core/hifiasm/main'
 include { GFATOOLS_GFA2FA as GFA2FA_HAP } from '../../../modules/nf-core/gfatools/gfa2fa/main'
-include { FLYE as FLYE_ONT} from '../../../modules/nf-core/flye/main'
-include { FLYE as FLYE_HIFI} from '../../../modules/nf-core/flye/main'
+include { FLYE as FLYE_ONT } from '../../../modules/nf-core/flye/main'
+include { FLYE as FLYE_HIFI } from '../../../modules/nf-core/flye/main'
 include { HIFIASM } from '../../../modules/nf-core/hifiasm/main'
 include { HIFIASM as HIFIASM_ONT } from '../../../modules/nf-core/hifiasm/main'
 include { GFATOOLS_GFA2FA as GFA2FA_HIFI } from '../../../modules/nf-core/gfatools/gfa2fa/main'
-include { GFATOOLS_GFA2FA as GFA2FA_ONT  } from '../../../modules/nf-core/gfatools/gfa2fa/main'
+include { GFATOOLS_GFA2FA as GFA2FA_ONT } from '../../../modules/nf-core/gfatools/gfa2fa/main'
 include { MAP_TO_REF } from '../mapping/map_to_ref/main'
 include { LIFTOFF } from '../../../modules/nf-core/liftoff/main'
 include { RAGTAG_PATCH } from '../../../modules/nf-core/ragtag/patch/main'
-include { HTSLIB_REBGZIP    as BGZIP_HIFI } from '../../../modules/local/htslib/rebgzip/main'
-include { HTSLIB_REBGZIP    as BGZIP_ONT } from '../../../modules/local/htslib/rebgzip/main'
-include { HTSLIB_REBGZIP    as BGZIP_FLYE_ONT } from '../../../modules/local/htslib/rebgzip/main'
-include { HTSLIB_REBGZIP    as BGZIP_FLYE_HIFI } from '../../../modules/local/htslib/rebgzip/main'
-include { HTSLIB_REBGZIP    as BGZIP_RAGTAG } from '../../../modules/local/htslib/rebgzip/main'
+include { HTSLIB_REBGZIP as BGZIP_HIFI } from '../../../modules/local/htslib/rebgzip/main'
+include { HTSLIB_REBGZIP as BGZIP_ONT } from '../../../modules/local/htslib/rebgzip/main'
+include { HTSLIB_REBGZIP as BGZIP_FLYE_ONT } from '../../../modules/local/htslib/rebgzip/main'
+include { HTSLIB_REBGZIP as BGZIP_FLYE_HIFI } from '../../../modules/local/htslib/rebgzip/main'
+include { HTSLIB_REBGZIP as BGZIP_RAGTAG } from '../../../modules/local/htslib/rebgzip/main'
 include { QC } from '../qc/main'
 
 
@@ -29,12 +29,10 @@ workflow ASSEMBLE {
     */
     ch_main.dump(tag: "Assemble - Inputs")
 
-    ch_main_branched = ch_main
-        .branch {
-            it ->
-            to_assemble: !it.meta.assembly
-            no_assemble: it.meta.assembly
-        }
+    ch_main_branched = ch_main.branch { it ->
+        to_assemble: !it.meta.assembly
+        no_assemble: it.meta.assembly
+    }
 
     /*
     There are three assembly strategies:
@@ -44,24 +42,15 @@ workflow ASSEMBLE {
 
     Each sample can only have one strategy, and branching happens here.
     */
-    ch_main_assemble_branched = ch_main_branched
-            .to_assemble
-            .branch { it ->
-                single: it.meta.strategy == "single"
-                hybrid: it.meta.strategy == "hybrid"
-                scaffold: it.meta.strategy == "scaffold"
-            }
+    ch_main_assemble_branched = ch_main_branched.to_assemble.branch { it ->
+        single: it.meta.strategy == "single"
+        hybrid: it.meta.strategy == "hybrid"
+        scaffold: it.meta.strategy == "scaffold"
+    }
 
-    ch_main_assemble_branched
-        .single
-        .dump(tag: "Assemble: Branched: Single")
-    ch_main_assemble_branched
-        .hybrid
-        //.view {"Assemble: Hybrid: $it"}
-        .dump(tag: "Assemble: Branched: Hybrid")
-    ch_main_assemble_branched
-        .scaffold
-        .dump(tag: "Assemble: Branched: scaffold")
+    ch_main_assemble_branched.single.dump(tag: "Assemble: Branched: Single")
+    ch_main_assemble_branched.hybrid.dump(tag: "Assemble: Branched: Hybrid")
+    ch_main_assemble_branched.scaffold.dump(tag: "Assemble: Branched: scaffold")
 
     /*
     =========================
@@ -74,23 +63,16 @@ workflow ASSEMBLE {
         - Samples from the scaffold strategy where either (or both) assembler is flye
     */
 
-    ch_main_assemble_flye = ch_main_assemble_branched
-        .single
-        .filter { it -> it.meta.assembler_ont == "flye" || it.meta.assembler_hifi == "flye"  }
-        .mix(
-            // Add in the scaffolding samples where flye is used
-            ch_main_assemble_branched
-                .scaffold
-                .filter { it -> it.meta.assembler_ont == "flye" || it.meta.assembler_hifi == "flye"  }
-        )
+    ch_main_assemble_flye = ch_main_assemble_branched.single.filter { it -> it.meta.assembler_ont == "flye" || it.meta.assembler_hifi == "flye" }.mix(
+        ch_main_assemble_branched.scaffold.filter { it -> it.meta.assembler_ont == "flye" || it.meta.assembler_hifi == "flye" }
+    )
 
     // Assembly flye branch
     // Extra args per sample are stored in the meta map, so is the estimated / expected genome size
     // The inputs are created once for ONT and once for HiFi
     flye_ont_inputs = ch_main_assemble_flye
         .filter { it -> it.meta.assembler_ont == "flye" && it.meta.ontreads }
-        .multiMap {
-            it ->
+        .multiMap { it ->
             reads: [
                 it.meta,
                 it.meta.ontreads ?: [],
@@ -100,18 +82,10 @@ workflow ASSEMBLE {
 
     // These are the hifi samples
     flye_hifi_inputs = ch_main_assemble_flye
-        // Those where the hifi assembler is flye, or where there is only one assembler and only hifireads
         .filter { it ->
-            it.meta.assembler_hifi == "flye" && it.meta.hifireads ||
-            (
-                it.meta.strategy == "single" &&
-                it.meta.hifireads &&
-                !it.meta.ontreads &&
-                it.meta.assembler == "flye"
-            )
+            it.meta.assembler_hifi == "flye" && it.meta.hifireads || (it.meta.strategy == "single" && it.meta.hifireads && !it.meta.ontreads && it.meta.assembler == "flye")
         }
-        .multiMap {
-            it ->
+        .multiMap { it ->
             reads: [
                 it.meta,
                 it.meta.hifireads ?: [],
@@ -141,32 +115,19 @@ workflow ASSEMBLE {
             - Scaffold samples where assembler_hifi (hifi assembler) is hifiasm
     */
     //ch_main_assemble_branched.hybrid.view {"ASSEMBLE: Branched: Hybrid"}
-    ch_main_assemble_hifi_hifiasm = ch_main_assemble_branched
-            .single
-            .filter {
-                it -> it.meta.assembler_hifi == "hifiasm"
-            }
-            .mix(
-                ch_main_assemble_branched
-                    .hybrid
-                    .filter {
-                        it -> it.meta.assembler_ont == "hifiasm"
-                    }
-            )
-            .mix(ch_main_assemble_branched
-                    .scaffold
-                    .filter {
-                         it -> it.meta.assembler_hifi == "hifiasm"
-                    }
-            )
-            .map {
-                    it -> [
-                        it.meta,
-                        it.meta.hifireads,
-                        // for hybrid samples include ONT reads in 3rd slot of first input (see hifiasm module)
-                        (it.meta.strategy == "hybrid" && it.meta.ontreads) ? it.meta.ontreads : []
-                        ]
-                    }
+    ch_main_assemble_hifi_hifiasm = ch_main_assemble_branched.single.filter { it ->
+        it.meta.assembler_hifi == "hifiasm"
+    }.mix(
+        ch_main_assemble_branched.hybrid.filter { it ->
+            it.meta.assembler_ont == "hifiasm"
+        }
+    ).mix(
+        ch_main_assemble_branched.scaffold.filter { it ->
+            it.meta.assembler_hifi == "hifiasm"
+        }
+    ).map { it ->
+        [it.meta, it.meta.hifireads, it.meta.strategy == "hybrid" && it.meta.ontreads ? it.meta.ontreads : []]
+    }
 
     ch_main_assemble_hifi_hifiasm.dump(tag: "Assemble: hifiasm HIFI inputs")
 
@@ -177,17 +138,18 @@ workflow ASSEMBLE {
         no_hic: true
     }
 
-    HIFIASM(hifiasm_inputs.no_hic,
-            [[], [], []],
-            [[], [], []],
-            [[], []])
+    HIFIASM(
+        hifiasm_inputs.no_hic,
+        [[], [], []],
+        [[], [], []],
+        [[], []],
+    )
 
     // multiMap keeps each HiFi input and Hi-C pair aligned across samples.
-    phased_inputs = hifiasm_inputs.hic
-        .multiMap { meta, hifireads, ontreads ->
-            hifireads: [meta, hifireads, ontreads]
-            hic_reads: [meta, meta.phasing_reads.f, meta.phasing_reads.r]
-        }
+    phased_inputs = hifiasm_inputs.hic.multiMap { meta, hifireads, ontreads ->
+        hifireads: [meta, hifireads, ontreads]
+        hic_reads: [meta, meta.phasing_reads.f, meta.phasing_reads.r]
+    }
     HIFIASM_HIC(phased_inputs.hifireads, [[], [], []], phased_inputs.hic_reads, [[], []])
 
     // Check both outputs against the requested samples before emitting per-haplotype
@@ -198,15 +160,12 @@ workflow ASSEMBLE {
         .join(HIFIASM_HIC.out.hap1_contigs.map { meta, gfa -> [meta.id, gfa] }, failOnMismatch: true, failOnDuplicate: true)
         .join(HIFIASM_HIC.out.hap2_contigs.map { meta, gfa -> [meta.id, gfa] }, failOnMismatch: true, failOnDuplicate: true)
         .flatMap { _id, meta, hap1, hap2 ->
-            [
-                [meta + [haplotype: 'hap1', assembly_map_bam: null], hap1],
-                [meta + [haplotype: 'hap2', assembly_map_bam: null], hap2]
-            ]
+            [[meta + [haplotype: 'hap1', assembly_map_bam: null], hap1], [meta + [haplotype: 'hap2', assembly_map_bam: null], hap2]]
         }
     GFA2FA_HAP(phased_contigs)
 
     // hifiasm produces GFA files
-    GFA2FA_HIFI( HIFIASM.out.primary_contigs )
+    GFA2FA_HIFI(HIFIASM.out.primary_contigs)
 
     BGZIP_HIFI(GFA2FA_HIFI.out.fasta.mix(GFA2FA_HAP.out.fasta))
 
@@ -217,34 +176,28 @@ workflow ASSEMBLE {
         Scaffold branch where assembler_ont (ont assembler) is hifiasm
     */
 
-    ch_main_assemble_ont_hifiasm = ch_main_assemble_branched
-        .single
-        .filter { it -> it.meta.assembler_ont == "hifiasm" && it.meta.ontreads }
-        .mix(ch_main_assemble_branched
-                .scaffold
-                .filter { it -> it.meta.assembler_ont == "hifiasm"  }
-        )
+    ch_main_assemble_ont_hifiasm = ch_main_assemble_branched.single.filter { it -> it.meta.assembler_ont == "hifiasm" && it.meta.ontreads }.mix(
+        ch_main_assemble_branched.scaffold.filter { it -> it.meta.assembler_ont == "hifiasm" }
+    )
 
     ch_main_assemble_ont_hifiasm.dump(tag: "Assemble: hifiasm ONT inputs")
 
-    HIFIASM_ONT(ch_main_assemble_ont_hifiasm.map { it -> [ it.meta,  it.meta.ontreads, [] ] }, [[], [], []], [[], [], []], [[], []])
+    HIFIASM_ONT(ch_main_assemble_ont_hifiasm.map { it -> [it.meta, it.meta.ontreads, []] }, [[], [], []], [[], [], []], [[], []])
 
-    GFA2FA_ONT( HIFIASM_ONT.out.primary_contigs)
+    GFA2FA_ONT(HIFIASM_ONT.out.primary_contigs)
 
     BGZIP_ONT(GFA2FA_ONT.out.fasta)
 
     // Flye:
     flye_assemblies = BGZIP_FLYE_ONT.out.bgzipped
-        .filter {
-            meta, _fasta -> meta.strategy != "scaffold"
+        .filter { meta, _fasta ->
+            meta.strategy != "scaffold"
         }
-        .map { meta_old, assembly -> [meta: meta_old + [ assembly: assembly ] ] }
+        .map { meta_old, assembly -> [meta: meta_old + [assembly: assembly]] }
         .mix(
-            BGZIP_FLYE_HIFI.out.bgzipped
-                .filter {
-                    meta, _fasta -> meta.strategy != "scaffold"
-                }
-                .map { meta_old, assembly -> [meta: meta_old + [ assembly: assembly ] ] }
+            BGZIP_FLYE_HIFI.out.bgzipped.filter { meta, _fasta ->
+                meta.strategy != "scaffold"
+            }.map { meta_old, assembly -> [meta: meta_old + [assembly: assembly]] }
         )
 
     flye_assemblies.dump(tag: "Assemble: Flye assemblies")
@@ -253,13 +206,9 @@ workflow ASSEMBLE {
     hifiasm_hifi_assemblies = BGZIP_HIFI.out.bgzipped
         .filter { it -> it[0].strategy != "scaffold" }
         .map { meta_old, assembly ->
-        [
-            meta: meta_old +
-            // stick assembly into the correct key
-            [
-                assembly: (meta_old.strategy == "single" && meta_old.assembler_hifi == "hifiasm")  || (meta_old.strategy == "hybrid" && meta_old.assembler_ont == "hifiasm") ? assembly : null,
-            ]
-        ]
+            [meta: meta_old + [
+                assembly: (meta_old.strategy == "single" && meta_old.assembler_hifi == "hifiasm") || (meta_old.strategy == "hybrid" && meta_old.assembler_ont == "hifiasm") ? assembly : null
+            ]]
         }
 
     hifiasm_hifi_assemblies.dump(tag: "Assemble: hifiasm HIFI assemblies")
@@ -267,12 +216,7 @@ workflow ASSEMBLE {
     hifiasm_ont_assemblies = BGZIP_ONT.out.bgzipped
         .filter { meta, _fasta -> meta.strategy != "scaffold" }
         .map { meta, assembly ->
-            [
-                meta: meta +
-                [
-                    assembly: assembly
-                ]
-            ]
+            [meta: meta + [assembly: assembly]]
         }
 
     hifiasm_ont_assemblies.dump(tag: "Assemble: hifiasm ONT assemblies")
@@ -302,130 +246,70 @@ workflow ASSEMBLE {
     // The above is (ONT-HIFI)
 
     scaffold_flye_hifiasm = BGZIP_FLYE_ONT.out.bgzipped
-        // Flye-hifiasm
         .filter { meta, _fasta ->
-            meta.strategy == "scaffold" &&
-            meta.assembler_ont == "flye" &&
-            meta.assembler_hifi == "hifiasm"
+            meta.strategy == "scaffold" && meta.assembler_ont == "flye" && meta.assembler_hifi == "hifiasm"
         }
         .map { meta, fasta -> [meta.id, meta, fasta] }
         .join(
-            BGZIP_HIFI.out.bgzipped
-                .filter { meta, _fasta ->
-                    meta.strategy == "scaffold" &&
-                    meta.assembler_ont == "flye" &&
-                    meta.assembler_hifi == "hifiasm"
-                }
-                .map { meta, fasta -> [ meta.id, fasta ] }
+            BGZIP_HIFI.out.bgzipped.filter { meta, _fasta ->
+                meta.strategy == "scaffold" && meta.assembler_ont == "flye" && meta.assembler_hifi == "hifiasm"
+            }.map { meta, fasta -> [meta.id, fasta] }
         )
         .map { _id, meta_old, assembly_flye, assembly_hifiasm ->
-            [
-                meta: meta_old -
-                        meta_old.subMap("hifiasm_assembly", "assembly_hifi", "assembly_ont", "flye_assembly") +
-                        [
-                            assembly_ont: assembly_flye,
-                            assembly_hifi: assembly_hifiasm
-                        ]
-            ]
+            [meta: meta_old - meta_old.subMap("hifiasm_assembly", "assembly_hifi", "assembly_ont", "flye_assembly") + [assembly_ont: assembly_flye, assembly_hifi: assembly_hifiasm]]
         }
 
     // flye-flye
     scaffold_flye_flye = BGZIP_FLYE_ONT.out.bgzipped
-        .filter {
-            meta, _fasta -> meta.strategy == "scaffold" && meta.assembler_ont == "flye" && meta.assembler_hifi == "flye"
+        .filter { meta, _fasta ->
+            meta.strategy == "scaffold" && meta.assembler_ont == "flye" && meta.assembler_hifi == "flye"
         }
-        .map {
-            meta, fasta -> [meta.id, meta, fasta] // id, meta, ont assembly
+        .map { meta, fasta ->
+            [meta.id, meta, fasta]
         }
         .join(
-            BGZIP_FLYE_HIFI.out.bgzipped
-                .filter {
-                    meta, _fasta -> meta.strategy == "scaffold" && meta.assembler_ont == "flye" && meta.assembler_hifi == "flye"
-                }
-                .map {
-                    meta, fasta -> [ meta.id, fasta ] // id, hifi assembly
-                },
+            BGZIP_FLYE_HIFI.out.bgzipped.filter { meta, _fasta ->
+                meta.strategy == "scaffold" && meta.assembler_ont == "flye" && meta.assembler_hifi == "flye"
+            }.map { meta, fasta ->
+                [meta.id, fasta]
+            }
         )
         .map { _id, meta, ont_assembly, hifi_assembly ->
-            [
-                meta: meta +
-                [
-                    assembly_ont: ont_assembly,
-                    assembly_hifi: hifi_assembly
-                ]
-            ]
+            [meta: meta + [assembly_ont: ont_assembly, assembly_hifi: hifi_assembly]]
         }
 
     // hifiasm_flye
     scaffold_hifiasm_flye = BGZIP_ONT.out.bgzipped
-        .filter {
-            meta, _assembly -> meta.strategy == "scaffold" &&
-                meta.assembler_ont == "hifiasm" &&
-                meta.assembler_hifi == "flye"
+        .filter { meta, _assembly ->
+            meta.strategy == "scaffold" && meta.assembler_ont == "hifiasm" && meta.assembler_hifi == "flye"
         }
-        .map {
-            meta, assembly ->
-            [
-                meta.id,
-                meta,
-                assembly
-            ]
+        .map { meta, assembly ->
+            [meta.id, meta, assembly]
         }
         .join(
-            BGZIP_FLYE_HIFI.out.bgzipped
-                .filter{ meta, _fasta -> meta.strategy == "scaffold" && meta.assembler_ont == "hifiasm" && meta.assembler_hifi == "flye" }
-                .map { meta, fasta -> [ meta.id, fasta ] }
+            BGZIP_FLYE_HIFI.out.bgzipped.filter { meta, _fasta -> meta.strategy == "scaffold" && meta.assembler_ont == "hifiasm" && meta.assembler_hifi == "flye" }.map { meta, fasta -> [meta.id, fasta] }
         )
-        .map {
-            _id, meta, hifiasm_ont_assembly, flye_hifi_assembly ->
-            [
-                meta: meta +
-                    [
-                        assembly_ont: hifiasm_ont_assembly,
-                        assembly_hifi: flye_hifi_assembly
-                    ]
-            ]
+        .map { _id, meta, hifiasm_ont_assembly, flye_hifi_assembly ->
+            [meta: meta + [assembly_ont: hifiasm_ont_assembly, assembly_hifi: flye_hifi_assembly]]
         }
 
     // hifiasm_hifiasm
     scaffold_hifiasm_hifiasm = BGZIP_ONT.out.bgzipped
-        .filter {
-            meta, _assembly -> meta.strategy == "scaffold" &&
-                meta.assembler_ont == "hifiasm" &&
-                meta.assembler_hifi == "hifiasm"
+        .filter { meta, _assembly ->
+            meta.strategy == "scaffold" && meta.assembler_ont == "hifiasm" && meta.assembler_hifi == "hifiasm"
         }
-        .map {
-            meta, assembly ->
-            [
-                meta.id,
-                meta,
-                assembly
-            ]
+        .map { meta, assembly ->
+            [meta.id, meta, assembly]
         }
         .join(
-            BGZIP_HIFI.out.bgzipped
-                .filter {
-                    meta, _assembly -> meta.strategy == "scaffold" &&
-                        meta.assembler_ont == "hifiasm" &&
-                        meta.assembler_hifi == "hifiasm"
-                }
-                .map {
-                    meta, assembly ->
-                    [
-                        meta.id,
-                        assembly
-                    ]
-                }
+            BGZIP_HIFI.out.bgzipped.filter { meta, _assembly ->
+                meta.strategy == "scaffold" && meta.assembler_ont == "hifiasm" && meta.assembler_hifi == "hifiasm"
+            }.map { meta, assembly ->
+                [meta.id, assembly]
+            }
         )
-        .map {
-            _id, meta, assembly_ont, assembly_hifi ->
-            [
-                meta: meta +
-                    [
-                        assembly_ont: assembly_ont,
-                        assembly_hifi: assembly_hifi
-                    ]
-            ]
+        .map { _id, meta, assembly_ont, assembly_hifi ->
+            [meta: meta + [assembly_ont: assembly_ont, assembly_hifi: assembly_hifi]]
         }
 
     // branch to scaffold those assemblies that need it
@@ -440,118 +324,89 @@ workflow ASSEMBLE {
     // For scaffolding, depeding on which strategy used, the correct assembly needs to go into either target or query:
     // assembly_ont is always ONT, assembly_hifi is always HiFi
 
-    ragtag_in = ch_to_scaffold
-        .multiMap {
-            it ->
-            target: [
-                it.meta,
-                it.meta.assembly_scaffolding_order == "ont_on_hifi" ? (it.meta.assembly_ont) : (it.meta.assembly_hifi)
-                ]
-            query: [
-                it.meta,
-                it.meta.assembly_scaffolding_order == "ont_on_hifi" ? (it.meta.assembly_hifi) : (it.meta.assembly_ont)
-                ]
-        }
+    ragtag_in = ch_to_scaffold.multiMap { it ->
+        target: [it.meta, it.meta.assembly_scaffolding_order == "ont_on_hifi" ? it.meta.assembly_ont : it.meta.assembly_hifi]
+        query: [it.meta, it.meta.assembly_scaffolding_order == "ont_on_hifi" ? it.meta.assembly_hifi : it.meta.assembly_ont]
+    }
 
     ragtag_in.target.dump(tag: "ASSEMBLE: SCAFFOLD: RAGTAG_PATCH INPUT: TARGET")
-    ragtag_in.query.dump( tag: "ASSEMBLE: SCAFFOLD: RAGTAG_PATCH INPUT: QUERY")
+    ragtag_in.query.dump(tag: "ASSEMBLE: SCAFFOLD: RAGTAG_PATCH INPUT: QUERY")
     // Scaffold with PATCH
-    RAGTAG_PATCH(ragtag_in.target, ragtag_in.query, [[], []], [[], []] )
+    RAGTAG_PATCH(ragtag_in.target, ragtag_in.query, [[], []], [[], []])
 
     BGZIP_RAGTAG(RAGTAG_PATCH.out.patch_fasta)
     // Update meta
-    ch_assemblies_scaffold = BGZIP_RAGTAG.out.bgzipped
-        .map { meta, patched -> [meta: meta + [assembly: patched] ] }
+    ch_assemblies_scaffold = BGZIP_RAGTAG.out.bgzipped.map { meta, patched -> [meta: meta + [assembly: patched]] }
 
     ch_assemblies_scaffold.dump(tag: "Assemble: Assemblies with scaffolding - outputs")
 
     // Mix everything assembled back togehter
-    ch_main_assembled = ch_assemblies_no_scaffold
-        .mix(ch_assemblies_scaffold)
+    ch_main_assembled = ch_assemblies_no_scaffold.mix(ch_assemblies_scaffold)
 
     ch_main_assembled.dump(tag: "Assemble: Assembled")
 
     // Mix with whatever was not destined for assembly
-    ch_main_to_mapping = ch_main_branched
-        .no_assemble
-        .mix( ch_main_assembled )
+    ch_main_to_mapping = ch_main_branched.no_assemble.mix(ch_main_assembled)
 
     ch_main_to_mapping.dump(tag: "Assemble: TO MAPPING")
 
     // QUAST is the only QC tool that requires mapping
     // Note that this channel is set here but only the quast branch is further used
-    ch_main_quast_branch = ch_main_to_mapping
-        .branch {
-            it ->
-            quast: it.meta.quast
-            no_quast: !it.meta.quast
-        }
+    ch_main_quast_branch = ch_main_to_mapping.branch { it ->
+        quast: it.meta.quast
+        no_quast: !it.meta.quast
+    }
 
 
     // If QUAST should run, and we need an alignment to reference, this is created here
-    ch_quast_branched = ch_main_quast_branch
-        .quast
-        .branch {
-            it ->
-                use_ref: it.meta.use_ref
-                no_use_ref: !it.meta.use_ref
-        }
+    ch_quast_branched = ch_main_quast_branch.quast.branch { it ->
+        use_ref: it.meta.use_ref
+        no_use_ref: !it.meta.use_ref
+    }
 
     // Alignment is actually only created if no bam file is provided
-    ch_ref_mapping_branched = ch_quast_branched
-        .use_ref
-        .branch { it ->
-            to_map: !it.meta.ref_map_bam
-            dont_map: it.meta.ref_map_bam
-        }
+    ch_ref_mapping_branched = ch_quast_branched.use_ref.branch { it ->
+        to_map: !it.meta.ref_map_bam
+        dont_map: it.meta.ref_map_bam
+    }
 
     // Use the QC reads and map them to ref
-    map_to_ref_in = ch_ref_mapping_branched
-        .to_map
-        .map {
-            it ->
-            [ it.meta, it.meta.qc_reads_path, it.meta.ref_fasta ]
-        }
+    map_to_ref_in = ch_ref_mapping_branched.to_map.map { it ->
+        [it.meta, it.meta.qc_reads_path, it.meta.ref_fasta]
+    }
 
     MAP_TO_REF(map_to_ref_in)
 
     // Add the ref mapping to the large main channel
     ch_main_to_qc = MAP_TO_REF.out.ch_aln_to_ref_bam
-        .map { meta, bam -> [ meta: meta + [ref_map_bam: bam] ] }
+        .map { meta, bam -> [meta: meta + [ref_map_bam: bam]] }
         .mix(ch_ref_mapping_branched.dont_map)
         .mix(ch_quast_branched.no_use_ref)
-        // above recreates ch_main_quast_branch.quast
         .mix(ch_main_quast_branch.no_quast)
 
     ch_main_to_qc.dump(tag: "ASSEMBLE: QC INPUT")
     //QC on initial assembly
 
     // scaffolds to QC need to be defined here, this is what is in the assembly slot
-    scaffolds = ch_main_to_qc
-        .map { it -> [createHaplotypeKey(it.meta), it.meta.assembly] }
+    scaffolds = ch_main_to_qc.map { it -> [createHaplotypeKey(it.meta), it.meta.assembly] }
 
     QC(ch_main_to_qc, scaffolds, meryl_kmers)
 
     // If annotation liftover on the initial assembly is desired, it happens here.
     liftoff_in = ch_main_to_qc
-        .filter {
-            it -> it.meta.lift_annotations
+        .filter { it ->
+            it.meta.lift_annotations
         }
         .map { it ->
-            [
-                it.meta,
-                it.meta.assembly,
-                it.meta.ref_fasta,
-                it.meta.ref_gff
-            ]
+            [it.meta, it.meta.assembly, it.meta.ref_fasta, it.meta.ref_gff]
         }
 
     liftoff_in.dump(tag: "ASSEMBLE: LIFTOFF: INPUT")
     LIFTOFF(liftoff_in, [])
 
     emit:
-    ch_main                     = ch_main_to_qc
-    assembly_quast_reports      = QC.out.quast_out
-    assembly_busco_reports      = QC.out.busco_out
-    assembly_merqury_reports    = QC.out.merqury_report_files
+    ch_main = ch_main_to_qc
+    assembly_quast_reports = QC.out.quast_out
+    assembly_busco_reports = QC.out.busco_out
+    assembly_merqury_reports = QC.out.merqury_report_files
 }

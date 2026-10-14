@@ -6,7 +6,7 @@ process DORADO_POLISH {
 
     input:
     tuple val(meta), path(assembly), path(alignment), path(index)
-    val(variant_call_format)
+    val variant_call_format
 
     output:
     tuple val(meta), path("*_dorado_polished.fa.gz"), emit: polished_alignment, optional: true
@@ -19,7 +19,7 @@ process DORADO_POLISH {
     script:
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
-    def variants = ["vcf","gvcf"].contains(variant_call_format) ? "--${variant_call_format}" : ""
+    def variants = ["vcf", "gvcf"].contains(variant_call_format) ? "--${variant_call_format}" : ""
     def outfile = variants ? "> ${prefix}_dorado_polished.${variants}" : "| bgzip > ${prefix}_dorado_polished.fa.gz"
     """
     dorado polish \\
@@ -33,7 +33,7 @@ process DORADO_POLISH {
 
     stub:
     def prefix = task.ext.prefix ?: "${meta.id}"
-    def variants = ["vcf","gvcf"].contains(variant_call_format) ? "--${variant_call_format}" : ""
+    def variants = ["vcf", "gvcf"].contains(variant_call_format) ? "--${variant_call_format}" : ""
     def outfile = variants ? "touch ${prefix}_dorado_polished.${variants}" : "echo '' | bgzip > ${prefix}_dorado_polished.fa.gz"
     """
     ${outfile}

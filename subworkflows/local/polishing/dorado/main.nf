@@ -11,14 +11,13 @@ workflow POLISH_DORADO {
 
     main:
 
-    ch_aln_in = ch_main
-        .map { it -> [it.meta, it.meta.assembly, it.meta.ontreads] }
+    ch_aln_in = ch_main.map { it -> [it.meta, it.meta.assembly, it.meta.ontreads] }
 
     ALIGN(ch_aln_in)
 
     ch_polish_in = ALIGN.out.bam
         .join(ALIGN.out.bai)
-        .map {meta, bam, bai-> [ meta, meta.assembly, bam, bai ] }
+        .map { meta, bam, bai -> [meta, meta.assembly, bam, bai] }
 
     POLISH(ch_polish_in, [])
 
@@ -27,33 +26,27 @@ workflow POLISH_DORADO {
 
     // Scaffold selection, export and haplotype collection all consume polished.dorado.
     // Adding it to a fresh map retains earlier stages without shared-map mutation.
-    ch_main_out = polished_assembly
-        .map { meta, polished_dorado -> [meta: meta + [ polished: (meta.polished ?: [:]) + [dorado: polished_dorado] ] ]}
+    ch_main_out = polished_assembly.map { meta, polished_dorado -> [meta: meta + [polished: (meta.polished ?: [:]) + [dorado: polished_dorado]]] }
 
     QC(
-        ch_main_out.map { it -> [meta: it.meta - it.meta.subMap("assembly_map_bam") + [ assembly_map_bam: null] ] },
+        ch_main_out.map { it -> [meta: it.meta - it.meta.subMap("assembly_map_bam") + [assembly_map_bam: null]] },
         polished_assembly.map { meta, polished -> [createHaplotypeKey(meta), polished] },
-        meryl_kmers
+        meryl_kmers,
     )
 
     liftoff_in = ch_main_out
-        .filter {
-            it -> it.meta.lift_annotations
+        .filter { it ->
+            it.meta.lift_annotations
         }
         .map { it ->
-                [
-                it.meta,
-                it.meta.polished.dorado,
-                it.meta.ref_fasta,
-                it.meta.ref_gff
-                ]
+            [it.meta, it.meta.polished.dorado, it.meta.ref_fasta, it.meta.ref_gff]
         }
 
     LIFTOFF(liftoff_in, [])
 
     emit:
-    ch_main                 = ch_main_out
-    quast_out               = QC.out.quast_out
-    busco_out               = QC.out.busco_out
-    merqury_report_files    = QC.out.merqury_report_files
+    ch_main = ch_main_out
+    quast_out = QC.out.quast_out
+    busco_out = QC.out.busco_out
+    merqury_report_files = QC.out.merqury_report_files
 }
