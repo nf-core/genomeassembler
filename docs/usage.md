@@ -361,8 +361,9 @@ Each haplotype follows the existing QC, polishing and scaffolding settings and
 receives its own genomeqc manifest rows. `scaffold_hic` independently enables
 YaHS scaffolding for both haplotypes. Merqury shares the original sample's read
 k-mer database between its haplotypes; this does not measure switch errors or
-parental phase accuracy. Reports display `individual_hap1` and `individual_hap2`,
-while retaining their original sample ID and group for read-level reports.
+parental phase accuracy. Reports display `individual_hap1` and `individual_hap2` in the detailed QC sections.
+The sample overview compares their QC statistics side by side for each assembly
+stage. Read-level reports retain the original sample ID and group.
 
 Because aggregate reports stage assembly outputs together, sample names must
 not collide with another sample's haplotype filename prefix (for example,

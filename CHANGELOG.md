@@ -10,6 +10,7 @@ codenamegenerator.com stopped working. Codenames from now on will be song titles
 ### `Added`
 
 - [#249](https://github.com/nf-core/genomeassembler/pull/249) Retain both Hi-C-phased haplotypes under the original sample ID, with haplotype-aware QC, polishing, scaffolding and output naming.
+- Add a sample overview with side-by-side haplotype QC comparisons while retaining detailed haplotype results (#249, @molikd).
 
 - [#252](https://github.com/nf-core/genomeassembler/pull/252) Added `AGENTS.md`
 

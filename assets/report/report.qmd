@@ -93,6 +93,78 @@ These may include:
     - [merqury](https://github.com/marbl/merqury): k-mer spectrum based analysis of genomes, completeness, quality and ploidy
     - [genomescope](https://github.com/schatzlab/genomescope): genome analysis from unassembled reads
 
+```{r prepare quast}
+#| eval: !expr params$quast
+#| include: false
+#| warning: false
+#| message: false
+source("scripts/_quast.R")
+```
+
+```{r busco data}
+#| eval: !expr params$busco
+#| warning: false
+#| message: false
+#| echo: false
+source("scripts/_busco.R")
+```
+
+```{r}
+#| eval: !expr params$merqury
+#| include: false
+#| message: false
+#| output: false
+
+source("scripts/_merqury.R")
+```
+
+# Sample overview
+
+Each original sample appears once in the overview. Phased assemblies retain separate
+haplotype results in the detailed assembly QC sections. Read QC is shared by the
+original sample.
+
+```{r sample inventory}
+#| echo: false
+#| results: asis
+
+groups |>
+  group_by(sample_id, group) |>
+  summarise(Assemblies = paste(sort(unique(sample)), collapse = ", "), .groups = "drop") |>
+  rename(Sample = sample_id, Group = group) |>
+  gt::gt() |>
+  gt::as_raw_html()
+```
+
+## Haplotype comparison
+
+The comparison places the available assembly QC results side by side for each
+sample and assembly stage. Each haplotype keeps its own statistics. Missing values
+indicate that a result was not available for that haplotype and stage.
+
+```{r sample assembly comparison}
+#| echo: false
+#| results: asis
+
+assembly_overview <- sample_overview(
+  groups,
+  quast = if (params$quast) quast_stats else NULL,
+  busco = if (params$busco) busco_reports else NULL,
+  merqury = if (params$merqury) merqury_qv else NULL
+)
+if (nrow(assembly_overview) > 0) {
+  assembly_overview |>
+    rename(Sample = sample_id, Stage = stage, Tool = tool, Metric = metric) |>
+    gt::gt(groupname_col = "Sample") |>
+    gt::fmt_number(columns = where(is.numeric), decimals = 2, drop_trailing_zeros = TRUE) |>
+    gt::sub_missing(missing_text = "Not available") |>
+    gt::as_raw_html() |>
+    cat()
+} else {
+  cat("No QUAST, BUSCO or Merqury assembly statistics were included in this run.\n")
+}
+```
+
 # Reads
 
 ## fastplong {.tabset}
@@ -153,13 +225,6 @@ QUAST was not included in the pipeline run.
 
 QUAST reports assembly statistics, taking into account the reference, if provided.
 
-```{r prepare quast, message = F, warning = F}
-#| eval: !expr params$quast
-#| include: false
-#| warning: false
-# This script prepares things required to render the page
-source("scripts/_quast.R")
-```
 
 :::: {.panel-tabset .flow}
 
@@ -196,14 +261,6 @@ BUSCO was not included in the pipeline run.
 
 BUSCO assess assembly quality based on the presence / absence of expected single-copy orthologs.
 
-```{r busco data, message = F, warning = F}
-#| eval: !expr params$busco
-#| warning: false
-#| message: false
-#| echo: false
-# Parse the reports from busco
-source("scripts/_busco.R")
-```
 
 :::: {.panel-tabset .flow}
 
@@ -236,14 +293,6 @@ write_csv(busco_reports,"busco_files/reports.csv")
 meryl and merqury were not included in the pipeline run.
 :::
 
-```{r}
-#| eval: !expr params$merqury
-#| include: false
-#| message: false
-#| output: false
-
-source("scripts/_merqury.R")
-```
 
 ::: {.content-visible when-profile="merqury"}
 

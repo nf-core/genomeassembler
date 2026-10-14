@@ -353,3 +353,7 @@ output directory. For sample `individual`, the initial assemblies are
 `individual/assembly/hifiasm/individual_hap2.fa.gz`. QC, polishing and scaffolding
 filenames also include `_hap1` or `_hap2`. The genomeqc samplesheet lists each
 retained haplotype and stage separately.
+
+### Phased sample overview
+
+The HTML report lists each original sample once and compares its haplotype QC results side by side for each assembly stage. The detailed QC sections retain separate haplotype plots. QUAST, BUSCO and Merqury statistics remain specific to each haplotype; the report does not pool or average them. Read QC remains attached to the original sample.

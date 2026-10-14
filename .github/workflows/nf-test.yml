@@ -25,6 +25,18 @@ env:
   NXF_SINGULARITY_LIBRARYDIR: ${{ github.workspace }}/.singularity
 
 jobs:
+  report-overview:
+    name: Haplotype report overview
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - name: Check sample and haplotype QC comparisons
+        run: >-
+          docker run --rm
+          -v "${{ github.workspace }}:/workspace" -w /workspace
+          community.wave.seqera.io/library/ca-certificates_quarto_r-gt_r-plotly_pruned:833048f01b6491fc
+          Rscript tests/phasing_report_overview.R
+
   nf-test-changes:
     name: nf-test-changes
     runs-on: "ubuntu-latest"
