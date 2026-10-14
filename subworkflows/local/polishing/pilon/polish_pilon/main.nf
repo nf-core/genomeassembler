@@ -1,4 +1,4 @@
-include { assemblyKey } from '../../../assembly_haplotypes/main'
+include { createHaplotypeKey } from '../../../assembly_haplotypes/main'
 include { PILON } from '../../../../../modules/nf-core/pilon/main'
 include { MAP_SR } from '../../../mapping/map_sr/main'
 include { LIFTOFF } from '../../../../../modules/nf-core/liftoff/main'
@@ -63,7 +63,7 @@ workflow POLISH_PILON {
         .map { meta, polished_pilon -> [ meta: meta + [ polished: (meta.polished ?: [:]) + [pilon: polished_pilon] ] ]  }
 
     QC(ch_main.map { it -> [meta: it.meta - it.meta.subMap("assembly_map_bam") + [assembly_map_bam: null] ]},
-        pilon_polished.map {meta, polished -> [assemblyKey(meta), polished ]},
+        pilon_polished.map {meta, polished -> [createHaplotypeKey(meta), polished ]},
         meryl_kmers)
 
     liftoff_in = ch_main

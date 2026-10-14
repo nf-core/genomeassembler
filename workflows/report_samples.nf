@@ -1,4 +1,4 @@
-include { assemblyPrefix } from '../subworkflows/local/assembly_haplotypes/main'
+include { createHaplotypePrefix } from '../subworkflows/local/assembly_haplotypes/main'
 // Multiple scaffold outputs can belong to the same sample or haplotype.
 workflow REPORT_SAMPLES {
     take:
@@ -6,7 +6,7 @@ workflow REPORT_SAMPLES {
 
     main:
     groups = assemblies
-        .map { row -> [sample: [id: assemblyPrefix(row.meta), sample_id: row.meta.id, haplotype: row.meta.haplotype ?: null, group: row.meta.group]] }
+        .map { row -> [sample: [id: createHaplotypePrefix(row.meta), sample_id: row.meta.id, haplotype: row.meta.haplotype ?: null, group: row.meta.group]] }
         .unique { row -> [row.sample.sample_id, row.sample.haplotype] }
         .collect()
 

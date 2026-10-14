@@ -1,4 +1,4 @@
-include { assemblyKey } from '../assembly_haplotypes/main'
+include { createHaplotypeKey } from '../assembly_haplotypes/main'
 include { MAP_TO_ASSEMBLY } from '../mapping/map_to_assembly/main'
 include { QUAST } from '../../../modules/nf-core/quast/main'
 include { BUSCO_BUSCO as BUSCO } from '../../../modules/nf-core/busco/busco/main'
@@ -25,7 +25,7 @@ workflow QC {
     merqury_in = ch_shortread_branched
         .shortread
         .filter { it -> it.meta.merqury }
-        .map { it -> [assemblyKey(it.meta), it.meta] }
+        .map { it -> [createHaplotypeKey(it.meta), it.meta] }
         .join(scaffolds)
         // One read database is shared by both haplotypes of the source sample.
         .map { _key, meta, scaffs -> [meta.id, meta, scaffs] }
@@ -48,7 +48,7 @@ workflow QC {
     map_assembly_in = ch_map_branched
         .map_to_assembly
         .map {
-            it -> [ assemblyKey(it.meta), it.meta ]
+            it -> [ createHaplotypeKey(it.meta), it.meta ]
         }
         .join(scaffolds)
         .map {
@@ -72,7 +72,7 @@ workflow QC {
         .mix(
             ch_map_branched.no_map_to_assembly
                 .map {
-                    it -> [ assemblyKey(it.meta), it.meta ]
+                    it -> [ createHaplotypeKey(it.meta), it.meta ]
                 }
                 .join(scaffolds)
                 .map {

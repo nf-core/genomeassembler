@@ -1,4 +1,4 @@
-include { COLLATE_HAPLOTYPES; expandHaplotypes; assemblyPrefix } from '../subworkflows/local/assembly_haplotypes/main'
+include { COLLATE_HAPLOTYPES; createHaplotypePrefix } from '../subworkflows/local/assembly_haplotypes/main'
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     IMPORT MODULES / SUBWORKFLOWS / FUNCTIONS
@@ -76,7 +76,7 @@ workflow GENOMEASSEMBLER {
 
     ASSEMBLE(ch_main_prepared, meryl_kmers)
 
-    ch_main_assembled = ASSEMBLE.out.ch_main.flatMap { row -> expandHaplotypes(row) }
+    ch_main_assembled = ASSEMBLE.out.ch_main
 
     /*
     Polishing
@@ -260,14 +260,14 @@ workflow GENOMEASSEMBLER {
 
                 // A list of ids, stage, files (in work), the candidate output folder
                 [
-                [ assemblyPrefix(meta), meta.id, 'scaffold_ragtag', meta.scaffolds ? meta.scaffolds.ragtag ?: null : null,           'scaffold/ragtag'     ],
-                [ assemblyPrefix(meta), meta.id, 'scaffold_hic' , meta.scaffolds ? meta.scaffolds.hic ?: null : null,              'scaffold/hic/yahs'   ],
-                [ assemblyPrefix(meta), meta.id, 'scaffold_longstitch', meta.scaffolds ? meta.scaffolds.longstitch ?: null : null,       'scaffold/longstitch' ],
-                [ assemblyPrefix(meta), meta.id, 'scaffold_links', meta.scaffolds ? meta.scaffolds.links ?: null : null,            'scaffold/links'      ],
-                [ assemblyPrefix(meta), meta.id, 'polish_pilon', meta.polished ? meta.polished.pilon ?: null : null,            'polish/pilon'        ],
-                [ assemblyPrefix(meta), meta.id, 'polish_medaka', meta.polished ? meta.polished.medaka ?: null : null,           'polish/medaka'       ],
-                [ assemblyPrefix(meta), meta.id, 'polish_dorado', meta.polished ? meta.polished.dorado ?: null : null,           'polish/dorado'       ],
-                [ assemblyPrefix(meta), meta.id, 'initial_assembly', meta.assembly, subout
+                [ createHaplotypePrefix(meta), meta.id, 'scaffold_ragtag', meta.scaffolds ? meta.scaffolds.ragtag ?: null : null,           'scaffold/ragtag'     ],
+                [ createHaplotypePrefix(meta), meta.id, 'scaffold_hic' , meta.scaffolds ? meta.scaffolds.hic ?: null : null,              'scaffold/hic/yahs'   ],
+                [ createHaplotypePrefix(meta), meta.id, 'scaffold_longstitch', meta.scaffolds ? meta.scaffolds.longstitch ?: null : null,       'scaffold/longstitch' ],
+                [ createHaplotypePrefix(meta), meta.id, 'scaffold_links', meta.scaffolds ? meta.scaffolds.links ?: null : null,            'scaffold/links'      ],
+                [ createHaplotypePrefix(meta), meta.id, 'polish_pilon', meta.polished ? meta.polished.pilon ?: null : null,            'polish/pilon'        ],
+                [ createHaplotypePrefix(meta), meta.id, 'polish_medaka', meta.polished ? meta.polished.medaka ?: null : null,           'polish/medaka'       ],
+                [ createHaplotypePrefix(meta), meta.id, 'polish_dorado', meta.polished ? meta.polished.dorado ?: null : null,           'polish/dorado'       ],
+                [ createHaplotypePrefix(meta), meta.id, 'initial_assembly', meta.assembly, subout
                 ]
                 ]
         }

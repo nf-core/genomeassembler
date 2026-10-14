@@ -342,8 +342,10 @@ avoid output-changing arguments such as `--primary`.
 The workflow stages each sample's HiFi reads and Hi-C pair together, invokes
 hifiasm's `--h1` and `--h2` mode, and converts both phased GFA outputs to FASTA.
 The original hifiasm graphs and logs are published under the source sample.
-The sample keeps its original `meta.id`. Both compressed assemblies are stored
-in `meta.haplotypes`, keyed by `hap1` and `hap2`. Steps that process one assembly
+The sample keeps its original `meta.id`. Final sample metadata stores both compressed initial assemblies
+in `meta.haplotypes`, keyed by `hap1` and `hap2`. Haplotype task records remain
+separate during assembly, QC, polishing and scaffolding and are collected only
+at the final workflow output. Steps that process one assembly
 at a time use `meta.haplotype` to distinguish them without changing the sample ID.
 Per-haplotype polishing and scaffolding outputs are retained in
 `meta.haplotype_results` under the matching haplotype key. Parallel stage records

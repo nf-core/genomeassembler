@@ -137,7 +137,13 @@ workflow PREPARE_SHORTREADS {
         .mix(
             prepared_shortreads
                 .filter { row -> !(row.meta.hic_trim && row.meta.scaffold_hic) }
-                .map { it-> [meta: it.meta - it.meta.subMap("hic_reads") + [hic_reads: null]]}
+                .map { row ->
+                    // Scaffolding uses raw reads when trimming is disabled. Keep
+                    // phasing_reads independent; they always refer to raw inputs.
+                    row.meta.scaffold_hic
+                        ? create_hic_shortread_channel(row.meta)
+                        : [meta: row.meta - row.meta.subMap("hic_reads") + [hic_reads: null]]
+                }
         )
 
     meryl_in = shortreads
