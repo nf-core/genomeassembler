@@ -4,26 +4,25 @@ include { COLLATE_HAPLOTYPES ; createHaplotypePrefix } from '../subworkflows/loc
     IMPORT MODULES / SUBWORKFLOWS / FUNCTIONS
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
-include { paramsSummaryMap } from 'plugin/nf-schema'
-include { paramsSummaryMultiqc } from '../subworkflows/nf-core/utils_nfcore_pipeline'
-include { softwareVersionsToYAML } from '../subworkflows/nf-core/utils_nfcore_pipeline'
-include { methodsDescriptionText } from '../subworkflows/local/utils_nfcore_genomeassembler_pipeline'
+include { paramsSummaryMap          } from 'plugin/nf-schema'
+include { paramsSummaryMultiqc      } from '../subworkflows/nf-core/utils_nfcore_pipeline'
+include { softwareVersionsToYAML    } from '../subworkflows/nf-core/utils_nfcore_pipeline'
+include { methodsDescriptionText    } from '../subworkflows/local/utils_nfcore_genomeassembler_pipeline'
 
 // Read preparation
-include { PREPARE } from '../subworkflows/local/prepare/main'
+include { PREPARE                   } from '../subworkflows/local/prepare/main'
 
 // Assembly
-include { ASSEMBLE } from '../subworkflows/local/assemble/main'
+include { ASSEMBLE                  } from '../subworkflows/local/assemble/main'
 
 // Polishing
-include { POLISH } from '../subworkflows/local/polishing/main'
+include { POLISH                    } from '../subworkflows/local/polishing/main'
 
 // Scaffolding
-include { SCAFFOLD } from '../subworkflows/local/scaffold/main'
+include { SCAFFOLD                  } from '../subworkflows/local/scaffold/main'
 
 // reporting
-include { REPORT_SAMPLES } from './report_samples'
-include { REPORT } from '../modules/local/report/main'
+include { REPORT                    } from '../modules/local/report/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -81,21 +80,25 @@ workflow GENOMEASSEMBLER {
     /*
     Polishing
     */
-    ch_main_assembled_branched = ch_main_assembled.branch { it ->
-        def polishers = ["pilon", "medaka", "medaka+pilon", "dorado", "dorado+pilon"]
-        polish: polishers.contains(it.meta.polish)
-        no_polish: true
-    }
+    ch_main_assembled_branched = ch_main_assembled
+        .branch {
+            it ->
+            def polishers = ["pilon", "medaka", "medaka+pilon", "dorado", "dorado+pilon"]
+            polish:     polishers.contains(it.meta.polish)
+            no_polish:  true
+        }
 
     POLISH(ch_main_assembled_branched.polish, meryl_kmers)
 
-    ch_main_polished = ch_main_assembled_branched.no_polish.mix(POLISH.out.ch_main)
+    ch_main_polished = ch_main_assembled_branched.no_polish
+        .mix(POLISH.out.ch_main)
     // Update scaffold for meta map
 
-    ch_main_polished_branched = ch_main_polished.branch { it ->
-        scaffold: it.meta.scaffold_links || it.meta.scaffold_longstitch || it.meta.scaffold_ragtag || it.meta.scaffold_hic
-        no_scaffold: !it.meta.scaffold_links && !it.meta.scaffold_longstitch && !it.meta.scaffold_ragtag && !it.meta.scaffold_hic
-    }
+    ch_main_polished_branched = ch_main_polished
+        .branch { it ->
+            scaffold: it.meta.scaffold_links || it.meta.scaffold_longstitch || it.meta.scaffold_ragtag || it.meta.scaffold_hic
+            no_scaffold: !it.meta.scaffold_links && !it.meta.scaffold_longstitch && !it.meta.scaffold_ragtag && !it.meta.scaffold_hic
+        }
 
     /*
     Scaffolding
@@ -104,7 +107,9 @@ workflow GENOMEASSEMBLER {
 
     // Recreate ch_main, even though it is not used since there are no later steps.
 
-    ch_main_scaffolded = ch_main_polished_branched.no_scaffold.mix(SCAFFOLD.out.ch_main)
+    ch_main_scaffolded = ch_main_polished_branched
+        .no_scaffold
+        .mix(SCAFFOLD.out.ch_main)
 
     fastplong_jsons = PREPARE.out.fastplong_json_reports
         .map { it -> it[1] }
@@ -122,40 +127,44 @@ workflow GENOMEASSEMBLER {
         .ifEmpty([])
 
     def topic_versions = channel.topic("versions")
-        .distinct()
-        .branch { entry ->
-            versions_file: entry instanceof Path
-            versions_tuple: true
-        }
+      .distinct()
+      .branch { entry ->
+          versions_file: entry instanceof Path
+          versions_tuple: true
+      }
 
     def topic_versions_string = topic_versions.versions_tuple
-        .map { process, tool, version ->
-            [process[process.lastIndexOf(':') + 1..-1], "  ${tool}: ${version}"]
-        }
-        .groupTuple(by: 0)
-        .map { process, tool_versions ->
-            tool_versions.unique().sort()
-            "${process}:\n${tool_versions.join('\n')}"
-        }
+      .map { process, tool, version ->
+          [ process[process.lastIndexOf(':')+1..-1], "  ${tool}: ${version}" ]
+      }
+      .groupTuple(by:0)
+      .map { process, tool_versions ->
+          tool_versions.unique().sort()
+          "${process}:\n${tool_versions.join('\n')}"
+      }
 
     /*
     Report
     */
 
-    def ch_collated_versions = softwareVersionsToYAML(topic_versions.versions_file).mix(topic_versions_string)
+    def ch_collated_versions = softwareVersionsToYAML(topic_versions.versions_file)
+        .mix(topic_versions_string)
 
-    ch_collated_versions.collectFile(
-        storeDir: "${params.outdir}/pipeline_info",
-        name: 'nf_core_' + 'genomeassembler_software_' + 'versions.yml',
-        sort: true,
-        newLine: true,
-    )
+    ch_collated_versions
+        .collectFile(
+            storeDir: "${params.outdir}/pipeline_info",
+            name: 'nf_core_' + 'genomeassembler_software_' + 'versions.yml',
+            sort: true,
+            newLine: true
+        )
 
     quast_files = quast_files
         .mix(
-            ASSEMBLE.out.assembly_quast_reports.mix(
+            ASSEMBLE.out.assembly_quast_reports
+            .mix(
                 POLISH.out.polish_quast_reports
-            ).mix(
+            )
+            .mix(
                 SCAFFOLD.out.scaffold_quast_reports
             )
         )
@@ -166,9 +175,11 @@ workflow GENOMEASSEMBLER {
 
     busco_files = busco_files
         .mix(
-            ASSEMBLE.out.assembly_busco_reports.mix(
+            ASSEMBLE.out.assembly_busco_reports
+            .mix(
                 POLISH.out.polish_busco_reports
-            ).mix(
+            )
+            .mix(
                 SCAFFOLD.out.scaffold_busco_reports
             )
         )
@@ -179,9 +190,11 @@ workflow GENOMEASSEMBLER {
 
     merqury_files = merqury_files
         .mix(
-            ASSEMBLE.out.assembly_merqury_reports.mix(
+            ASSEMBLE.out.assembly_merqury_reports
+            .mix(
                 POLISH.out.polish_merqury_reports
-            ).mix(
+            )
+            .mix(
                 SCAFFOLD.out.scaffold_merqury_reports
             )
         )
@@ -193,28 +206,30 @@ workflow GENOMEASSEMBLER {
         .collect()
         .ifEmpty([])
 
-    report_files = channel.fromPath("${projectDir}/assets/report/*")
+    report_files = channel
+        .fromPath("${projectDir}/assets/report/*")
         .collect()
     // Report files
-    report_functions = channel.fromPath("${projectDir}/assets/report/functions/*")
+    report_functions = channel
+        .fromPath("${projectDir}/assets/report/functions/*")
         .collect()
 
-    report_scripts = channel.fromPath("${projectDir}/assets/report/scripts/*")
+    report_scripts = channel
+        .fromPath("${projectDir}/assets/report/scripts/*")
         .collect()
 
-    REPORT_SAMPLES(ch_main_scaffolded)
+    report_groups = ch_main_scaffolded.collect().map { rows -> createReportSampleGroups(rows) }
 
-    REPORT(
-        report_files,
-        report_functions,
-        report_scripts,
-        fastplong_jsons,
-        genomescope_files,
-        quast_files,
-        busco_files,
-        merqury_files,
-        ch_collated_versions.collect(),
-        REPORT_SAMPLES.out.groups,
+    REPORT( report_files,
+            report_functions,
+            report_scripts,
+            fastplong_jsons,
+            genomescope_files,
+            quast_files,
+            busco_files,
+            merqury_files,
+            ch_collated_versions.collect(),
+            report_groups
     )
 
     _report = REPORT.out.report_html.toList()
@@ -229,37 +244,54 @@ workflow GENOMEASSEMBLER {
     def ch_assembly_manifest = ch_main_scaffolded
         .map { it ->
             def meta = it.meta
-            def subout = meta.strategy == "single"
-                ? (meta.assembler_ont == "flye" || meta.assembler_hifi == "flye"
-                    ? 'assembly/flye'
-                    : meta.assembler_ont == 'hifiasm'
-                        ? 'assembly/hifiasm_ont'
-                        : 'assembly/hifiasm')
-                : meta.strategy == "hybrid"
-                    ? 'assembly/hifiasm'
-                    : 'assembly/ragtag'
+            def subout =
+                    // Assembly publishdirs are a bit more specific
+                    meta.strategy == "single" ? (
+                        meta.assembler_ont == "flye" || meta.assembler_hifi == "flye"
+                            ? 'assembly/flye'
+                            : meta.assembler_ont == 'hifiasm'
+                                ? 'assembly/hifiasm_ont'
+                                : 'assembly/hifiasm'
+                    ) :
+                    meta.strategy == "hybrid"
+                        ? 'assembly/hifiasm'
+                        : 'assembly/ragtag'
 
-            // A list of ids, stage, files (in work), the candidate output folder
-            [[createHaplotypePrefix(meta), meta.id, 'scaffold_ragtag', meta.scaffolds ? meta.scaffolds.ragtag ?: null : null, 'scaffold/ragtag'], [createHaplotypePrefix(meta), meta.id, 'scaffold_hic', meta.scaffolds ? meta.scaffolds.hic ?: null : null, 'scaffold/hic/yahs'], [createHaplotypePrefix(meta), meta.id, 'scaffold_longstitch', meta.scaffolds ? meta.scaffolds.longstitch ?: null : null, 'scaffold/longstitch'], [createHaplotypePrefix(meta), meta.id, 'scaffold_links', meta.scaffolds ? meta.scaffolds.links ?: null : null, 'scaffold/links'], [createHaplotypePrefix(meta), meta.id, 'polish_pilon', meta.polished ? meta.polished.pilon ?: null : null, 'polish/pilon'], [createHaplotypePrefix(meta), meta.id, 'polish_medaka', meta.polished ? meta.polished.medaka ?: null : null, 'polish/medaka'], [createHaplotypePrefix(meta), meta.id, 'polish_dorado', meta.polished ? meta.polished.dorado ?: null : null, 'polish/dorado'], [createHaplotypePrefix(meta), meta.id, 'initial_assembly', meta.assembly, subout]]
+                // A list of ids, stage, files (in work), the candidate output folder
+                [
+                [ createHaplotypePrefix(meta), meta.id, 'scaffold_ragtag', meta.scaffolds ? meta.scaffolds.ragtag ?: null : null,           'scaffold/ragtag'     ],
+                [ createHaplotypePrefix(meta), meta.id, 'scaffold_hic' , meta.scaffolds ? meta.scaffolds.hic ?: null : null,              'scaffold/hic/yahs'   ],
+                [ createHaplotypePrefix(meta), meta.id, 'scaffold_longstitch', meta.scaffolds ? meta.scaffolds.longstitch ?: null : null,       'scaffold/longstitch' ],
+                [ createHaplotypePrefix(meta), meta.id, 'scaffold_links', meta.scaffolds ? meta.scaffolds.links ?: null : null,            'scaffold/links'      ],
+                [ createHaplotypePrefix(meta), meta.id, 'polish_pilon', meta.polished ? meta.polished.pilon ?: null : null,            'polish/pilon'        ],
+                [ createHaplotypePrefix(meta), meta.id, 'polish_medaka', meta.polished ? meta.polished.medaka ?: null : null,           'polish/medaka'       ],
+                [ createHaplotypePrefix(meta), meta.id, 'polish_dorado', meta.polished ? meta.polished.dorado ?: null : null,           'polish/dorado'       ],
+                [ createHaplotypePrefix(meta), meta.id, 'initial_assembly', meta.assembly, subout
+                ]
+                ]
         }
-        .flatMap { it -> it }
-        .filter { _assembly_id, _sample_id, _stage, assembly_file, _subdir ->
-            assembly_file != null
+        .flatMap( { it -> it } )
+        .filter {
+            _assembly_id, _sample_id, _stage, assembly_file, _subdir -> assembly_file != null
         }
         .unique()
-        .map { id, sample_id, stage, assembly_file, subdir ->
-            ["${id}-${stage}", "${outdir_uri}/${sample_id}/${subdir}/${file(assembly_file).name}"]
+        .map {
+            id, sample_id, stage ,assembly_file, subdir ->
+                [
+                    "${id}-${stage}",
+                    "${outdir_uri}/${sample_id}/${subdir}/${file(assembly_file).name}"
+                ]
         }
 
     ch_assembly_manifest
-        .map { sample, fasta -> [sample, fasta].join(",") }
+        .map {sample, fasta -> [sample,fasta].join(",")}
         .map { rows -> "assembly,fasta\n" + rows + "\n" }
         .collectFile(
             sort: true,
             name: "nf-core-genomeqc-in.csv",
             storeDir: "${params.outdir}/genomeqc_samplesheet",
             keepHeader: true,
-            skip: 1,
+            skip: 1
         )
 
 
@@ -268,4 +300,11 @@ workflow GENOMEASSEMBLER {
     emit:
     _report
     assemblies = COLLATE_HAPLOTYPES.out.samples
+}
+
+
+def createReportSampleGroups(rows) {
+    rows.collect { row ->
+        [sample: [id: createHaplotypePrefix(row.meta), sample_id: row.meta.id, haplotype: row.meta.haplotype ?: null, group: row.meta.group]]
+    }.unique { row -> [row.sample.sample_id, row.sample.haplotype] }
 }

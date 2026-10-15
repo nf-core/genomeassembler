@@ -15,74 +15,105 @@ workflow QC {
     busco_out = channel.empty()
     merqury_report_files = channel.empty()
 
-    ch_shortread_branched = ch_main.branch { it ->
-        shortread: it.meta.use_short_reads
-        no_shortread: !it.meta.use_short_reads
-    }
+    ch_shortread_branched = ch_main
+        .branch {
+            it ->
+            shortread: it.meta.use_short_reads
+            no_shortread: !it.meta.use_short_reads
+        }
 
-    merqury_in = ch_shortread_branched.shortread.filter { it -> it.meta.merqury }.map { it -> [createHaplotypeKey(it.meta), it.meta] }.join(scaffolds).map { _key, meta, scaffs -> [meta.id, meta, scaffs] }.combine(meryl_kmers, by: 0).map { _id, meta, scaffs, kmers ->
-        [meta, kmers, scaffs]
-    }
+    merqury_in = ch_shortread_branched
+        .shortread
+        .filter { it -> it.meta.merqury }
+        .map { it -> [createHaplotypeKey(it.meta), it.meta] }
+        .join(scaffolds)
+        .map { _key, meta, scaffs -> [meta.id, meta, scaffs] }.combine(meryl_kmers, by: 0)
+        .map { _id, meta, scaffs, kmers ->
+                [ meta, kmers, scaffs ]
+            }
 
     MERQURY(merqury_in)
 
     // Make sure that Polish and Scaffold main channels do not contain assembly_map_bam
 
-    ch_map_branched = ch_main.branch { it ->
-        map_to_assembly: it.meta.quast && !it.meta.assembly_map_bam
-        no_map_to_assembly: !it.meta.quast || (it.meta.quast && it.meta.assembly_map_bam)
-    }
+    ch_map_branched = ch_main
+        .branch {
+            it ->
+            map_to_assembly: it.meta.quast && !it.meta.assembly_map_bam
+            no_map_to_assembly: !it.meta.quast || (it.meta.quast && it.meta.assembly_map_bam)
+        }
 
-    map_assembly_in = ch_map_branched.map_to_assembly.map { it ->
-        [createHaplotypeKey(it.meta), it.meta]
-    }.join(scaffolds).map { _id, meta, target_scaffolds ->
-        [meta + [qc_target: target_scaffolds], meta.qc_reads_path, target_scaffolds]
-    }
+    map_assembly_in = ch_map_branched
+        .map_to_assembly
+        .map {
+            it -> [createHaplotypeKey(it.meta), it.meta ]
+        }
+        .join(scaffolds)
+        .map {
+            _id, meta, target_scaffolds ->
+            [
+                meta + [qc_target: target_scaffolds], meta.qc_reads_path,
+                target_scaffolds
+            ]
+        }
 
     MAP_TO_ASSEMBLY(map_assembly_in)
 
-    // create main channel with mappings
+     // create main channel with mappings
     ch_qc = MAP_TO_ASSEMBLY.out.aln_to_assembly_bam
         .map { meta, assembly_map_bam ->
-            [meta: meta + [assembly_map_bam: assembly_map_bam]]
+            [
+                meta: meta + [ assembly_map_bam: assembly_map_bam ]
+            ]
         }
         .mix(
-            ch_map_branched.no_map_to_assembly.map { it ->
-                [createHaplotypeKey(it.meta), it.meta]
-            }.join(scaffolds).map { _id, meta, target_scaffolds ->
-                [meta: meta + [qc_target: target_scaffolds]]
-            }
+            ch_map_branched.no_map_to_assembly
+                .map {
+                    it -> [createHaplotypeKey(it.meta), it.meta ]
+                }
+                .join(scaffolds)
+                .map {
+                    _id, meta, target_scaffolds ->
+                    [
+                      meta: meta + [qc_target: target_scaffolds]]
+                }
         )
     ch_qc.dump(tag: "CH_QC after mapping:")
 
     quast_in = ch_qc
-        .filter { it ->
-            it.meta.quast
+        .filter {
+            it -> it.meta.quast
         }
         .multiMap { it ->
-            quast_in: [it.meta, it.meta.qc_target]
-            use_ref: [it.meta, it.meta.use_ref ? it.meta.ref_fasta : []]
-            use_gff: [it.meta, it.meta.use_ref && it.meta.ref_gff ? it.meta.ref_gff : []]
-            ref_bam: [it.meta, it.meta.ref_map_bam ?: []]
-            assembly_bam: [it.meta, it.meta.assembly_map_bam ?: []]
-        }
+                quast_in: [
+                    it.meta,
+                    it.meta.qc_target
+                ]
+                use_ref: [it.meta, it.meta.use_ref ? it.meta.ref_fasta : []]
+                use_gff: [it.meta, it.meta.use_ref && it.meta.ref_gff ? it.meta.ref_gff : []]
+                ref_bam: [it.meta, it.meta.ref_map_bam ?: []]
+                assembly_bam: [it.meta, it.meta.assembly_map_bam ?: []]
+            }
 
     QUAST(quast_in.quast_in, quast_in.use_ref, quast_in.use_gff, quast_in.ref_bam, quast_in.assembly_bam)
     quast_out = QUAST.out.tsv
 
     busco_in = ch_qc
-        .filter { it ->
-            it.meta.busco
+        .filter {
+            it -> it.meta.busco
         }
         .multiMap { it ->
-            fasta: [it.meta, it.meta.qc_target]
-            busco_lineage: it.meta.busco_lineage
-            busco_db: it.meta.busco_db ? file(it.meta.busco_db, checkIfExists: true) : []
-        }
+                fasta: [
+                    it.meta,
+                    it.meta.qc_target
+                ]
+                busco_lineage: it.meta.busco_lineage
+                busco_db: it.meta.busco_db ? file(it.meta.busco_db, checkIfExists: true) : []
+            }
 
     busco_in.fasta.dump(tag: "QC: BUSCO FASTA: ")
 
-    BUSCO(busco_in.fasta, 'genome', busco_in.busco_lineage, busco_in.busco_db, [], true)
+    BUSCO(busco_in.fasta, 'genome', busco_in.busco_lineage, busco_in.busco_db , [], true)
     busco_out = BUSCO.out.batch_summary
 
 
@@ -98,7 +129,7 @@ workflow QC {
         )
 
     emit:
-    ch_main // QC does not (and should not) modify ch_main but returns the input.
+    ch_main     // QC does not (and should not) modify ch_main but returns the input.
     quast_out
     busco_out
     merqury_report_files

@@ -8,14 +8,14 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-include { UTILS_NFSCHEMA_PLUGIN } from '../../nf-core/utils_nfschema_plugin'
-include { paramsSummaryMap } from 'plugin/nf-schema'
-include { samplesheetToList } from 'plugin/nf-schema'
-include { paramsHelp } from 'plugin/nf-schema'
-include { completionEmail } from '../../nf-core/utils_nfcore_pipeline'
-include { completionSummary } from '../../nf-core/utils_nfcore_pipeline'
-include { UTILS_NFCORE_PIPELINE } from '../../nf-core/utils_nfcore_pipeline'
-include { UTILS_NEXTFLOW_PIPELINE } from '../../nf-core/utils_nextflow_pipeline'
+include { UTILS_NFSCHEMA_PLUGIN     } from '../../nf-core/utils_nfschema_plugin'
+include { paramsSummaryMap          } from 'plugin/nf-schema'
+include { samplesheetToList         } from 'plugin/nf-schema'
+include { paramsHelp                } from 'plugin/nf-schema'
+include { completionEmail           } from '../../nf-core/utils_nfcore_pipeline'
+include { completionSummary         } from '../../nf-core/utils_nfcore_pipeline'
+include { UTILS_NFCORE_PIPELINE     } from '../../nf-core/utils_nfcore_pipeline'
+include { UTILS_NEXTFLOW_PIPELINE   } from '../../nf-core/utils_nextflow_pipeline'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -29,11 +29,11 @@ workflow PIPELINE_INITIALISATION {
     validate_params // boolean: Boolean whether to validate parameters against the schema at runtime
     monochrome_logs // boolean: Do not use coloured log outputs
     nextflow_cli_args //   array: List of positional nextflow CLI args
-    outdir //  string: The output directory where the results will be saved
-    _input //  string: Path to input samplesheet
-    help // boolean: Display help message and exit
-    help_full // boolean: Show the full help message
-    show_hidden // boolean: Show hidden parameters in the help message
+    outdir            //  string: The output directory where the results will be saved
+    input             //  string: Path to input samplesheet
+    help              // boolean: Display help message and exit
+    help_full         // boolean: Show the full help message
+    show_hidden       // boolean: Show hidden parameters in the help message
 
     main:
 
@@ -65,7 +65,7 @@ workflow PIPELINE_INITIALISATION {
 \033[0;35m  nf-core/genomeassembler ${workflow.manifest.version}\033[0m
 -\033[2m----------------------------------------------------\033[0m-
 """
-    after_text = """${workflow.manifest.doi ? "\n* The pipeline\n" : ""}${workflow.manifest.doi.tokenize(",").collect { doi -> "    https://doi.org/${doi.trim().replace('https://doi.org/', '')}" }.join("\n")}${workflow.manifest.doi ? "\n" : ""}
+    after_text = """${workflow.manifest.doi ? "\n* The pipeline\n" : ""}${workflow.manifest.doi.tokenize(",").collect { doi -> "    https://doi.org/${doi.trim().replace('https://doi.org/','')}"}.join("\n")}${workflow.manifest.doi ? "\n" : ""}
 * The nf-core framework
     https://doi.org/10.1038/s41587-020-0439-x
 
@@ -78,7 +78,7 @@ workflow PIPELINE_INITIALISATION {
 
     command = "nextflow run ${workflow.manifest.name} -profile <docker/singularity/.../institute> --input samplesheet.csv --outdir <OUTDIR>"
 
-    UTILS_NFSCHEMA_PLUGIN(
+    UTILS_NFSCHEMA_PLUGIN (
         workflow,
         validate_params,
         null,
@@ -88,7 +88,7 @@ workflow PIPELINE_INITIALISATION {
         before_text,
         after_text,
         command,
-        false,
+        false
     )
 
     //
@@ -104,6 +104,10 @@ workflow PIPELINE_INITIALISATION {
     def samplesheet_rows = samplesheetToList(params.input, "assets/schema_input.json")
     def input_ids = samplesheet_rows.collect { row -> row[0].id.toString() } as Set
     ch_samplesheet = channel.fromList(samplesheet_rows)
+        /*
+        This is a somewhat crucial step, where the samplesheet and params are used to determine per-sample parameters.
+        This has been greatly simplified thanks to @nvnieuwk
+        */
         .map { it ->
             def meta = it[0]
             /*
@@ -111,40 +115,44 @@ workflow PIPELINE_INITIALISATION {
             Without defaults set in the schema, for the keys where there is no value in the samplesheet
             we get an empty list. If we got an empty list, use the param setting, which is initialized to a default
             */
-            return meta.collectEntries { key, val -> key == "group" ? [key, val] : [key, val != [] ? val : params.get(key)] }
+            return meta.collectEntries { key, val -> key == "group" ? [ key, val ] : [ key, val != [] ? val : params.get(key) ] }
         }
-        .map { it ->
-            def assembler_ont = it.assembler_ont ?: it.strategy == "single" && it.assembler && it.ontreads && !it.hifireads
-                ? it.assembler
-                : it.strategy == "hybrid" && it.assembler == "hifiasm"
-                    ? it.assembler
-                    : it.assembler.contains("_")
-                        ? it.assembler.tokenize("_")[0]
-                        : null
-            def assembler_hifi = it.assembler_hifi ?: it.strategy == "single" && it.assembler && it.hifireads && (!it.ontreads || it.hifiasm_hic_phasing)
-                ? it.assembler
-                : it.assembler.contains("_")
-                    ? it.assembler.tokenize("_")[1]
-                    : null
-            def polish = it.polish ?: it.polish_medaka && it.polish_dorado
-                ? error("Both polish_medaka and polish_dorado are set.")
-                : it.polish_medaka && it.polish_pilon && it.ontreads
-                    ? "medaka+pilon"
-                    : it.polish_dorado && it.polish_pilon && it.ontreads
-                        ? "dorado+pilon"
-                        : it.polish_medaka && it.ontreads
-                            ? "medaka"
-                            : it.polish_dorado && it.ontreads
-                                ? "dorado"
-                                : it.polish_pilon && it.shortread_F
-                                    ? "pilon"
-                                    : null
-            def merqury = it.merqury && !it.shortread_F ? false : it.merqury
-            def group = it.group ?: null
-            def use_short_reads = it.shortread_F && !params.use_short_reads ? true : it.use_short_reads
-            def lift_annotations = it.use_ref && it.ref_gff ? true : false
-            def qc_reads = it.hifireads && !it.ontreads ? 'hifi' : it.ontreads && !it.hifireads ? 'ont' : it.qc_reads
-            it + [group: group, assembler_ont: assembler_ont, assembler_hifi: assembler_hifi, polish: polish, merqury: merqury, use_short_reads: use_short_reads, paired: it.shortread_F && it.shortread_R ? true : false, lift_annotations: lift_annotations, qc_reads: qc_reads]
+        .map{
+            it ->
+            def assembler_ont   =   it.assembler_ont ?:
+                                    (it.strategy == "single" && it.assembler && it.ontreads && !it.hifireads) ? it.assembler :
+                                    (it.strategy == "hybrid" && it.assembler == "hifiasm") ? it.assembler :
+                                    it.assembler.contains("_") ? it.assembler.tokenize("_")[0] :
+                                    null
+            def assembler_hifi  =   it.assembler_hifi ?:
+                                    (it.strategy == "single" && it.assembler && it.hifireads && (!it.ontreads || it.hifiasm_hic_phasing)) ? it.assembler :
+                                    it.assembler.contains("_") ? it.assembler.tokenize("_")[1] :
+                                    null
+            def polish          =   it.polish ?:
+                                    (it.polish_medaka && it.polish_dorado) ? error("Both polish_medaka and polish_dorado are set.") :
+                                    (it.polish_medaka && it.polish_pilon && it.ontreads) ? "medaka+pilon" :
+                                    (it.polish_dorado && it.polish_pilon && it.ontreads) ? "dorado+pilon" :
+                                    (it.polish_medaka && it.ontreads) ? "medaka" :
+                                    (it.polish_dorado && it.ontreads) ? "dorado" :
+                                    (it.polish_pilon && it.shortread_F) ? "pilon" :
+                                    null
+            def merqury         =   it.merqury && !it.shortread_F ? false : it.merqury
+            def group           =   it.group ?: null
+            def use_short_reads =   it.shortread_F && !params.use_short_reads ? true : it.use_short_reads
+            def lift_annotations=   it.use_ref && it.ref_gff ? true : false
+            def qc_reads        =   it.hifireads && !it.ontreads ? 'hifi' : it.ontreads && !it.hifireads ? 'ont' : it.qc_reads
+            it + [
+                    group: group,
+                    assembler_ont: assembler_ont,
+                    assembler_hifi: assembler_hifi,
+                    polish: polish,
+                    merqury: merqury,
+                    use_short_reads: use_short_reads,
+                    paired: it.shortread_F && it.shortread_R ? true : false,
+                    lift_annotations: lift_annotations,
+                    qc_reads: qc_reads
+                ]
+
         }
         .map { meta ->
             // Preserve raw Hi-C inputs separately from optional scaffold trimming.
@@ -157,7 +165,6 @@ workflow PIPELINE_INITIALISATION {
     if (input_ids.size() != samplesheet_rows.size()) {
         error('Samplesheet sample IDs must be unique.')
     }
-
     ch_samplesheet.subscribe { row ->
         def meta = row.meta
         if (meta.hifiasm_hic_phasing) {
@@ -218,15 +225,16 @@ workflow PIPELINE_COMPLETION {
                 plaintext_email,
                 outdir,
                 monochrome_logs,
-                [],
+                []
             )
         }
 
         completionSummary(monochrome_logs)
+
     }
 
     workflow.onError {
-        log.error("Pipeline failed. Please refer to troubleshooting docs for common issues: https://nf-co.re/docs/running/troubleshooting")
+        log.error "Pipeline failed. Please refer to troubleshooting docs for common issues: https://nf-co.re/docs/running/troubleshooting"
     }
 }
 
@@ -248,19 +256,25 @@ def validateInputSamplesheet(input) {
         error("Please check input samplesheet -> Multiple runs of a sample must be of the same datatype i.e. single-end or paired-end: ${metas[0].id}")
     }
 
-    return [metas[0], fastqs]
+    return [ metas[0], fastqs ]
 }
 //
 // Generate methods description for MultiQC
 //
 def toolCitationText() {
-    def citation_text = ["Tools used in the workflow included:", "FastQC (Andrews 2010),", "."].join(' ').trim()
+    def citation_text = [
+            "Tools used in the workflow included:",
+            "FastQC (Andrews 2010),",
+            "."
+        ].join(' ').trim()
 
     return citation_text
 }
 
 def toolBibliographyText() {
-    def reference_text = ["<li>Andrews S, (2010) FastQC, URL: https://www.bioinformatics.babraham.ac.uk/projects/fastqc/).</li>"].join(' ').trim()
+    def reference_text = [
+            "<li>Andrews S, (2010) FastQC, URL: https://www.bioinformatics.babraham.ac.uk/projects/fastqc/).</li>",
+        ].join(' ').trim()
 
     return reference_text
 }

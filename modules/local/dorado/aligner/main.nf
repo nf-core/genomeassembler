@@ -13,6 +13,7 @@ process DORADO_ALIGNER {
     tuple val("${task.process}"), val('dorado'), eval('dorado --version 2>&1 | head -n1'), emit: versions_dorado, topic: versions
     tuple val("${task.process}"), val('samtools'), eval("samtools version | sed '1!d;s/.* //'"), topic: versions, emit: versions_samtools
 
+
     when:
     task.ext.when == null || task.ext.when
 

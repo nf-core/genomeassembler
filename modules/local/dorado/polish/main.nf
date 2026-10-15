@@ -19,7 +19,7 @@ process DORADO_POLISH {
     script:
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
-    def variants = ["vcf", "gvcf"].contains(variant_call_format) ? "--${variant_call_format}" : ""
+    def variants = ["vcf","gvcf"].contains(variant_call_format) ? "--${variant_call_format}" : ""
     def outfile = variants ? "> ${prefix}_dorado_polished.${variants}" : "| bgzip > ${prefix}_dorado_polished.fa.gz"
     """
     dorado polish \\

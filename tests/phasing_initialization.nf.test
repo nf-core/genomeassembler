@@ -8,7 +8,7 @@ nextflow_workflow {
     test("hifiasm_args rejects -1 paternal.yak") {
         when {
             params {
-                input = "${projectDir}/tests/data/phasing_00.csv"
+                input = "https://raw.githubusercontent.com/nf-core/test-datasets/218acd6325ddcd1214e48951f3df5e3d0d2edc20/samplesheet/phasing/phasing_00.csv"
                 outdir = "$outputDir"
                 hifireads = null
                 ontreads = null
@@ -40,7 +40,7 @@ nextflow_workflow {
     test("hifiasm_args rejects -2 maternal.yak") {
         when {
             params {
-                input = "${projectDir}/tests/data/phasing_01.csv"
+                input = "https://raw.githubusercontent.com/nf-core/test-datasets/218acd6325ddcd1214e48951f3df5e3d0d2edc20/samplesheet/phasing/phasing_01.csv"
                 outdir = "$outputDir"
                 hifireads = null
                 ontreads = null
@@ -72,7 +72,7 @@ nextflow_workflow {
     test("hifiasm_args rejects -1paternal.yak") {
         when {
             params {
-                input = "${projectDir}/tests/data/phasing_02.csv"
+                input = "https://raw.githubusercontent.com/nf-core/test-datasets/218acd6325ddcd1214e48951f3df5e3d0d2edc20/samplesheet/phasing/phasing_02.csv"
                 outdir = "$outputDir"
                 hifireads = null
                 ontreads = null
@@ -104,7 +104,7 @@ nextflow_workflow {
     test("hifiasm_args rejects -2=maternal.yak") {
         when {
             params {
-                input = "${projectDir}/tests/data/phasing_03.csv"
+                input = "https://raw.githubusercontent.com/nf-core/test-datasets/218acd6325ddcd1214e48951f3df5e3d0d2edc20/samplesheet/phasing/phasing_03.csv"
                 outdir = "$outputDir"
                 hifireads = null
                 ontreads = null
@@ -136,7 +136,7 @@ nextflow_workflow {
     test("hifiasm_args rejects --primary") {
         when {
             params {
-                input = "${projectDir}/tests/data/phasing_04.csv"
+                input = "https://raw.githubusercontent.com/nf-core/test-datasets/218acd6325ddcd1214e48951f3df5e3d0d2edc20/samplesheet/phasing/phasing_04.csv"
                 outdir = "$outputDir"
                 hifireads = null
                 ontreads = null
@@ -168,7 +168,7 @@ nextflow_workflow {
     test("hifiasm_args rejects --ont") {
         when {
             params {
-                input = "${projectDir}/tests/data/phasing_05.csv"
+                input = "https://raw.githubusercontent.com/nf-core/test-datasets/218acd6325ddcd1214e48951f3df5e3d0d2edc20/samplesheet/phasing/phasing_05.csv"
                 outdir = "$outputDir"
                 hifireads = null
                 ontreads = null
@@ -200,7 +200,7 @@ nextflow_workflow {
     test("assembler_hifi_args rejects -1 paternal.yak") {
         when {
             params {
-                input = "${projectDir}/tests/data/phasing_06.csv"
+                input = "https://raw.githubusercontent.com/nf-core/test-datasets/218acd6325ddcd1214e48951f3df5e3d0d2edc20/samplesheet/phasing/phasing_06.csv"
                 outdir = "$outputDir"
                 hifireads = null
                 ontreads = null
@@ -232,7 +232,7 @@ nextflow_workflow {
     test("assembler_hifi_args rejects -2 maternal.yak") {
         when {
             params {
-                input = "${projectDir}/tests/data/phasing_07.csv"
+                input = "https://raw.githubusercontent.com/nf-core/test-datasets/218acd6325ddcd1214e48951f3df5e3d0d2edc20/samplesheet/phasing/phasing_07.csv"
                 outdir = "$outputDir"
                 hifireads = null
                 ontreads = null
@@ -264,7 +264,7 @@ nextflow_workflow {
     test("assembler_hifi_args rejects -1paternal.yak") {
         when {
             params {
-                input = "${projectDir}/tests/data/phasing_08.csv"
+                input = "https://raw.githubusercontent.com/nf-core/test-datasets/218acd6325ddcd1214e48951f3df5e3d0d2edc20/samplesheet/phasing/phasing_08.csv"
                 outdir = "$outputDir"
                 hifireads = null
                 ontreads = null
@@ -296,7 +296,7 @@ nextflow_workflow {
     test("assembler_hifi_args rejects -2=maternal.yak") {
         when {
             params {
-                input = "${projectDir}/tests/data/phasing_09.csv"
+                input = "https://raw.githubusercontent.com/nf-core/test-datasets/218acd6325ddcd1214e48951f3df5e3d0d2edc20/samplesheet/phasing/phasing_09.csv"
                 outdir = "$outputDir"
                 hifireads = null
                 ontreads = null
@@ -328,7 +328,7 @@ nextflow_workflow {
     test("assembler_hifi_args rejects --primary") {
         when {
             params {
-                input = "${projectDir}/tests/data/phasing_10.csv"
+                input = "https://raw.githubusercontent.com/nf-core/test-datasets/218acd6325ddcd1214e48951f3df5e3d0d2edc20/samplesheet/phasing/phasing_10.csv"
                 outdir = "$outputDir"
                 hifireads = null
                 ontreads = null
@@ -360,7 +360,7 @@ nextflow_workflow {
     test("assembler_hifi_args rejects --ont") {
         when {
             params {
-                input = "${projectDir}/tests/data/phasing_11.csv"
+                input = "https://raw.githubusercontent.com/nf-core/test-datasets/218acd6325ddcd1214e48951f3df5e3d0d2edc20/samplesheet/phasing/phasing_11.csv"
                 outdir = "$outputDir"
                 hifireads = null
                 ontreads = null
@@ -393,7 +393,7 @@ nextflow_workflow {
         tag "phasing_output_names"
         when {
             params {
-                input = "${projectDir}/tests/data/phasing_18.csv"
+                input = "https://raw.githubusercontent.com/nf-core/test-datasets/218acd6325ddcd1214e48951f3df5e3d0d2edc20/samplesheet/phasing/phasing_18.csv"
                 outdir = "$outputDir"
                 hifireads = null
                 ontreads = null
@@ -426,7 +426,7 @@ nextflow_workflow {
         tag "phasing_output_names"
         when {
             params {
-                input = "${projectDir}/tests/data/phasing_19.csv"
+                input = "https://raw.githubusercontent.com/nf-core/test-datasets/218acd6325ddcd1214e48951f3df5e3d0d2edc20/samplesheet/phasing/phasing_19.csv"
                 outdir = "$outputDir"
                 hifireads = null
                 ontreads = null
@@ -458,7 +458,7 @@ nextflow_workflow {
     test("duplicate sample IDs") {
         when {
             params {
-                input = "${projectDir}/tests/data/phasing_20.csv"
+                input = "https://raw.githubusercontent.com/nf-core/test-datasets/218acd6325ddcd1214e48951f3df5e3d0d2edc20/samplesheet/phasing/phasing_20.csv"
                 outdir = "$outputDir"
                 hifireads = null
                 ontreads = null
@@ -490,7 +490,7 @@ nextflow_workflow {
     test("hybrid strategy") {
         when {
             params {
-                input = "${projectDir}/tests/data/phasing_21.csv"
+                input = "https://raw.githubusercontent.com/nf-core/test-datasets/218acd6325ddcd1214e48951f3df5e3d0d2edc20/samplesheet/phasing/phasing_21.csv"
                 outdir = "$outputDir"
                 hifireads = null
                 ontreads = null
@@ -522,7 +522,7 @@ nextflow_workflow {
     test("scaffold strategy") {
         when {
             params {
-                input = "${projectDir}/tests/data/phasing_22.csv"
+                input = "https://raw.githubusercontent.com/nf-core/test-datasets/218acd6325ddcd1214e48951f3df5e3d0d2edc20/samplesheet/phasing/phasing_22.csv"
                 outdir = "$outputDir"
                 hifireads = null
                 ontreads = null
@@ -554,7 +554,7 @@ nextflow_workflow {
     test("wrong assembler") {
         when {
             params {
-                input = "${projectDir}/tests/data/phasing_23.csv"
+                input = "https://raw.githubusercontent.com/nf-core/test-datasets/218acd6325ddcd1214e48951f3df5e3d0d2edc20/samplesheet/phasing/phasing_23.csv"
                 outdir = "$outputDir"
                 hifireads = null
                 ontreads = null
@@ -586,7 +586,7 @@ nextflow_workflow {
     test("missing HiFi") {
         when {
             params {
-                input = "${projectDir}/tests/data/phasing_24.csv"
+                input = "https://raw.githubusercontent.com/nf-core/test-datasets/218acd6325ddcd1214e48951f3df5e3d0d2edc20/samplesheet/phasing/phasing_24.csv"
                 outdir = "$outputDir"
                 hifireads = null
                 ontreads = null
@@ -618,7 +618,7 @@ nextflow_workflow {
     test("ONT reads are auxiliary input for phased HiFi assembly") {
         when {
             params {
-                input = "${projectDir}/tests/data/phasing_25.csv"
+                input = "https://raw.githubusercontent.com/nf-core/test-datasets/218acd6325ddcd1214e48951f3df5e3d0d2edc20/samplesheet/phasing/phasing_25.csv"
                 outdir = "$outputDir"
                 hifireads = null
                 ontreads = null
@@ -651,7 +651,7 @@ nextflow_workflow {
     test("supplied assembly") {
         when {
             params {
-                input = "${projectDir}/tests/data/phasing_26.csv"
+                input = "https://raw.githubusercontent.com/nf-core/test-datasets/218acd6325ddcd1214e48951f3df5e3d0d2edc20/samplesheet/phasing/phasing_26.csv"
                 outdir = "$outputDir"
                 hifireads = null
                 ontreads = null
@@ -683,7 +683,7 @@ nextflow_workflow {
     test("missing Hi-C forward") {
         when {
             params {
-                input = "${projectDir}/tests/data/phasing_27.csv"
+                input = "https://raw.githubusercontent.com/nf-core/test-datasets/218acd6325ddcd1214e48951f3df5e3d0d2edc20/samplesheet/phasing/phasing_27.csv"
                 outdir = "$outputDir"
                 hifireads = null
                 ontreads = null
@@ -715,7 +715,7 @@ nextflow_workflow {
     test("missing Hi-C reverse") {
         when {
             params {
-                input = "${projectDir}/tests/data/phasing_28.csv"
+                input = "https://raw.githubusercontent.com/nf-core/test-datasets/218acd6325ddcd1214e48951f3df5e3d0d2edc20/samplesheet/phasing/phasing_28.csv"
                 outdir = "$outputDir"
                 hifireads = null
                 ontreads = null
@@ -747,7 +747,7 @@ nextflow_workflow {
     test("Trimming is independent of phasing") {
         when {
             params {
-                input = "${projectDir}/tests/data/phasing_29.csv"
+                input = "https://raw.githubusercontent.com/nf-core/test-datasets/218acd6325ddcd1214e48951f3df5e3d0d2edc20/samplesheet/phasing/phasing_29.csv"
                 outdir = "$outputDir"
                 hifireads = null
                 ontreads = null
@@ -783,7 +783,7 @@ nextflow_workflow {
         tag "phasing_output_names"
         when {
             params {
-                input = "${projectDir}/tests/data/phasing_original_ids.csv"
+                input = "https://raw.githubusercontent.com/nf-core/test-datasets/218acd6325ddcd1214e48951f3df5e3d0d2edc20/samplesheet/phasing/phasing_original_ids.csv"
                 outdir = "$outputDir"
                 hifireads = null
                 ontreads = null
@@ -820,7 +820,7 @@ nextflow_workflow {
         tag "phasing_compatible"
         when {
             params {
-                input = "${projectDir}/tests/data/phasing_30.csv"
+                input = "https://raw.githubusercontent.com/nf-core/test-datasets/218acd6325ddcd1214e48951f3df5e3d0d2edc20/samplesheet/phasing/phasing_30.csv"
                 outdir = "$outputDir"
                 hifireads = null
                 ontreads = null
@@ -855,7 +855,7 @@ nextflow_workflow {
         tag "phasing_aux_validation"
         when {
             params {
-                input = "${projectDir}/tests/data/phasing_ont_assembler.csv"
+                input = "https://raw.githubusercontent.com/nf-core/test-datasets/218acd6325ddcd1214e48951f3df5e3d0d2edc20/samplesheet/phasing/phasing_ont_assembler.csv"
                 outdir = "$outputDir"
                 hifireads = null
                 ontreads = null

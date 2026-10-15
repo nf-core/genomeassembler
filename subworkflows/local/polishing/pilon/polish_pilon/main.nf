@@ -14,15 +14,26 @@ workflow POLISH_PILON {
 
     main:
 
-    map_sr_in = ch_main.multiMap { it ->
-        shortreads: [it.meta, it.meta.shortreads]
-        assembly: [it.meta, it.meta.polish == "medaka+pilon" ? it.meta.polished.medaka : it.meta.polish == "dorado+pilon" ? it.meta.polished.dorado : it.meta.assembly]
-    }
+    map_sr_in = ch_main
+        .multiMap {
+            it ->
+            shortreads: [it.meta, it.meta.shortreads]
+            assembly: [
+                it.meta,
+                it.meta.polish == "medaka+pilon" ? it.meta.polished.medaka : it.meta.polish == "dorado+pilon" ? it.meta.polished.dorado : it.meta.assembly
+                ]
+        }
 
     MAP_SR(map_sr_in.shortreads, map_sr_in.assembly)
 
-    ch_to_zip = map_sr_in.assembly.map { meta, assembly ->
-        [meta, assembly, [], []]
+    ch_to_zip = map_sr_in.assembly.map {
+        meta, assembly ->
+        [
+            meta,
+            assembly,
+            [],
+            []
+        ]
     }
 
     UNZIP(ch_to_zip, "decompress", false, "fasta")
@@ -32,7 +43,8 @@ workflow POLISH_PILON {
 
     pilon_in = pilon_ref
         .join(MAP_SR.out.aln_to_assembly_bam_bai)
-        .multiMap { meta, assembly, bam, bai ->
+        .multiMap {
+            meta, assembly, bam, bai ->
             assembly: [meta, assembly]
             bam_bai: [meta, bam, bai]
         }
@@ -47,27 +59,32 @@ workflow POLISH_PILON {
 
     pilon_polished = BGZIP.out.bgzipped
 
-    ch_main = pilon_polished.map { meta, polished_pilon -> [meta: meta + [polished: (meta.polished ?: [:]) + [pilon: polished_pilon]]] }
+    ch_main = pilon_polished
+        .map { meta, polished_pilon -> [ meta: meta + [ polished: (meta.polished ?: [:]) + [pilon: polished_pilon] ] ]  }
 
-    QC(
-        ch_main.map { it -> [meta: it.meta - it.meta.subMap("assembly_map_bam") + [assembly_map_bam: null]] },
-        pilon_polished.map { meta, polished -> [createHaplotypeKey(meta), polished] },
+    QC(ch_main.map { it -> [meta: it.meta - it.meta.subMap("assembly_map_bam") + [assembly_map_bam: null] ]},
+        pilon_polished.map {meta, polished -> [createHaplotypeKey(meta), polished ]},
         meryl_kmers,
     )
 
     liftoff_in = ch_main
-        .filter { it ->
-            it.meta.lift_annotations
+        .filter {
+            it -> it.meta.lift_annotations
         }
         .map { it ->
-            [it.meta, it.meta.polished.pilon, it.meta.ref_fasta, it.meta.ref_gff]
+                [
+                it.meta,
+                it.meta.polished.pilon,
+                it.meta.ref_fasta,
+                it.meta.ref_gff
+                ]
         }
 
     LIFTOFF(liftoff_in, [])
 
     emit:
     ch_main
-    quast_out = QC.out.quast_out
-    busco_out = QC.out.busco_out
-    merqury_report_files = QC.out.merqury_report_files
+    quast_out               = QC.out.quast_out
+    busco_out               = QC.out.busco_out
+    merqury_report_files    = QC.out.merqury_report_files
 }
