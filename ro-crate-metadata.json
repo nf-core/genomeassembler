@@ -223,7 +223,6 @@
                 "@id": "https://www.nextflow.io/"
             },
             "version": "!>=25.10.4"
-            "version": "!>=25.10.4"
         },
         {
             "@id": "#abd81097-933b-4eb1-8553-dc5ed0decacb",
@@ -397,10 +396,7 @@
             "@id": "https://orcid.org/0000-0002-7860-3560",
             "@type": "Person",
             "affiliation": "Wellcome Sanger Institute",
-            "affiliation": "Wellcome Sanger Institute",
             "email": "mm49@sanger.ac.uk",
-            "name": "Matthieu Muffato",
-            "url": "https://github.com/muffato"
             "name": "Matthieu Muffato",
             "url": "https://github.com/muffato"
         },
