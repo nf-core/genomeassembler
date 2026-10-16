@@ -175,6 +175,10 @@ workflow PREPARE {
 
     main_out.dump(tag: "Prepare: Combined outputs")
 
+    genomescope_summary = JELLYFISH.out.genomescope_summary
+
+    genomescope_plot = JELLYFISH.out.genomescope_plot
+
     fastplong_json_reports = HIFI.out.fastplong_hifi_reports.mix(ONT.out.fastplong_ont_reports)
 
     emit:
