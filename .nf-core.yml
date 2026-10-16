@@ -36,4 +36,4 @@ template:
   skip_features:
     - multiqc
     - igenomes
-  version: 2.0.1-dev
+  version: 2.0.1
