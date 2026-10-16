@@ -239,9 +239,15 @@
             },
             "assembly": {
                 "type": "string",
+                "description": "A mapping (bam) of reads mapped to the reference can be provided for QC. If provided, alignment to reference fasta will not run.",
+                "meta": ["ref_map_bam"]
+            },
+            "assembly": {
+                "type": "string",
                 "description": "Can be used to provide existing assembly will skip assembly and perform downstream steps including QC.",
                 "meta": ["assembly"]
             },
+
             "assembly_map_bam": {
                 "type": "string",
                 "format": "file-path",
