@@ -49,7 +49,6 @@
             },
             "assembly_scaffolding_order": {
                 "type": "string",
-
                 "description": "When `strategy` is 'scaffold', which assembly should be scaffolded onto which?",
                 "enum": ["ont_on_hifi", "hifi_on_ont"],
                 "meta": ["assembly_scaffolding_order"]
@@ -256,7 +255,6 @@
             "lift_annotations": {
                 "type": "boolean",
                 "description": "Lift-over annotations (requires `ref_gff`).",
-
                 "meta": ["lift_annotations"]
             },
             "use_short_reads": {
