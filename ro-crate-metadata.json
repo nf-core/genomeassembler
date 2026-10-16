@@ -1,7 +1,6 @@
 {
     "@context": [
         "https://w3id.org/ro/crate/1.2/context",
-        "https://w3id.org/ro/crate/1.2/context",
         {
             "GithubService": "https://w3id.org/ro/terms/test#GithubService",
             "JenkinsService": "https://w3id.org/ro/terms/test#JenkinsService",
