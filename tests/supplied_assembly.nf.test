@@ -25,4 +25,38 @@ nextflow_workflow {
             assert snapshot(workflow.out.ch_main.collect { [it.meta.id, path(it.meta.assembly).getFileName().toString()] }).match()
         }
     }
+
+    test("PREPARE emits one record per sample and retains untrimmed Hi-C scaffold reads") {
+        options "-stub-run"
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+            workflow {
+                """
+                def forward = file("https://raw.githubusercontent.com/nf-core/test-datasets/genomeassembler/A_thaliana_Col-0_2mb/SRR22354810_1.sampled.fq.gz")
+                def reverse = file("https://raw.githubusercontent.com/nf-core/test-datasets/genomeassembler/A_thaliana_Col-0_2mb/SRR22354810_2.sampled.fq.gz")
+                input[0] = Channel.of('raw', 'trimmed', 'disabled').map { id ->
+                    [meta: [id: id,
+                        assembly: file("https://raw.githubusercontent.com/nf-core/test-datasets/genomeassembler/A_thaliana_Col-0_2mb/Col-CEN_v1.2.Chr1_5MB-7MB.fasta.gz"),
+                        qc_reads: 'ont', jellyfish: false,
+                        hic_F: forward, hic_R: reverse,
+                        phasing_reads: [f: forward, r: reverse],
+                        scaffold_hic: id != 'disabled', hic_trim: id == 'trimmed',
+                        shortread_trim: false, use_short_reads: false, merqury: false]]
+                }
+                """
+            }
+        }
+        then {
+            assert workflow.success
+            def metas = workflow.out.ch_main.collect { it.meta }.sort { it.id }
+            assert metas*.id == ['disabled', 'raw', 'trimmed']
+            assert !metas[0].hic_reads
+            assert metas[1].hic_reads.collect { path(it).getFileName().toString() } == ['SRR22354810_1.sampled.fq.gz', 'SRR22354810_2.sampled.fq.gz']
+            assert metas[2].hic_reads.size() == 2
+            assert metas[2].hic_reads.every { path(it).getFileName().toString().startsWith('trimmed') }
+            assert metas.every { path(it.phasing_reads.f).getFileName().toString() == 'SRR22354810_1.sampled.fq.gz' && path(it.phasing_reads.r).getFileName().toString() == 'SRR22354810_2.sampled.fq.gz' }
+        }
+    }
 }

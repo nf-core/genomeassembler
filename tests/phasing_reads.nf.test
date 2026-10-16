@@ -1,0 +1,39 @@
+nextflow_workflow {
+    name "Hi-C preparation preserves scaffold and phasing reads"
+    script "../subworkflows/local/prepare/prepare_shortreads/main.nf"
+    workflow "PREPARE_SHORTREADS"
+    tag "pipeline"
+    tag "hic_phasing"
+
+    test("Raw phasing reads remain independent of trimmed or untrimmed scaffold reads") {
+        options "-stub-run"
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+            workflow {
+                """
+                def forward = file("https://raw.githubusercontent.com/nf-core/test-datasets/genomeassembler/A_thaliana_Col-0_2mb/SRR22354810_1.sampled.fq.gz")
+                def reverse = file("https://raw.githubusercontent.com/nf-core/test-datasets/genomeassembler/A_thaliana_Col-0_2mb/SRR22354810_2.sampled.fq.gz")
+                input[0] = Channel.of('raw', 'trimmed', 'disabled').map { id ->
+                    [meta: [id: id, hic_F: forward, hic_R: reverse,
+                        phasing_reads: [f: forward, r: reverse],
+                        scaffold_hic: id != 'disabled', hic_trim: id != 'raw',
+                        shortread_trim: false, use_short_reads: false, merqury: false]]
+                }
+                """
+            }
+        }
+        then {
+            assert workflow.success
+            def metas = workflow.out.main_out.collect { it.meta }.sort { it.id }
+            assert metas*.id == ['disabled', 'raw', 'trimmed']
+            assert !metas[0].hic_reads
+            assert metas[1].hic_reads.collect { path(it).getFileName().toString() } == ['SRR22354810_1.sampled.fq.gz', 'SRR22354810_2.sampled.fq.gz']
+            assert metas[2].hic_reads.size() == 2
+            assert metas[2].hic_reads.every { path(it).getFileName().toString().startsWith('trimmed') }
+            assert metas.every { path(it.phasing_reads.f).getFileName().toString() == 'SRR22354810_1.sampled.fq.gz' && path(it.phasing_reads.r).getFileName().toString() == 'SRR22354810_2.sampled.fq.gz' }
+            assert snapshot(metas.collect { meta -> [meta.id, meta.hic_reads ? meta.hic_reads.collect { path(it).getFileName().toString() } : []] }).match()
+        }
+    }
+}

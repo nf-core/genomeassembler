@@ -16,9 +16,19 @@ lint:
     - .prettierignore
     - .gitignore
     - nf-core-genomeassembler_logo_dark.svg
-  # These focused tests run no tools: preparation passes through an assembly,
-  # and initialization deliberately fails before any versions.yml can be emitted.
+  # Focused routing/metadata regressions do not emit a pipeline versions.yml.
+  # Function and initialisation tests also have no published output directory.
   nf_test_content:
+    - tests/phasing_identity.nf.test
+    - tests/phasing_metadata.nf.test
+    - tests/phasing_initialization.nf.test
+    - tests/phasing_report.nf.test
+    - tests/phasing_assembly.nf.test
+    - tests/phasing_merqury.nf.test
+    - tests/phasing_downstream.nf.test
+    - tests/phasing_dorado.nf.test
+    - tests/phasing_combined.nf.test
+    - tests/phasing_reads.nf.test
     - tests/supplied_assembly.nf.test
     - tests/supplied_assembly_initialization.nf.test
     - tests/qc_reads.nf.test

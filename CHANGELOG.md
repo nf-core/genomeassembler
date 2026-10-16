@@ -9,6 +9,8 @@ codenamegenerator.com stopped working. Codenames from now on will be song titles
 
 ### `Added`
 
+- Add optional HiFi + Hi-C phasing with hifiasm. Retain both haplotypes under the original sample ID through polishing, scaffolding, QC and export ([@molikd](https://github.com/molikd)).
+
 - [#252](https://github.com/nf-core/genomeassembler/pull/252) Added `AGENTS.md`
 
 - [#233](https://github.com/nf-core/genomeassembler/pull/233) Updated. `tower.yml`
