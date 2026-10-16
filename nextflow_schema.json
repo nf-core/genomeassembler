@@ -211,6 +211,11 @@
                     "type": "string",
                     "description": "Additional args for `flye`."
                 },
+                "hifiasm_hic_phasing": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Generate both Hi-C-phased haplotypes with hifiasm (single strategy, HiFi reads and paired Hi-C reads required)."
+                },
                 "hifiasm_args": {
                     "type": "string",
                     "description": "Extra arguments passed to `hifiasm`"

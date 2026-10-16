@@ -1,0 +1,49 @@
+nextflow_workflow {
+    name "Samplesheet-driven phased combined polishing"
+    script "../tests/workflows/phasing_initialized.nf"
+    workflow "PHASING_INITIALIZED"
+    config "tests/conf/phasing_combined.config"
+    tag "pipeline"
+    tag "hic_phasing"
+
+    test("Initialization permits ONT polishing and Pilon retains both polishing stages") {
+        options "-stub-run"
+        when {
+            params {
+                outdir = "$outputDir"
+                input = "https://raw.githubusercontent.com/nf-core/test-datasets/218acd6325ddcd1214e48951f3df5e3d0d2edc20/samplesheet/phasing/phasing_combined.csv"
+                ref_gff = null
+            }
+            workflow {
+                "input[0] = params.input"
+            }
+        }
+        then {
+            assert workflow.success
+            def inputs = workflow.out.samples.collect { it.meta }.sort { it.id }
+            assert inputs*.polish == ['dorado+pilon', 'medaka+pilon']
+            assert inputs.every { it.assembler_hifi == 'hifiasm' && !it.assembler_ont && it.ontreads && it.phasing_reads }
+            def samples = workflow.out.assemblies.collect { it.meta }.sort { it.id }
+            assert samples*.id == ['dorado', 'medaka']
+            samples.each { meta ->
+                assert meta.haplotypes.keySet() == ['hap1', 'hap2'] as Set
+                ['hap1', 'hap2'].each { hap ->
+                    def polished = meta.haplotype_results[hap].polished
+                    assert polished.keySet() == [meta.id, 'pilon'] as Set
+                    assert path(polished.pilon).getFileName().toString() == "${meta.id}_${hap}_pilon.fa.gz"
+                    assert path(polished[meta.id]).getFileName().toString().startsWith("${meta.id}_${hap}_${meta.id}")
+                }
+            }
+            def rows = new File("$outputDir/genomeqc_samplesheet/nf-core-genomeqc-in.csv").readLines().drop(1)
+            assert rows.size() == 12 && rows.toSet().size() == 12
+            assert rows.every { new File(it.split(',')[1]).exists() }
+            ['dorado', 'medaka'].each { tool ->
+                ['hap1', 'hap2'].each { hap ->
+                    assert rows.any { it.startsWith("${tool}_${hap}-polish_${tool},") }
+                    assert rows.any { it.startsWith("${tool}_${hap}-polish_pilon,") }
+                }
+            }
+            assert snapshot(rows.collect { it.split(',')[0] }.sort()).match()
+        }
+    }
+}

@@ -1,3 +1,4 @@
+include { createHaplotypeKey } from '../../assembly_haplotypes/main'
 include { LINKS } from '../../../../modules/nf-core/links/main'
 include { QC } from '../../qc/main'
 include { LIFTOFF } from '../../../../modules/nf-core/liftoff/main'
@@ -27,8 +28,9 @@ workflow RUN_LINKS {
         .map { meta, scaff_links -> [meta: meta + [scaffolds_links: scaff_links] ] }
 
     QC(ch_main_scaffolded.map { it -> [meta: it.meta - it.meta.subMap("assembly_map_bam") + [assembly_map_bam: null] ]},
-        BGZIP.out.bgzipped.map { meta, scaffold -> [meta.id, scaffold]},
-         meryl_kmers)
+        BGZIP.out.bgzipped.map { meta, scaffold -> [createHaplotypeKey(meta), scaffold]},
+         meryl_kmers,
+    )
 
     liftoff_in = ch_main_scaffolded
         .filter {

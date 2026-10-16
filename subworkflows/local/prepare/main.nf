@@ -4,58 +4,6 @@ include { PREPARE_SHORTREADS as SHORTREADS } from './prepare_shortreads/main'
 include { JELLYFISH } from './jellyfish/main'
 
 workflow PREPARE {
-    /*
-    Subworkflows in prepare implement sample grouping.
-    SHORTREADS, JELLYFISH, ONT and HIFI each implement
-    the same logic for sample grouping.
-    Grouping needs to be specified by the user, and can
-    be used to create sample groups that share inputs, to
-    minimize redundant input preparations.
-    Reads of samples from the same group will be prepared
-    only once, and then the original channel is restored.
-
-    Brief description how this works:
-        // Move group information into channel, if it exists
-        .filter { it -> it.meta.group }
-        .map { it -> [it.meta, it.meta.group, it.meta.ontreads] }
-        // Group by group
-        .groupTuple(by: 1)
-        // Collect all sample-meta into a group meta slot named metas
-        // Use unique reads; user responsible to group correctly
-        .map {
-            it ->
-                [
-                    [
-                        id: it[1], // the group
-                        metas: it[0]
-                    ],
-                    it[2].unique()[0] // Ontreads
-                ]
-        }
-
-    After this input channel has been processed, the samples are
-    recreated from meta[metas]:
-
-    process.OUT
-        // Take samples with metas in slot [0]
-        .filter { it -> it[0].metas }
-        .flatMap { it ->
-            // $it looks like [meta, output_path]
-            // recreate meta from metas and update path.
-            it[0].metas
-                  .collect { meta -> [
-                                meta: meta - meta.subMap("ontreads") + [ontreads: it[1]]
-                                ]
-                            }
-        }
-        .mix(
-            process.OUT
-                .filter { it -> !it[0].metas }
-                .map {meta, ontreads -> [meta: meta -meta.subMap("ontreads") + [ontreads: ontreads]]}
-        )
-
-
-    */
     take: ch_main
 
     main:
@@ -63,17 +11,20 @@ workflow PREPARE {
 
     shortreads = ch_main
         .filter {
-            it -> ((it.meta.shortread_F && it.meta.use_short_reads) || (it.meta.hic_F && it.meta.scaffold_hic)) ? true : false
+            it ->
+        (it.meta.shortread_F && it.meta.use_short_reads) || (it.meta.hic_F && it.meta.scaffold_hic) ? true : false
         }
 
     ontreads = ch_main
         .filter {
-            it -> (it.meta.ontreads) ? true : false
+            it ->
+        it.meta.ontreads ? true : false
         }
 
     hifireads = ch_main
         .filter {
-            it -> (it.meta.hifireads) ? true : false
+            it ->
+        it.meta.hifireads ? true : false
         }
 
     // adapted to sample-logic
@@ -91,7 +42,7 @@ workflow PREPARE {
         .mix(
             ch_main
                 .filter {
-                    it -> !(it.meta.shortread_F && it.meta.use_short_reads) && !(it.meta.hic_trim && it.meta.scaffold_hic)
+                    it -> !(it.meta.shortread_F && it.meta.use_short_reads) && !(it.meta.hic_F && it.meta.scaffold_hic)
                 }
                 .map { it -> [meta: it.meta - it.meta.subMap("shortread_F","shortread_R", "paired", "hic_F", "hic_R") + [shortreads: null, hic_reads: null] ]}
                 .mix(SHORTREADS.out.main_out)
@@ -108,7 +59,6 @@ workflow PREPARE {
     ch_main_hifi_prepped = HIFI.out.main_out
 
     ch_main_sr_ont = ch_main_shortreaded
-        // ADD ONT READS
         .filter {
             it -> it.meta.ontreads ? true : false
         }
@@ -117,13 +67,11 @@ workflow PREPARE {
             ch_main_ont_prepped
                 .map { it -> [it.meta.id, it.meta.ontreads] }
             )
-        // After joining re-create the maps from the stored map
         .map { _id, meta_old, ont_reads ->
             [
                 meta: meta_old -meta_old.subMap("ontreads") + [ontreads: ont_reads]
             ]
         }
-        // mix back in those samples where nothing was done to the ont reads
         .mix(ch_main_shortreaded
             .filter {
                 it -> it.meta.ontreads ? false : true
@@ -141,19 +89,16 @@ workflow PREPARE {
             ch_main_hifi_prepped
                 .map { it -> [it.meta.id, it.meta.hifireads] }
             )
-            // After joining re-create the maps from the stored map
         .map { _id, meta_old, hifi_reads ->
             [
                 meta: meta_old + [hifireads: hifi_reads]
             ]
         }
-        // mix back in those samples where nothing was done to the hifireads reads
         .mix(ch_main_sr_ont
             .filter {
                 it -> it.meta.hifireads ? false : true
             }
         )
-        // update the path to QC reads, so that the trimmed reads will be used.
         .map {
             it ->
             [
@@ -216,9 +161,7 @@ workflow PREPARE {
                     ]
             ]
         }
-        // Supplied assemblies may have no long reads or fastplong report.
-        .mix(ch_main_prepared.filter { it.meta.assembly && !it.meta.ontreads && !it.meta.hifireads })
-        // branch this channel for jellyfish
+        .mix(ch_main_prepared.filter { row -> row.meta.assembly && !row.meta.ontreads && !row.meta.hifireads })
         .branch {
             it ->
                 jelly: it.meta.jellyfish
@@ -231,10 +174,6 @@ workflow PREPARE {
         .mix( JELLYFISH.out.main_out )
 
     main_out.dump(tag: "Prepare: Combined outputs")
-
-    genomescope_summary = JELLYFISH.out.genomescope_summary
-
-    genomescope_plot = JELLYFISH.out.genomescope_plot
 
     fastplong_json_reports = HIFI.out.fastplong_hifi_reports.mix(ONT.out.fastplong_ont_reports)
 

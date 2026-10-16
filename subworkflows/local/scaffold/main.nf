@@ -1,3 +1,4 @@
+include { createHaplotypeKey } from '../assembly_haplotypes/main'
 include { RUN_LINKS         } from './links/main'
 include { RUN_LONGSTITCH    } from './longstitch/main'
 include { RUN_RAGTAG        } from './ragtag/main'
@@ -79,16 +80,12 @@ workflow SCAFFOLD {
                 .map { it -> [meta: it.meta - it.meta.subMap("scaffolds_hic") + [ scaffolds: [ hic: it.meta.scaffolds_hic ] ] ]}
 
             )
-        // mix in those that are double scaffolded: , links-ragtag, longstitch-ragtag
-        // links-longstitch
         .mix(
             links_out
                 .filter {it -> it.meta.scaffold_longstitch && !it.meta.scaffold_ragtag }
-                .map {it -> [it.meta.id, it.meta]}
-                // Join without filtering, inner-join
-                .join(
+                .map {it -> [createHaplotypeKey(it.meta), it.meta]}.join(
                     longstitch_out
-                        .map {it -> [it.meta.id, it.meta]}
+                        .map {it -> [createHaplotypeKey(it.meta), it.meta]}
                 )
                 .map {
                     _id, meta_links, meta_longstitch ->
@@ -104,15 +101,12 @@ workflow SCAFFOLD {
                     ]
                 }
         )
-        //links-ragtag
         .mix(
             links_out
                 .filter {it -> !it.meta.scaffold_longstitch && it.meta.scaffold_ragtag }
-                .map {it -> [it.meta.id, it.meta]}
-                // Join without filtering, inner-join
-                .join(
+                .map {it -> [createHaplotypeKey(it.meta), it.meta]}.join(
                     ragtag_out
-                        .map {it -> [it.meta.id, it.meta]}
+                        .map {it -> [createHaplotypeKey(it.meta), it.meta]}
                 )
                 .map {
                     _id, meta_links, meta_ragtag ->
@@ -128,15 +122,12 @@ workflow SCAFFOLD {
                     ]
                 }
         )
-        //longstitch-ragtag
         .mix(
             longstitch_out
                 .filter {it -> !it.meta.scaffold_links && it.meta.scaffold_ragtag }
-                .map {it -> [it.meta.id, it.meta]}
-                // Join without filtering, inner-join
-                .join(
+                .map {it -> [createHaplotypeKey(it.meta), it.meta]}.join(
                     ragtag_out
-                        .map {it -> [it.meta.id, it.meta]}
+                        .map {it -> [createHaplotypeKey(it.meta), it.meta]}
                 )
                 .map {
                     _id, meta_longstitch, meta_ragtag -> [
@@ -151,19 +142,16 @@ workflow SCAFFOLD {
                     ]
                 }
         )
-        // mix in triple-scaffolded
         .mix(
             links_out
                 .filter {it -> it.meta.scaffold_longstitch && it.meta.scaffold_ragtag }
-                .map {it -> [it.meta.id, it.meta]}
-                // Join without filtering, inner-join
-                .join(
+                .map {it -> [createHaplotypeKey(it.meta), it.meta]}.join(
                     longstitch_out
-                        .map {it -> [it.meta.id, it.meta]}
+                        .map {it -> [createHaplotypeKey(it.meta), it.meta]}
                 )
                 .join(
                     ragtag_out
-                        .map {it -> [it.meta.id, it.meta]}
+                        .map {it -> [createHaplotypeKey(it.meta), it.meta]}
                 )
                 .map {
                     _id, meta_links, meta_longstitch, meta_ragtag -> [

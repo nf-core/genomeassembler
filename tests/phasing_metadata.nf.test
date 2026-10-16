@@ -1,0 +1,71 @@
+nextflow_workflow {
+    name "Grouped haplotype metadata"
+    script "../subworkflows/local/assembly_haplotypes/main.nf"
+    workflow "COLLATE_HAPLOTYPES"
+    tag "pipeline"
+    tag "phasing_metadata"
+
+    test("Parallel stage outputs merge under the original sample without mixing haplotypes") {
+        when {
+            workflow {
+                """
+                input[0] = Channel.of(
+                    [meta: [id: 'sample', haplotype: 'hap2', assembly: 'h2.fa', scaffolds: [ragtag: 'h2.ragtag.fa']]],
+                    [meta: [id: 'sample', haplotype: 'hap1', assembly: 'h1.fa', polished: [pilon: 'h1.pilon.fa'], scaffolds: [hic: 'h1.hic.fa']]],
+                    [meta: [id: 'sample', haplotype: 'hap2', assembly: 'h2.fa', scaffolds: [hic: 'h2.hic.fa']]],
+                    [meta: [id: 'sample', haplotype: 'hap1', assembly: 'h1.fa', polished: [pilon: 'h1.pilon.fa'], scaffolds: [ragtag: 'h1.ragtag.fa']]],
+                    [meta: [id: 'unphased', assembly: 'single.fa']]
+                )
+                """
+            }
+        }
+        then {
+            assert workflow.success
+            def metas = workflow.out.samples.collect { it.meta }.sort { it.id }
+            assert metas*.id == ['sample', 'unphased']
+            def sample = metas[0]
+            assert sample.haplotypes == [hap1: 'h1.fa', hap2: 'h2.fa']
+            assert sample.haplotype_results.hap1 == [polished: [pilon: 'h1.pilon.fa'], scaffolds: [hic: 'h1.hic.fa', ragtag: 'h1.ragtag.fa']]
+            assert sample.haplotype_results.hap2 == [scaffolds: [hic: 'h2.hic.fa', ragtag: 'h2.ragtag.fa']]
+            assert !sample.haplotype && !sample.assembly && !sample.polished && !sample.scaffolds
+            assert metas[1] == [id: 'unphased', assembly: 'single.fa']
+            assert snapshot(metas).match()
+        }
+    }
+
+    test("A missing haplotype cannot become a partial sample") {
+        when {
+            workflow {
+                """
+                input[0] = Channel.of([meta: [id: 'sample', haplotype: 'hap1', assembly: 'h1.fa']])
+                """
+            }
+        }
+        then {
+            assert workflow.failed
+            def message = 'expected assemblies for both hap1 and hap2'
+            assert (workflow.stdout + workflow.stderr).any { it.contains(message) }
+            assert snapshot(message).match()
+        }
+    }
+
+    test("Distinct results for the same haplotype stage cannot overwrite each other") {
+        when {
+            workflow {
+                """
+                input[0] = Channel.of(
+                    [meta: [id: 'sample', haplotype: 'hap1', assembly: 'h1.fa', scaffolds: [ragtag: 'first.fa']]],
+                    [meta: [id: 'sample', haplotype: 'hap1', assembly: 'h1.fa', scaffolds: [ragtag: 'second.fa']]],
+                    [meta: [id: 'sample', haplotype: 'hap2', assembly: 'h2.fa']]
+                )
+                """
+            }
+        }
+        then {
+            assert workflow.failed
+            def message = 'conflicting scaffolds.ragtag results for hap1'
+            assert (workflow.stdout + workflow.stderr).any { it.contains(message) }
+            assert snapshot(message).match()
+        }
+    }
+}

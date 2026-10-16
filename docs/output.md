@@ -344,3 +344,12 @@ The pipeline collects the quality control outputs into an html report. Below is 
 </details>
 
 [Nextflow](https://docs.seqera.io/platform-cloud/reports/overview) provides excellent functionality for generating various reports relevant to the running and execution of the pipeline. This will allow you to troubleshoot errors with the running of the pipeline, and also provide you with other information such as launch commands, run times and resource usage.
+
+## Hi-C phased assemblies
+
+With `hifiasm_hic_phasing`, both haplotypes remain under the original sample's
+output directory. For sample `individual`, the initial assemblies are
+`individual/assembly/hifiasm/individual_hap1.fa.gz` and
+`individual/assembly/hifiasm/individual_hap2.fa.gz`. QC, polishing and scaffolding
+filenames also include `_hap1` or `_hap2`. The genomeqc samplesheet lists each
+retained haplotype and stage separately.
