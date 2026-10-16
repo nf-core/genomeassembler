@@ -93,7 +93,7 @@ workflow PREPARE {
                 .filter {
                     it -> !(it.meta.shortread_F && it.meta.use_short_reads) && !(it.meta.hic_trim && it.meta.scaffold_hic)
                 }
-                .map { it -> [meta: it.meta - it.meta.subMap("shortread_F","shortread_R", "paired", "hic_F", "hic_R") + [shorteads: null, hic_reads: null] ]}
+                .map { it -> [meta: it.meta - it.meta.subMap("shortread_F","shortread_R", "paired", "hic_F", "hic_R") + [shortreads: null, hic_reads: null] ]}
                 .mix(SHORTREADS.out.main_out)
         )
 
@@ -216,6 +216,8 @@ workflow PREPARE {
                     ]
             ]
         }
+        // Supplied assemblies may have no long reads or fastplong report.
+        .mix(ch_main_prepared.filter { it.meta.assembly && !it.meta.ontreads && !it.meta.hifireads })
         // branch this channel for jellyfish
         .branch {
             it ->
@@ -241,6 +243,6 @@ workflow PREPARE {
     fastplong_json_reports
     fastp_json_reports      = SHORTREADS.out.fastp_json
     meryl_kmers
-    genomescope_summary     = JELLYFISH.out.genomescope_summary
-    genomescope_plot        = JELLYFISH.out.genomescope_plot
+    genomescope_summary
+    genomescope_plot
 }

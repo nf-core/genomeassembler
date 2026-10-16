@@ -1,3 +1,9 @@
 reports:
-  samplesheet.csv:
-    display: "Auto-created samplesheet with collated metadata and FASTQ paths"
+  "report/report.html":
+    display: "Per sample read QC and assembly statistics."
+  "genomeqc_samplesheet/nf-core-genomeqc-in.csv":
+    display: "Input samplesheet for in depth qc with nf-core/genomeqc"
+  "pipeline_info/execution_report_*.html":
+    display: Pipeline execution report
+  "pipeline_info/execution_trace*.html":
+    display: Pipeline execution trace

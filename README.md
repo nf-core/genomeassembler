@@ -62,10 +62,12 @@ I thank the following people for constructive reviews and discussion during the 
 
 - [Jim Downie](https://github.com/prototaxites)
 - [Mahesh Binzer-Panchal](https://github.com/mahesh-panchal)
+- [Jim Downie](https://github.com/prototaxites)
 - [Matthias Hörtenhuber](https://github.com/mashehu)
 - [Evangelos Karatzas](https://github.com/vagkaratzas)
 - [Louis Le Nézet](https://github.com/LouisLeNezet)
 - [Júlia Mir Pedrol](https://github.com/mirpedrol)
+- [David Molik](https://github.com/molikd)
 - [Daniel Straub](https://github.com/d4straub)
 
 ## Contributions and Support
