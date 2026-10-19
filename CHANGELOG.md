@@ -17,6 +17,8 @@ codenamegenerator.com stopped working. Codenames from now on will be song titles
 
 ### `Fixed`
 
+- [#256](https://github.com/nf-core/genomeassembler/pull/256) Preserve both phased Hi-C BWA index directories when publishing links and verify sample/mate identity in hifiasm routing tests ([@molikd](https://github.com/molikd)).
+
 - [#248](https://github.com/nf-core/genomeassembler/pull/248) Retain supplied assemblies without long reads and reject unsupported Jellyfish requests during initialization ([@molikd](https://github.com/molikd)).
 
 - [#251](https://github.com/nf-core/genomeassembler/pull/251) Create the rebgzip output directory in stub runs ([@molikd](https://github.com/molikd)).

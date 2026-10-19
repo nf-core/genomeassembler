@@ -23,6 +23,7 @@ lint:
     - tests/phasing_metadata.nf.test
     - tests/phasing_initialization.nf.test
     - tests/phasing_report.nf.test
+    - tests/phasing_index_publish.nf.test
     - tests/phasing_assembly.nf.test
     - tests/phasing_merqury.nf.test
     - tests/phasing_downstream.nf.test

@@ -353,3 +353,8 @@ output directory. For sample `individual`, the initial assemblies are
 `individual/assembly/hifiasm/individual_hap2.fa.gz`. QC, polishing and scaffolding
 filenames also include `_hap1` or `_hap2`. The genomeqc samplesheet lists each
 retained haplotype and stage separately.
+
+For Hi-C scaffolding with `bwa-mem2`, phased index directories are published to
+`individual/scaffold/hic/bwamem2/index/hap1/bwamem2` and
+`individual/scaffold/hic/bwamem2/index/hap2/bwamem2`. Unphased indices keep the
+existing `individual/scaffold/hic/bwamem2/index/bwamem2` path.

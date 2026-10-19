@@ -1,0 +1,41 @@
+nextflow_process {
+    name "Haplotype Hi-C index publishing"
+    script "../modules/nf-core/bwamem2/index/main.nf"
+    process "BWAMEM2_INDEX"
+    config "tests/conf/phasing_index_publish.config"
+    tag "pipeline"
+    tag "hic_phasing"
+
+    ['symlink', 'rellink'].each { mode ->
+        test("Both haplotype index directories remain accessible with ${mode}") {
+            options "-stub-run"
+            when {
+                params {
+                    outdir = "$outputDir"
+                    publish_dir_mode = mode
+                }
+                process {
+                    """
+                    input[0] = Channel.of([id: 'individual', haplotype: 'hap1'],
+                        [id: 'individual', haplotype: 'hap2'], [id: 'unphased']).map { meta ->
+                        [meta, file(params.pipelines_testdata_base_path + '/A_thaliana_Col-0_2mb/Col-CEN_v1.2.Chr1_5MB-7MB.fasta.gz')]
+                    }
+                    """
+                }
+            }
+            then {
+                assert process.success
+                assert process.out.index.size() == 3
+                process.out.index.each { meta, index ->
+                    def suffix = meta.haplotype ? "/${meta.haplotype}" : ''
+                    def published = path("$outputDir/${meta.id}/scaffold/hic/bwamem2/index${suffix}/bwamem2")
+                    assert java.nio.file.Files.isSymbolicLink(published)
+                    assert published.toRealPath() == path(index).toRealPath()
+                    assert java.nio.file.Files.readSymbolicLink(published).isAbsolute() == (mode == 'symlink')
+                    def prefix = meta.haplotype ? "${meta.id}_${meta.haplotype}" : meta.id
+                    assert published.toFile().listFiles()*.name.sort() == ['0123', 'amb', 'ann', 'bwt.2bit.64', 'pac'].collect { "${prefix}_bwamem_index.${it}" }.sort()
+                }
+            }
+        }
+    }
+}
