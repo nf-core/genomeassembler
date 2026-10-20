@@ -1,3 +1,4 @@
+include { FHR_EXPORT; loadFhrConfig; fhrRecord; assemblyOutputs } from '../subworkflows/local/fhr/main'
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     IMPORT MODULES / SUBWORKFLOWS / FUNCTIONS
@@ -110,6 +111,14 @@ workflow GENOMEASSEMBLER {
         .no_scaffold
         .mix(SCAFFOLD.out.ch_main)
 
+    // Enumerate retained assembly stages for optional FHR export.
+    ch_assembly_outputs = ch_main_scaffolded.flatMap { row -> assemblyOutputs(row.meta) }
+    def fhr_config = params.fhr_config ? loadFhrConfig(params.fhr_config) : null
+    ch_fhr_records = fhr_config
+        ? ch_assembly_outputs.map { meta, stage, assembly, subdir -> fhrRecord(meta, stage, assembly, fhr_config) }
+        : channel.empty()
+    FHR_EXPORT(ch_fhr_records)
+
     fastplong_jsons = PREPARE.out.fastplong_json_reports
         .map { it -> it[1] }
         .unique()
@@ -148,6 +157,7 @@ workflow GENOMEASSEMBLER {
 
     def ch_collated_versions = softwareVersionsToYAML(topic_versions.versions_file)
         .mix(topic_versions_string)
+        .mix(FHR_EXPORT.out.versions.map { meta, versions -> "FHR_EXPORT:\n  ${versions.text.trim()}" }.distinct())
 
     ch_collated_versions
         .collectFile(
@@ -293,4 +303,6 @@ workflow GENOMEASSEMBLER {
 
     emit:
     _report
+    fhr_yaml = FHR_EXPORT.out.yaml
+    fhr_fasta = FHR_EXPORT.out.sequence
 }

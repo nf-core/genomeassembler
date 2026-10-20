@@ -19,6 +19,7 @@ The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes d
 - [**Scaffolding**](#scaffolding)
 - [**Annotation liftover**](#annotations)
 - [**Quality control**](#quality-control)
+- [**FAIR bioHeaders export**](#fair-bioheaders-export)
 - [**Reporting**](#report)
 
 ## Output structure
@@ -314,6 +315,15 @@ The files in the alignment folder have the following base name structure:
         - `<SampleName>_to_reference.flagstat` number of alignments for each FLAG type
 
 </details>
+
+### FAIR bioHeaders export
+
+Optional export is enabled with `--fhr_config`. Each retained assembly stage produces a validated pair in `<SampleName>/fhr/<StageName>/`:
+
+- `<SampleName>-<StageName>.fhr.yaml`: FAIR bioHeaders metadata.
+- `<SampleName>-<StageName>.fhr.fasta`: the matching assembly with metadata headers.
+
+The checksum refers to the annotated FASTA, excluding its checksum header line. Original assembly outputs are retained. Sample names requiring path-safe encoding are encoded in export paths and filenames. See [FAIR bioHeaders configuration and examples](fhr.md) for metadata requirements and naming details.
 
 ### Report
 
