@@ -5,5 +5,5 @@ reports:
     display: "Input samplesheet for in depth qc with nf-core/genomeqc"
   "pipeline_info/execution_report_*.html":
     display: Pipeline execution report
-  "pipeline_info/execution_trace*.html":
+  "pipeline_info/execution_trace*.txt":
     display: Pipeline execution trace
