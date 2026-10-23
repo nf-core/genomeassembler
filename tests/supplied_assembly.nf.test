@@ -1,0 +1,28 @@
+nextflow_workflow {
+    name "Supplied assembly preparation"
+    script "../subworkflows/local/prepare/main.nf"
+    workflow "PREPARE"
+    tag "pipeline"
+    tag "supplied_assembly"
+    tag "prepare"
+
+    test("Supplied assembly without long reads is retained") {
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+            workflow {
+                """
+                input[0] = Channel.of([meta: [id: 'supplied', assembly: file("${params.pipelines_testdata_base_path}/A_thaliana_Col-0_2mb/Col-CEN_v1.2.Chr1_5MB-7MB.fasta.gz"), qc_reads: 'ont', jellyfish: false]])
+                """
+            }
+        }
+        then {
+            assert workflow.success
+            assert workflow.out.ch_main.size() == 1
+            assert workflow.out.ch_main[0].meta.id == 'supplied'
+            assert path(workflow.out.ch_main[0].meta.assembly).getFileName().toString() == 'Col-CEN_v1.2.Chr1_5MB-7MB.fasta.gz'
+            assert snapshot(workflow.out.ch_main.collect { [it.meta.id, path(it.meta.assembly).getFileName().toString()] }).match()
+        }
+    }
+}

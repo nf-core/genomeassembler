@@ -189,10 +189,7 @@ workflow PREPARE_SHORTREADS {
 
 def create_shortread_channel(row) { // This function expects a meta map as input
     // create meta map
-    def meta = row
-    meta.paired = row.paired
-    meta.single_end = !meta.paired
-
+    def meta = row + [single_end: !row.paired]
     // add path(s) of the fastq file(s) to the meta map
     def shortreads = []
     if (!file(row.shortread_F).exists()) {

@@ -13,8 +13,8 @@ This pipeline can perform assembly, polishing, scaffolding using long-reads, HiC
 > Phasing is currently not supported.
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/images/genomeassembler_dark.svg">
-  <img alt="nf-core/genomeassembler" src="docs/images/genomeassembler_light.svg">
+  <source media="(prefers-color-scheme: dark)" srcset="images/genomeassembler_dark.svg">
+  <img alt="nf-core/genomeassembler" src="images/genomeassembler_light.svg">
 </picture>
 
 Since it is often difficult to know which tool, or assembly strategy will perform best on a dataset, `nf-core/genomeassembler` can also be used to compare outcomes of different approaches in one run.
@@ -106,7 +106,7 @@ Further commonly used columns _can_ be:
 
 But samplesheets can grow more complex if a range of strategies should be compared in a single pipeline run. A list of all possible columns can be found at the [end of this page](#sample-parameters)
 
-> [!INFO]
+> [!TIP]
 > It is strongly recommended to provide all paths as absolute paths
 
 ## Running the pipeline
@@ -183,7 +183,7 @@ Use this parameter to choose a configuration profile. Profiles can give configur
 
 Several generic profiles are bundled with the pipeline which instruct the pipeline to use software packaged using different methods (Docker, Singularity, Podman, Shifter, Charliecloud, Apptainer, Conda) - see below.
 
-> [!INFO]
+> [!TIP]
 > We highly recommend the use of Docker or Singularity containers for full pipeline reproducibility, however when this is not possible, Conda is also supported.
 
 The pipeline also dynamically loads configurations from [https://github.com/nf-core/configs](https://github.com/nf-core/configs) when it runs, making multiple config profiles for various institutional clusters available at run time. For more information and to check if your system is supported, please see the [nf-core/configs documentation](https://github.com/nf-core/configs#documentation).
@@ -300,20 +300,19 @@ Options controlling assembly.
 
 The difference between `{hifiasm,flye}_args` and `assembler_{ont,hifi}_args` is subtle: the former will be applied for all cases where this particular assembler is used, whereas the latter will apply the args to the assembler used for assembling a specific type of data. `{hifiasm,flye}_args` are generally expected to be used for e.g. system specific configuration via `params`, although they can also be set per-sample, whereas `assembler_{ont,hifi}_args` provide a bit more of an abstract interface, possibly more appropriate to adjust certain parameters per-sample.
 
-| Parameter                                         | Description                                                                                                                                                                                                                                                                              | Type     |
-| ------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- |
-| `strategy`                                        | Assembly strategy to use. Valid choices are `'single'`, `'hybrid'` and `'scaffold'`                                                                                                                                                                                                      | `string` |
-| `assembler`                                       | Assembler to use. Valid choices depend on strategy; for single either `flye` or `hifiasm`, hybrid can be done with `hifiasm` and for scaffolded assembly provide the names of the assemblers separated with an underscore. The first assembler will                                      |
-| be used for ONT reads, the second for HiFi reads. | `string`                                                                                                                                                                                                                                                                                 |
-| `assembler_ont`                                   | Assembler to use for ONT reads. Often determined automatically, but required for complex runs, where both ONT and HiFi reads are provided, but some assemblies should be done using `strategy: "single"` using only ONT reads. Such cases can not unambiguously be resolved otherwise.   | `string` |
-| `assembler_hifi`                                  | Assembler to use for HiFi reads. Often determined automatically, but required for complex runs, where both ONT and HiFi reads are provided, but some assemblies should be done using `strategy: "single"` using only HiFi reads. Such cases can not unambiguously be resolved otherwise. | `string` |
-| `assembly_scaffolding_order`                      | When strategy is "scaffold", which assembly should be scaffolded onto which?                                                                                                                                                                                                             | `string` |
-| `genome_size`                                     | expected genome size, optional                                                                                                                                                                                                                                                           | `string` |
-| `flye_mode`                                       | flye mode                                                                                                                                                                                                                                                                                | `string` |
-| `flye_args`                                       | additional args for flye                                                                                                                                                                                                                                                                 | `string` |
-| `hifiasm_args`                                    | Extra arguments passed to `hifiasm`                                                                                                                                                                                                                                                      | `string` |
-| `assembler_ont_args`                              | Extra arguments passed to assembler_ont, assembling ONT reads and hybrid assemblies                                                                                                                                                                                                      | `string` |
-| `assembler_hifi_args`                             | Extra arguments passed to assembler_hifi; assembling HiFi reads                                                                                                                                                                                                                          | `string` |
+| Parameter                    | Description                                                                                                                                                                                                                                                                                           | Type     |
+| ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- |
+| `strategy`                   | Assembly strategy to use. Valid choices are `'single'`, `'hybrid'` and `'scaffold'`                                                                                                                                                                                                                   | `string` |
+| `assembler`                  | Assembler to use. Valid choices depend on strategy; for single either `flye` or `hifiasm`, hybrid can be done with `hifiasm` and for scaffolded assembly provide the names of the assemblers separated with an underscore. The first assembler will be used for ONT reads, the second for HiFi reads. | `string` |
+| `assembler_ont`              | Assembler to use for ONT reads. Often determined automatically, but required for complex runs, where both ONT and HiFi reads are provided, but some assemblies should be done using `strategy: "single"` using only ONT reads. Such cases can not unambiguously be resolved otherwise.                | `string` |
+| `assembler_hifi`             | Assembler to use for HiFi reads. Often determined automatically, but required for complex runs, where both ONT and HiFi reads are provided, but some assemblies should be done using `strategy: "single"` using only HiFi reads. Such cases can not unambiguously be resolved otherwise.              | `string` |
+| `assembly_scaffolding_order` | When strategy is "scaffold", which assembly should be scaffolded onto which?                                                                                                                                                                                                                          | `string` |
+| `genome_size`                | expected genome size, optional                                                                                                                                                                                                                                                                        | `string` |
+| `flye_mode`                  | flye mode                                                                                                                                                                                                                                                                                             | `string` |
+| `flye_args`                  | additional args for flye                                                                                                                                                                                                                                                                              | `string` |
+| `hifiasm_args`               | Extra arguments passed to `hifiasm`                                                                                                                                                                                                                                                                   | `string` |
+| `assembler_ont_args`         | Extra arguments passed to assembler_ont, assembling ONT reads and hybrid assemblies                                                                                                                                                                                                                   | `string` |
+| `assembler_hifi_args`        | Extra arguments passed to assembler_hifi; assembling HiFi reads                                                                                                                                                                                                                                       | `string` |
 
 ## Long-read preprocessing
 
