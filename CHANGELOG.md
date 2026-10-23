@@ -11,7 +11,7 @@ codenamegenerator.com stopped working. Codenames from now on will be song titles
 
 - [#252](https://github.com/nf-core/genomeassembler/pull/252) Added `AGENTS.md`
 
-- [#233](https://github.com/nf-core/genomeassembler/pull/233) Updated. `tower.yml`
+- [#233](https://github.com/nf-core/genomeassembler/pull/233) Update `tower.yml` with the report paths (the execution trace pattern was fixed in [#259](https://github.com/nf-core/genomeassembler/pull/259), found in review by @Vicbeg).
 
 ### `Fixed`
 
