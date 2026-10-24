@@ -347,14 +347,18 @@ The pipeline collects the quality control outputs into an html report. Below is 
 
 ## Hi-C phased assemblies
 
-With `hifiasm_hic_phasing`, both haplotypes remain under the original sample's
-output directory. For sample `individual`, the initial assemblies are
-`individual/assembly/hifiasm/individual_hap1.fa.gz` and
-`individual/assembly/hifiasm/individual_hap2.fa.gz`. QC, polishing and scaffolding
-filenames also include `_hap1` or `_hap2`. The genomeqc samplesheet lists each
-retained haplotype and stage separately.
+Both haplotypes remain under the original sample's output directory. QC, polishing and scaffolding filenames include `_hap1` or `_hap2`. The genomeqc samplesheet lists each retained haplotype and stage separately.
 
-For Hi-C scaffolding with `bwa-mem2`, phased index directories are published to
-`individual/scaffold/hic/bwamem2/index/hap1/bwamem2` and
-`individual/scaffold/hic/bwamem2/index/hap2/bwamem2`. Unphased indices keep the
-existing `individual/scaffold/hic/bwamem2/index/bwamem2` path.
+<details markdown="1">
+<summary>Output files</summary>
+
+- `individual/assembly/hifiasm/`:
+  - `individual_hap1.fa.gz`: First haplotype assembly.
+  - `individual_hap2.fa.gz`: Second haplotype assembly.
+  - Original hifiasm graphs and logs.
+- `individual/scaffold/hic/bwamem2/index/`:
+  - `hap1/bwamem2/`: First haplotype index directory.
+  - `hap2/bwamem2/`: Second haplotype index directory.
+  - Unphased indices retain the existing `bwamem2/` path.
+
+</details>

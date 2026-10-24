@@ -11,7 +11,7 @@ nextflow_workflow {
         assemblyMode: "--primary and --ont are incompatible with hifiasm_hic_phasing.",
         outputCollision: "haplotype output prefixes collide with another samplesheet sample.",
         sampleIds: "Samplesheet sample IDs must be unique.",
-        prerequisites: "hifiasm_hic_phasing requires single-strategy hifiasm assembly with HiFi reads and no supplied assembly.",
+        prerequisites: "hifiasm_hic_phasing requires single or hybrid hifiasm assembly with HiFi reads and no supplied assembly; hybrid assembly also requires ONT reads.",
         hicMates: "hifiasm_hic_phasing requires both hic_F and hic_R."
     ]
     def scenarios = [
@@ -30,7 +30,7 @@ nextflow_workflow {
         [name: "hap1 output prefix collision", fixture: "phasing_18.csv", error: errors.outputCollision],
         [name: "hap2 output prefix collision", fixture: "phasing_19.csv", error: errors.outputCollision],
         [name: "duplicate sample IDs", fixture: "phasing_20.csv", error: errors.sampleIds],
-        [name: "hybrid strategy", fixture: "phasing_21.csv", error: errors.prerequisites],
+        [name: "hybrid strategy", fixture: "phasing_21.csv", mode: "hybrid"],
         [name: "scaffold strategy", fixture: "phasing_22.csv", error: errors.prerequisites],
         [name: "wrong assembler", fixture: "phasing_23.csv", error: errors.prerequisites],
         [name: "missing HiFi", fixture: "phasing_24.csv", error: errors.prerequisites],
@@ -51,7 +51,7 @@ nextflow_workflow {
                     input = "${testdata}/${scenario.fixture}"
                     outdir = "$outputDir"
                     hifireads = null
-                    ontreads = null
+                    ontreads = scenario.mode == "hybrid" ? "https://raw.githubusercontent.com/nf-core/test-datasets/genomeassembler/A_thaliana_Col-0_2mb/HiFi-Col-0_test_data.fastq.gz" : null
                     hic_F = null
                     hic_R = null
                 }
@@ -78,7 +78,11 @@ nextflow_workflow {
                 else {
                     assert workflow.success
                     def meta = workflow.out.samplesheet.find { it.meta.id == 'sample' }.meta
-                    if (scenario.mode == 'auxiliary') {
+                    if (scenario.mode == 'hybrid') {
+                        assert meta.strategy == 'hybrid' && meta.assembler_ont == 'hifiasm'
+                        assert meta.hifireads && meta.ontreads && meta.phasing_reads
+                    }
+                    else if (scenario.mode == 'auxiliary') {
                         assert meta.assembler_hifi == 'hifiasm' && !meta.assembler_ont
                         assert meta.hifireads && meta.ontreads && meta.phasing_reads
                         assert snapshot([meta.id, meta.assembler_hifi, meta.strategy, meta.hifiasm_hic_phasing]).match()

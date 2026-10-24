@@ -11,6 +11,8 @@ workflow QC {
     meryl_kmers
 
     main:
+    ch_scaffolds = scaffolds.map { meta, fasta -> [createHaplotypeKey(meta), fasta] }
+
     quast_out = channel.empty()
     busco_out = channel.empty()
     merqury_report_files = channel.empty()
@@ -26,7 +28,7 @@ workflow QC {
         .shortread
         .filter { it -> it.meta.merqury }
         .map { it -> [createHaplotypeKey(it.meta), it.meta] }
-        .join(scaffolds)
+        .join(ch_scaffolds)
         .map { _key, meta, scaffs -> [meta.id, meta, scaffs] }.combine(meryl_kmers, by: 0)
         .map { _id, meta, scaffs, kmers ->
                 [ meta, kmers, scaffs ]
@@ -48,11 +50,12 @@ workflow QC {
         .map {
             it -> [createHaplotypeKey(it.meta), it.meta ]
         }
-        .join(scaffolds)
+        .join(ch_scaffolds)
         .map {
             _id, meta, target_scaffolds ->
             [
-                meta + [qc_target: target_scaffolds], meta.qc_reads_path,
+                meta + [qc_target: target_scaffolds], // QC Target only exists in QC channel, and takes the scaffold that should be qc'ed
+                meta.qc_reads_path,
                 target_scaffolds
             ]
         }
@@ -71,11 +74,12 @@ workflow QC {
                 .map {
                     it -> [createHaplotypeKey(it.meta), it.meta ]
                 }
-                .join(scaffolds)
+                .join(ch_scaffolds)
                 .map {
                     _id, meta, target_scaffolds ->
                     [
-                      meta: meta + [qc_target: target_scaffolds]]
+                      meta: meta + [qc_target: target_scaffolds] // QC Target only exists in QC channel, and takes the scaffold that should be qc'ed
+                    ]
                 }
         )
     ch_qc.dump(tag: "CH_QC after mapping:")

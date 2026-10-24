@@ -39,7 +39,7 @@ nextflow_workflow {
             }
             assert reports*.name.sort() == ['sampleA_hap1_assembly.completeness.stats', 'sampleA_hap2_assembly.completeness.stats', 'sampleB_hap1_assembly.completeness.stats', 'sampleB_hap2_assembly.completeness.stats']
             assert reports.every { it.text.trim() == it.name.split('_hap')[0] }
-            def samples = workflow.out.assemblies.collect { it.meta }
+            def samples = workflow.out._assemblies.collect { it.meta }
             assert samples*.id.sort() == ['sampleA', 'sampleB']
             assert samples.every { it.haplotypes.keySet() == ['hap1', 'hap2'] as Set }
             assert samples.every { !it.haplotype && !it.source_sample }
@@ -79,7 +79,7 @@ nextflow_workflow {
             }
             assert reports*.name.sort() == ['sampleA_hap1_assembly.completeness.stats', 'sampleA_hap2_assembly.completeness.stats', 'sampleB_hap1_assembly.completeness.stats', 'sampleB_hap2_assembly.completeness.stats']
             assert reports.every { it.text.trim() == it.name.split('_hap')[0] }
-            def samples = workflow.out.assemblies.collect { it.meta }
+            def samples = workflow.out._assemblies.collect { it.meta }
             assert samples*.id.sort() == ['sampleA', 'sampleB']
             assert samples.every { it.haplotypes.keySet() == ['hap1', 'hap2'] as Set }
             assert samples.every { !it.haplotype && !it.source_sample }
@@ -120,7 +120,7 @@ nextflow_workflow {
             }
             assert reports*.name.sort() == ['sampleA_hap1_assembly.completeness.stats', 'sampleA_hap2_assembly.completeness.stats', 'sampleB_hap1_assembly.completeness.stats', 'sampleB_hap2_assembly.completeness.stats', 'unphased_assembly.completeness.stats']
             assert reports.every { it.text.trim() == (it.name.startsWith('unphased_') ? 'unphased' : it.name.split('_hap')[0]) }
-            def samples = workflow.out.assemblies.collect { it.meta }
+            def samples = workflow.out._assemblies.collect { it.meta }
             assert samples*.id.sort() == ['sampleA', 'sampleB', 'unphased']
             assert samples.findAll { it.id != 'unphased' }.every { it.haplotypes.keySet() == ['hap1', 'hap2'] as Set }
             assert samples.every { !it.haplotype && !it.source_sample }

@@ -11,5 +11,5 @@ workflow PHASING_INITIALIZED {
 
     emit:
     samples = PIPELINE_INITIALISATION.out.samplesheet
-    assemblies = GENOMEASSEMBLER.out.assemblies
+    _assemblies = GENOMEASSEMBLER.out._assemblies
 }

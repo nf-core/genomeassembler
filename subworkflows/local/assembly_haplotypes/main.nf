@@ -1,6 +1,6 @@
 // Sample identity stays stable; assembly joins distinguish the haplotype as well.
 def createHaplotypeKey(meta) {
-    [meta.id, meta.haplotype ?: null]
+    meta.haplotype ? [meta.id, meta.haplotype] : [meta.id]
 }
 
 def createHaplotypePrefix(meta) {
@@ -17,7 +17,7 @@ workflow COLLATE_HAPLOTYPES {
 
     main:
     assemblies_by_phasing = assemblies.branch { row ->
-        phased: row.meta.haplotype
+        phased: row.meta.haplotype != null
         unphased: true
     }
     samples = assemblies_by_phasing.phased

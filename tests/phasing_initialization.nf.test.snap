@@ -79,12 +79,12 @@
     },
     "wrong assembler": {
         "content": [
-            "hifiasm_hic_phasing requires single-strategy hifiasm assembly with HiFi reads and no supplied assembly."
+            "hifiasm_hic_phasing requires single or hybrid hifiasm assembly with HiFi reads and no supplied assembly; hybrid assembly also requires ONT reads."
         ],
-        "timestamp": "2026-10-12T18:25:02.700057",
+        "timestamp": "2026-10-25T00:36:37.599044721",
         "meta": {
-            "nf-test": "0.9.4",
-            "nextflow": "25.10.4"
+            "nf-test": "0.9.5",
+            "nextflow": "26.10.3"
         }
     },
     "missing Hi-C forward": {
@@ -109,12 +109,12 @@
     },
     "supplied assembly": {
         "content": [
-            "hifiasm_hic_phasing requires single-strategy hifiasm assembly with HiFi reads and no supplied assembly."
+            "hifiasm_hic_phasing requires single or hybrid hifiasm assembly with HiFi reads and no supplied assembly; hybrid assembly also requires ONT reads."
         ],
-        "timestamp": "2026-10-12T18:25:26.85304",
+        "timestamp": "2026-10-25T00:38:10.35708352",
         "meta": {
-            "nf-test": "0.9.4",
-            "nextflow": "25.10.4"
+            "nf-test": "0.9.5",
+            "nextflow": "26.10.3"
         }
     },
     "hifiasm_args rejects -2=maternal.yak": {
@@ -205,32 +205,32 @@
     },
     "Auxiliary ONT reads cannot enable a second assembler": {
         "content": [
-            "hifiasm_hic_phasing requires single-strategy hifiasm assembly with HiFi reads and no supplied assembly."
+            "hifiasm_hic_phasing requires single or hybrid hifiasm assembly with HiFi reads and no supplied assembly; hybrid assembly also requires ONT reads."
         ],
-        "timestamp": "2026-10-12T18:26:53.86375",
+        "timestamp": "2026-10-25T00:39:15.135591626",
         "meta": {
-            "nf-test": "0.9.4",
-            "nextflow": "25.10.4"
+            "nf-test": "0.9.5",
+            "nextflow": "26.10.3"
         }
     },
     "scaffold strategy": {
         "content": [
-            "hifiasm_hic_phasing requires single-strategy hifiasm assembly with HiFi reads and no supplied assembly."
+            "hifiasm_hic_phasing requires single or hybrid hifiasm assembly with HiFi reads and no supplied assembly; hybrid assembly also requires ONT reads."
         ],
-        "timestamp": "2026-10-12T18:24:53.948313",
+        "timestamp": "2026-10-25T00:35:46.174047867",
         "meta": {
-            "nf-test": "0.9.4",
-            "nextflow": "25.10.4"
+            "nf-test": "0.9.5",
+            "nextflow": "26.10.3"
         }
     },
     "missing HiFi": {
         "content": [
-            "hifiasm_hic_phasing requires single-strategy hifiasm assembly with HiFi reads and no supplied assembly."
+            "hifiasm_hic_phasing requires single or hybrid hifiasm assembly with HiFi reads and no supplied assembly; hybrid assembly also requires ONT reads."
         ],
-        "timestamp": "2026-10-12T18:25:10.747256",
+        "timestamp": "2026-10-25T00:37:15.874455282",
         "meta": {
-            "nf-test": "0.9.4",
-            "nextflow": "25.10.4"
+            "nf-test": "0.9.5",
+            "nextflow": "26.10.3"
         }
     },
     "ONT reads are auxiliary input for phased HiFi assembly": {

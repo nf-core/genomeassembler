@@ -23,7 +23,7 @@ nextflow_workflow {
             def inputs = workflow.out.samples.collect { it.meta }.sort { it.id }
             assert inputs*.polish == ['dorado+pilon', 'medaka+pilon']
             assert inputs.every { it.assembler_hifi == 'hifiasm' && !it.assembler_ont && it.ontreads && it.phasing_reads }
-            def samples = workflow.out.assemblies.collect { it.meta }.sort { it.id }
+            def samples = workflow.out._assemblies.collect { it.meta }.sort { it.id }
             assert samples*.id == ['dorado', 'medaka']
             samples.each { meta ->
                 assert meta.haplotypes.keySet() == ['hap1', 'hap2'] as Set

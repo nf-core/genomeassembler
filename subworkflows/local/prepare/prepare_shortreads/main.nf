@@ -9,16 +9,16 @@ workflow PREPARE_SHORTREADS {
 
     main:
 
-    shortreads = shortreads_in
-        .map { row -> row.meta.shortread_F ? create_shortread_channel(row.meta) : row }
+    ch_shortreads_branched = shortreads_in
+        .map { row -> row.meta.shortread_F ? create_shortread_channel(row.meta) : row } // function below
         .branch {
             it ->
-                trim: it.meta.shortread_trim
-                no_trim: !it.meta.shortread_trim
+                trim: it.meta.shortread_F && it.meta.use_short_reads && it.meta.shortread_trim
+                no_trim: true
         }
 
     hic_trim = shortreads_in
-        .map { row -> row.meta.hic_F && row.meta.scaffold_hic ? create_hic_shortread_channel(row.meta) : row }
+        .map { row -> (row.meta.hic_F && row.meta.scaffold_hic) ? create_hic_shortread_channel(row.meta) : row }
         .branch {
             row ->
                 trim: row.meta.hic_trim && row.meta.scaffold_hic
@@ -27,7 +27,7 @@ workflow PREPARE_SHORTREADS {
 
     hic_trim.trim.dump(tag: "hic trim channel")
 
-    trim_in = shortreads
+    trim_in = ch_shortreads_branched
         .trim
         .filter { it -> it.meta.group }
         .map { it -> [it.meta, it.meta.group] }
@@ -36,13 +36,15 @@ workflow PREPARE_SHORTREADS {
             it ->
                 [
                     [
-                        id: it[1], metas: it[0]
+                        id: it[1], // the group
+                        metas: it[0]
                     ],
-                    it[0].shortreads[0], []
+                    it[0].shortreads[0], // Pull path from meta
+                    []
                 ]
         }
         .mix(
-            shortreads
+            ch_shortreads_branched
                 .trim
                 .filter { it -> !it.meta.group }
                 .map {
@@ -59,9 +61,11 @@ workflow PREPARE_SHORTREADS {
             it ->
                 [
                     [
-                        id: it[1], metas: it[0]
+                        id: it[1], // the group
+                        metas: it[0]
                     ],
-                    it[0].hic_reads[0], []
+                    it[0].hic_reads[0], // Pull path from meta
+                    []
                 ]
         }
         .mix(
@@ -108,10 +112,10 @@ workflow PREPARE_SHORTREADS {
         )
 
     prepared_shortreads = trimmed_reads
-        .mix( shortreads.no_trim )
+        .mix( ch_shortreads_branched.no_trim )
     // add HiC trimmed to those that need it
 
-    shortreads = prepared_shortreads
+    combined_shortreads = prepared_shortreads
         .filter { row -> row.meta.hic_trim && row.meta.scaffold_hic }
         .map { row -> [ row.meta.id, row.meta ] }
         .combine(
@@ -140,10 +144,11 @@ workflow PREPARE_SHORTREADS {
                     : [meta: row.meta - row.meta.subMap("hic_reads") + [hic_reads: null]]}
         )
 
-    meryl_in = shortreads
+    meryl_in = combined_shortreads
         .filter { it -> it.meta.merqury }
         .filter { it -> it.meta.group  }
         .map { it -> [ it.meta, it.meta.group, it.meta.shortreads, it.meta.meryl_k ] }
+        // Create a group
         .groupTuple(by: 1)
         .map {
             it -> [
@@ -152,7 +157,7 @@ workflow PREPARE_SHORTREADS {
                 meryl_k: it[3][0]
             ]
         }
-        .mix(shortreads
+        .mix(combined_shortreads
             .filter { it -> it.meta.merqury }
             .filter { it -> !it.meta.group  }
             .map { it -> [meta: it.meta, shortreads: it.meta.shortreads, meryl_k: it.meta.meryl_k]}
@@ -181,7 +186,7 @@ workflow PREPARE_SHORTREADS {
         .map {meta , kmers -> [meta.id, kmers]}
 
     emit:
-    main_out        = shortreads
+    main_out        = combined_shortreads
     fastp_json      = FASTP.out.json
     meryl_kmers
 }

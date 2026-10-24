@@ -20,6 +20,17 @@ nextflow_function {
         }
     }
 
+    test("Unphased join keys contain only the sample ID") {
+        function "createHaplotypeKey"
+        when {
+            function { "input[0] = [id: 'unphased']" }
+        }
+        then {
+            assert function.success
+            assert function.result == ['unphased']
+        }
+    }
+
     test("Unphased filenames retain the original sample prefix") {
         function "createHaplotypePrefix"
         when {

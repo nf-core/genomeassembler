@@ -1,4 +1,3 @@
-include { createHaplotypeKey } from '../../assembly_haplotypes/main'
 include { DORADO_ALIGNER as ALIGN } from '../../../../modules/local/dorado/aligner/main.nf'
 include { DORADO_POLISH as POLISH } from '../../../../modules/local/dorado/polish/main.nf'
 include { QC } from '../../qc/main.nf'
@@ -25,15 +24,13 @@ workflow POLISH_DORADO {
     // dorado emits bgzipped file.
     polished_assembly = POLISH.out.polished_alignment
 
-    // Scaffold selection, export and haplotype collection all consume polished.dorado.
-    // Adding it to a fresh map retains earlier stages without shared-map mutation.
     ch_main_out = polished_assembly
         .map { meta, polished_dorado -> [meta: meta + [ polished: (meta.polished ?: [:]) + [dorado: polished_dorado ] ] ]}
 
     QC(
         ch_main_out.map { it -> [meta: it.meta - it.meta.subMap("assembly_map_bam") + [ assembly_map_bam: null] ] },
-        polished_assembly.map { meta, polished -> [createHaplotypeKey(meta), polished] },
-        meryl_kmers,
+        polished_assembly.map { meta, polished -> [meta, polished] },
+        meryl_kmers
     )
 
     liftoff_in = ch_main_out

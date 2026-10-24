@@ -171,8 +171,10 @@ workflow PIPELINE_INITIALISATION {
             if (["${meta.id}_hap1".toString(), "${meta.id}_hap2".toString()].any { prefix -> input_ids.contains(prefix) }) {
                 error("Sample ${meta.id}: haplotype output prefixes collide with another samplesheet sample.")
             }
-            if (meta.strategy != 'single' || meta.assembler_ont || meta.assembler_hifi != 'hifiasm' || !meta.hifireads || meta.assembly) {
-                error("Sample ${meta.id}: hifiasm_hic_phasing requires single-strategy hifiasm assembly with HiFi reads and no supplied assembly.")
+            def single_hifiasm = meta.strategy == 'single' && !meta.assembler_ont && meta.assembler_hifi == 'hifiasm'
+            def hybrid_hifiasm = meta.strategy == 'hybrid' && meta.assembler_ont == 'hifiasm' && meta.ontreads
+            if ((!single_hifiasm && !hybrid_hifiasm) || !meta.hifireads || meta.assembly) {
+                error("Sample ${meta.id}: hifiasm_hic_phasing requires single or hybrid hifiasm assembly with HiFi reads and no supplied assembly; hybrid assembly also requires ONT reads.")
             }
             if (!meta.hic_F || !meta.hic_R) {
                 error("Sample ${meta.id}: hifiasm_hic_phasing requires both hic_F and hic_R.")
@@ -181,6 +183,7 @@ workflow PIPELINE_INITIALISATION {
             if (assembly_phasing_args =~ /(^|\s)--(primary|ont)(\s|$|=)/) {
                 error("Sample ${meta.id}: --primary and --ont are incompatible with hifiasm_hic_phasing.")
             }
+            // Extra arguments can inject trio inputs even though the pipeline exposes no trio mode.
             if (assembly_phasing_args =~ /(^|\s)-[12]/) {
                 error("Sample ${meta.id}: trio inputs -1 and -2 are incompatible with hifiasm_hic_phasing.")
             }

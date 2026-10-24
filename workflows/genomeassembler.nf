@@ -300,7 +300,7 @@ workflow GENOMEASSEMBLER {
 
     emit:
     _report
-    assemblies = COLLATE_HAPLOTYPES.out.samples
+    _assemblies = COLLATE_HAPLOTYPES.out.samples
 }
 
 

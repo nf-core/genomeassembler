@@ -64,6 +64,6 @@ process MEDAKA_PARALLEL {
     stub:
     def prefix = task.ext.prefix ?: "${meta.id}"
     """
-    touch ${prefix}.fa.gz
+    echo '' | gzip > ${prefix}.fa.gz
     """
 }

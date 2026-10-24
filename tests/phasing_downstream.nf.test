@@ -47,7 +47,7 @@ nextflow_workflow {
             }
             assert reports*.name.sort() == expected.sort()
             assert reports.every { it.text.trim() == it.name.split('_hap')[0] }
-            def samples = workflow.out.assemblies.collect { it.meta }
+            def samples = workflow.out._assemblies.collect { it.meta }
             assert samples*.id.sort() == ['sampleA', 'sampleB']
             assert samples.every { it.haplotypes.keySet() == ['hap1', 'hap2'] as Set }
             assert samples.every { !it.haplotype && !it.source_sample }

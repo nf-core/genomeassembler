@@ -1,4 +1,3 @@
-include { createHaplotypeKey } from '../../../assembly_haplotypes/main'
 include { MEDAKA_PARALLEL as MEDAKA } from '../../../../../modules/local/medaka/medaka_consensus/main'
 include { QC } from '../../../qc/main.nf'
 include { LIFTOFF } from '../../../../../modules/nf-core/liftoff/main'
@@ -31,8 +30,8 @@ workflow POLISH_MEDAKA {
 
     QC(
         ch_medaka_out.map { it -> [meta: it.meta - it.meta.subMap("assembly_map_bam") + [ assembly_map_bam: null] ] },
-        polished_assembly.map { meta, polished -> [createHaplotypeKey(meta), polished] },
-        meryl_kmers,
+        polished_assembly.map { meta, polished -> [meta, polished] },
+        meryl_kmers
     )
 
 

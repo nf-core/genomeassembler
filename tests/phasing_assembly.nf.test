@@ -16,8 +16,12 @@ nextflow_workflow {
                     def reverse = read_dir.resolve('R2.fastq')
                     forward.text = ['@' + source + ':R1', 'ACGT', '+', 'IIII'].join(System.lineSeparator())
                     reverse.text = ['@' + source + ':R2', 'TGCA', '+', 'IIII'].join(System.lineSeparator())
+                    def ont = read_dir.resolve('ONT.fastq')
+                    ont.text = ['@' + source + ':ONT', 'ACGT', '+', 'IIII'].join(System.lineSeparator())
                     [meta: [
-                        id: id, strategy: 'single', assembler_hifi: 'hifiasm',
+                        id: id, strategy: params.hybrid_phasing && id == 'sampleB' ? 'hybrid' : 'single', assembler_hifi: 'hifiasm',
+                        assembler_ont: params.hybrid_phasing && id == 'sampleB' ? 'hifiasm' : null,
+                        ontreads: ont,
                         hifiasm_hic_phasing: id != 'unphased', scaffold_hic: id == 'sampleB', scaffold_ragtag: id == 'sampleA',
                         hic_reads: id == 'sampleB' ? [file("https://raw.githubusercontent.com/nf-core/test-datasets/genomeassembler/A_thaliana_Col-0_2mb/SRR22354810_1.sampled.fq.gz"), file("https://raw.githubusercontent.com/nf-core/test-datasets/genomeassembler/A_thaliana_Col-0_2mb/SRR22354810_2.sampled.fq.gz")]: null,
                         hifireads: file("https://raw.githubusercontent.com/nf-core/test-datasets/genomeassembler/A_thaliana_Col-0_2mb/HiFi-Col-0_test_data.fastq.gz"),
@@ -83,8 +87,23 @@ nextflow_workflow {
         }
         then {
             assert workflow.failed
-            assert (workflow.stdout + workflow.stderr).any { it.toLowerCase().contains('mismatch') }
-            assert snapshot('Missing phased outputs fail with a join mismatch').match()
+            assert (workflow.stdout + workflow.stderr).any { it.contains('expected exactly one output for each of hap1 and hap2') }
+        }
+    }
+
+    test("Hybrid phasing passes ONT reads while single phasing keeps them auxiliary") {
+        options "-stub-run"
+        when {
+            params {
+                outdir = "$outputDir"
+                hybrid_phasing = true
+            }
+            workflow { assemblyInputs }
+        }
+        then {
+            assert workflow.success
+            assert workflow.out.ch_main.size() == 4
+            assert workflow.out.ch_main.findAll { it.meta.id == 'sampleB' }.every { it.meta.strategy == 'hybrid' && it.meta.haplotype }
         }
     }
 

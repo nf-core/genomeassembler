@@ -37,7 +37,7 @@ nextflow_workflow {
         }
         then {
             assert workflow.success
-            def samples = workflow.out.assemblies.collect { it.meta }.sort { it.id }
+            def samples = workflow.out._assemblies.collect { it.meta }.sort { it.id }
             assert samples*.id == ['sampleA', 'sampleB', 'unphased']
             def prefixes = ['sampleA_hap1', 'sampleA_hap2', 'sampleB_hap1', 'sampleB_hap2', 'unphased']
             samples.findAll { it.id != 'unphased' }.each { meta ->
