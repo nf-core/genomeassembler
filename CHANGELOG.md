@@ -9,11 +9,15 @@ codenamegenerator.com stopped working. Codenames from now on will be song titles
 
 ### `Added`
 
+- Add optional HiFi + Hi-C phasing with hifiasm. Retain both haplotypes under the original sample ID through polishing, scaffolding, QC and export ([@molikd](https://github.com/molikd)).
+
 - [#252](https://github.com/nf-core/genomeassembler/pull/252) Added `AGENTS.md`
 
 - [#233](https://github.com/nf-core/genomeassembler/pull/233) Update `tower.yml` with the report paths (the execution trace pattern was fixed in [#259](https://github.com/nf-core/genomeassembler/pull/259), found in review by @Vicbeg).
 
 ### `Fixed`
+
+- [#256](https://github.com/nf-core/genomeassembler/pull/256) Preserve both phased Hi-C BWA index directories when publishing links and verify sample/mate identity in hifiasm routing tests ([@molikd](https://github.com/molikd)).
 
 - [#248](https://github.com/nf-core/genomeassembler/pull/248) Retain supplied assemblies without long reads and reject unsupported Jellyfish requests during initialization ([@molikd](https://github.com/molikd)).
 

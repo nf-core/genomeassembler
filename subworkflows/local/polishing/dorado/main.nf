@@ -25,11 +25,11 @@ workflow POLISH_DORADO {
     polished_assembly = POLISH.out.polished_alignment
 
     ch_main_out = polished_assembly
-        .map { meta, polished_dorado -> [meta: meta + [ polished: [polished_dorado: polished_dorado ] ] ]}
+        .map { meta, polished_dorado -> [meta: meta + [ polished: (meta.polished ?: [:]) + [dorado: polished_dorado ] ] ]}
 
     QC(
         ch_main_out.map { it -> [meta: it.meta - it.meta.subMap("assembly_map_bam") + [ assembly_map_bam: null] ] },
-        polished_assembly.map { meta, polished -> [meta.id, polished] },
+        polished_assembly.map { meta, polished -> [meta, polished] },
         meryl_kmers
     )
 

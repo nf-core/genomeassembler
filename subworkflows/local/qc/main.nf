@@ -1,3 +1,4 @@
+include { createHaplotypeKey } from '../assembly_haplotypes/main'
 include { MAP_TO_ASSEMBLY } from '../mapping/map_to_assembly/main'
 include { QUAST } from '../../../modules/nf-core/quast/main'
 include { BUSCO_BUSCO as BUSCO } from '../../../modules/nf-core/busco/busco/main'
@@ -10,6 +11,8 @@ workflow QC {
     meryl_kmers
 
     main:
+    ch_scaffolds = scaffolds.map { meta, fasta -> [createHaplotypeKey(meta), fasta] }
+
     quast_out = channel.empty()
     busco_out = channel.empty()
     merqury_report_files = channel.empty()
@@ -24,9 +27,9 @@ workflow QC {
     merqury_in = ch_shortread_branched
         .shortread
         .filter { it -> it.meta.merqury }
-        .map { it -> [it.meta.id, it.meta] }
-        .join(scaffolds)
-        .join(meryl_kmers)
+        .map { it -> [createHaplotypeKey(it.meta), it.meta] }
+        .join(ch_scaffolds)
+        .map { _key, meta, scaffs -> [meta.id, meta, scaffs] }.combine(meryl_kmers, by: 0)
         .map { _id, meta, scaffs, kmers ->
                 [ meta, kmers, scaffs ]
             }
@@ -45,9 +48,9 @@ workflow QC {
     map_assembly_in = ch_map_branched
         .map_to_assembly
         .map {
-            it -> [ it.meta.id, it.meta ]
+            it -> [createHaplotypeKey(it.meta), it.meta ]
         }
-        .join(scaffolds)
+        .join(ch_scaffolds)
         .map {
             _id, meta, target_scaffolds ->
             [
@@ -69,9 +72,9 @@ workflow QC {
         .mix(
             ch_map_branched.no_map_to_assembly
                 .map {
-                    it -> [ it.meta.id, it.meta ]
+                    it -> [createHaplotypeKey(it.meta), it.meta ]
                 }
-                .join(scaffolds)
+                .join(ch_scaffolds)
                 .map {
                     _id, meta, target_scaffolds ->
                     [

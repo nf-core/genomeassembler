@@ -6,11 +6,11 @@ process DORADO_POLISH {
 
     input:
     tuple val(meta), path(assembly), path(alignment), path(index)
-    val(variant_call_format)
+    val variant_call_format
 
     output:
-    tuple val(meta), path("${meta.id}_dorado_polished.fa.gz"), emit: polished_alignment, optional: true
-    tuple val(meta), path("${meta.id}_dorado_polished*vcf"), emit: variant_calls, optional: true
+    tuple val(meta), path("*_dorado_polished.fa.gz"), emit: polished_alignment, optional: true
+    tuple val(meta), path("*_dorado_polished*vcf"), emit: variant_calls, optional: true
     tuple val("${task.process}"), val('dorado'), eval('dorado --version 2>&1 | head -n1'), emit: versions_dorado, topic: versions
 
     when:
@@ -18,8 +18,9 @@ process DORADO_POLISH {
 
     script:
     def args = task.ext.args ?: ''
+    def prefix = task.ext.prefix ?: "${meta.id}"
     def variants = ["vcf","gvcf"].contains(variant_call_format) ? "--${variant_call_format}" : ""
-    def outfile = variants ? "> ${meta.id}_dorado_polished.${variants}" : "| bgzip > ${meta.id}_dorado_polished.fa.gz"
+    def outfile = variants ? "> ${prefix}_dorado_polished.${variants}" : "| bgzip > ${prefix}_dorado_polished.fa.gz"
     """
     dorado polish \\
         -t ${task.cpus} \\
@@ -31,9 +32,9 @@ process DORADO_POLISH {
     """
 
     stub:
-    def args   = task.ext.args ?: ''
-    def variants = ["vcf","gvcf"].contains(variant_call_format) ? "--${variant_call_format}" : ""
-    def outfile = variants ? "touch ${meta.id}_dorado_polished.${variants}" : "echo '' | bgzip > ${meta.id}_dorado_polished.fa.gz"
+    def prefix = task.ext.prefix ?: "${meta.id}"
+    def variants = ["vcf", "gvcf"].contains(variant_call_format) ? "--${variant_call_format}" : ""
+    def outfile = variants ? "touch ${prefix}_dorado_polished.${variants}" : "echo '' | bgzip > ${prefix}_dorado_polished.fa.gz"
     """
     ${outfile}
     """

@@ -63,8 +63,9 @@ workflow RUN_RAGTAG {
     LIFTOFF(liftoff_in, [])
 
     QC(ch_main_scaffolded.map { it -> [meta: it.meta - it.meta.subMap("assembly_map_bam") + [assembly_map_bam: null] ] },
-        BGZIP.out.bgzipped.map { meta, corrected -> [ meta.id, corrected ] },
-        meryl_kmers)
+        BGZIP.out.bgzipped.map { meta, corrected -> [meta, corrected ] },
+        meryl_kmers
+    )
 
     emit:
     ch_main                 = ch_main_scaffolded

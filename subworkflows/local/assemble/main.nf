@@ -1,3 +1,4 @@
+include { HIFIASM as HIFIASM_HIC } from '../../../modules/nf-core/hifiasm/main'
 include { FLYE as FLYE_ONT} from '../../../modules/nf-core/flye/main'
 include { FLYE as FLYE_HIFI} from '../../../modules/nf-core/flye/main'
 include { HIFIASM } from '../../../modules/nf-core/hifiasm/main'
@@ -169,13 +170,45 @@ workflow ASSEMBLE {
 
     //ch_main_assemble_hifi_hifiasm.view { "Assemble: hifiasm HIFI inputs: $it" }
 
-    HIFIASM(ch_main_assemble_hifi_hifiasm,
+    ch_main_assemble_hifi_hifiasm_branched = ch_main_assemble_hifi_hifiasm.branch { meta, _hifireads, _ontreads ->
+        hic: meta.hifiasm_hic_phasing
+        no_hic: true
+    }
+
+    HIFIASM(
+        ch_main_assemble_hifi_hifiasm_branched.no_hic,
             [[], [], []],
             [[], [], []],
-            [[], []])
+            [[], []],
+    )
+
+    // multiMap keeps each HiFi input and Hi-C pair aligned across samples.
+    ch_main_assemble_phased_hifiasm = ch_main_assemble_hifi_hifiasm_branched.hic.multiMap { meta, hifireads, ontreads ->
+        hifireads: [meta, hifireads, ontreads]
+        hic_reads: [meta, meta.phasing_reads.f, meta.phasing_reads.r]
+    }
+    HIFIASM_HIC(ch_main_assemble_phased_hifiasm.hifireads, [[], [], []], ch_main_assemble_phased_hifiasm.hic_reads, [[], []])
+
+    // Optional module outputs must not silently drop a requested sample or haplotype.
+    ch_main_assemble_phased_hifiasm.hifireads
+        .map { meta, _hifi, _ont -> [meta.id, 'input'] }
+        .mix(HIFIASM_HIC.out.hap1_contigs.map { meta, _gfa -> [meta.id, 'hap1'] })
+        .mix(HIFIASM_HIC.out.hap2_contigs.map { meta, _gfa -> [meta.id, 'hap2'] })
+        .toList()
+        .subscribe { records ->
+            records.groupBy { record -> record[0] }.each { id, entries ->
+                if (entries*.getAt(1).sort() != ['hap1', 'hap2', 'input']) {
+                    error("Sample ${id}: expected exactly one output for each of hap1 and hap2 from hifiasm Hi-C phasing.")
+                }
+            }
+        }
+
+    ch_phased_contigs = HIFIASM_HIC.out.hap1_contigs
+        .map { meta, gfa -> [meta + [haplotype: 'hap1', assembly_map_bam: null], gfa] }
+        .mix(HIFIASM_HIC.out.hap2_contigs.map { meta, gfa -> [meta + [haplotype: 'hap2', assembly_map_bam: null], gfa] })
 
     // hifiasm produces GFA files
-    GFA2FA_HIFI( HIFIASM.out.primary_contigs )
+    GFA2FA_HIFI( HIFIASM.out.primary_contigs.mix(ch_phased_contigs) )
 
     BGZIP_HIFI(GFA2FA_HIFI.out.fasta)
 
@@ -497,7 +530,7 @@ workflow ASSEMBLE {
 
     // scaffolds to QC need to be defined here, this is what is in the assembly slot
     scaffolds = ch_main_to_qc
-        .map { it -> [it.meta.id, it.meta.assembly] }
+        .map { it -> [it.meta, it.meta.assembly] }
 
     QC(ch_main_to_qc, scaffolds, meryl_kmers)
 

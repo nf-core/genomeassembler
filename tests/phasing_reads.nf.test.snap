@@ -1,0 +1,33 @@
+{
+    "Raw phasing reads remain independent of trimmed or untrimmed scaffold reads": {
+        "content": [
+            [
+                [
+                    "disabled",
+                    [
+
+                    ]
+                ],
+                [
+                    "raw",
+                    [
+                        "SRR22354810_1.sampled.fq.gz",
+                        "SRR22354810_2.sampled.fq.gz"
+                    ]
+                ],
+                [
+                    "trimmed",
+                    [
+                        "trimmed_hicreads_R1.fastp.fastq.gz",
+                        "trimmed_hicreads_R2.fastp.fastq.gz"
+                    ]
+                ]
+            ]
+        ],
+        "timestamp": "2026-10-13T09:27:27.569632",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
+    }
+}

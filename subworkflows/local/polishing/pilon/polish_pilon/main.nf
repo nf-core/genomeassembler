@@ -59,11 +59,12 @@ workflow POLISH_PILON {
     pilon_polished = BGZIP.out.bgzipped
 
     ch_main = pilon_polished
-        .map { meta, polished_pilon -> [ meta: meta + [ polished: [pilon: polished_pilon] ] ]  }
+        .map { meta, polished_pilon -> [ meta: meta + [ polished: (meta.polished ?: [:]) + [pilon: polished_pilon] ] ]  }
 
     QC(ch_main.map { it -> [meta: it.meta - it.meta.subMap("assembly_map_bam") + [assembly_map_bam: null] ]},
-        pilon_polished.map {meta, polished -> [meta.id, polished ]},
-        meryl_kmers)
+        pilon_polished.map {meta, polished -> [meta, polished ]},
+        meryl_kmers
+    )
 
     liftoff_in = ch_main
         .filter {

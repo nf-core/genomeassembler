@@ -101,7 +101,9 @@ workflow PIPELINE_INITIALISATION {
     //
     // Create channel from input file provided through params.input
     //
-    ch_samplesheet = channel.fromList(samplesheetToList(params.input, "assets/schema_input.json"))
+    def samplesheet_rows = samplesheetToList(params.input, "assets/schema_input.json")
+    def input_ids = samplesheet_rows.collect { row -> row[0].id.toString() } as Set
+    ch_samplesheet = channel.fromList(samplesheet_rows)
         /*
         This is a somewhat crucial step, where the samplesheet and params are used to determine per-sample parameters.
         This has been greatly simplified thanks to @nvnieuwk
@@ -123,7 +125,7 @@ workflow PIPELINE_INITIALISATION {
                                     it.assembler.contains("_") ? it.assembler.tokenize("_")[0] :
                                     null
             def assembler_hifi  =   it.assembler_hifi ?:
-                                    (it.strategy == "single" && it.assembler && it.hifireads && !it.ontreads) ? it.assembler :
+                                    (it.strategy == "single" && it.assembler && it.hifireads && (!it.ontreads || it.hifiasm_hic_phasing)) ? it.assembler :
                                     it.assembler.contains("_") ? it.assembler.tokenize("_")[1] :
                                     null
             def polish          =   it.polish ?:
@@ -152,10 +154,40 @@ workflow PIPELINE_INITIALISATION {
                 ]
 
         }
-        .map {
-            it -> [meta: it]
+        .map { meta ->
+            // Preserve raw Hi-C inputs separately from optional scaffold trimming.
+            if (meta.hifiasm_hic_phasing && meta.hic_F && meta.hic_R) {
+                meta = meta + [phasing_reads: [f: file(meta.hic_F, checkIfExists: true), r: file(meta.hic_R, checkIfExists: true)]]
+            }
+            [meta: meta]
         }
+
+    if (input_ids.size() != samplesheet_rows.size()) {
+        error('Samplesheet sample IDs must be unique.')
+    }
     ch_samplesheet.subscribe { row ->
+        def meta = row.meta
+        if (meta.hifiasm_hic_phasing) {
+            if (["${meta.id}_hap1".toString(), "${meta.id}_hap2".toString()].any { prefix -> input_ids.contains(prefix) }) {
+                error("Sample ${meta.id}: haplotype output prefixes collide with another samplesheet sample.")
+            }
+            def single_hifiasm = meta.strategy == 'single' && !meta.assembler_ont && meta.assembler_hifi == 'hifiasm'
+            def hybrid_hifiasm = meta.strategy == 'hybrid' && meta.assembler_ont == 'hifiasm' && meta.ontreads
+            if ((!single_hifiasm && !hybrid_hifiasm) || !meta.hifireads || meta.assembly) {
+                error("Sample ${meta.id}: hifiasm_hic_phasing requires single or hybrid hifiasm assembly with HiFi reads and no supplied assembly; hybrid assembly also requires ONT reads.")
+            }
+            if (!meta.hic_F || !meta.hic_R) {
+                error("Sample ${meta.id}: hifiasm_hic_phasing requires both hic_F and hic_R.")
+            }
+            def assembly_phasing_args = [meta.hifiasm_args, meta.assembler_hifi_args].findAll { value -> value }.join(' ')
+            if (assembly_phasing_args =~ /(^|\s)--(primary|ont)(\s|$|=)/) {
+                error("Sample ${meta.id}: --primary and --ont are incompatible with hifiasm_hic_phasing.")
+            }
+            // Extra arguments can inject trio inputs even though the pipeline exposes no trio mode.
+            if (assembly_phasing_args =~ /(^|\s)-[12]/) {
+                error("Sample ${meta.id}: trio inputs -1 and -2 are incompatible with hifiasm_hic_phasing.")
+            }
+        }
         if (row.meta.jellyfish && !row.meta.hifireads && !row.meta.ontreads) {
             error("Sample ${row.meta.id}: Jellyfish requires long reads.")
         }
