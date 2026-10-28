@@ -7,8 +7,6 @@ include { paramsSummaryMap          } from 'plugin/nf-schema'
 include { paramsSummaryMultiqc      } from '../subworkflows/nf-core/utils_nfcore_pipeline'
 include { softwareVersionsToYAML    } from '../subworkflows/nf-core/utils_nfcore_pipeline'
 include { methodsDescriptionText    } from '../subworkflows/local/utils_nfcore_genomeassembler_pipeline'
-include { COLLATE_HAPLOTYPES        } from '../subworkflows/local/assembly_haplotypes/main'
-include { createHaplotypePrefix     } from '../subworkflows/local/assembly_haplotypes/main'
 
 // Read preparation
 include { PREPARE                   } from '../subworkflows/local/prepare/main'
@@ -245,6 +243,7 @@ workflow GENOMEASSEMBLER {
     def ch_assembly_manifest = ch_main_scaffolded
         .map { it ->
             def meta = it.meta
+            def prefix = meta.haplotype ? "${meta.id}_${meta.haplotype}" : "${meta.id}"
             def subout =
                     // Assembly publishdirs are a bit more specific
                     meta.strategy == "single" ? (
@@ -260,14 +259,14 @@ workflow GENOMEASSEMBLER {
 
                 // A list of ids, stage, files (in work), the candidate output folder
                 [
-                [ createHaplotypePrefix(meta), meta.id, 'scaffold_ragtag', meta.scaffolds ? meta.scaffolds.ragtag ?: null : null,           'scaffold/ragtag'     ],
-                [ createHaplotypePrefix(meta), meta.id, 'scaffold_hic' , meta.scaffolds ? meta.scaffolds.hic ?: null : null,              'scaffold/hic/yahs'   ],
-                [ createHaplotypePrefix(meta), meta.id, 'scaffold_longstitch', meta.scaffolds ? meta.scaffolds.longstitch ?: null : null,       'scaffold/longstitch' ],
-                [ createHaplotypePrefix(meta), meta.id, 'scaffold_links', meta.scaffolds ? meta.scaffolds.links ?: null : null,            'scaffold/links'      ],
-                [ createHaplotypePrefix(meta), meta.id, 'polish_pilon', meta.polished ? meta.polished.pilon ?: null : null,            'polish/pilon'        ],
-                [ createHaplotypePrefix(meta), meta.id, 'polish_medaka', meta.polished ? meta.polished.medaka ?: null : null,           'polish/medaka'       ],
-                [ createHaplotypePrefix(meta), meta.id, 'polish_dorado', meta.polished ? meta.polished.dorado ?: null : null,           'polish/dorado'       ],
-                [ createHaplotypePrefix(meta), meta.id, 'initial_assembly', meta.assembly, subout
+                [ prefix, meta.id, 'scaffold_ragtag', meta.scaffolds ? meta.scaffolds.ragtag ?: null : null,           'scaffold/ragtag'     ],
+                [ prefix, meta.id, 'scaffold_hic' , meta.scaffolds ? meta.scaffolds.hic ?: null : null,              'scaffold/hic/yahs'   ],
+                [ prefix, meta.id, 'scaffold_longstitch', meta.scaffolds ? meta.scaffolds.longstitch ?: null : null,       'scaffold/longstitch' ],
+                [ prefix, meta.id, 'scaffold_links', meta.scaffolds ? meta.scaffolds.links ?: null : null,            'scaffold/links'      ],
+                [ prefix, meta.id, 'polish_pilon', meta.polished ? meta.polished.pilon ?: null : null,            'polish/pilon'        ],
+                [ prefix, meta.id, 'polish_medaka', meta.polished ? meta.polished.medaka ?: null : null,           'polish/medaka'       ],
+                [ prefix, meta.id, 'polish_dorado', meta.polished ? meta.polished.dorado ?: null : null,           'polish/dorado'       ],
+                [ prefix, meta.id, 'initial_assembly', meta.assembly, subout
                 ]
                 ]
         }
@@ -296,16 +295,14 @@ workflow GENOMEASSEMBLER {
         )
 
 
-    COLLATE_HAPLOTYPES(ch_main_scaffolded)
-
     emit:
     _report
-    _assemblies = COLLATE_HAPLOTYPES.out.samples
+    _assemblies = ch_main_scaffolded
 }
 
 
 def createReportSampleGroups(rows) {
     rows.collect { row ->
-        [sample: [id: createHaplotypePrefix(row.meta), sample_id: row.meta.id, haplotype: row.meta.haplotype ?: null, group: row.meta.group]]
+        [sample: [id: (row.meta.haplotype ? "${row.meta.id}_${row.meta.haplotype}" : "${row.meta.id}"), sample_id: row.meta.id, haplotype: row.meta.haplotype ?: null, group: row.meta.group]]
     }.unique { row -> [row.sample.sample_id, row.sample.haplotype] }
 }

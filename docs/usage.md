@@ -327,7 +327,7 @@ nextflow run . -profile docker --input samplesheet.csv --outdir results
 
 Phasing requires HiFi reads, both Hi-C mates and `hifiasm`, with either the `single` or `hybrid` strategy. Supplied assemblies are not supported. For `hybrid`, also provide ONT reads; hifiasm uses them as ultra-long input. With `single`, ONT reads are available for Medaka or Dorado polishing but are not passed to hifiasm.
 
-Phasing always uses the original, untrimmed Hi-C mates. `hic_trim` controls only the independent scaffolding read preparation. HiFi reads use the existing fastplong preparation. The default hifiasm arguments retain both haplotypes. Provide additional diploid-compatible arguments through `hifiasm_args` or `assembler_hifi_args`; trio inputs (`-1`/`-2`), `--primary` and `--ont` are rejected.
+Phasing always uses the original, untrimmed Hi-C mates. `hic_trim` controls only the independent scaffolding read preparation. HiFi reads use the existing fastplong preparation. The default hifiasm arguments retain both haplotypes. Provide additional diploid-compatible arguments through `hifiasm_args` or `assembler_hifi_args`; `--primary` and `--ont` are rejected. Other extra arguments are passed through to hifiasm.
 
 Each haplotype follows the sample's QC, polishing and scaffolding settings. `scaffold_hic` independently enables YaHS scaffolding for both haplotypes. Merqury shares the sample's read k-mer database; it does not measure switch errors or parental phase accuracy. See [Hi-C phased assemblies](output.md#hi-c-phased-assemblies) for output paths.
 

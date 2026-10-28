@@ -6,7 +6,7 @@ nextflow_workflow {
     tag "pipeline"
     tag "hic_phasing"
 
-    test("Initialization permits ONT polishing and Pilon retains both polishing stages") {
+    test("Initialization permits ONT polishing followed by Pilon for both haplotypes") {
         options "-stub-run"
         when {
             params {
@@ -24,26 +24,28 @@ nextflow_workflow {
             assert inputs*.polish == ['dorado+pilon', 'medaka+pilon']
             assert inputs.every { it.assembler_hifi == 'hifiasm' && !it.assembler_ont && it.ontreads && it.phasing_reads }
             def samples = workflow.out._assemblies.collect { it.meta }.sort { it.id }
-            assert samples*.id == ['dorado', 'medaka']
+            assert samples.collect { [it.id, it.haplotype] }.sort { it.toString() } == [['dorado', 'hap1'], ['dorado', 'hap2'], ['medaka', 'hap1'], ['medaka', 'hap2']]
             samples.each { meta ->
-                assert meta.haplotypes.keySet() == ['hap1', 'hap2'] as Set
-                ['hap1', 'hap2'].each { hap ->
-                    def polished = meta.haplotype_results[hap].polished
-                    assert polished.keySet() == [meta.id, 'pilon'] as Set
-                    assert path(polished.pilon).getFileName().toString() == "${meta.id}_${hap}_pilon.fa.gz"
-                    assert path(polished[meta.id]).getFileName().toString().startsWith("${meta.id}_${hap}_${meta.id}")
-                }
+                assert meta.polished.keySet() == ['pilon'] as Set
+                assert path(meta.polished.pilon).getFileName().toString() == "${meta.id}_${meta.haplotype}_pilon.fa.gz"
+                def ont_prefix = "${meta.id}_${meta.haplotype}_${meta.id}"
+                def ont_outputs = new File("$outputDir/${meta.id}/polish/${meta.id}").listFiles()
+                assert ont_outputs.any { it.name.startsWith(ont_prefix) && it.name.endsWith('.fa.gz') }
             }
             def rows = new File("$outputDir/genomeqc_samplesheet/nf-core-genomeqc-in.csv").readLines().drop(1)
-            assert rows.size() == 12 && rows.toSet().size() == 12
+            assert rows.size() == 8 && rows.toSet().size() == 8
             assert rows.every { new File(it.split(',')[1]).exists() }
             ['dorado', 'medaka'].each { tool ->
                 ['hap1', 'hap2'].each { hap ->
-                    assert rows.any { it.startsWith("${tool}_${hap}-polish_${tool},") }
                     assert rows.any { it.startsWith("${tool}_${hap}-polish_pilon,") }
                 }
             }
-            assert snapshot(rows.collect { it.split(',')[0] }.sort()).match()
+            def expected_labels = ['dorado', 'medaka'].collectMany { tool ->
+                ['hap1', 'hap2'].collectMany { hap ->
+                    ['initial_assembly', 'polish_pilon'].collect { stage -> "${tool}_${hap}-${stage}".toString() }
+                }
+            }
+            assert rows.collect { it.split(',')[0] }.sort() == expected_labels.sort()
         }
     }
 }

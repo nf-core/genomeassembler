@@ -125,7 +125,8 @@ workflow PIPELINE_INITIALISATION {
                                     it.assembler.contains("_") ? it.assembler.tokenize("_")[0] :
                                     null
             def assembler_hifi  =   it.assembler_hifi ?:
-                                    (it.strategy == "single" && it.assembler && it.hifireads && (!it.ontreads || it.hifiasm_hic_phasing)) ? it.assembler :
+                                    (it.hifiasm_hic_phasing && it.assembler == "hifiasm") ? "hifiasm" :
+                                    (it.strategy == "single" && it.assembler && it.hifireads && !it.ontreads) ? it.assembler :
                                     it.assembler.contains("_") ? it.assembler.tokenize("_")[1] :
                                     null
             def polish          =   it.polish ?:
@@ -182,10 +183,6 @@ workflow PIPELINE_INITIALISATION {
             def assembly_phasing_args = [meta.hifiasm_args, meta.assembler_hifi_args].findAll { value -> value }.join(' ')
             if (assembly_phasing_args =~ /(^|\s)--(primary|ont)(\s|$|=)/) {
                 error("Sample ${meta.id}: --primary and --ont are incompatible with hifiasm_hic_phasing.")
-            }
-            // Extra arguments can inject trio inputs even though the pipeline exposes no trio mode.
-            if (assembly_phasing_args =~ /(^|\s)-[12]/) {
-                error("Sample ${meta.id}: trio inputs -1 and -2 are incompatible with hifiasm_hic_phasing.")
             }
         }
         if (row.meta.jellyfish && !row.meta.hifireads && !row.meta.ontreads) {

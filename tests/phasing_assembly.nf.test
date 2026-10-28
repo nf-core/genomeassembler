@@ -50,7 +50,7 @@ nextflow_workflow {
             assert metas.every { meta -> path(meta.assembly).getFileName().toString() == (meta.haplotype ? "${meta.id}_${meta.haplotype}.fa.gz" : "${meta.id}.fa.gz") }
             assert metas.findAll { it.id == 'sampleB' }.every { it.hic_reads.size() == 2 }
             assert metas.findAll { it.id == 'sampleA' }.every { !it.hic_reads && it.scaffold_ragtag }
-            assert metas.every { it.assembly_map_bam == null }
+            assert metas.every { !it.containsKey('assembly_map_bam') }
             assert snapshot(metas.collect { meta -> [meta.id, meta.haplotype, path(meta.assembly).getFileName().toString()] }.sort { it[2] }).match()
         }
     }
@@ -72,22 +72,24 @@ nextflow_workflow {
             assert metas.every { meta -> path(meta.assembly).getFileName().toString() == (meta.haplotype ? "${meta.id}_${meta.haplotype}.fa.gz" : "${meta.id}.fa.gz") }
             assert metas.findAll { it.id == 'sampleB' }.every { it.hic_reads.size() == 2 }
             assert metas.findAll { it.id == 'sampleA' }.every { !it.hic_reads && it.scaffold_ragtag }
-            assert metas.every { it.assembly_map_bam == null }
+            assert metas.every { !it.containsKey('assembly_map_bam') }
             assert snapshot(metas.collect { meta -> [meta.id, meta.haplotype, path(meta.assembly).getFileName().toString()] }.sort { it[2] }).match()
         }
     }
-    test("Missing phased outputs fail instead of dropping samples") {
-        options "-stub-run"
-        when {
-            params {
-                outdir = "$outputDir"
-                omit_haplotypes = true
+    ['hap1', 'hap2', 'both'].each { missing ->
+        test("Missing ${missing} phased outputs fail instead of dropping samples") {
+            options "-stub-run"
+            when {
+                params {
+                    outdir = "$outputDir"
+                    omit_haplotypes = missing
+                }
+                workflow { assemblyInputs }
             }
-            workflow { assemblyInputs }
-        }
-        then {
-            assert workflow.failed
-            assert (workflow.stdout + workflow.stderr).any { it.contains('expected exactly one output for each of hap1 and hap2') }
+            then {
+                assert workflow.failed
+                assert (workflow.stdout + workflow.stderr).any { it.contains('expected exactly one output for each of hap1 and hap2') }
+            }
         }
     }
 

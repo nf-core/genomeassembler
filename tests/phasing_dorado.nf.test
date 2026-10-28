@@ -38,16 +38,12 @@ nextflow_workflow {
         then {
             assert workflow.success
             def samples = workflow.out._assemblies.collect { it.meta }.sort { it.id }
-            assert samples*.id == ['sampleA', 'sampleB', 'unphased']
+            assert samples.collect { [it.id, it.haplotype] }.sort { it.toString() } == [['sampleA', 'hap1'], ['sampleA', 'hap2'], ['sampleB', 'hap1'], ['sampleB', 'hap2'], ['unphased', null]]
             def prefixes = ['sampleA_hap1', 'sampleA_hap2', 'sampleB_hap1', 'sampleB_hap2', 'unphased']
             samples.findAll { it.id != 'unphased' }.each { meta ->
-                assert meta.haplotypes.keySet() == ['hap1', 'hap2'] as Set
-                ['hap1', 'hap2'].each { hap ->
-                    def stages = meta.haplotype_results[hap]
-                    assert stages.polished.keySet() == ['dorado'] as Set
-                    assert path(stages.polished.dorado).getFileName().toString() == "${meta.id}_${hap}_dorado_polished.fa.gz"
-                    assert path(stages.scaffolds.ragtag).getFileName().toString() == "${meta.id}_${hap}_ragtag.fa.gz"
-                }
+                assert meta.polished.keySet() == ['dorado'] as Set
+                assert path(meta.polished.dorado).getFileName().toString() == "${meta.id}_${meta.haplotype}_dorado_polished.fa.gz"
+                assert path(meta.scaffolds.ragtag).getFileName().toString() == "${meta.id}_${meta.haplotype}_ragtag.fa.gz"
             }
             def unphased = samples.find { it.id == 'unphased' }
             assert path(unphased.polished.dorado).getFileName().toString() == 'unphased_dorado_polished.fa.gz'

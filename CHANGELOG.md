@@ -3,7 +3,15 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## v2.0.1 - 'I was a Teenage Hand Model' - [2026-XX-XX]
+## v2.1.0 - 'Avon' - [2026-10-23]
+
+### `Added`
+
+### `Fixed`
+
+### `Dependencies`
+
+## v2.0.1 - 'I was a Teenage Hand Model' - [2026-10-23]
 
 codenamegenerator.com stopped working. Codenames from now on will be song titles.
 
@@ -13,7 +21,7 @@ codenamegenerator.com stopped working. Codenames from now on will be song titles
 
 - [#252](https://github.com/nf-core/genomeassembler/pull/252) Added `AGENTS.md`
 
-- [#233](https://github.com/nf-core/genomeassembler/pull/233) Updated. `tower.yml`
+- [#233](https://github.com/nf-core/genomeassembler/pull/233) Update `tower.yml` with the report paths (the execution trace pattern was fixed in [#259](https://github.com/nf-core/genomeassembler/pull/259), found in review by @Vicbeg).
 
 ### `Fixed`
 

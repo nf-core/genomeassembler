@@ -7,7 +7,6 @@ nextflow_workflow {
 
     def testdata = "https://raw.githubusercontent.com/nf-core/test-datasets/218acd6325ddcd1214e48951f3df5e3d0d2edc20/samplesheet/phasing"
     def errors = [
-        trio: "trio inputs -1 and -2 are incompatible with hifiasm_hic_phasing.",
         assemblyMode: "--primary and --ont are incompatible with hifiasm_hic_phasing.",
         outputCollision: "haplotype output prefixes collide with another samplesheet sample.",
         sampleIds: "Samplesheet sample IDs must be unique.",
@@ -15,16 +14,16 @@ nextflow_workflow {
         hicMates: "hifiasm_hic_phasing requires both hic_F and hic_R."
     ]
     def scenarios = [
-        [name: "hifiasm_args rejects -1 paternal.yak", fixture: "phasing_00.csv", error: errors.trio],
-        [name: "hifiasm_args rejects -2 maternal.yak", fixture: "phasing_01.csv", error: errors.trio],
-        [name: "hifiasm_args rejects -1paternal.yak", fixture: "phasing_02.csv", error: errors.trio],
-        [name: "hifiasm_args rejects -2=maternal.yak", fixture: "phasing_03.csv", error: errors.trio],
+        [name: "hifiasm_args preserves -1 paternal.yak", fixture: "phasing_00.csv", mode: "raw_args"],
+        [name: "hifiasm_args preserves -2 maternal.yak", fixture: "phasing_01.csv", mode: "raw_args"],
+        [name: "hifiasm_args preserves -1paternal.yak", fixture: "phasing_02.csv", mode: "raw_args"],
+        [name: "hifiasm_args preserves -2=maternal.yak", fixture: "phasing_03.csv", mode: "raw_args"],
         [name: "hifiasm_args rejects --primary", fixture: "phasing_04.csv", error: errors.assemblyMode],
         [name: "hifiasm_args rejects --ont", fixture: "phasing_05.csv", error: errors.assemblyMode],
-        [name: "assembler_hifi_args rejects -1 paternal.yak", fixture: "phasing_06.csv", error: errors.trio],
-        [name: "assembler_hifi_args rejects -2 maternal.yak", fixture: "phasing_07.csv", error: errors.trio],
-        [name: "assembler_hifi_args rejects -1paternal.yak", fixture: "phasing_08.csv", error: errors.trio],
-        [name: "assembler_hifi_args rejects -2=maternal.yak", fixture: "phasing_09.csv", error: errors.trio],
+        [name: "assembler_hifi_args preserves -1 paternal.yak", fixture: "phasing_06.csv", mode: "raw_args"],
+        [name: "assembler_hifi_args preserves -2 maternal.yak", fixture: "phasing_07.csv", mode: "raw_args"],
+        [name: "assembler_hifi_args preserves -1paternal.yak", fixture: "phasing_08.csv", mode: "raw_args"],
+        [name: "assembler_hifi_args preserves -2=maternal.yak", fixture: "phasing_09.csv", mode: "raw_args"],
         [name: "assembler_hifi_args rejects --primary", fixture: "phasing_10.csv", error: errors.assemblyMode],
         [name: "assembler_hifi_args rejects --ont", fixture: "phasing_11.csv", error: errors.assemblyMode],
         [name: "hap1 output prefix collision", fixture: "phasing_18.csv", error: errors.outputCollision],
@@ -78,8 +77,12 @@ nextflow_workflow {
                 else {
                     assert workflow.success
                     def meta = workflow.out.samplesheet.find { it.meta.id == 'sample' }.meta
-                    if (scenario.mode == 'hybrid') {
-                        assert meta.strategy == 'hybrid' && meta.assembler_ont == 'hifiasm'
+                    if (scenario.mode == 'raw_args') {
+                        def argument = scenario.name.split(' preserves ', 2)
+                        assert meta[argument[0]] == argument[1]
+                    }
+                    else if (scenario.mode == 'hybrid') {
+                        assert meta.strategy == 'hybrid' && meta.assembler_ont == 'hifiasm' && meta.assembler_hifi == 'hifiasm'
                         assert meta.hifireads && meta.ontreads && meta.phasing_reads
                     }
                     else if (scenario.mode == 'auxiliary') {

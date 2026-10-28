@@ -1,4 +1,4 @@
-include { createHaplotypeKey } from '../../assembly_haplotypes/main'
+include { createHaplotypeKey } from '../../assembly_haplotypes/functions'
 include { QC                                        } from '../../qc/main'
 include { RUN_LIFTOFF                               } from '../../liftoff/main'
 include { YAHS                                      } from '../../../../modules/nf-core/yahs/main'

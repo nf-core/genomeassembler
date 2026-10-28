@@ -1,14 +1,4 @@
 {
-    "Unphased filenames retain the original sample prefix": {
-        "content": [
-            "unphased"
-        ],
-        "timestamp": "2026-10-12T10:42:04.895853",
-        "meta": {
-            "nf-test": "0.9.4",
-            "nextflow": "25.10.4"
-        }
-    },
     "Join keys distinguish haplotypes without inventing sample IDs": {
         "content": [
             [

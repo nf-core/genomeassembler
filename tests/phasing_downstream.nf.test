@@ -48,16 +48,18 @@ nextflow_workflow {
             assert reports*.name.sort() == expected.sort()
             assert reports.every { it.text.trim() == it.name.split('_hap')[0] }
             def samples = workflow.out._assemblies.collect { it.meta }
-            assert samples*.id.sort() == ['sampleA', 'sampleB']
-            assert samples.every { it.haplotypes.keySet() == ['hap1', 'hap2'] as Set }
-            assert samples.every { !it.haplotype && !it.source_sample }
-            assert samples.every { meta ->
-                ['hap1', 'hap2'].every { hap ->
-                    def result = meta.haplotype_results[hap]
-                    path(result.polished.pilon).getFileName().toString() == "${meta.id}_${hap}_pilon.fa.gz" &&
-                    result.scaffolds.keySet() == ['hic', 'ragtag'] as Set &&
-                    result.scaffolds.every { stage, fasta -> path(fasta).getFileName().toString().startsWith("${meta.id}_${hap}_") }
+            assert samples.size() == 8
+            def by_haplotype = samples.groupBy { [it.id, it.haplotype] }
+            assert by_haplotype.keySet() == [['sampleA', 'hap1'], ['sampleA', 'hap2'], ['sampleB', 'hap1'], ['sampleB', 'hap2']] as Set
+            by_haplotype.each { identity, metas ->
+                assert metas.size() == 2
+                assert metas*.assembly.unique().size() == 1
+                assert metas.every { meta ->
+                    !meta.source_sample &&
+                    path(meta.polished.pilon).getFileName().toString() == "${meta.id}_${meta.haplotype}_pilon.fa.gz" &&
+                    meta.scaffolds.every { stage, fasta -> path(fasta).getFileName().toString().startsWith("${meta.id}_${meta.haplotype}_") }
                 }
+                assert metas.collectMany { it.scaffolds.keySet().toList() }.sort() == ['hic', 'ragtag']
             }
             def manifest = new File("$outputDir/genomeqc_samplesheet/nf-core-genomeqc-in.csv").readLines()
             assert manifest.size() == 17

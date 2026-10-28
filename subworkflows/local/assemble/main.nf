@@ -184,28 +184,28 @@ workflow ASSEMBLE {
 
     // multiMap keeps each HiFi input and Hi-C pair aligned across samples.
     ch_main_assemble_phased_hifiasm = ch_main_assemble_hifi_hifiasm_branched.hic.multiMap { meta, hifireads, ontreads ->
-        hifireads: [meta, hifireads, ontreads]
+        hifireads: [meta, hifireads, meta.strategy == "hybrid" ? ontreads : []]
         hic_reads: [meta, meta.phasing_reads.f, meta.phasing_reads.r]
     }
     HIFIASM_HIC(ch_main_assemble_phased_hifiasm.hifireads, [[], [], []], ch_main_assemble_phased_hifiasm.hic_reads, [[], []])
 
-    // Optional module outputs must not silently drop a requested sample or haplotype.
-    ch_main_assemble_phased_hifiasm.hifireads
-        .map { meta, _hifi, _ont -> [meta.id, 'input'] }
+    // The required log output detects completed tasks missing both optional haplotypes.
+    HIFIASM_HIC.out.log
+        .map { meta, _log -> [meta.id, 'log'] }
         .mix(HIFIASM_HIC.out.hap1_contigs.map { meta, _gfa -> [meta.id, 'hap1'] })
         .mix(HIFIASM_HIC.out.hap2_contigs.map { meta, _gfa -> [meta.id, 'hap2'] })
         .toList()
-        .subscribe { records ->
-            records.groupBy { record -> record[0] }.each { id, entries ->
-                if (entries*.getAt(1).sort() != ['hap1', 'hap2', 'input']) {
+        .subscribe { outputs ->
+            outputs.groupBy { output -> output[0] }.each { id, entries ->
+                if (entries*.getAt(1).sort() != ['hap1', 'hap2', 'log']) {
                     error("Sample ${id}: expected exactly one output for each of hap1 and hap2 from hifiasm Hi-C phasing.")
                 }
             }
         }
 
     ch_phased_contigs = HIFIASM_HIC.out.hap1_contigs
-        .map { meta, gfa -> [meta + [haplotype: 'hap1', assembly_map_bam: null], gfa] }
-        .mix(HIFIASM_HIC.out.hap2_contigs.map { meta, gfa -> [meta + [haplotype: 'hap2', assembly_map_bam: null], gfa] })
+        .map { meta, gfa -> [meta + [haplotype: 'hap1'], gfa] }
+        .mix(HIFIASM_HIC.out.hap2_contigs.map { meta, gfa -> [meta + [haplotype: 'hap2'], gfa] })
 
     // hifiasm produces GFA files
     GFA2FA_HIFI( HIFIASM.out.primary_contigs.mix(ch_phased_contigs) )

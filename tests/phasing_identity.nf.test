@@ -1,6 +1,6 @@
 nextflow_function {
     name "Haplotype assembly identity"
-    script "../subworkflows/local/assembly_haplotypes/main.nf"
+    script "../subworkflows/local/assembly_haplotypes/functions.nf"
     tag "pipeline"
     tag "phasing_metadata"
 
@@ -28,22 +28,6 @@ nextflow_function {
         then {
             assert function.success
             assert function.result == ['unphased']
-        }
-    }
-
-    test("Unphased filenames retain the original sample prefix") {
-        function "createHaplotypePrefix"
-        when {
-            function {
-                """
-                input[0] = [id: 'unphased']
-                """
-            }
-        }
-        then {
-            assert function.success
-            assert function.result == 'unphased'
-            assert snapshot(function.result).match()
         }
     }
 }

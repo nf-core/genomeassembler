@@ -1,4 +1,4 @@
-include { createHaplotypeKey } from '../assembly_haplotypes/main'
+include { createHaplotypeKey } from '../assembly_haplotypes/functions'
 include { MAP_TO_ASSEMBLY } from '../mapping/map_to_assembly/main'
 include { QUAST } from '../../../modules/nf-core/quast/main'
 include { BUSCO_BUSCO as BUSCO } from '../../../modules/nf-core/busco/busco/main'

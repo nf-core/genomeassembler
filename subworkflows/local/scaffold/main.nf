@@ -1,4 +1,4 @@
-include { createHaplotypeKey } from '../assembly_haplotypes/main'
+include { createHaplotypeKey } from '../assembly_haplotypes/functions'
 include { RUN_LINKS         } from './links/main'
 include { RUN_LONGSTITCH    } from './longstitch/main'
 include { RUN_RAGTAG        } from './ragtag/main'

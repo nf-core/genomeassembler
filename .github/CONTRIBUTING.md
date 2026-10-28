@@ -273,8 +273,8 @@ Please use the following channel naming schemes, to make it easy to understand w
 
 ### Hi-C phasing metadata and validation
 
-Phased task records retain the original `meta.id` and distinguish assemblies with `meta.haplotype`. `createHaplotypeKey` supplies assembly join keys; `createHaplotypePrefix` supplies report and genomeqc manifest labels outside process configuration. QC accepts metadata-bearing assembly tuples and constructs its own keys.
+Phased task records retain the original `meta.id` and distinguish assemblies with `meta.haplotype`. `createHaplotypeKey` supplies assembly join keys. Process prefixes, report labels and genomeqc manifest labels append the haplotype to the sample ID. QC accepts metadata-bearing assembly tuples and constructs its own keys.
 
-`COLLATE_HAPLOTYPES` gathers the final stage records into the `_assemblies` workflow output. It stores initial assemblies in `meta.haplotypes` and per-stage results in `meta.haplotype_results`. Parallel scaffold branches can repeat paths, so collection merges equal paths and rejects conflicting paths for a stage and haplotype. The downstream regression tests consume this output.
+`_assemblies` exposes the final per-assembly metadata for regression tests. Parallel scaffold branches retain separate entries for each stage and haplotype.
 
 Initialisation tests validate samplesheet prerequisites and argument compatibility. Stub tests check sample-specific Hi-C mates, single and hybrid ONT routing, missing haplotypes, QC joins, publishing and stage metadata. Validate biological phasing results with a representative real HiFi and Hi-C dataset before production use.
