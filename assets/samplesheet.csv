@@ -1,3 +1,7 @@
-sample,fastq_1,fastq_2
-SAMPLE_PAIRED_END,/path/to/fastq/files/AEG588A1_S1_L002_R1_001.fastq.gz,/path/to/fastq/files/AEG588A1_S1_L002_R2_001.fastq.gz
-SAMPLE_SINGLE_END,/path/to/fastq/files/AEG588A4_S4_L003_R1_001.fastq.gz,
+sample,ontreads,hifireads,ref_fasta,ref_gff,shortread_F,shortread_R,paired
+REF_SHORTREADS_PAIRED,ONT.fastq.gz,PacBio.fastq.gz,Ref.fasta,Ref.gff3,SR_1.fastq.gz,SR_2.fastq.gz,true
+REF_SHORTREADS_SE,ONT.fastq.gz,PacBio.fastq.gz,Ref.fasta,Ref.gff3,SR_1.fastq.gz,,false
+REF_NO_SHORTREADS,ONT.fastq.gz,PacBio.fastq.gz,Ref.fasta,Ref.gff3,,,false
+NO_REF_SHORTREADS_PAIRED,ONT.fastq.gz,PacBio.fastq.gz,,,SR_1.fastq.gz,SR_2.fastq.gz,true
+NO_REF_SHORTREADS_SE,ONT.fastq.gz,PacBio.fastq.gz,,,SR_1.fastq.gz,,false
+NO_REF_NO_SHORTREADS,ONT.fastq.gz,PacBio.fastq.gz,,,,,false

@@ -1,0 +1,12 @@
+{
+    "Jellyfish without long reads fails during initialization": {
+        "content": [
+            "Sample supplied: Jellyfish requires long reads."
+        ],
+        "timestamp": "2026-10-12T08:08:37.88345",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
+    }
+}
