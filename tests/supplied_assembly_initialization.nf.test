@@ -1,0 +1,39 @@
+nextflow_workflow {
+    name "Supplied assembly initialization"
+    script "../subworkflows/local/utils_nfcore_genomeassembler_pipeline/main.nf"
+    workflow "PIPELINE_INITIALISATION"
+    config "tests/conf/supplied_assembly.config"
+    tag "pipeline"
+    tag "supplied_assembly"
+
+    test("Jellyfish without long reads fails during initialization") {
+        when {
+            params {
+                outdir = "$outputDir"
+                // The test profile supplies reads; this case must have none.
+                hifireads = null
+                ontreads = null
+                jellyfish = true
+            }
+            workflow {
+                """
+                input[0] = false
+                input[1] = false
+                input[2] = true
+                input[3] = []
+                input[4] = params.outdir
+                input[5] = params.input
+                input[6] = false
+                input[7] = false
+                input[8] = false
+                """
+            }
+        }
+        then {
+            assert workflow.failed
+            def message = 'Sample supplied: Jellyfish requires long reads.'
+            assert (workflow.stdout + workflow.stderr).any { it.contains(message) }
+            assert snapshot(message).match()
+        }
+    }
+}

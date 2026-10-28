@@ -1,0 +1,85 @@
+name: "htslib_rebgzip"
+description: "Take unzipped, gzipped, bzipped, or xzipped file and emit bgzipped file"
+keywords:
+  - compress
+  - decompress
+  - bgzip
+  - gzip
+tools:
+  - "htslib":
+      description: "C library for high-throughput sequencing data formats."
+      homepage: "http://www.htslib.org/"
+      documentation: "http://www.htslib.org/doc/"
+      tool_dev_url: "https://github.com/samtools/htslib"
+      doi: "10.1093/gigascience/giab007"
+      licence:
+        - "MIT"
+      identifier: biotools:htslib
+input:
+  - - meta:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. [ id:'sample1' ]
+    - infile:
+        type: file
+        description: Input file to (re-)compress
+        pattern: "*"
+        ontologies: []
+output:
+  bgzipped:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. [ id:'sample1' ]
+      - out/${outfile}:
+          type: file
+          description: Bgzipped output file
+          pattern: "*.gz"
+          ontologies:
+            - edam: http://edamontology.org/format_3989
+  versions_htslib:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - htslib:
+          type: string
+          description: The name of the tool
+      - bgzip --version | sed '1! d; s/bgzip (htslib) //':
+          type: eval
+          description: The expression to obtain the version of the tool
+  versions_xz:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - xz:
+          type: string
+          description: The name of the tool
+      - xz --version | sed '1! d; s/xz (XZ Utils) //':
+          type: eval
+          description: The expression to obtain the version of the tool
+topics:
+  versions:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - htslib:
+          type: string
+          description: The name of the tool
+      - bgzip --version | sed '1! d; s/bgzip (htslib) //':
+          type: eval
+          description: The expression to obtain the version of the tool
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - xz:
+          type: string
+          description: The name of the tool
+      - xz --version | sed '1! d; s/xz (XZ Utils) //':
+          type: eval
+          description: The expression to obtain the version of the tool
+authors:
+  - "@nschan"
+maintainers:
+  - "@nschan"

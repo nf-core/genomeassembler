@@ -1,0 +1,38 @@
+color:
+  palette:
+    green: "#24B064"
+    brown: "#3F2B29"
+    yellow: "#ECDC86"
+    white: "#f9f9f9"
+    gray-dark: "#343a40"
+    gray-100: "#f8f9fa"
+    gray-200: "#e9ecef"
+    gray-300: "#dee2e6"
+    gray-400: "#ced4da"
+    gray-500: "#adb5bd"
+    gray-600: "#6c757d"
+    gray-700: "#495057"
+    gray-800: "#343a40"
+    gray-900: "#212529"
+  background: white
+  foreground: gray-dark
+  primary: green
+  secondary: yellow
+  tertiary: brown
+  light: "#f8f9fa"
+  dark: "#212529"
+
+logo:
+  images:
+    banner: "nf-core-logo.png"
+    apple: "nf-core-logo-square.png"
+  small: apple
+  medium: banner
+  large: banner
+
+typography:
+  fonts:
+    - family: Maven Pro
+      source: google
+  base: Maven Pro
+  headings: Maven Pro
