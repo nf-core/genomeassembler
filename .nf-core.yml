@@ -23,7 +23,7 @@ lint:
     - tests/supplied_assembly_initialization.nf.test
     - tests/qc_reads.nf.test
   multiqc_config: false
-nf_core_version: 4.1.0
+nf_core_version: 4.2.1
 repository_type: pipeline
 template:
   author: Niklas Schandry
