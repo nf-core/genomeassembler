@@ -145,6 +145,24 @@ Annotation `gff3` and `unmapped.txt` files are only created if a reference for a
 
 </details>
 
+## Hi-C phased assemblies
+
+Both haplotypes remain under the original sample's output directory. QC, polishing and scaffolding filenames include `_hap1` or `_hap2`. The genomeqc samplesheet lists each retained haplotype and stage separately.
+
+<details markdown="1">
+<summary>Output files</summary>
+
+- `individual/assembly/hifiasm/`:
+  - `individual_hap1.fa.gz`: First haplotype assembly.
+  - `individual_hap2.fa.gz`: Second haplotype assembly.
+  - Original hifiasm graphs and logs.
+- `individual/scaffold/hic/bwamem2/index/`:
+  - `hap1/bwamem2/`: First haplotype index directory.
+  - `hap2/bwamem2/`: Second haplotype index directory.
+  - Unphased indices retain the existing `bwamem2/` path.
+
+</details>
+
 ### Polishing
 
 Polishing can be used to correct errors in the assembly. This pipeline supports two polishing tools.

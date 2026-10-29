@@ -217,6 +217,8 @@ workflow GENOMEASSEMBLER {
         .fromPath("${projectDir}/assets/report/scripts/*")
         .collect()
 
+    report_groups = ch_main_scaffolded.collect().map { rows -> createReportSampleGroups(rows) }
+
     REPORT( report_files,
             report_functions,
             report_scripts,
@@ -226,7 +228,7 @@ workflow GENOMEASSEMBLER {
             busco_files,
             merqury_files,
             ch_collated_versions.collect(),
-            ch_main.map { it -> [sample: [id: it.meta.id, group: it.meta.group]] }.collect()
+            report_groups
     )
 
     _report = REPORT.out.report_html.toList()
@@ -241,6 +243,7 @@ workflow GENOMEASSEMBLER {
     def ch_assembly_manifest = ch_main_scaffolded
         .map { it ->
             def meta = it.meta
+            def prefix = meta.haplotype ? "${meta.id}_${meta.haplotype}" : "${meta.id}"
             def subout =
                     // Assembly publishdirs are a bit more specific
                     meta.strategy == "single" ? (
@@ -256,26 +259,27 @@ workflow GENOMEASSEMBLER {
 
                 // A list of ids, stage, files (in work), the candidate output folder
                 [
-                [ meta.id, 'scaffold_ragtag', meta.scaffolds ? meta.scaffolds.ragtag ?: null : null,           'scaffold/ragtag'     ],
-                [ meta.id, 'scaffold_hic' , meta.scaffolds ? meta.scaffolds.hic ?: null : null,              'scaffold/hic/yahs'   ],
-                [ meta.id, 'scaffold_longstitch', meta.scaffolds ? meta.scaffolds.longstitch ?: null : null,       'scaffold/longstitch' ],
-                [ meta.id, 'scaffold_links', meta.scaffolds ? meta.scaffolds.links ?: null : null,            'scaffold/links'      ],
-                [ meta.id, 'polish_pilon', meta.polished ? meta.polished.pilon ?: null : null,            'polish/pilon'        ],
-                [ meta.id, 'polish_medaka', meta.polished ? meta.polished.medaka ?: null : null,           'polish/medaka'       ],
-                [ meta.id, 'polish_dorado', meta.polished ? meta.polished.dorado ?: null : null,           'polish/dorado'       ],
-                [ meta.id, 'initial_assembly', meta.assembly, subout
+                [ prefix, meta.id, 'scaffold_ragtag', meta.scaffolds ? meta.scaffolds.ragtag ?: null : null,           'scaffold/ragtag'     ],
+                [ prefix, meta.id, 'scaffold_hic' , meta.scaffolds ? meta.scaffolds.hic ?: null : null,              'scaffold/hic/yahs'   ],
+                [ prefix, meta.id, 'scaffold_longstitch', meta.scaffolds ? meta.scaffolds.longstitch ?: null : null,       'scaffold/longstitch' ],
+                [ prefix, meta.id, 'scaffold_links', meta.scaffolds ? meta.scaffolds.links ?: null : null,            'scaffold/links'      ],
+                [ prefix, meta.id, 'polish_pilon', meta.polished ? meta.polished.pilon ?: null : null,            'polish/pilon'        ],
+                [ prefix, meta.id, 'polish_medaka', meta.polished ? meta.polished.medaka ?: null : null,           'polish/medaka'       ],
+                [ prefix, meta.id, 'polish_dorado', meta.polished ? meta.polished.dorado ?: null : null,           'polish/dorado'       ],
+                [ prefix, meta.id, 'initial_assembly', meta.assembly, subout
                 ]
                 ]
         }
         .flatMap( { it -> it } )
         .filter {
-            _id, _stage, assembly_file, _subdir -> assembly_file != null
+            _assembly_id, _sample_id, _stage, assembly_file, _subdir -> assembly_file != null
         }
+        .unique()
         .map {
-            id, stage ,assembly_file, subdir ->
+            id, sample_id, stage ,assembly_file, subdir ->
                 [
                     "${id}-${stage}",
-                    "${outdir_uri}/${id}/${subdir}/${file(assembly_file).name}"
+                    "${outdir_uri}/${sample_id}/${subdir}/${file(assembly_file).name}"
                 ]
         }
 
@@ -293,4 +297,12 @@ workflow GENOMEASSEMBLER {
 
     emit:
     _report
+    _assemblies = ch_main_scaffolded
+}
+
+
+def createReportSampleGroups(rows) {
+    rows.collect { row ->
+        [sample: [id: (row.meta.haplotype ? "${row.meta.id}_${row.meta.haplotype}" : "${row.meta.id}"), sample_id: row.meta.id, haplotype: row.meta.haplotype ?: null, group: row.meta.group]]
+    }.unique { row -> [row.sample.sample_id, row.sample.haplotype] }
 }

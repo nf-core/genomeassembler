@@ -66,8 +66,16 @@ data_base <-  "data/"
 # groups
 groups <- yaml::read_yaml("groups.yml") |>
   map_dfr(\(row)
-          data.frame(sample = pluck(row, 1, "id"), group = pluck(row, 1, "group", .default = "null"))) |>
-  mutate(group = case_when(group %in% c("","null") ~ sample, TRUE ~ group))
+          data.frame(sample = pluck(row, 1, "id"),
+                     sample_id = pluck(row, 1, "sample_id", .default = pluck(row, 1, "id")),
+                     haplotype = pluck(row, 1, "haplotype", .default = "null"),
+                     group = pluck(row, 1, "group", .default = "null"))) |>
+  mutate(group = case_when(group %in% c("","null") ~ sample_id, TRUE ~ group))
+
+# Read preparation is shared by the haplotypes of each original sample.
+read_level_groups <- groups |>
+  distinct(sample_id, group) |>
+  rename(sample = sample_id)
 ```
 
 # About
@@ -105,7 +113,7 @@ fastplong_reports <- list.files(paste0(data_base, "fastplong"),
                             pattern = ".json",
                             full.names = T) |>
     map_dfr(\(x) read_fastplong(x)) |>
-    left_join(groups, by = join_by(group))
+    left_join(read_level_groups, by = join_by(group))
 ```
 
 :::: {.content-visible when-profile="fastplong" }
@@ -276,7 +284,7 @@ jellyfish / genomescope was not included in the pipeline run.
 # Parse the genomescope statistics
 genomescope_out <- list.files(paste0(data_base, "genomescope"), full.names = T, pattern = "genomescope.txt") |>
     map_dfr(\(x) read_genomescope(x)) |>
-    left_join(groups, by = join_by(sample))
+    left_join(read_level_groups, by = join_by(sample))
 ```
 
 ::: {.content-visible when-profile="jellyfish"}

@@ -62,8 +62,9 @@ workflow POLISH_PILON {
         .map { meta, polished_pilon -> [ meta: meta + [ polished: [pilon: polished_pilon] ] ]  }
 
     QC(ch_main.map { it -> [meta: it.meta - it.meta.subMap("assembly_map_bam") + [assembly_map_bam: null] ]},
-        pilon_polished.map {meta, polished -> [meta.id, polished ]},
-        meryl_kmers)
+        pilon_polished.map {meta, polished -> [meta, polished ]},
+        meryl_kmers
+    )
 
     liftoff_in = ch_main
         .filter {

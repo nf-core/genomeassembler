@@ -1,0 +1,31 @@
+{
+    "Parallel scaffold outputs retain one report row per haplotype": {
+        "content": [
+            [
+                [
+                    "sampleA_hap1",
+                    "sampleA",
+                    "hap1",
+                    "family"
+                ],
+                [
+                    "sampleA_hap2",
+                    "sampleA",
+                    "hap2",
+                    "family"
+                ],
+                [
+                    "sampleB",
+                    "sampleB",
+                    null,
+                    null
+                ]
+            ]
+        ],
+        "timestamp": "2026-10-12T10:43:11.651619",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
+    }
+}

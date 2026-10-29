@@ -1,0 +1,79 @@
+{
+    "Missing phased outputs fail instead of dropping samples": {
+        "content": [
+            "Missing phased outputs fail with a join mismatch"
+        ],
+        "timestamp": "2026-10-12T08:13:53.451821",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
+    },
+    "Mixed phased and unphased samples retain independent outputs": {
+        "content": [
+            [
+                [
+                    "sampleA",
+                    "hap1",
+                    "sampleA_hap1.fa.gz"
+                ],
+                [
+                    "sampleA",
+                    "hap2",
+                    "sampleA_hap2.fa.gz"
+                ],
+                [
+                    "sampleB",
+                    "hap1",
+                    "sampleB_hap1.fa.gz"
+                ],
+                [
+                    "sampleB",
+                    "hap2",
+                    "sampleB_hap2.fa.gz"
+                ],
+                [
+                    "unphased",
+                    null,
+                    "unphased.fa.gz"
+                ]
+            ]
+        ],
+        "timestamp": "2026-10-13T08:52:25.474314",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
+    },
+    "Two samples keep their Hi-C pairs and produce four distinct assemblies": {
+        "content": [
+            [
+                [
+                    "sampleA",
+                    "hap1",
+                    "sampleA_hap1.fa.gz"
+                ],
+                [
+                    "sampleA",
+                    "hap2",
+                    "sampleA_hap2.fa.gz"
+                ],
+                [
+                    "sampleB",
+                    "hap1",
+                    "sampleB_hap1.fa.gz"
+                ],
+                [
+                    "sampleB",
+                    "hap2",
+                    "sampleB_hap2.fa.gz"
+                ]
+            ]
+        ],
+        "timestamp": "2026-10-13T08:52:00.131718",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
+    }
+}

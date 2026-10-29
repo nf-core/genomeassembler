@@ -270,3 +270,11 @@ Please use the following channel naming schemes, to make it easy to understand w
 
 - transit channel, subworkfow input and output: `ch_main`
 - intermediate channels: `ch_descriptive_suffix`
+
+### Hi-C phasing metadata and validation
+
+Phased task records retain the original `meta.id` and distinguish assemblies with `meta.haplotype`. `createHaplotypeKey` supplies assembly join keys. Process prefixes, report labels and genomeqc manifest labels append the haplotype to the sample ID. QC accepts metadata-bearing assembly tuples and constructs its own keys.
+
+`_assemblies` exposes the final per-assembly metadata for regression tests. Parallel scaffold branches retain separate entries for each stage and haplotype.
+
+Initialisation tests validate samplesheet prerequisites and argument compatibility. Stub tests check sample-specific Hi-C mates, single and hybrid ONT routing, missing haplotypes, QC joins, publishing and stage metadata. Validate biological phasing results with a representative real HiFi and Hi-C dataset before production use.

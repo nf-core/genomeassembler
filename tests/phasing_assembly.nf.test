@@ -1,0 +1,129 @@
+nextflow_workflow {
+    name "Hi-C phasing retains both haplotypes for each sample"
+    script "../subworkflows/local/assemble/main.nf"
+    workflow "ASSEMBLE"
+    config "tests/conf/phasing_assembly.config"
+    tag "pipeline"
+    tag "assemble"
+    tag "hic_phasing"
+
+    def assemblyInputs = """
+                input[0] = Channel.fromList(params.include_unphased ? ['sampleA', 'sampleB', 'unphased'] : ['sampleA', 'sampleB']).map { id ->
+                    def source = params.hic_input_swap == 'samples' ? (id == 'sampleA' ? 'sampleB' : 'sampleA') : id
+                    def read_dir = file(params.outdir + '/phasing_inputs/' + source)
+                    java.nio.file.Files.createDirectories(read_dir)
+                    def forward = read_dir.resolve('R1.fastq')
+                    def reverse = read_dir.resolve('R2.fastq')
+                    forward.text = ['@' + source + ':R1', 'ACGT', '+', 'IIII'].join(System.lineSeparator())
+                    reverse.text = ['@' + source + ':R2', 'TGCA', '+', 'IIII'].join(System.lineSeparator())
+                    def ont = read_dir.resolve('ONT.fastq')
+                    ont.text = ['@' + source + ':ONT', 'ACGT', '+', 'IIII'].join(System.lineSeparator())
+                    [meta: [
+                        id: id, strategy: params.hybrid_phasing && id == 'sampleB' ? 'hybrid' : 'single', assembler_hifi: 'hifiasm',
+                        assembler_ont: params.hybrid_phasing && id == 'sampleB' ? 'hifiasm' : null,
+                        ontreads: ont,
+                        hifiasm_hic_phasing: id != 'unphased', scaffold_hic: id == 'sampleB', scaffold_ragtag: id == 'sampleA',
+                        hic_reads: id == 'sampleB' ? [file("https://raw.githubusercontent.com/nf-core/test-datasets/genomeassembler/A_thaliana_Col-0_2mb/SRR22354810_1.sampled.fq.gz"), file("https://raw.githubusercontent.com/nf-core/test-datasets/genomeassembler/A_thaliana_Col-0_2mb/SRR22354810_2.sampled.fq.gz")]: null,
+                        hifireads: file("https://raw.githubusercontent.com/nf-core/test-datasets/genomeassembler/A_thaliana_Col-0_2mb/HiFi-Col-0_test_data.fastq.gz"),
+                        phasing_reads: params.hic_input_swap == 'mates' ? [f: reverse, r: forward] : [f: forward, r: reverse],
+                        quast: false, busco: false, merqury: false,
+                        use_short_reads: false, lift_annotations: false
+                    ]]
+                }
+                input[1] = Channel.empty()
+    """
+
+    test("Two samples keep their Hi-C pairs and produce four distinct assemblies") {
+        options "-stub-run"
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+            workflow { assemblyInputs }
+        }
+        then {
+            assert workflow.success
+            def metas = workflow.out.ch_main.collect { it.meta }
+            assert metas*.id.sort() == ['sampleA', 'sampleA', 'sampleB', 'sampleB']
+            assert metas.findAll { it.id != 'unphased' }.collect { [it.id, it.haplotype] }.sort { it.join('_') } == [['sampleA', 'hap1'], ['sampleA', 'hap2'], ['sampleB', 'hap1'], ['sampleB', 'hap2']]
+            assert metas.every { !it.source_sample && !it.haplotypes }
+            assert metas.every { meta -> path(meta.assembly).getFileName().toString() == (meta.haplotype ? "${meta.id}_${meta.haplotype}.fa.gz" : "${meta.id}.fa.gz") }
+            assert metas.findAll { it.id == 'sampleB' }.every { it.hic_reads.size() == 2 }
+            assert metas.findAll { it.id == 'sampleA' }.every { !it.hic_reads && it.scaffold_ragtag }
+            assert metas.every { !it.containsKey('assembly_map_bam') }
+            assert snapshot(metas.collect { meta -> [meta.id, meta.haplotype, path(meta.assembly).getFileName().toString()] }.sort { it[2] }).match()
+        }
+    }
+    test("Mixed phased and unphased samples retain independent outputs") {
+        options "-stub-run"
+        when {
+            params {
+                outdir = "$outputDir"
+                include_unphased = true
+            }
+            workflow { assemblyInputs }
+        }
+        then {
+            assert workflow.success
+            def metas = workflow.out.ch_main.collect { it.meta }
+            assert metas*.id.sort() == ['sampleA', 'sampleA', 'sampleB', 'sampleB', 'unphased']
+            assert metas.findAll { it.id != 'unphased' }.collect { [it.id, it.haplotype] }.sort { it.join('_') } == [['sampleA', 'hap1'], ['sampleA', 'hap2'], ['sampleB', 'hap1'], ['sampleB', 'hap2']]
+            assert metas.every { !it.source_sample && !it.haplotypes }
+            assert metas.every { meta -> path(meta.assembly).getFileName().toString() == (meta.haplotype ? "${meta.id}_${meta.haplotype}.fa.gz" : "${meta.id}.fa.gz") }
+            assert metas.findAll { it.id == 'sampleB' }.every { it.hic_reads.size() == 2 }
+            assert metas.findAll { it.id == 'sampleA' }.every { !it.hic_reads && it.scaffold_ragtag }
+            assert metas.every { !it.containsKey('assembly_map_bam') }
+            assert snapshot(metas.collect { meta -> [meta.id, meta.haplotype, path(meta.assembly).getFileName().toString()] }.sort { it[2] }).match()
+        }
+    }
+    ['hap1', 'hap2', 'both'].each { missing ->
+        test("Missing ${missing} phased outputs fail instead of dropping samples") {
+            options "-stub-run"
+            when {
+                params {
+                    outdir = "$outputDir"
+                    omit_haplotypes = missing
+                }
+                workflow { assemblyInputs }
+            }
+            then {
+                assert workflow.failed
+                assert (workflow.stdout + workflow.stderr).any { it.contains('expected exactly one output for each of hap1 and hap2') }
+            }
+        }
+    }
+
+    test("Hybrid phasing passes ONT reads while single phasing keeps them auxiliary") {
+        options "-stub-run"
+        when {
+            params {
+                outdir = "$outputDir"
+                hybrid_phasing = true
+            }
+            workflow { assemblyInputs }
+        }
+        then {
+            assert workflow.success
+            assert workflow.out.ch_main.size() == 4
+            assert workflow.out.ch_main.findAll { it.meta.id == 'sampleB' }.every { it.meta.strategy == 'hybrid' && it.meta.haplotype }
+        }
+    }
+
+    ['samples', 'mates'].each { swap ->
+        test("Swapped Hi-C ${swap} fail the input identity check") {
+            options "-stub-run"
+            when {
+                params {
+                    outdir = "$outputDir"
+                    hic_input_swap = swap
+                }
+                workflow { assemblyInputs }
+            }
+            then {
+                assert workflow.failed
+                assert (workflow.stdout + workflow.stderr).any { it.contains('Hi-C input identity mismatch') }
+            }
+        }
+    }
+
+}

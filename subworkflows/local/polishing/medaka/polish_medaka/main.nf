@@ -30,7 +30,7 @@ workflow POLISH_MEDAKA {
 
     QC(
         ch_medaka_out.map { it -> [meta: it.meta - it.meta.subMap("assembly_map_bam") + [ assembly_map_bam: null] ] },
-        polished_assembly.map { meta, polished -> [meta.id, polished] },
+        polished_assembly.map { meta, polished -> [meta, polished] },
         meryl_kmers
     )
 

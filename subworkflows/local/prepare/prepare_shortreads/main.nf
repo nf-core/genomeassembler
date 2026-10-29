@@ -9,12 +9,12 @@ workflow PREPARE_SHORTREADS {
 
     main:
 
-    shortreads = shortreads_in
+    ch_shortreads_branched = shortreads_in
         .map { row -> row.meta.shortread_F ? create_shortread_channel(row.meta) : row } // function below
         .branch {
             it ->
-                trim: it.meta.shortread_trim
-                no_trim: !it.meta.shortread_trim
+                trim: it.meta.shortread_F && it.meta.use_short_reads && it.meta.shortread_trim
+                no_trim: true
         }
 
     hic_trim = shortreads_in
@@ -27,7 +27,7 @@ workflow PREPARE_SHORTREADS {
 
     hic_trim.trim.dump(tag: "hic trim channel")
 
-    trim_in = shortreads
+    trim_in = ch_shortreads_branched
         .trim
         .filter { it -> it.meta.group }
         .map { it -> [it.meta, it.meta.group] }
@@ -44,7 +44,7 @@ workflow PREPARE_SHORTREADS {
                 ]
         }
         .mix(
-            shortreads
+            ch_shortreads_branched
                 .trim
                 .filter { it -> !it.meta.group }
                 .map {
@@ -111,11 +111,11 @@ workflow PREPARE_SHORTREADS {
                 .map { it -> [ meta: it[0] - it[0].subMap("hic_reads") + [ hic_reads: it[1] ] ] }
         )
 
-    shortreads = trimmed_reads
-        .mix( shortreads.no_trim )
+    prepared_shortreads = trimmed_reads
+        .mix( ch_shortreads_branched.no_trim )
     // add HiC trimmed to those that need it
 
-    shortreads = shortreads
+    combined_shortreads = prepared_shortreads
         .filter { row -> row.meta.hic_trim && row.meta.scaffold_hic }
         .map { row -> [ row.meta.id, row.meta ] }
         .combine(
@@ -135,12 +135,16 @@ workflow PREPARE_SHORTREADS {
                 ]
         }
         .mix(
-            trimmed_reads
-                .filter { row -> !(row.meta.hic_trim && row.meta.scaffold_hic) }
-                .map { it-> [meta: it.meta - it.meta.subMap("hic_reads") + [hic_reads: null]]}
+            prepared_shortreads.filter { row -> !(row.meta.hic_trim && row.meta.scaffold_hic) }
+                .map { row ->
+                // Scaffolding uses raw reads when trimming is disabled. Keep
+                // phasing_reads independent; they always refer to raw inputs.
+                row.meta.scaffold_hic
+                    ? create_hic_shortread_channel(row.meta)
+                    : [meta: row.meta - row.meta.subMap("hic_reads") + [hic_reads: null]]}
         )
 
-    meryl_in = shortreads
+    meryl_in = combined_shortreads
         .filter { it -> it.meta.merqury }
         .filter { it -> it.meta.group  }
         .map { it -> [ it.meta, it.meta.group, it.meta.shortreads, it.meta.meryl_k ] }
@@ -153,7 +157,7 @@ workflow PREPARE_SHORTREADS {
                 meryl_k: it[3][0]
             ]
         }
-        .mix(shortreads
+        .mix(combined_shortreads
             .filter { it -> it.meta.merqury }
             .filter { it -> !it.meta.group  }
             .map { it -> [meta: it.meta, shortreads: it.meta.shortreads, meryl_k: it.meta.meryl_k]}
@@ -182,7 +186,7 @@ workflow PREPARE_SHORTREADS {
         .map {meta , kmers -> [meta.id, kmers]}
 
     emit:
-    main_out        = shortreads
+    main_out        = combined_shortreads
     fastp_json      = FASTP.out.json
     meryl_kmers
 }
