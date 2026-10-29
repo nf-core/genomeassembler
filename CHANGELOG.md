@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### `Added`
 
+- [#262](https://github.com/nf-core/genomeassembler/pull/262) Updated to nf-core template version 4.2.1
+
 ### `Fixed`
 
 ### `Dependencies`
