@@ -10,7 +10,7 @@ workflow PREPARE_HIFI {
 
     ch_fastplong_in = main_in
         .filter { it -> it.meta.group }
-        .map { it -> [it.meta, it.meta.group, it.meta.hifi_trim, it.meta.hifireads, it.meta.hifi_adapters, it.meta.hifi_fastplong_args] }
+        .map { it -> [it.meta, it.meta.group, it.meta.hifi_trim, it.meta.hifireads, it.meta.hifi_adapters, it.meta.trimmer_hifi_args] }
         .groupTuple(by: 1)
         .map {
             it ->
@@ -19,7 +19,7 @@ workflow PREPARE_HIFI {
                         id: it[1],
                         metas: it[0],
                         trim: it[2][0], // These go in via config
-                        hifi_fastplong_args: it[5][0]
+                        trimmer_hifi_args: it[5][0]
                         ],
                     hifireads: it[3][0],
                     hifi_adapters: it[4][0]

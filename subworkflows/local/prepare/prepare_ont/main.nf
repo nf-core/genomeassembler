@@ -64,7 +64,7 @@ workflow PREPARE_ONT {
     // ch_collected is the same samples as the input channel
     ch_fastplong_in = ch_collected
         .filter { it -> it.meta.group }
-        .map { it -> [it.meta, it.meta.group, it.meta.ont_trim, it.meta.ontreads, it.meta.ont_adaptors, it.meta.ont_fastplong_args] }
+        .map { it -> [it.meta, it.meta.group, it.meta.ont_trim, it.meta.ontreads, it.meta.ont_adaptors, it.meta.trimmer_ont_args] }
         .groupTuple(by: 1)
         .map {
             it ->
@@ -73,7 +73,7 @@ workflow PREPARE_ONT {
                         id: it[1],
                         metas: it[0],
                         trim: it[2][0],
-                        ont_fastplong_args: it[5][0]
+                        trimmer_ont_args: it[5][0]
                         ],
                     ontreads: it[3][0],
                     ont_adaptors: it[4][0]

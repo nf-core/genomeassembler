@@ -251,9 +251,9 @@
                     "type": "string",
                     "description": "Adapters for ONT read-trimming."
                 },
-                "ont_fastplong_args": {
+                "trimmer_ont_args": {
                     "type": "string",
-                    "description": "Additional args to be passed to fastplong for ONT reads."
+                    "description": "Additional args to be passed to the preprocessing tool for ONT reads."
                 },
                 "hifireads": {
                     "type": "string",
@@ -263,9 +263,9 @@
                     "type": "string",
                     "description": "Adapters for HiFi read-trimming."
                 },
-                "hifi_fastplong_args": {
+                "trimmer_hifi_args": {
                     "type": "string",
-                    "description": "Additional args to be passed to fastplong for HiFi reads."
+                    "description": "Additional args to be passed to the preprocessing tool for HiFi reads."
                 },
                 "jellyfish": {
                     "type": "boolean",
