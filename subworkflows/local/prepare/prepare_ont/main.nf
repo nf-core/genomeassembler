@@ -76,7 +76,7 @@ workflow PREPARE_ONT {
         ch_collected.filter { it -> it.meta.trimmer == 'fastplong' }
     )
 
-    ch_fastplong_in.reads.dump(tag: "Fastplong ONT reads in")
+    ch_fastplong_in.reads.dump(tag: "Fastplong ONT reads in", pretty: true)
 
     FASTPLONG(ch_fastplong_in.reads, ch_fastplong_in.adapters, false, false)
 
@@ -96,24 +96,24 @@ workflow PREPARE_ONT {
             .filter { it -> !it[0].metas }
         )
 
-    fastplong_reads_out.dump(tag: "Prepare-ONT fastplong output")
+    fastplong_reads_out.dump(tag: "Prepare-ONT fastplong output", pretty: true)
 
     // -------------------------------------------------------------------------
     // CHOPPER
     // -------------------------------------------------------------------------
 
     ch_chopper_in = prepareReadsAndAdapters(
-        main_in.filter { it -> it.meta.trimmer == 'chopper' }
+        ch_collected.filter { it -> it.meta.trimmer == 'chopper' }
     )
 
     ch_chopper_in.reads.dump(tag: "Chopper ONT reads in")
 
-    CHOPPER(ch_chopper_in.reads, ch_trimmer_in.adapters)
+    CHOPPER(ch_chopper_in.reads, ch_chopper_in.adapters)
 
     // processing filtered reads
     chopper_reads_out = processFilteredReads(CHOPPER.out.fastq)
 
-    chopper_reads_out.dump(tag: "Prepare-ONT chopper output")
+    chopper_reads_out.dump(tag: "Prepare-ONT chopper output", pretty: true)
 
 
     ch_filtered_reads = fastplong_reads_out.mix( chopper_reads_out )
@@ -125,8 +125,8 @@ workflow PREPARE_ONT {
 
 
 
-def prepareReadsAndAdapters(main_in) {
-    return main_in
+def prepareReadsAndAdapters(ch_in) {
+    return ch_in
             .filter { it -> it.meta.group }
             .map { it -> [it.meta, it.meta.group, it.meta.ont_trim, it.meta.ontreads, it.meta.ont_adaptors, it.meta.trimmer_ont_args] }
             .groupTuple(by: 1)
@@ -144,7 +144,7 @@ def prepareReadsAndAdapters(main_in) {
                     ]
             }
             .mix(
-                main_in
+                ch_in
                     .filter { it -> !it.meta.group }
                     .map {
                         it ->

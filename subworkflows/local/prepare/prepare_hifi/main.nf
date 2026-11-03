@@ -24,7 +24,7 @@ workflow PREPARE_HIFI {
     // processing filtered reads
     fastplong_reads_out = processFilteredReads(FASTPLONG.out.reads)
 
-    fastplong_reads_out.dump(tag: "Prepare-HIFI fastplong output")
+    fastplong_reads_out.dump(tag: "Prepare-HIFI fastplong output", pretty: true)
 
     // processing json report
     ch_fastplong_out_json  = FASTPLONG.out.json
@@ -48,12 +48,12 @@ workflow PREPARE_HIFI {
 
     ch_chopper_in.reads.dump(tag: "Chopper HIFI reads in")
 
-    CHOPPER(ch_chopper_in.reads, ch_trimmer_in.adapters)
+    CHOPPER(ch_chopper_in.reads, ch_chopper_in.adapters)
 
     // processing filtered reads
     chopper_reads_out = processFilteredReads(CHOPPER.out.fastq)
 
-    chopper_reads_out.dump(tag: "Prepare-HIFI chopper output")
+    chopper_reads_out.dump(tag: "Prepare-HIFI chopper output", pretty: true)
 
 
     ch_filtered_reads = fastplong_reads_out.mix( chopper_reads_out )
@@ -64,8 +64,8 @@ workflow PREPARE_HIFI {
 }
 
 
-def prepareReadsAndAdapters(main_in) {
-    return main_in
+def prepareReadsAndAdapters(ch_in) {
+    return ch_in
             .filter { it -> it.meta.group }
             .map { it -> [it.meta, it.meta.group, it.meta.hifi_trim, it.meta.hifireads, it.meta.hifi_adapters, it.meta.hifi_fastplong_args] }
             .groupTuple(by: 1)
@@ -83,7 +83,7 @@ def prepareReadsAndAdapters(main_in) {
                     ]
             }
             .mix(
-                main_in
+                ch_in
                     .filter { it -> !it.meta.group }
                     .map {
                         it ->
