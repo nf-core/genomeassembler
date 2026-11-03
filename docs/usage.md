@@ -325,6 +325,7 @@ These arguments can be passed via `<hifi/ont>_fastplot_args` for the different r
 | `ontreads`            | Path to ONT reads                                          | `string`  |
 | `ont_collect`         | Collect ONT reads from several files?                      | `boolean` |
 | `ont_adapters`        | Adaptors for ONT read-trimming                             | `string`  |
+| `trimmer`             | Tool to use for filtering / trimming long reads            | `string`  |
 | `trimmer_ont_args`    | Additional args to be passed to the trimmer for ONT reads  | `string`  |
 | `hifireads`           | Path to HiFi reads                                         | `string`  |
 | `hifi_adapters`       | Adaptors for HiFi read-trimming                            | `string`  |

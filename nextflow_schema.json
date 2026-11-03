@@ -251,6 +251,12 @@
                     "type": "string",
                     "description": "Adapters for ONT read-trimming."
                 },
+                "trimmer": {
+                    "type": "string",
+                    "enum": ["fastplong", "chopper"],
+                    "description": "Tool to use for filtering / trimming long reads",
+                    "default": "fastplong"
+                },
                 "trimmer_ont_args": {
                     "type": "string",
                     "description": "Additional args to be passed to the preprocessing tool for ONT reads."
