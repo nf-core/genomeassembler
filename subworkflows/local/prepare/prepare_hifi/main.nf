@@ -18,7 +18,7 @@ workflow PREPARE_HIFI {
     )
 
     ch_fastplong_in.reads.dump(tag: "Fastplong HIFI reads in")
-    
+
     FASTPLONG(ch_fastplong_in.reads, ch_fastplong_in.adapters, false, false )
 
     // processing filtered reads
@@ -57,7 +57,7 @@ workflow PREPARE_HIFI {
 
 
     ch_filtered_reads = fastplong_reads_out.mix( chopper_reads_out )
-    
+
     emit:
     main_out                = ch_filtered_reads
     fastplong_hifi_reports  = fastplong_json_out

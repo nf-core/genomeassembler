@@ -320,20 +320,20 @@ All long-reads will be passed to `fastplong` for trimming and quality control.
 If reads should not be modified by `fastplong`, adaptor trimming can be disabled using `-A`, quality filtering can be disabled with `-Q`.
 These arguments can be passed via `<hifi/ont>_fastplot_args` for the different read types.
 
-| Parameter             | Description                                                | Type      |
-| --------------------- | ---------------------------------------------------------- | --------- |
-| `ontreads`            | Path to ONT reads                                          | `string`  |
-| `ont_collect`         | Collect ONT reads from several files?                      | `boolean` |
-| `ont_adapters`        | Adaptors for ONT read-trimming                             | `string`  |
-| `trimmer`             | Tool to use for filtering / trimming long reads            | `string`  |
-| `trimmer_ont_args`    | Additional args to be passed to the trimmer for ONT reads  | `string`  |
-| `hifireads`           | Path to HiFi reads                                         | `string`  |
-| `hifi_adapters`       | Adaptors for HiFi read-trimming                            | `string`  |
-| `trimmer_hifi_args`   | Additional args to be passed to trimmer for HiFi reads     | `string`  |
-| `jellyfish`           | Run jellyfish and genomescope (recommended)                | `boolean` |
-| `jellyfish_k`         | Value of k used during k-mer analysis with jellyfish       | `integer` |
-| `jellyfish_k`         | K-mer table size for jellyfish. Default: 200M              | `string`  |
-| `dump`                | dump jellyfish output                                      | `boolean` |
+| Parameter           | Description                                               | Type      |
+| ------------------- | --------------------------------------------------------- | --------- |
+| `ontreads`          | Path to ONT reads                                         | `string`  |
+| `ont_collect`       | Collect ONT reads from several files?                     | `boolean` |
+| `ont_adapters`      | Adaptors for ONT read-trimming                            | `string`  |
+| `trimmer`           | Tool to use for filtering / trimming long reads           | `string`  |
+| `trimmer_ont_args`  | Additional args to be passed to the trimmer for ONT reads | `string`  |
+| `hifireads`         | Path to HiFi reads                                        | `string`  |
+| `hifi_adapters`     | Adaptors for HiFi read-trimming                           | `string`  |
+| `trimmer_hifi_args` | Additional args to be passed to trimmer for HiFi reads    | `string`  |
+| `jellyfish`         | Run jellyfish and genomescope (recommended)               | `boolean` |
+| `jellyfish_k`       | Value of k used during k-mer analysis with jellyfish      | `integer` |
+| `jellyfish_k`       | K-mer table size for jellyfish. Default: 200M             | `string`  |
+| `dump`              | dump jellyfish output                                     | `boolean` |
 
 ## Short read options
 
