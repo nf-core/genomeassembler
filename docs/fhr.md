@@ -88,8 +88,9 @@ results/individual/fhr/initial_assembly/
 
 Other stages use `polish_pilon`, `polish_medaka`, `polish_dorado`,
 `scaffold_hic`, `scaffold_ragtag`, `scaffold_longstitch` and `scaffold_links`
-when the pipeline retains those outputs. If a phasing integration supplies derived records, they use the derived
-sample directory. Stage IDs follow the existing genomeqc manifest's naming.
+when those outputs remain in the final assembly metadata. If a phasing
+integration supplies derived records, they use the derived sample directory.
+Stage IDs follow the existing genomeqc manifest's naming.
 
 Repeated export records sharing a sample and stage identity are deduplicated. RagTag can produce different results from different upstream scaffold paths, so its export stage is `scaffold_ragtag-<SHA-256 of the assembly path>`. Every distinct RagTag path is exported; repeats of the same path share an export identity. Path digests depend on the input path, not sequence contents.
 Ordinary alphanumeric sample IDs retain their names. IDs containing punctuation
@@ -116,35 +117,18 @@ have been published; run failure does not roll back published files.
 
 ## Verification
 
-Install `tests/fhr/requirements.txt` in an isolated Python environment, then run
-with Nextflow available:
+The standard nf-core CI runs the FHR export tests with nf-test. To run them
+locally with Docker:
 
 ```bash
-python tests/fhr/run.py --nextflow nextflow
-python tests/fhr/run.py --nextflow nextflow --profile docker
+nf-test test tests/fhr/main.nf.test --profile +docker
 ```
 
-The integration harness runs the actual upstream modules on synthetic FASTA
-files. It checks multiple samples/stages, compressed and plain input, CRLF byte
-preservation, metadata quoting, source-sample inheritance, haplotype overrides,
-matching YAML/FASTA checksums, rejection of missing metadata and unknown fields,
-safe encoding of punctuation/traversal-like IDs, duplicate-stage records and
-preservation of earlier polishing stages. It also checks the automatic creation date and that a disabled
-export schedules no tasks. The dedicated CI workflow runs native and Docker
-variants. It does not run the full genome assembly pipeline. Export tasks request
-a 6 GB minimum and, after decompression, at least 12 times the FASTA byte size.
-Memory scales with the retry attempt. This is a conservative allocation that
-can be overridden in the process configuration.
+The tests exercise the export subworkflow with synthetic assemblies. They check
+plain and compressed input, CRLF byte preservation, matching FASTA/YAML
+checksums, deduplication, distinct RagTag paths, source-sample metadata
+inheritance, invalid metadata and disabled export.
 
-## Native converter memory benchmark
-
-`tests/fhr/benchmark.py` measures the four current fair-bioheaders commands on
-synthetic FASTA files, outside Nextflow and containers.
-
-```bash
-python tests/fhr/benchmark.py --sizes-mib 16 64 256 --repeats 3 \
-    --output fhr-memory-benchmark.json
-```
-
-The [October 11 baseline](fhr-memory-benchmark.json) was measured with
-FHR-File-Converter 0.3.0 and describes the previous implementation.
+Export tasks request a 6 GB minimum and, after decompression, at least 12 times
+the FASTA byte size. Memory scales with the retry attempt. Representative
+large-genome validation is still outstanding.

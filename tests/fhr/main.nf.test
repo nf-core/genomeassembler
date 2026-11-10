@@ -1,0 +1,87 @@
+nextflow_workflow {
+    name "Test FHR export"
+    script "tests/fhr/main.nf"
+    workflow "TEST_FHR_EXPORT"
+
+    tag "fhr"
+    tag "fairbioheaders"
+    tag "subworkflows/local/fhr"
+
+    test("publishes verified pairs for distinct retained assemblies") {
+        when {
+            params {
+                outdir = "$outputDir"
+                publish_dir_mode = 'copy'
+            }
+            workflow {
+                """
+                input[0] = 'enabled'
+                """
+            }
+        }
+
+        then {
+            assert workflow.success
+            assert workflow.out.sequence.size() == 4
+            assert workflow.out.yaml.size() == 4
+            def stages = workflow.out.sequence.collect { meta, fasta -> meta.stage }
+            assert stages.containsAll(['initial_assembly', 'polish_dorado'])
+            assert stages.count { it.startsWith('scaffold_ragtag-') } == 2
+            assert stages.toSet().size() == 4
+
+            def sequenceBodies = []
+            workflow.out.sequence.each { meta, fasta ->
+                def folder = new File(outputDir.toString(), "alpha-hap1/fhr/${meta.stage}")
+                def sequence = new File(folder, "${meta.id}.fhr.fasta").getText('UTF-8')
+                def metadata = new File(folder, "${meta.id}.fhr.yaml").getText('UTF-8')
+                assert metadata.contains('genome: Synthetic assembly')
+                def checksum = java.security.MessageDigest.getInstance('SHA-512/256')
+                    .digest(sequence.replaceFirst(/(?m)^;~\s*checksum:[^\r\n]*\r?\n/, '').getBytes('UTF-8'))
+                    .encodeBase64().toString()
+                assert metadata.contains("checksum: ${checksum}")
+                sequenceBodies << sequence.replaceAll(/(?m)^;~[^\r\n]*\r?\n/, '')
+            }
+            assert sequenceBodies.count { it == '>contig1\r\nACGTACGT\r\n' } == 3
+            assert sequenceBodies.count { it == '>scaffold1\nTTTTACGT\n' } == 1
+        }
+    }
+
+    test("rejects invalid metadata before publication") {
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+            workflow {
+                """
+                input[0] = 'invalid'
+                """
+            }
+        }
+
+        then {
+            assert workflow.failed
+            assert (workflow.stdout + workflow.stderr).any { it.contains('assemblyAuthor') }
+            assert !new File(outputDir.toString(), 'alpha-hap1/fhr').exists()
+        }
+    }
+
+    test("runs no tasks when export is disabled") {
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+            workflow {
+                """
+                input[0] = 'disabled'
+                """
+            }
+        }
+
+        then {
+            assert workflow.success
+            assert workflow.out.sequence.isEmpty()
+            assert workflow.out.yaml.isEmpty()
+            assert workflow.trace.succeeded().isEmpty()
+        }
+    }
+}
