@@ -1,7 +1,7 @@
 {
     "defaults": {
-        "schema": "https://raw.githubusercontent.com/FAIR-bioHeaders/FHR-Specification/v0.3.0/fhr.json",
-        "schemaVersion": 1,
+        "schema": "https://w3id.org/fair-bioheaders/fhr/v0.4.0",
+        "schemaVersion": "2.0",
         "version": "REPLACE_WITH_ASSEMBLY_VERSION",
         "metadataAuthor": [{ "name": "REPLACE_WITH_METADATA_AUTHOR" }],
         "assemblyAuthor": [{ "name": "REPLACE_WITH_ASSEMBLY_AUTHOR" }],

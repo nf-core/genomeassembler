@@ -157,7 +157,6 @@ workflow GENOMEASSEMBLER {
 
     def ch_collated_versions = softwareVersionsToYAML(topic_versions.versions_file)
         .mix(topic_versions_string)
-        .mix(FHR_EXPORT.out.versions.map { meta, versions -> "FHR_EXPORT:\n  ${versions.text.trim()}" }.distinct())
 
     ch_collated_versions
         .collectFile(

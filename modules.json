@@ -21,6 +21,26 @@
                         "git_sha": "62ce917fd775aaef732eb82019de069c765adfd3",
                         "installed_by": ["modules"]
                     },
+                    "fairbioheaders/combine": {
+                        "branch": "master",
+                        "git_sha": "8faff34023b16ecdc41b02bac42989834075e3f1",
+                        "installed_by": ["modules"]
+                    },
+                    "fairbioheaders/convert": {
+                        "branch": "master",
+                        "git_sha": "e33b299463ce115434332f606375cbc912ca865a",
+                        "installed_by": ["modules"]
+                    },
+                    "fairbioheaders/validate": {
+                        "branch": "master",
+                        "git_sha": "86e852ef429e021d16f7279aaddb9b81eb067f8a",
+                        "installed_by": ["modules"]
+                    },
+                    "fairbioheaders/verify": {
+                        "branch": "master",
+                        "git_sha": "83459261f9f5a7ed00efcf72e566505e4e534c71",
+                        "installed_by": ["modules"]
+                    },
                     "fastp": {
                         "branch": "master",
                         "git_sha": "826a9b28d6da61097d60e1923bb8a2e51de3c5b4",

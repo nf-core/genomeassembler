@@ -6,6 +6,7 @@ on:
     paths:
       - ".github/workflows/fhr-export.yml"
       - "modules/local/fhr/**"
+      - "modules/nf-core/fairbioheaders/**"
       - "subworkflows/local/fhr/**"
       - "subworkflows/local/polishing/**"
       - "tests/fhr/**"
@@ -38,9 +39,6 @@ jobs:
           python-version: "3.13"
       - name: Install pinned converter
         run: python -m pip install -r tests/fhr/requirements.txt
-      - name: Build FHR image
-        if: matrix.runtime == 'docker'
-        run: docker build -t docker.io/library/fhr-nextflow:0.1.0 modules/local/fhr
       - name: Verify native export
         if: matrix.runtime == 'native'
         run: python tests/fhr/run.py

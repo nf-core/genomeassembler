@@ -26,8 +26,8 @@ if min(args.sizes_mib) <= 0 or args.repeats <= 0 or args.contigs <= 0:
     parser.error('sizes, repeats and contigs must be positive')
 if sys.platform not in ('darwin', 'linux'):
     parser.error('RSS measurement supports macOS and Linux')
-if version('fhr') != '0.3.0':
-    parser.error('benchmark requires FHR-File-Converter 0.3.0')
+if version('fair-bioheaders') != '0.9.0':
+    parser.error('benchmark requires fair-bioheaders 0.9.0')
 
 # A fresh wrapper per command prevents cumulative RUSAGE_CHILDREN maxima from
 # contaminating later measurements. ru_maxrss is bytes on macOS, KiB on Linux.
@@ -56,17 +56,16 @@ for size in args.sizes_mib:
                         handle.write(chunk)
                         remaining -= len(chunk)
                     handle.write(b'\n')
-            metadata = dict(schema='https://raw.githubusercontent.com/FAIR-bioHeaders/FHR-Specification/v0.3.0/fhr.json', schemaVersion=1, version='1.0', genome='Synthetic benchmark',
+            metadata = dict(schema='https://w3id.org/fair-bioheaders/fhr/v0.4.0', schemaVersion='2.0', version='1.0', genome='Synthetic benchmark',
                             taxon=dict(name='Synthetic taxon', uri='https://identifiers.org/taxonomy:9606'),
                             metadataAuthor=[dict(name='Benchmark')], assemblyAuthor=[dict(name='Synthetic')],
                             masking='not-masked', dateCreated=datetime.now(ZoneInfo('America/Detroit')).date().isoformat())
             (work / 'metadata.json').write_text(json.dumps(metadata))
             commands = [
-                ('combine', ['fhr-fasta-combine', 'metadata.json', 'input.fa', '-o', 'annotated.fasta']),
-                ('validate_fasta', ['fhr-fasta-validate', 'annotated.fasta']),
-                ('extract_json', ['fhr-convert', 'annotated.fasta', 'extracted.json']),
-                ('convert_yaml', ['fhr-convert', 'extracted.json', 'metadata.yaml']),
-                ('validate_yaml', ['fhr-validate', 'metadata.yaml']),
+                ('combine', ['bioheaders', 'combine', 'metadata.json', 'input.fa', '--output', 'annotated.fasta']),
+                ('verify', ['bioheaders', 'verify', 'annotated.fasta']),
+                ('convert', ['bioheaders', 'convert', '--to', 'yaml', 'annotated.fasta', 'metadata.yaml']),
+                ('validate', ['bioheaders', 'validate', 'metadata.yaml']),
             ]
             for step, command in commands:
                 executable = shutil.which(command[0])
@@ -78,7 +77,7 @@ for size in args.sizes_mib:
                               contigs=args.contigs, repeat=repeat, step=step, **json.loads(measured.stdout))
                 results.append(record)
                 print(f'{size} MiB repeat {repeat} {step}: {record["peak_rss_bytes"]/1024**2:.1f} MiB RSS', flush=True)
-report = dict(converter_version=version('fhr'), python_version=platform.python_version(),
+report = dict(converter_version=version('fair-bioheaders'), python_version=platform.python_version(),
               system=platform.system(), machine=platform.machine(),
               measured_at=datetime.now(ZoneInfo('America/Detroit')).isoformat(), results=results)
 args.output.write_text(json.dumps(report, indent=2) + '\n')

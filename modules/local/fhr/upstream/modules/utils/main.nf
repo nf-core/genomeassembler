@@ -14,21 +14,7 @@ def quote(Object value) {
     return "'" + value.toString().replace("'", "'\"'\"'") + "'"
 }
 
-def fhrFormat(Object value, List allowed) {
-    if (!(value in allowed))
-        throw new IllegalArgumentException("Unsupported format '${value}'; expected ${allowed.join(', ')}")
-    return value.toString()
-}
-
 def metadataJson(Map fields) {
     // Serialization only: the converter owns all schema and format validation.
     return groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson(fields)) + '\n'
-}
-
-def versionCheck() {
-    return 'test "$(fhr-convert --version)" = "0.3.0"'
-}
-
-def versionReport() {
-    return 'printf "fhr: %s\n" "$(fhr-convert --version)" > versions.yml'
 }

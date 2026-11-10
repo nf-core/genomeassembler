@@ -5,8 +5,6 @@
 
 include { metadataJson; sampleId } from '../utils/main'
 
-include { FHR_VALIDATE as VALIDATE_CREATED_JSON } from '../validate/main'
-
 process FHR_WRITE_JSON {
     tag "${meta.id}"
 
@@ -21,18 +19,4 @@ process FHR_WRITE_JSON {
     if (!(fields instanceof Map))
         throw new IllegalArgumentException('FHR fields must be a map')
     task.workDir.resolve("${id}.fhr.json").text = metadataJson(fields)
-}
-
-workflow FHR_CREATE_JSON {
-    take:
-    records // tuple(meta, fields): all required and optional FHR fields
-
-    main:
-    FHR_WRITE_JSON(records)
-    VALIDATE_CREATED_JSON(FHR_WRITE_JSON.out.json.map { meta, json -> tuple(meta, json, 'metadata') })
-
-    emit:
-    json = VALIDATE_CREATED_JSON.out.validated
-    reports = VALIDATE_CREATED_JSON.out.reports
-    versions = VALIDATE_CREATED_JSON.out.versions
 }

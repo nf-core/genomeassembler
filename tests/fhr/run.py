@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Exercise the real FHR-Nextflow composition without running genome assembly."""
+"""Exercise the nf-core fairbioheaders composition without running genome assembly."""
 import argparse
 import csv
 import shutil
@@ -11,19 +11,23 @@ import re
 from pathlib import Path
 import subprocess
 import tempfile
+
+import yaml
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--nextflow', default='nextflow')
-parser.add_argument('--profile', choices=['docker'], help='Run FHR command tasks in the bundled container')
+parser.add_argument('--profile', choices=['docker'], help='Run FHR command tasks in the published module container')
 args = parser.parse_args()
 root = Path(__file__).resolve().parents[2]
 # Keep this isolated harness aligned with production container resolution.
 pipeline_config = (root / 'nextflow.config').read_text()
-fhr_container = re.search(r"(?m)^\s*fhr_container\s*=\s*'([^']+)'", pipeline_config).group(1)
-assert json.loads((root / 'nextflow_schema.json').read_text())['$defs']['input_output_options']['properties']['fhr_container']['default'] == fhr_container
 docker_registry = re.search(r"(?m)^docker\.registry\s*=\s*'([^']+)'", pipeline_config).group(1)
+
+
+def read_metadata(path):
+    return yaml.safe_load(path.read_text())
 
 
 def run(directory, config, *, success=True, sample_id=None, disabled=False):
@@ -63,14 +67,14 @@ with tempfile.TemporaryDirectory(prefix='genomeassembler-fhr-') as temporary:
 nextflow.enable.dsl = 2
 trace.overwrite = true
 params.sample_id = null
+params.fhr_container = null
 params.outdir = '@WORK@/results'
 params.publish_dir_mode = 'copy'
-params.fhr_container = '@CONTAINER@'
 docker.registry = '@REGISTRY@'
 trace.fields = 'task_id,name,status,container'
 includeConfig '@ROOT@/conf/modules/fhr.config'
 profiles { docker { docker.enabled = true } }
-'''.replace('@ROOT@', str(root)).replace('@WORK@', str(work)).replace('@CONTAINER@', fhr_container).replace('@REGISTRY@', docker_registry))
+'''.replace('@ROOT@', str(root)).replace('@WORK@', str(work)).replace('@REGISTRY@', docker_registry))
     (work / 'main.nf').write_text('''
 include { FHR_EXPORT; loadFhrConfig; fhrRecord; assemblyOutputs; fhrSampleId } from '@ROOT@/subworkflows/local/fhr/main'
 include { addPolishedAssembly } from '@ROOT@/subworkflows/local/polishing/utils'
@@ -109,8 +113,8 @@ workflow {
 '''.replace('@ROOT@', str(root)).replace('@WORK@', str(work)))
     config = {
         'defaults': {
-            'schema': 'https://raw.githubusercontent.com/FAIR-bioHeaders/FHR-Specification/v0.3.0/fhr.json',
-            'schemaVersion': 1, 'version': '1.0',
+            'schema': 'https://w3id.org/fair-bioheaders/fhr/v0.4.0',
+            'schemaVersion': '2.0', 'version': '1.0',
             'metadataAuthor': [{'name': 'Synthetic author'}],
             'assemblyAuthor': [{'name': 'Synthetic assembler'}],
             'masking': 'not-masked',
@@ -131,31 +135,32 @@ workflow {
     assert {path.name.removesuffix('.fhr.yaml') for path in yaml_files if 'scaffold_ragtag-' not in path.name} == expected
     ragtag_files = [p for p in yaml_files if 'scaffold_ragtag-' in p.name]
     assert len(ragtag_files) == 2
-    from fhr.cli import strip_header
+    from bioheaders.cli import strip_header
     assert {strip_header(p.with_suffix('.fasta').read_bytes(), 'fasta') for p in ragtag_files} == {body, alternate_body}
     with (work / 'trace.txt').open() as trace:
         tasks = list(csv.DictReader(trace, delimiter='\t'))
     assert sum('FHR_PREPARE_SEQUENCE' in task['name'] for task in tasks) == 8
-    if args.profile == 'docker':
-        assert all(task['container'] == ('-' if 'FHR_WRITE_JSON' in task['name'] else fhr_container)
-                   for task in tasks), tasks
-    from fhr.cli import checksum, read_metadata, strip_header
+    for module in ('COMBINE', 'VERIFY', 'CONVERT', 'VALIDATE'):
+        module_tasks = [task for task in tasks if f'FAIRBIOHEADERS_{module}' in task['name']]
+        assert len(module_tasks) == 8, module_tasks
+        if args.profile == 'docker':
+            assert all('fair-bioheaders:0.9.0' in task['container'] for task in module_tasks), module_tasks
+    from bioheaders.cli import checksum
     for yaml_path in yaml_files:
         fasta = yaml_path.with_suffix('.fasta')
         assert fasta.is_file(), fasta
         assert strip_header(fasta.read_bytes(), 'fasta') in ({body, alternate_body} if 'scaffold_ragtag-' in fasta.name else {body})
         data = read_metadata(yaml_path)
-        data.fhr_validate()
-        assert data.dateCreated in {date_before, date_after}
-        assert data.checksum == checksum(fasta.read_bytes(), 'fasta')
-        assert data.genome == config['samples']['alpha' if yaml_path.name.startswith('alpha') else 'beta']['genome']
-        result = subprocess.run(['fhr-fasta-validate', str(fasta)], capture_output=True, text=True)
+        assert data['dateCreated'] in {date_before, date_after}
+        assert data['checksum'] == checksum(fasta.read_bytes(), 'fasta')
+        assert data['genome'] == config['samples']['alpha' if yaml_path.name.startswith('alpha') else 'beta']['genome']
+        result = subprocess.run(['bioheaders', 'verify', str(fasta)], capture_output=True, text=True)
         assert result.returncode == 0, result.stderr
     print('PASS: eight unique YAML/FASTA pairs including distinct RagTag paths and all retained polish stages, compressed/plain input, CRLF preservation, per-sample metadata, haplotype inheritance and real checksums')
     # Derived sample overrides replace whole top-level fields without altering defaults.
     config['samples']['alpha-hap1'] = {'genome': 'Haplotype override', 'taxon': config['samples']['alpha']['taxon']}
     run(work, config)
-    assert read_metadata(yaml_files[0]).genome == 'Haplotype override'
+    assert read_metadata(yaml_files[0])['genome'] == 'Haplotype override'
     print('PASS: explicit haplotype override')
     del config['samples']['beta']
     assert 'missing metadata' in run(work, config, success=False)
@@ -176,7 +181,7 @@ workflow {
         outputs = list((work / 'results' / encoded).rglob('*.fhr.yaml'))
         assert len(outputs) == 7, outputs
         assert all(path.name.startswith(encoded + '-') for path in outputs)
-        assert all(read_metadata(path).genome == sample for path in outputs)
+        assert all(read_metadata(path)['genome'] == sample for path in outputs)
     print('PASS: punctuation, traversal-like IDs, encoding-prefix collisions and long IDs use bounded filenames')
     run(work, config, disabled=True)
     assert len((work / 'trace.txt').read_text().splitlines()) == 1

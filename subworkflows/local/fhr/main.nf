@@ -2,9 +2,10 @@ include { sampleId } from '../../../modules/local/fhr/upstream/modules/utils/mai
 include { FHR_FINALIZE } from '../../../modules/local/fhr/finalize/main'
 include { FHR_PREPARE_SEQUENCE } from '../../../modules/local/fhr/prepare_sequence/main'
 include { FHR_WRITE_JSON } from '../../../modules/local/fhr/upstream/modules/create_json/main'
-include { FHR_ATTACH } from '../../../modules/local/fhr/upstream/subworkflows/attach/main'
-include { FHR_CONVERT as FHR_YAML } from '../../../modules/local/fhr/upstream/modules/convert/main'
-include { FHR_VALIDATE as FHR_CHECK_YAML } from '../../../modules/local/fhr/upstream/modules/validate/main'
+include { FAIRBIOHEADERS_COMBINE } from '../../../modules/nf-core/fairbioheaders/combine/main'
+include { FAIRBIOHEADERS_VERIFY } from '../../../modules/nf-core/fairbioheaders/verify/main'
+include { FAIRBIOHEADERS_CONVERT } from '../../../modules/nf-core/fairbioheaders/convert/main'
+include { FAIRBIOHEADERS_VALIDATE } from '../../../modules/nf-core/fairbioheaders/validate/main'
 
 workflow FHR_EXPORT {
     take:
@@ -23,25 +24,34 @@ workflow FHR_EXPORT {
     paired = FHR_WRITE_JSON.out.json
         .map { meta, json -> tuple(meta.id, meta, json) }
         .join(sequences.map { meta, fields, fasta -> tuple(meta.id, fasta) }, failOnDuplicate: true, failOnMismatch: true)
-        .map { id, meta, json, fasta -> tuple(meta, json, fasta, 'fasta') }
-    FHR_ATTACH(paired)
-    FHR_YAML(FHR_ATTACH.out.json.map { meta, json -> tuple(meta, json, 'yaml') })
-    FHR_CHECK_YAML(FHR_YAML.out.converted.map { meta, yaml -> tuple(meta, yaml, 'metadata') })
+        .map { id, meta, json, fasta -> tuple(meta, json, fasta) }
+    FAIRBIOHEADERS_COMBINE(paired)
+    FAIRBIOHEADERS_VERIFY(FAIRBIOHEADERS_COMBINE.out.sequence)
 
-    validated_pairs = FHR_ATTACH.out.sequence
+    // A report is emitted only when verification succeeds.
+    verified = FAIRBIOHEADERS_COMBINE.out.sequence
         .map { meta, fasta -> tuple(meta.id, meta, fasta) }
-        .join(FHR_CHECK_YAML.out.validated.map { meta, yaml -> tuple(meta.id, yaml) }, failOnDuplicate: true, failOnMismatch: true)
+        .join(FAIRBIOHEADERS_VERIFY.out.report.map { meta, report -> tuple(meta.id) }, failOnDuplicate: true, failOnMismatch: true)
+        .map { id, meta, fasta -> tuple(meta, fasta) }
+    FAIRBIOHEADERS_CONVERT(verified, 'yaml')
+    FAIRBIOHEADERS_VALIDATE(FAIRBIOHEADERS_CONVERT.out.metadata)
+
+    checked_yaml = FAIRBIOHEADERS_CONVERT.out.metadata
+        .map { meta, yaml -> tuple(meta.id, yaml) }
+        .join(FAIRBIOHEADERS_VALIDATE.out.report.map { meta, report -> tuple(meta.id) }, failOnDuplicate: true, failOnMismatch: true)
+    validated_pairs = verified
+        .map { meta, fasta -> tuple(meta.id, meta, fasta) }
+        .join(checked_yaml, failOnDuplicate: true, failOnMismatch: true)
         .map { id, meta, fasta, yaml -> tuple(meta, fasta, yaml) }
     FHR_FINALIZE(validated_pairs)
 
     emit:
     sequence = FHR_FINALIZE.out.sequence
     yaml = FHR_FINALIZE.out.yaml
-    reports = FHR_ATTACH.out.reports.mix(FHR_CHECK_YAML.out.reports)
-    versions = FHR_ATTACH.out.versions.mix(FHR_YAML.out.versions, FHR_CHECK_YAML.out.versions)
+    reports = FAIRBIOHEADERS_VERIFY.out.report.mix(FAIRBIOHEADERS_VALIDATE.out.report)
 }
 
-// Parse only the input envelope; schema validation belongs to FHR-File-Converter.
+// Parse only the input envelope; schema validation belongs to fair-bioheaders.
 def loadFhrConfig(path) {
     def config = new groovy.json.JsonSlurper().parseText(file(path, checkIfExists: true).text)
     if (!(config instanceof Map) || !(config.defaults instanceof Map) || !(config.samples instanceof Map)) {
