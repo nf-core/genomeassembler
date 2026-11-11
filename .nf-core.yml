@@ -21,7 +21,7 @@ lint:
     - tests/supplied_assembly.nf.test
     - tests/supplied_assembly_initialization.nf.test
     - tests/qc_reads.nf.test
-nf_core_version: 4.2.1
+nf_core_version: 4.2.2
 repository_type: pipeline
 template:
   author: Niklas Schandry
