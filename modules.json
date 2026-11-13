@@ -28,17 +28,17 @@
                     },
                     "fairbioheaders/convert": {
                         "branch": "master",
-                        "git_sha": "e33b299463ce115434332f606375cbc912ca865a",
+                        "git_sha": "4dc3bc54779d6caf3a47d49f37811e651fa2700a",
                         "installed_by": ["modules"]
                     },
                     "fairbioheaders/validate": {
                         "branch": "master",
-                        "git_sha": "86e852ef429e021d16f7279aaddb9b81eb067f8a",
+                        "git_sha": "8faff34023b16ecdc41b02bac42989834075e3f1",
                         "installed_by": ["modules"]
                     },
                     "fairbioheaders/verify": {
                         "branch": "master",
-                        "git_sha": "83459261f9f5a7ed00efcf72e566505e4e534c71",
+                        "git_sha": "6fb4f8f1f3f70a34a1f0efdc84729c5dacbc33e5",
                         "installed_by": ["modules"]
                     },
                     "fastp": {

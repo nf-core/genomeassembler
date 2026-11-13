@@ -7,8 +7,9 @@ parameter, no FHR tasks run.
 
 Export uses the nf-core `fairbioheaders/combine`, `verify`, `convert` and
 `validate` modules with fair-bioheaders **0.9.0** and the FHR **2.0** contract.
-The verify and convert modules are pinned to the heads of nf-core/modules
-#13635 and #13636 while those PRs are open.
+All four modules are pinned to merged revisions from nf-core/modules `master`.
+The finalization step supplies the published filenames independently of the
+convert module’s intermediate output prefix.
 Update legacy schema-1 configuration to the schema URL and version below.
 
 ## Input config
