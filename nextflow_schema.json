@@ -29,6 +29,17 @@
                     "description": "The output directory where the results will be saved. You have to use absolute paths to storage on Cloud infrastructure.",
                     "fa_icon": "fas fa-folder-open"
                 },
+                "fhr_config": {
+                    "type": "string",
+                    "format": "file-path",
+                    "exists": true,
+                    "mimetype": "application/json",
+                    "description": "FHR metadata config JSON with defaults and per-sample overrides. Enables validated YAML and annotated FASTA exports."
+                },
+                "fhr_container": {
+                    "type": "string",
+                    "description": "Optional override for the FHR export container. Supply an accessible image containing fair-bioheaders 0.9.0."
+                },
                 "email": {
                     "type": "string",
                     "description": "Email address for completion summary.",
