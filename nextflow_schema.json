@@ -198,8 +198,9 @@
                     "enum": ["ont_on_hifi", "hifi_on_ont"]
                 },
                 "genome_size": {
-                    "type": "string",
-                    "description": "Expected genome size, optional."
+                    "type": ["integer", "string"],
+                    "description": "Expected genome size, optional.",
+                    "default": null
                 },
                 "flye_mode": {
                     "type": "string",
