@@ -42,6 +42,7 @@ nextflow_pipeline {
             params {
                 outdir = "$outputDir"
                 quast = true
+                genome_size = "2000000"
             }
         }
 

@@ -162,6 +162,9 @@ workflow PIPELINE_INITIALISATION {
     }
     ch_samplesheet.dump(tag: "PARSED INPUTS:")
 
+    // custom validation of parameters
+    validateParameters()
+
     emit:
     samplesheet = ch_samplesheet
     versions = ch_versions
@@ -214,6 +217,21 @@ workflow PIPELINE_COMPLETION {
     FUNCTIONS
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
+
+//
+// Validate parameters
+//
+def validateParameters() {
+    // if genome_size is not null, try casting to int
+    if ( params.genome_size != null ) {
+        try {
+            def genome_size = params.genome_size.toInteger()
+        }
+        catch (NumberFormatException e) {
+            error("ERROR: Could not cast the `genome_size` parameter to integer.")
+        }
+    }
+}
 
 //
 // Validate channels from input samplesheet
