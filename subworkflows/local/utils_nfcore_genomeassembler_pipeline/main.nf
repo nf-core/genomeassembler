@@ -220,7 +220,7 @@ workflow PIPELINE_COMPLETION {
 
 //
 // Validate parameters
-// 
+//
 def validateParameters() {
     // if genome_size is not null, try casting to int
     if ( params.genome_size != null ) {
